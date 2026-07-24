@@ -175,7 +175,7 @@ export default function DfyPage() {
             <PageHeader
                 eyebrow="PREMIUM"
                 title="Done-For-You Vault"
-                subtitle="50 proven search angles and keywords — pick one, add your link, get ready-made replies."
+                subtitle="5 proven search angles and keywords — pick one, add your link, get ready-made replies."
             />
 
             <section className="glass-card p-0 overflow-hidden">
