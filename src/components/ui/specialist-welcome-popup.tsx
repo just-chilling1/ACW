@@ -132,6 +132,28 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
         }
     }, [forceOpen]);
 
+    // Fire-and-forget click tracking; must never delay or block the tel: call.
+    const trackCallClick = useCallback(() => {
+        try {
+            const payload = JSON.stringify({ event: "cta_call_click" });
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(
+                    "/api/track/specialist-popup",
+                    new Blob([payload], { type: "application/json" })
+                );
+            } else {
+                fetch("/api/track/specialist-popup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: payload,
+                    keepalive: true,
+                }).catch(() => {});
+            }
+        } catch {
+            // ignore — tracking is best-effort
+        }
+    }, []);
+
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
             if (e.key === "Escape") dismiss();
@@ -372,6 +394,7 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
 
                                     <a
                                         href={PHONE_TEL}
+                                        onClick={trackCallClick}
                                         className="group relative mt-3 flex w-full min-h-[58px] items-center justify-center gap-2.5 overflow-hidden rounded-2xl bg-emerald-600 px-5 text-white transition-all hover:bg-emerald-700 active:scale-[0.985] touch-manipulation select-none motion-safe:animate-[cta-pulse-green_2.2s_ease-in-out_infinite] shadow-[0_8px_24px_rgba(5,150,105,0.35)] sm:mt-0 sm:w-auto sm:min-w-[19rem] sm:flex-1 sm:min-h-[62px]"
                                     >
                                         <span
