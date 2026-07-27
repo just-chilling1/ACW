@@ -69,7 +69,9 @@ export async function proxy(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/forgot-password') || pathname.startsWith('/reset-password') || pathname.startsWith('/auth/callback')
-    const isPublicRoute = pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname === '/favicon.ico'
+    // /embed/* is public so the popup can be iframed on external sites;
+    // it exposes nothing beyond the geo/hours-gated popup itself.
+    const isPublicRoute = pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname === '/favicon.ico' || pathname === '/embed' || pathname.startsWith('/embed/')
     const isOnboardingRoute = pathname === '/onboarding' || pathname.startsWith('/onboarding/')
 
     if (pathname.startsWith('/api')) {

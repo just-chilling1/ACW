@@ -34,9 +34,14 @@ function useIsClient() {
 type SpecialistWelcomePopupProps = {
     /** Dev/preview only — skip geo/hours fetch and open immediately. */
     forceOpen?: boolean;
+    /** Notified whenever the popup becomes visible/hidden (used by the embed). */
+    onOpenChange?: (open: boolean) => void;
 };
 
-export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomePopupProps) {
+export function SpecialistWelcomePopup({
+    forceOpen = false,
+    onOpenChange,
+}: SpecialistWelcomePopupProps) {
     const titleId = useId();
     const isClient = useIsClient();
     const reduceMotion = useReducedMotion();
@@ -45,6 +50,10 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
     const [remainingMs, setRemainingMs] = useState(COUNTDOWN_MS);
     const [windowClosesInMs, setWindowClosesInMs] = useState<number | null>(null);
     const open = !dismissed && (forceOpen || eligibleOpen);
+
+    useEffect(() => {
+        onOpenChange?.(open);
+    }, [open, onOpenChange]);
 
     useEffect(() => {
         if (!isClient || forceOpen) return;
