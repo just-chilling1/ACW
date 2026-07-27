@@ -186,7 +186,7 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby={titleId}
-                        className="relative z-10 w-full max-w-[24.5rem] p-[1px] max-sm:rounded-t-[1.5rem] sm:rounded-[1.5rem] bg-gradient-to-b from-accent/50 via-white/10 to-transparent shadow-[0_-16px_70px_rgba(0,0,0,0.8)]"
+                        className="relative z-10 w-full max-w-[24.5rem] sm:max-w-[34rem] p-[1px] max-sm:rounded-t-[1.5rem] sm:rounded-[1.5rem] bg-gradient-to-b from-accent/50 via-white/10 to-transparent shadow-[0_-16px_70px_rgba(0,0,0,0.8)]"
                         onClick={(e) => e.stopPropagation()}
                         initial={
                             reduceMotion ? false : { opacity: 0, y: 36, scale: 0.97 }
@@ -215,7 +215,7 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
 
                             {/* Content — sized to fit a phone screen without scrolling */}
                             <div
-                                className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 pb-3 pt-[max(1.35rem,env(safe-area-inset-top))] sm:px-7 sm:pt-6"
+                                className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 pb-1 pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-8 sm:pt-7"
                                 style={{ WebkitOverflowScrolling: "touch" }}
                             >
                                 {/* Title */}
@@ -224,7 +224,7 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                 </p>
                                 <h2
                                     id={titleId}
-                                    className="brand-font mt-1 text-center text-[1.9rem] font-black leading-none tracking-tight"
+                                    className="brand-font mt-1.5 text-center text-[1.9rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
                                 >
                                     <span className="bg-gradient-to-b from-[#fde047] via-accent to-[#b8860b] bg-clip-text text-transparent">
                                         CashTap AI
@@ -232,7 +232,7 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                 </h2>
 
                                 {/* Intro copy */}
-                                <div className="mx-auto mt-3.5 max-w-[19.5rem] space-y-1 text-center text-[12.5px] leading-[1.55] text-text-secondary">
+                                <div className="mx-auto mt-5 max-w-[21rem] space-y-1.5 text-center text-[12.5px] leading-[1.6] text-text-secondary">
                                     <p>
                                         As part of our commitment to{" "}
                                         <span className="font-semibold text-text-primary">
@@ -245,72 +245,78 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                         learning curve.
                                     </p>
                                 </div>
-                                <p className="mx-auto mt-2.5 max-w-[19rem] text-center text-[14px] font-semibold leading-snug text-text-primary">
+                                <p className="mx-auto mt-3 max-w-[19rem] text-center text-[14.5px] font-semibold leading-snug text-text-primary">
                                     You have been assigned a dedicated
                                     <br />
                                     Start-Up Specialist.
                                 </p>
 
-                                {/* Who will help you */}
-                                <div className="mt-4">
-                                    <SectionLabel>Who will help you</SectionLabel>
-                                    <ul className="mx-auto mt-2.5 max-w-[19.5rem] space-y-1.5">
-                                        {BENEFITS.map((item) => (
-                                            <li
-                                                key={item}
-                                                className="flex items-start gap-2.5 text-[13px] leading-snug text-text-primary/90"
-                                            >
-                                                <span className="mt-[3px] flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-accent/15">
-                                                    <Check
-                                                        size={9}
-                                                        strokeWidth={3.5}
-                                                        className="text-accent"
-                                                    />
-                                                </span>
-                                                <span>{item}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                {/* Two columns on desktop, stacked on mobile */}
+                                <div className="mt-6 grid gap-6 sm:grid-cols-[1.15fr_auto_1fr] sm:items-start sm:gap-6">
+                                    <div>
+                                        <SectionLabel>
+                                            Who will help you
+                                        </SectionLabel>
+                                        <ul className="mx-auto mt-3 max-w-[19.5rem] space-y-2 sm:mx-0 sm:max-w-none">
+                                            {BENEFITS.map((item) => (
+                                                <li
+                                                    key={item}
+                                                    className="flex items-start gap-2.5 text-[13px] leading-snug text-text-primary/90"
+                                                >
+                                                    <span className="mt-[3px] flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-accent/15">
+                                                        <Check
+                                                            size={9}
+                                                            strokeWidth={3.5}
+                                                            className="text-accent"
+                                                        />
+                                                    </span>
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    <div
+                                        aria-hidden
+                                        className="hidden w-px self-stretch bg-gradient-to-b from-transparent via-white/12 to-transparent sm:block"
+                                    />
+
+                                    <div>
+                                        <SectionLabel>Plus</SectionLabel>
+                                        <p className="mx-auto mt-3 max-w-[19.5rem] text-center text-[13.5px] font-semibold leading-relaxed text-text-primary sm:mx-0 sm:max-w-none sm:text-left">
+                                            He will unlock our secret vault bonuses
+                                            for you for{" "}
+                                            <span className="text-accent">FREE</span>
+                                        </p>
+                                        <p className="mt-1.5 text-center text-[12px] leading-relaxed text-text-muted sm:text-left">
+                                            Worth over{" "}
+                                            <span className="brand-font font-bold tabular-nums text-text-primary">
+                                                $11,385.32
+                                            </span>{" "}
+                                            in retail value
+                                        </p>
+                                    </div>
                                 </div>
 
-                                {/* PLUS */}
-                                <div className="mt-4">
-                                    <SectionLabel>Plus</SectionLabel>
-                                    <p className="mx-auto mt-2.5 max-w-[19.5rem] text-center text-[13.5px] font-semibold leading-snug text-text-primary">
-                                        He will unlock our secret vault bonuses for
-                                        you for{" "}
-                                        <span className="text-accent">FREE</span>
-                                    </p>
-                                    <p className="mt-1 text-center text-[12px] text-text-muted">
-                                        Worth over{" "}
-                                        <span className="brand-font font-bold tabular-nums text-text-primary">
-                                            $11,385.32
-                                        </span>{" "}
-                                        in retail value
-                                    </p>
-                                </div>
-
-                                {/* Expiry note + countdown */}
-                                <p className="mx-auto mt-4 max-w-[20rem] text-center text-[11px] leading-[1.5] text-text-muted">
+                                {/* Expiry note */}
+                                <p className="mx-auto mt-6 max-w-[21rem] text-center text-[11px] leading-[1.6] text-text-muted sm:max-w-none">
                                     (Your temporary code expires when this page
                                     closes. Call within the next 10 minutes to secure
                                     your bonuses!)
                                 </p>
-                                <div className="mt-2 flex justify-center">
-                                    <div className="flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent/[0.06] px-3.5 py-1.5">
-                                        <span className="relative flex h-1.5 w-1.5">
-                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
-                                            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-                                        </span>
-                                        <span className="brand-font text-[15px] font-black tabular-nums tracking-[0.08em] text-accent">
-                                            {mm}:{ss}
-                                        </span>
-                                    </div>
-                                </div>
                             </div>
 
-                            {/* CTA — seamless dock */}
-                            <div className="relative z-10 shrink-0 px-5 pt-2 pb-[max(1.1rem,env(safe-area-inset-bottom))] sm:px-6">
+                            {/* CTA dock with timer strip */}
+                            <div className="relative z-10 shrink-0 px-6 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-8">
+                                <div className="mb-3 flex items-center justify-between border-t border-white/[0.07] pt-3">
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-text-muted">
+                                        Your code expires in
+                                    </span>
+                                    <span className="brand-font text-[1.05rem] font-black tabular-nums tracking-[0.06em] text-accent">
+                                        {mm}:{ss}
+                                    </span>
+                                </div>
+
                                 <a
                                     href={PHONE_TEL}
                                     className="group relative flex w-full min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-2xl bg-gradient-to-b from-[#f5c211] to-[#d4a406] px-5 text-black shadow-[0_10px_28px_rgba(234,179,8,0.3),inset_0_1px_0_rgba(255,255,255,0.35)] transition-all hover:brightness-105 active:scale-[0.985] touch-manipulation select-none"
@@ -324,7 +330,7 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                         Call Now: {PHONE_DISPLAY}
                                     </span>
                                 </a>
-                                <p className="mt-2 text-center text-[11px] leading-snug text-text-muted">
+                                <p className="mt-2.5 text-center text-[11px] leading-snug text-text-muted">
                                     Tap to call — finalize your setup and claim your
                                     Secret Vault Code
                                 </p>
