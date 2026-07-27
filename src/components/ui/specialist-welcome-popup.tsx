@@ -165,6 +165,8 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
     const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
     const mm = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
     const ss = String(totalSeconds % 60).padStart(2, "0");
+    const urgent = totalSeconds <= 120;
+    const progressPct = (remainingMs / COUNTDOWN_MS) * 100;
 
     return createPortal(
         <AnimatePresence>
@@ -173,7 +175,7 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                     <motion.button
                         type="button"
                         aria-label="Close welcome offer"
-                        className="absolute inset-0 bg-black/85 backdrop-blur-sm"
+                        className="absolute inset-0 bg-black/30"
                         onClick={dismiss}
                         initial={reduceMotion ? false : { opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -306,33 +308,79 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                 </p>
                             </div>
 
-                            {/* CTA dock with timer strip */}
-                            <div className="relative z-10 shrink-0 px-6 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-8">
-                                <div className="mb-3 flex items-center justify-between border-t border-white/[0.07] pt-3">
-                                    <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-text-muted">
-                                        Your code expires in
-                                    </span>
-                                    <span className="brand-font text-[1.05rem] font-black tabular-nums tracking-[0.06em] text-accent">
-                                        {mm}:{ss}
-                                    </span>
+                            {/* CTA dock with urgency timer */}
+                            <div className="relative z-10 shrink-0 border-t border-white/[0.07] px-6 pt-3.5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-8">
+                                {/* Timer: label + segmented digits + draining bar */}
+                                <div className="mb-3.5">
+                                    <div className="flex items-center justify-center gap-3">
+                                        <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-text-muted">
+                                            Code expires in
+                                        </span>
+                                        <div
+                                            className={`flex items-center gap-1 ${
+                                                urgent ? "text-error" : "text-accent"
+                                            }`}
+                                        >
+                                            <span
+                                                className={`brand-font rounded-md border px-1.5 py-0.5 text-[1.05rem] font-black leading-none tabular-nums ${
+                                                    urgent
+                                                        ? "border-error/40 bg-error/10"
+                                                        : "border-accent/30 bg-accent/[0.08]"
+                                                }`}
+                                            >
+                                                {mm}
+                                            </span>
+                                            <span className="brand-font text-[1rem] font-black leading-none opacity-70 motion-safe:animate-pulse">
+                                                :
+                                            </span>
+                                            <span
+                                                className={`brand-font rounded-md border px-1.5 py-0.5 text-[1.05rem] font-black leading-none tabular-nums ${
+                                                    urgent
+                                                        ? "border-error/40 bg-error/10"
+                                                        : "border-accent/30 bg-accent/[0.08]"
+                                                }`}
+                                            >
+                                                {ss}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="mx-auto mt-2.5 h-[3px] w-full max-w-[22rem] overflow-hidden rounded-full bg-white/[0.07]">
+                                        <div
+                                            className={`h-full rounded-full transition-[width] duration-300 ease-linear ${
+                                                urgent
+                                                    ? "bg-gradient-to-r from-error to-[#f87171]"
+                                                    : "bg-gradient-to-r from-accent to-[#fde047]"
+                                            }`}
+                                            style={{
+                                                width: `${progressPct}%`,
+                                            }}
+                                        />
+                                    </div>
                                 </div>
 
                                 <a
                                     href={PHONE_TEL}
-                                    className="group relative flex w-full min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-2xl bg-gradient-to-b from-[#f5c211] to-[#d4a406] px-5 text-black shadow-[0_10px_28px_rgba(234,179,8,0.3),inset_0_1px_0_rgba(255,255,255,0.35)] transition-all hover:brightness-105 active:scale-[0.985] touch-manipulation select-none"
+                                    className="group relative flex w-full min-h-[56px] items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-[#f5c211] to-[#d4a406] px-5 text-black transition-all hover:brightness-105 active:scale-[0.985] touch-manipulation select-none motion-safe:animate-[cta-pulse_2.2s_ease-in-out_infinite] shadow-[0_10px_28px_rgba(234,179,8,0.32),inset_0_1px_0_rgba(255,255,255,0.35)]"
                                 >
                                     <span
                                         aria-hidden
                                         className="absolute inset-y-0 -left-1/3 w-1/4 -skew-x-12 bg-white/30 blur-md motion-safe:animate-[sheen_3s_ease-in-out_infinite]"
                                     />
-                                    <Phone size={18} className="shrink-0" strokeWidth={2.5} />
-                                    <span className="brand-font text-[1.2rem] font-black tabular-nums tracking-tight">
-                                        Call Now: {PHONE_DISPLAY}
+                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black/90 text-[#f5c211]">
+                                        <Phone size={16} strokeWidth={2.5} />
+                                    </span>
+                                    <span className="flex flex-col items-start leading-none">
+                                        <span className="text-[9.5px] font-black uppercase tracking-[0.2em] opacity-80">
+                                            Call now · tap to call
+                                        </span>
+                                        <span className="brand-font mt-[3px] text-[1.35rem] font-black tabular-nums tracking-tight">
+                                            {PHONE_DISPLAY}
+                                        </span>
                                     </span>
                                 </a>
                                 <p className="mt-2.5 text-center text-[11px] leading-snug text-text-muted">
-                                    Tap to call — finalize your setup and claim your
-                                    Secret Vault Code
+                                    Finalize your setup and claim your Secret Vault
+                                    Code
                                 </p>
                             </div>
                         </div>
