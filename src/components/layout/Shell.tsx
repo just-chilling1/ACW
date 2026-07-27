@@ -6,6 +6,7 @@ import { Target } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./bottom-nav";
 import { SupportBanner } from "../dashboard/SupportBanner";
+import { SpecialistWelcomePopup } from "../ui/specialist-welcome-popup";
 
 export function Shell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -58,6 +59,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </main>
 
             <BottomNav />
+            <SpecialistWelcomePopup />
         </div>
     );
 }
