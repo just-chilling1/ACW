@@ -192,7 +192,6 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
     const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
     const mm = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
     const ss = String(totalSeconds % 60).padStart(2, "0");
-    const urgent = totalSeconds <= 120;
     const progressPct = (remainingMs / COUNTDOWN_MS) * 100;
 
     return createPortal(
@@ -234,7 +233,7 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                             />
 
                             {/* Header: icon tile + close (headline carries the brand) */}
-                            <div className="relative z-10 flex shrink-0 items-center justify-between px-4 pt-[max(1rem,env(safe-area-inset-top))] sm:px-5 sm:pt-4">
+                            <div className="relative z-10 flex shrink-0 items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5 sm:pt-4">
                                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-[0_4px_12px_rgba(5,150,105,0.3)]">
                                     <Wallet size={16} strokeWidth={2.4} />
                                 </span>
@@ -254,21 +253,21 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                 style={{ WebkitOverflowScrolling: "touch" }}
                             >
                                 {/* Hero: single brand moment */}
-                                <p className="text-center text-[10px] font-bold uppercase tracking-[0.32em] text-gray-400">
+                                <p className="text-center text-[12px] font-bold uppercase tracking-[0.3em] text-gray-600">
                                     Welcome To
                                 </p>
                                 <h2
                                     id={titleId}
-                                    className="brand-font mt-1 text-center text-[1.85rem] sm:text-[2rem] font-black uppercase leading-none tracking-tight text-gray-900"
+                                    className="brand-font mt-1 text-center text-[1.9rem] sm:text-[2.05rem] font-black uppercase leading-none tracking-tight text-gray-900"
                                 >
                                     CashTap <span className="text-emerald-600">AI</span>
                                 </h2>
 
                                 {/* Intro copy */}
-                                <div className="mx-auto mt-4 max-w-[21rem] space-y-0.5 text-center text-[12.5px] leading-[1.6] text-gray-500">
+                                <div className="mx-auto mt-3 max-w-[22rem] space-y-0.5 text-center text-[14px] leading-[1.5] text-gray-700">
                                     <p>
                                         As part of our commitment to{" "}
-                                        <span className="font-semibold text-gray-800">
+                                        <span className="font-bold text-gray-900">
                                             YOUR
                                         </span>{" "}
                                         success…
@@ -278,26 +277,26 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                         learning curve.
                                     </p>
                                 </div>
-                                <p className="mx-auto mt-3 max-w-[19rem] text-center text-[15px] font-bold leading-snug text-gray-900">
+                                <p className="mx-auto mt-2 max-w-[20rem] text-center text-[16px] font-bold leading-snug text-gray-900">
                                     You have been assigned a dedicated Start-Up
                                     Specialist.
                                 </p>
 
                                 {/* Benefits: aligned icon chips */}
-                                <div className="mx-auto mt-5 max-w-[22rem]">
-                                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-gray-400">
+                                <div className="mx-auto mt-3.5 max-w-[22rem]">
+                                    <p className="text-[11.5px] font-bold uppercase tracking-[0.18em] text-gray-600">
                                         Who will help you
                                     </p>
-                                    <ul className="mt-2.5 space-y-2">
+                                    <ul className="mt-2 space-y-1.5">
                                         {BENEFITS.map(({ icon: Icon, text }) => (
                                             <li
                                                 key={text}
                                                 className="flex items-center gap-3"
                                             >
-                                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
-                                                    <Icon size={17} strokeWidth={2} />
+                                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+                                                    <Icon size={16} strokeWidth={2.2} />
                                                 </span>
-                                                <span className="text-[13.5px] font-medium leading-snug text-gray-800">
+                                                <span className="text-[14.5px] font-semibold leading-snug text-gray-900">
                                                     {text}
                                                 </span>
                                             </li>
@@ -306,25 +305,25 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                 </div>
 
                                 {/* PLUS — quiet value panel (CTA stays the only loud green) */}
-                                <div className="mx-auto mt-4 flex max-w-[22rem] items-center gap-3.5 rounded-2xl border border-gray-100 bg-gray-50/80 px-4 py-3.5">
-                                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                                <div className="mx-auto mt-2.5 flex max-w-[22rem] items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-3.5 py-2.5">
+                                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
                                         <Vault
-                                            size={24}
-                                            strokeWidth={1.6}
+                                            size={22}
+                                            strokeWidth={1.8}
                                             className="text-emerald-700"
                                         />
                                     </span>
                                     <div className="min-w-0">
-                                        <p className="text-[9.5px] font-black uppercase tracking-[0.2em] text-emerald-600">
+                                        <p className="text-[10.5px] font-black uppercase tracking-[0.18em] text-emerald-700">
                                             Plus
                                         </p>
-                                        <p className="mt-0.5 text-[13px] font-bold leading-snug text-gray-900">
+                                        <p className="mt-0.5 text-[14px] font-bold leading-snug text-gray-900">
                                             He will unlock our secret vault bonuses
                                             for you for FREE
                                         </p>
-                                        <p className="mt-0.5 text-[11.5px] text-gray-500">
+                                        <p className="mt-0.5 text-[13px] text-gray-700">
                                             Worth over{" "}
-                                            <span className="font-bold text-gray-800 tabular-nums">
+                                            <span className="font-bold text-gray-900 tabular-nums">
                                                 $11,385.32
                                             </span>{" "}
                                             in retail value
@@ -335,29 +334,19 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
 
                             {/* Action zone: urgency → CTA → note */}
                             <div className="relative z-10 shrink-0 border-t border-gray-100 bg-gray-50/50 px-6 pt-3 pb-[max(1.15rem,env(safe-area-inset-bottom))] sm:px-9">
-                                {/* Urgency strip */}
+                                {/* Urgency strip — red countdown */}
                                 <div className="mx-auto max-w-[22rem]">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                                        <span className="text-[11.5px] font-bold uppercase tracking-[0.16em] text-gray-700">
                                             Your code expires in
                                         </span>
-                                        <span
-                                            className={`brand-font text-[1.05rem] font-black leading-none tabular-nums ${
-                                                urgent
-                                                    ? "text-red-600"
-                                                    : "text-emerald-700"
-                                            }`}
-                                        >
+                                        <span className="brand-font rounded-lg bg-red-50 px-2 py-1 text-[1.25rem] font-black leading-none tabular-nums text-red-600">
                                             {mm}:{ss}
                                         </span>
                                     </div>
-                                    <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-gray-200/70">
+                                    <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-red-100">
                                         <div
-                                            className={`h-full rounded-full transition-[width] duration-300 ease-linear ${
-                                                urgent
-                                                    ? "bg-red-500"
-                                                    : "bg-emerald-500"
-                                            }`}
+                                            className="h-full rounded-full bg-red-500 transition-[width] duration-300 ease-linear"
                                             style={{ width: `${progressPct}%` }}
                                         />
                                     </div>
@@ -365,24 +354,24 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
 
                                 <a
                                     href={PHONE_TEL}
-                                    className="group relative mt-3 flex w-full min-h-[56px] items-center justify-center gap-2.5 overflow-hidden rounded-2xl bg-emerald-600 px-5 text-white transition-all hover:bg-emerald-700 active:scale-[0.985] touch-manipulation select-none motion-safe:animate-[cta-pulse-green_2.2s_ease-in-out_infinite] shadow-[0_8px_24px_rgba(5,150,105,0.35)]"
+                                    className="group relative mt-3 flex w-full min-h-[58px] items-center justify-center gap-2.5 overflow-hidden rounded-2xl bg-emerald-600 px-5 text-white transition-all hover:bg-emerald-700 active:scale-[0.985] touch-manipulation select-none motion-safe:animate-[cta-pulse-green_2.2s_ease-in-out_infinite] shadow-[0_8px_24px_rgba(5,150,105,0.35)]"
                                 >
                                     <span
                                         aria-hidden
                                         className="absolute inset-y-0 -left-1/3 w-1/4 -skew-x-12 bg-white/20 blur-md motion-safe:animate-[sheen_3s_ease-in-out_infinite]"
                                     />
-                                    <Phone size={19} strokeWidth={2.4} className="shrink-0" />
+                                    <Phone size={20} strokeWidth={2.4} className="shrink-0" />
                                     <span className="flex flex-col items-start leading-none">
-                                        <span className="text-[9px] font-bold uppercase tracking-[0.22em] opacity-85">
+                                        <span className="text-[10.5px] font-bold uppercase tracking-[0.18em] opacity-95">
                                             Call now · tap to call
                                         </span>
-                                        <span className="brand-font mt-[3px] text-[1.3rem] font-black tabular-nums tracking-tight">
+                                        <span className="brand-font mt-[3px] text-[1.4rem] font-black tabular-nums tracking-tight">
                                             {PHONE_DISPLAY}
                                         </span>
                                     </span>
                                 </a>
 
-                                <p className="mx-auto mt-2.5 max-w-[22rem] text-center text-[10.5px] leading-[1.55] text-gray-400">
+                                <p className="mx-auto mt-2.5 max-w-[22rem] text-center text-[12px] leading-[1.55] text-gray-600">
                                     Call immediately to finalize your setup and claim
                                     your Secret Vault Code. (Your temporary code
                                     expires when this page closes. Call within the
