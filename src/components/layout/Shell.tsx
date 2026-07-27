@@ -6,10 +6,11 @@ import { Target } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./bottom-nav";
 import { SupportBanner } from "../dashboard/SupportBanner";
+import { SpecialistWelcomePopup } from "../ui/specialist-welcome-popup";
 
 export function Shell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password" || pathname === "/reset-password" || pathname === "/onboarding" || pathname.startsWith("/onboarding/") || pathname.startsWith("/auth/");
+    const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password" || pathname === "/reset-password" || pathname === "/onboarding" || pathname.startsWith("/onboarding/") || pathname.startsWith("/auth/") || pathname.startsWith("/dev/");
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     useEffect(() => {
@@ -58,6 +59,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </main>
 
             <BottomNav />
+            <SpecialistWelcomePopup />
         </div>
     );
 }
