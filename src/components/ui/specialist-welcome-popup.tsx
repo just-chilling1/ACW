@@ -56,6 +56,7 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
     const [eligibleOpen, setEligibleOpen] = useState(false);
     const [dismissed, setDismissed] = useState(false);
     const [remainingMs, setRemainingMs] = useState(COUNTDOWN_MS);
+    const [windowClosesInMs, setWindowClosesInMs] = useState<number | null>(null);
     const open = !dismissed && (forceOpen || eligibleOpen);
 
     useEffect(() => {
@@ -83,6 +84,9 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                 if (cancelled || !data.eligible) return;
 
                 setRemainingMs(COUNTDOWN_MS);
+                setWindowClosesInMs(
+                    typeof data.closesInMs === "number" ? data.closesInMs : null
+                );
                 setEligibleOpen(true);
             } catch {
                 // Network/abort — never show on failure (safe default)
@@ -94,6 +98,42 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
             controller.abort();
         };
     }, [forceOpen, isClient]);
+
+    // Hard stop: auto-hide the moment the PT business window ends (e.g. user
+    // opened it at 17:29 and kept the page open past 17:30).
+    useEffect(() => {
+        if (!eligibleOpen || forceOpen || windowClosesInMs == null) return;
+        const id = window.setTimeout(
+            () => setEligibleOpen(false),
+            Math.max(0, windowClosesInMs)
+        );
+        return () => window.clearTimeout(id);
+    }, [eligibleOpen, forceOpen, windowClosesInMs]);
+
+    // Re-validate when the tab regains focus (background timers can be
+    // throttled; a user returning next morning must not see a stale popup).
+    useEffect(() => {
+        if (!eligibleOpen || forceOpen) return;
+
+        const revalidate = async () => {
+            if (document.visibilityState !== "visible") return;
+            try {
+                const res = await fetch("/api/eligibility/specialist-popup", {
+                    method: "GET",
+                    cache: "no-store",
+                });
+                if (!res.ok) return;
+                const data = (await res.json()) as EligibilityResponse;
+                if (!data.eligible) setEligibleOpen(false);
+            } catch {
+                // keep current state on network failure
+            }
+        };
+
+        document.addEventListener("visibilitychange", revalidate);
+        return () =>
+            document.removeEventListener("visibilitychange", revalidate);
+    }, [eligibleOpen, forceOpen]);
 
     const dismiss = useCallback(() => {
         setDismissed(true);

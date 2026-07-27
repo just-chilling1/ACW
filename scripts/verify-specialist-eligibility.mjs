@@ -1,161 +1,213 @@
 /**
- * Verifies specialist popup eligibility edge cases without a test runner.
- * Run: node scripts/verify-specialist-eligibility.mjs
+ * Verifies the REAL production eligibility module (src/lib/specialist-popup-eligibility.ts)
+ * against an exhaustive matrix: weekday/weekend, window boundaries to the second,
+ * PST vs PDT (incl. DST transition weeks), and country normalization.
  *
- * Mirrors src/lib/specialist-popup-eligibility.ts logic.
+ * Run: node --experimental-strip-types scripts/verify-specialist-eligibility.mjs
  */
 
-const SPECIALIST_TZ = "America/Los_Angeles";
-const START = 8 * 60 + 30;
-const END = 17 * 60 + 30;
-const ELIGIBLE = new Set(["US", "CA"]);
+import {
+    isUsOrCa,
+    isWithinSpecialistHours,
+    msUntilSpecialistWindowClose,
+    evaluateSpecialistEligibility,
+    SPECIALIST_TZ,
+} from "../src/lib/specialist-popup-eligibility.ts";
 
-function isUsOrCa(country) {
-  if (!country) return false;
-  return ELIGIBLE.has(country.trim().toUpperCase());
+/** Build a Date whose wall time in America/Los_Angeles equals the given parts. */
+function ptDate({ year, month, day, hour, minute, second = 0 }) {
+    const pad = (n) => String(n).padStart(2, "0");
+    const target = `${year}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
+    const fmt = new Intl.DateTimeFormat("en-CA", {
+        timeZone: SPECIALIST_TZ,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+    });
+    const label = (ms) => {
+        const parts = fmt.formatToParts(new Date(ms));
+        const get = (t) => parts.find((p) => p.type === t)?.value;
+        let h = Number(get("hour"));
+        if (h === 24) h = 0;
+        return `${get("year")}-${get("month")}-${get("day")} ${pad(h)}:${get("minute")}:${get("second")}`;
+    };
+
+    let lo = Date.UTC(year, month - 1, day - 1, 0, 0, 0);
+    let hi = Date.UTC(year, month - 1, day + 1, 23, 59, 59);
+    for (let i = 0; i < 48; i++) {
+        const mid = Math.floor((lo + hi) / 2);
+        const l = label(mid);
+        if (l === target) return new Date(mid);
+        if (l < target) lo = mid + 1;
+        else hi = mid - 1;
+    }
+    throw new Error(`Could not resolve PT date for ${target}`);
 }
 
-function getPacificParts(date) {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: SPECIALIST_TZ,
-    weekday: "short",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: false,
-  });
-  const parts = formatter.formatToParts(date);
-  const get = (type) => parts.find((p) => p.type === type)?.value ?? "";
-  let hour = Number(get("hour"));
-  if (hour === 24) hour = 0;
-  return { weekday: get("weekday"), hour, minute: Number(get("minute")) };
-}
-
-function isWithinSpecialistHours(date) {
-  const { weekday, hour, minute } = getPacificParts(date);
-  if (!["Mon", "Tue", "Wed", "Thu", "Fri"].includes(weekday)) return false;
-  const minutes = hour * 60 + minute;
-  return minutes >= START && minutes < END;
-}
-
-function evaluate(country, date) {
-  const normalized = country?.trim().toUpperCase() || null;
-  return {
-    eligible: isUsOrCa(normalized) && isWithinSpecialistHours(date),
-    country: normalized,
-  };
-}
-
-/** Build a Date that formats as the given wall time in America/Los_Angeles. */
-function ptDate({ year, month, day, hour, minute }) {
-  // Binary search UTC instant for desired PT wall clock
-  const targetLabel = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")} ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-  let lo = Date.UTC(year, month - 1, day - 1, 0, 0, 0);
-  let hi = Date.UTC(year, month - 1, day + 1, 23, 59, 59);
-  const fmt = new Intl.DateTimeFormat("en-CA", {
-    timeZone: SPECIALIST_TZ,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-  for (let i = 0; i < 40; i++) {
-    const mid = Math.floor((lo + hi) / 2);
-    const parts = fmt.formatToParts(new Date(mid));
-    const get = (t) => parts.find((p) => p.type === t)?.value;
-    let h = Number(get("hour"));
-    if (h === 24) h = 0;
-    const label = `${get("year")}-${get("month")}-${get("day")} ${String(h).padStart(2, "0")}:${get("minute")}`;
-    if (label === targetLabel) return new Date(mid);
-    if (label < targetLabel) lo = mid + 1;
-    else hi = mid - 1;
-  }
-  throw new Error(`Could not resolve PT date for ${targetLabel}`);
-}
-
-const cases = [
-  {
-    name: "US + Tue 10:00 PT → eligible",
-    country: "US",
-    date: ptDate({ year: 2026, month: 7, day: 28, hour: 10, minute: 0 }), // Tue
-    expected: true,
-  },
-  {
-    name: "CA + Wed 08:30 PT → eligible",
-    country: "CA",
-    date: ptDate({ year: 2026, month: 7, day: 29, hour: 8, minute: 30 }), // Wed
-    expected: true,
-  },
-  {
-    name: "US + Fri 17:29 PT → eligible",
-    country: "US",
-    date: ptDate({ year: 2026, month: 7, day: 31, hour: 17, minute: 29 }), // Fri
-    expected: true,
-  },
-  {
-    name: "US + Fri 17:30 PT → not eligible",
-    country: "US",
-    date: ptDate({ year: 2026, month: 7, day: 31, hour: 17, minute: 30 }),
-    expected: false,
-  },
-  {
-    name: "US + Sat 12:00 PT → not eligible",
-    country: "US",
-    date: ptDate({ year: 2026, month: 8, day: 1, hour: 12, minute: 0 }), // Sat
-    expected: false,
-  },
-  {
-    name: "GB + weekday midday PT → not eligible",
-    country: "GB",
-    date: ptDate({ year: 2026, month: 7, day: 28, hour: 12, minute: 0 }),
-    expected: false,
-  },
-  {
-    name: "MX + weekday midday PT → not eligible",
-    country: "MX",
-    date: ptDate({ year: 2026, month: 7, day: 28, hour: 12, minute: 0 }),
-    expected: false,
-  },
-  {
-    name: "missing country + weekday midday PT → not eligible",
-    country: null,
-    date: ptDate({ year: 2026, month: 7, day: 28, hour: 12, minute: 0 }),
-    expected: false,
-  },
-  {
-    name: "us lowercase + Mon 08:30 → eligible",
-    country: "us",
-    date: ptDate({ year: 2026, month: 7, day: 27, hour: 8, minute: 30 }), // Mon
-    expected: true,
-  },
-  {
-    name: "US + Mon 08:29 → not eligible",
-    country: "US",
-    date: ptDate({ year: 2026, month: 7, day: 27, hour: 8, minute: 29 }),
-    expected: false,
-  },
-];
-
+let passed = 0;
 let failed = 0;
-for (const c of cases) {
-  const result = evaluate(c.country, c.date);
-  const parts = getPacificParts(c.date);
-  const ok = result.eligible === c.expected;
-  if (!ok) {
-    failed += 1;
-    console.error(
-      `FAIL: ${c.name}\n  got eligible=${result.eligible} (PT ${parts.weekday} ${parts.hour}:${String(parts.minute).padStart(2, "0")})`
-    );
-  } else {
-    console.log(
-      `PASS: ${c.name} (PT ${parts.weekday} ${parts.hour}:${String(parts.minute).padStart(2, "0")})`
-    );
-  }
+
+function check(name, actual, expected) {
+    const ok = actual === expected;
+    if (ok) {
+        passed += 1;
+        console.log(`PASS  ${name}`);
+    } else {
+        failed += 1;
+        console.error(`FAIL  ${name} — expected ${expected}, got ${actual}`);
+    }
 }
 
-if (failed > 0) {
-  console.error(`\n${failed} case(s) failed`);
-  process.exit(1);
+/* ---------------- Country normalization ---------------- */
+check("country US", isUsOrCa("US"), true);
+check("country CA", isUsOrCa("CA"), true);
+check("country us (lowercase)", isUsOrCa("us"), true);
+check("country Ca (mixed case)", isUsOrCa("Ca"), true);
+check("country ' us ' (whitespace)", isUsOrCa(" us "), true);
+check("country GB", isUsOrCa("GB"), false);
+check("country MX", isUsOrCa("MX"), false);
+check("country DE", isUsOrCa("DE"), false);
+check("country USA (3-letter, invalid)", isUsOrCa("USA"), false);
+check("country empty string", isUsOrCa(""), false);
+check("country null", isUsOrCa(null), false);
+check("country undefined", isUsOrCa(undefined), false);
+
+/* ---------------- Window boundaries (PDT — July 2026) ---------------- */
+// Mon Jul 27 2026 is a Monday.
+check(
+    "Mon 08:29:59 PT → closed",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 7, day: 27, hour: 8, minute: 29, second: 59 })),
+    false
+);
+check(
+    "Mon 08:30:00 PT → open",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 7, day: 27, hour: 8, minute: 30, second: 0 })),
+    true
+);
+check(
+    "Mon 12:00 PT → open",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 7, day: 27, hour: 12, minute: 0 })),
+    true
+);
+check(
+    "Fri 17:29:59 PT → open",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 7, day: 31, hour: 17, minute: 29, second: 59 })),
+    true
+);
+check(
+    "Fri 17:30:00 PT → closed",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 7, day: 31, hour: 17, minute: 30, second: 0 })),
+    false
+);
+check(
+    "Mon 00:00 PT (midnight) → closed",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 7, day: 27, hour: 0, minute: 0 })),
+    false
+);
+check(
+    "Mon 23:59 PT → closed",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 7, day: 27, hour: 23, minute: 59 })),
+    false
+);
+
+/* ---------------- Every day of the week at noon PT ---------------- */
+// Jul 26 2026 = Sunday … Aug 1 2026 = Saturday
+const week = [
+    { day: 26, name: "Sunday", open: false },
+    { day: 27, name: "Monday", open: true },
+    { day: 28, name: "Tuesday", open: true },
+    { day: 29, name: "Wednesday", open: true },
+    { day: 30, name: "Thursday", open: true },
+    { day: 31, name: "Friday", open: true },
+    { day: 1, month: 8, name: "Saturday", open: false },
+];
+for (const d of week) {
+    check(
+        `${d.name} 12:00 PT → ${d.open ? "open" : "closed"}`,
+        isWithinSpecialistHours(
+            ptDate({ year: 2026, month: d.month ?? 7, day: d.day, hour: 12, minute: 0 })
+        ),
+        d.open
+    );
 }
-console.log(`\nAll ${cases.length} eligibility cases passed`);
+
+/* ---------------- PST (winter) and DST transition weeks ---------------- */
+// Mon Jan 12 2026 — deep winter, PST (UTC-8)
+check(
+    "Winter PST: Mon Jan 12 2026 08:30 PT → open",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 1, day: 12, hour: 8, minute: 30 })),
+    true
+);
+check(
+    "Winter PST: Mon Jan 12 2026 17:30 PT → closed",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 1, day: 12, hour: 17, minute: 30 })),
+    false
+);
+// DST starts Sun Mar 8 2026 → Mon Mar 9 is first PDT weekday
+check(
+    "DST-start week: Mon Mar 9 2026 08:30 PT → open",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 3, day: 9, hour: 8, minute: 30 })),
+    true
+);
+check(
+    "DST-start week: Fri Mar 6 2026 17:29 PT (still PST) → open",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 3, day: 6, hour: 17, minute: 29 })),
+    true
+);
+// DST ends Sun Nov 1 2026 → Mon Nov 2 is first PST weekday
+check(
+    "DST-end week: Mon Nov 2 2026 08:30 PT → open",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 11, day: 2, hour: 8, minute: 30 })),
+    true
+);
+check(
+    "DST-end week: Mon Nov 2 2026 17:30 PT → closed",
+    isWithinSpecialistHours(ptDate({ year: 2026, month: 11, day: 2, hour: 17, minute: 30 })),
+    false
+);
+
+/* ---------------- msUntilSpecialistWindowClose ---------------- */
+{
+    const at1700 = ptDate({ year: 2026, month: 7, day: 27, hour: 17, minute: 0, second: 0 });
+    const ms = msUntilSpecialistWindowClose(at1700);
+    const ok = ms !== null && ms > 29 * 60_000 && ms <= 30 * 60_000;
+    check(`closesInMs at 17:00 PT ≈ 30min (got ${ms}ms)`, ok, true);
+}
+{
+    const closed = ptDate({ year: 2026, month: 7, day: 26, hour: 12, minute: 0 });
+    check(
+        "closesInMs outside window → null",
+        msUntilSpecialistWindowClose(closed),
+        null
+    );
+}
+
+/* ---------------- Composite evaluation ---------------- */
+const openTime = ptDate({ year: 2026, month: 7, day: 28, hour: 10, minute: 0 });
+const closedTime = ptDate({ year: 2026, month: 7, day: 26, hour: 10, minute: 0 });
+
+check("US + open window → eligible", evaluateSpecialistEligibility("US", openTime).eligible, true);
+check("CA + open window → eligible", evaluateSpecialistEligibility("CA", openTime).eligible, true);
+check("' ca ' + open window → eligible", evaluateSpecialistEligibility(" ca ", openTime).eligible, true);
+check("GB + open window → NOT eligible", evaluateSpecialistEligibility("GB", openTime).eligible, false);
+check("null country + open window → NOT eligible", evaluateSpecialistEligibility(null, openTime).eligible, false);
+check("US + Sunday → NOT eligible", evaluateSpecialistEligibility("US", closedTime).eligible, false);
+check("CA + Sunday → NOT eligible", evaluateSpecialistEligibility("CA", closedTime).eligible, false);
+check(
+    "eligible response includes closesInMs",
+    typeof evaluateSpecialistEligibility("US", openTime).closesInMs,
+    "number"
+);
+check(
+    "ineligible response has no closesInMs",
+    "closesInMs" in evaluateSpecialistEligibility("US", closedTime),
+    false
+);
+
+/* ---------------- Result ---------------- */
+console.log(`\n${passed} passed, ${failed} failed`);
+if (failed > 0) process.exit(1);

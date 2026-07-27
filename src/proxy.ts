@@ -5,8 +5,12 @@ import { resolveOnboardingGate } from '@/lib/onboarding-gate'
 export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl
 
-    // Local UI previews — skip auth so /dev/* works without Supabase session.
-    if (process.env.NODE_ENV === 'development' && pathname.startsWith('/dev/')) {
+    // /dev/* UI previews: available without auth in development,
+    // completely unreachable in production (criteria cannot be bypassed).
+    if (pathname === '/dev' || pathname.startsWith('/dev/')) {
+        if (process.env.NODE_ENV !== 'development') {
+            return NextResponse.redirect(new URL('/dashboard', request.url))
+        }
         return NextResponse.next()
     }
 
