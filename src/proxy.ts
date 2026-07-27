@@ -3,6 +3,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { resolveOnboardingGate } from '@/lib/onboarding-gate'
 
 export async function proxy(request: NextRequest) {
+    const { pathname } = request.nextUrl
+
+    // Local UI previews — skip auth so /dev/* works without Supabase session.
+    if (process.env.NODE_ENV === 'development' && pathname.startsWith('/dev/')) {
+        return NextResponse.next()
+    }
+
     let response = NextResponse.next({
         request: {
             headers: request.headers,
@@ -56,8 +63,6 @@ export async function proxy(request: NextRequest) {
     )
 
     const { data: { user } } = await supabase.auth.getUser()
-
-    const { pathname } = request.nextUrl
 
     const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/forgot-password') || pathname.startsWith('/reset-password') || pathname.startsWith('/auth/callback')
     const isPublicRoute = pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname === '/favicon.ico'

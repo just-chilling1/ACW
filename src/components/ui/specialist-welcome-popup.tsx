@@ -22,11 +22,22 @@ function formatCountdown(ms: number): string {
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-export function SpecialistWelcomePopup() {
-    const [open, setOpen] = useState(false);
+type SpecialistWelcomePopupProps = {
+    /** Dev/preview only — skip geo/hours fetch and open immediately. */
+    forceOpen?: boolean;
+};
+
+export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomePopupProps) {
+    const [open, setOpen] = useState(forceOpen);
     const [remainingMs, setRemainingMs] = useState(COUNTDOWN_MS);
 
     useEffect(() => {
+        if (forceOpen) {
+            setRemainingMs(COUNTDOWN_MS);
+            setOpen(true);
+            return;
+        }
+
         try {
             if (sessionStorage.getItem(SESSION_DISMISS_KEY) === "1") return;
         } catch {
@@ -59,16 +70,17 @@ export function SpecialistWelcomePopup() {
             cancelled = true;
             controller.abort();
         };
-    }, []);
+    }, [forceOpen]);
 
     const dismiss = useCallback(() => {
         setOpen(false);
+        if (forceOpen) return;
         try {
             sessionStorage.setItem(SESSION_DISMISS_KEY, "1");
         } catch {
             // ignore
         }
-    }, []);
+    }, [forceOpen]);
 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
@@ -118,7 +130,7 @@ export function SpecialistWelcomePopup() {
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="specialist-welcome-title"
-                className="relative z-10 flex flex-col w-full max-w-lg max-h-[min(92dvh,40rem)] overflow-hidden rounded-2xl border-2 border-[#fbbf24]/40 bg-gradient-to-b from-[#101726] to-[#0b0f18] shadow-[0_0_40px_rgba(251,191,36,0.12)]"
+                className="relative z-10 flex flex-col w-full max-w-lg max-h-[min(96dvh,44rem)] overflow-hidden rounded-2xl border-2 border-[#fbbf24]/40 bg-gradient-to-b from-[#101726] to-[#0b0f18] shadow-[0_0_40px_rgba(251,191,36,0.12)]"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="shrink-0 flex items-start justify-between gap-3 px-5 pt-5 pb-2">
