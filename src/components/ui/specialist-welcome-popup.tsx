@@ -206,117 +206,120 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                             <span className="h-1 w-10 rounded-full bg-white/20" />
                         </div>
 
-                        <div className="relative z-10 shrink-0 flex items-start gap-2 px-4 sm:px-5 pt-[max(0.25rem,env(safe-area-inset-top))] sm:pt-5 pb-3 border-b border-white/8">
-                            <div className="min-w-0 flex-1 pt-0.5">
-                                <p className="page-eyebrow mb-1">Dedicated Support</p>
+                        <div className="relative z-10 shrink-0 flex items-start gap-3 px-4 sm:px-5 pt-[max(0.35rem,env(safe-area-inset-top))] sm:pt-5 pb-2">
+                            <div className="min-w-0 flex-1 pt-0.5 pr-2">
+                                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-text-muted mb-1.5">
+                                    Welcome to
+                                </p>
                                 <h2
                                     id={titleId}
-                                    className="brand-font text-[1.25rem] xs:text-[1.35rem] sm:text-2xl font-black text-text-primary leading-[1.15] tracking-tight"
+                                    className="brand-font text-[1.7rem] sm:text-[2rem] font-black text-accent leading-none tracking-tight"
                                 >
-                                    Welcome To{" "}
-                                    <span className="text-accent">CashTap AI</span>
+                                    CashTap AI
                                 </h2>
                             </div>
                             <button
                                 type="button"
                                 onClick={dismiss}
                                 aria-label="Close"
-                                className="w-11 h-11 shrink-0 -mr-1 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:bg-white/15 transition-colors touch-manipulation"
+                                className="w-11 h-11 shrink-0 -mr-1 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 active:bg-white/15 transition-colors touch-manipulation"
                             >
                                 <X size={20} />
                             </button>
                         </div>
 
                         <div
-                            className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 sm:px-5 py-3.5 space-y-3 sm:space-y-3.5"
+                            className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 sm:px-5 pb-4 space-y-5"
                             style={{ WebkitOverflowScrolling: "touch" }}
                         >
-                            <div className="space-y-1.5 text-[14px] sm:text-[15px] leading-relaxed text-text-secondary">
-                                <p>
-                                    As part of our commitment to{" "}
-                                    <span className="font-bold text-text-primary">
-                                        YOUR
-                                    </span>{" "}
-                                    success…
-                                </p>
-                                <p>
-                                    …And to fast-track your results and skip the
-                                    learning curve.
-                                </p>
-                                <p className="font-semibold text-text-primary pt-0.5">
-                                    You have been assigned a dedicated Start-Up
+                            {/* Primary message */}
+                            <div className="space-y-2">
+                                <p className="brand-font text-lg sm:text-xl font-bold text-text-primary leading-snug tracking-tight">
+                                    You&apos;ve been assigned a dedicated Start-Up
                                     Specialist.
+                                </p>
+                                <p className="text-[14px] sm:text-[15px] leading-relaxed text-text-secondary">
+                                    As part of our commitment to your success — to
+                                    fast-track your results and skip the learning
+                                    curve.
                                 </p>
                             </div>
 
-                            <div className="rounded-xl border border-white/8 bg-white/[0.03] p-3 sm:p-3.5">
-                                <p className="ds-h4 text-accent mb-2">
+                            {/* Secondary: benefits — no card chrome */}
+                            <div>
+                                <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-text-muted mb-2.5">
                                     Who will help you
                                 </p>
-                                <ul className="space-y-2">
+                                <ul className="space-y-2.5">
                                     {BENEFITS.map((item) => (
                                         <li
                                             key={item}
-                                            className="flex items-start gap-2.5 text-[14px] sm:text-[15px] text-text-primary leading-snug"
+                                            className="flex items-start gap-2.5 text-[14px] sm:text-[15px] text-text-secondary leading-snug"
                                         >
-                                            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success/15 text-success">
-                                                <Check size={13} strokeWidth={3} />
-                                            </span>
+                                            <Check
+                                                size={16}
+                                                strokeWidth={2.5}
+                                                className="mt-0.5 shrink-0 text-success"
+                                            />
                                             <span>{item}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
 
-                            <div className="rounded-xl border border-accent/30 bg-accent/[0.07] px-3 py-3 sm:px-3.5 text-center">
-                                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-accent mb-1">
+                            {/* Tertiary value beat */}
+                            <div className="border-t border-white/8 pt-4">
+                                <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-text-muted mb-1.5">
                                     Plus
                                 </p>
-                                <p className="text-[14px] sm:text-[15px] font-semibold text-text-primary leading-snug">
-                                    He will unlock our secret vault bonuses for you
-                                    for{" "}
-                                    <span className="text-success font-bold">
-                                        FREE
-                                    </span>
+                                <p className="text-[15px] sm:text-base font-semibold text-text-primary leading-snug">
+                                    He&apos;ll unlock our secret vault bonuses for you
+                                    — free.
                                 </p>
-                                <p className="text-[12px] text-text-muted mt-1">
+                                <p className="text-[13px] text-text-muted mt-1">
                                     Worth over{" "}
-                                    <span className="font-bold text-text-primary tabular-nums">
+                                    <span className="font-semibold text-text-secondary tabular-nums">
                                         $11,385.32
                                     </span>{" "}
-                                    in retail value
+                                    retail
                                 </p>
                             </div>
-
-                            <p className="text-center text-[13px] text-text-secondary leading-relaxed px-1 pb-0.5">
-                                Call immediately to finalize your setup and claim
-                                your Secret Vault Code.
-                            </p>
                         </div>
 
-                        <div className="relative z-10 shrink-0 border-t border-white/10 bg-[#0a0c11]/95 backdrop-blur-md px-4 sm:px-5 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] space-y-2">
-                            <div
-                                className={`rounded-xl px-3 py-2 text-center border ${
-                                    expired
-                                        ? "border-error/35 bg-error/10"
-                                        : "border-error/25 bg-error/[0.08]"
-                                }`}
+                        <div className="relative z-10 shrink-0 border-t border-white/10 bg-[#0a0c11]/95 backdrop-blur-md px-4 sm:px-5 pt-3 pb-[max(0.85rem,env(safe-area-inset-bottom))] space-y-2.5">
+                            <a
+                                href={PHONE_TEL}
+                                className="group flex w-full min-h-[58px] flex-col items-center justify-center gap-0.5 rounded-xl bg-gradient-to-r from-accent to-[#ca9a06] px-4 py-2.5 text-white shadow-[0_4px_20px_rgba(234,179,8,0.28)] transition-all hover:brightness-110 active:scale-[0.98] touch-manipulation select-none"
                             >
-                                <p className="text-[11px] text-text-secondary leading-snug">
-                                    Your temporary code expires when this page
-                                    closes.
+                                <span className="flex items-center gap-2 text-[13px] font-semibold tracking-wide uppercase opacity-95">
+                                    <Phone size={16} className="shrink-0" />
+                                    Call now
+                                    <span className="normal-case tracking-normal font-medium opacity-80">
+                                        · tap to call
+                                    </span>
+                                </span>
+                                <span className="text-[1.35rem] sm:text-2xl font-black tabular-nums tracking-wide leading-none">
+                                    {PHONE_DISPLAY}
+                                </span>
+                            </a>
+
+                            <div className="text-center px-1">
+                                <p className="text-[13px] text-text-secondary leading-snug">
+                                    Call immediately to finalize your setup and claim
+                                    your Secret Vault Code.
                                 </p>
                                 {expired ? (
-                                    <p className="mt-1 text-[13px] sm:text-sm font-bold text-error">
+                                    <p className="mt-1 text-[12px] font-medium text-error">
                                         Offer window ended — call now to still claim
-                                        your bonuses!
+                                        your bonuses.
                                     </p>
                                 ) : (
-                                    <p className="mt-1 text-[13px] sm:text-sm font-bold text-text-primary">
-                                        Call within the next{" "}
+                                    <p className="mt-1 text-[12px] text-text-muted leading-snug">
+                                        Temporary code expires when this page closes.
+                                        Call within{" "}
                                         <motion.span
                                             key={countdown}
-                                            className="inline-block tabular-nums text-accent"
+                                            className="inline-block tabular-nums font-bold text-accent"
                                             initial={
                                                 reduceMotion
                                                     ? false
@@ -327,26 +330,10 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                         >
                                             {countdown}
                                         </motion.span>{" "}
-                                        to secure your bonuses!
+                                        to secure your bonuses.
                                     </p>
                                 )}
                             </div>
-
-                            <a
-                                href={PHONE_TEL}
-                                className="group flex w-full min-h-[56px] flex-col items-center justify-center gap-0.5 rounded-xl bg-gradient-to-r from-accent to-[#ca9a06] px-4 py-2.5 text-white shadow-[0_4px_20px_rgba(234,179,8,0.28)] transition-all hover:brightness-110 active:scale-[0.98] touch-manipulation select-none"
-                            >
-                                <span className="flex items-center gap-2 text-[15px] sm:text-base font-bold tracking-wide">
-                                    <Phone size={18} className="shrink-0" />
-                                    Call Now
-                                    <span className="text-[11px] font-semibold opacity-90 normal-case tracking-normal">
-                                        · tap to call
-                                    </span>
-                                </span>
-                                <span className="text-lg sm:text-xl font-black tabular-nums tracking-wide">
-                                    {PHONE_DISPLAY}
-                                </span>
-                            </a>
                         </div>
                     </motion.div>
                 </div>
