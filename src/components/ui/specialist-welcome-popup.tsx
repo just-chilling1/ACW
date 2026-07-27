@@ -13,7 +13,7 @@ const PHONE_TEL = "tel:+14254581656";
 const BENEFITS = [
     { icon: Zap, text: "Skip all the learning curve and all the wait" },
     { icon: Rocket, text: "Get results from day zero" },
-    { icon: TrendingUp, text: "Scale to $1,000 – $2,000 per day" },
+    { icon: TrendingUp, text: "Scale your results to $1,000 - $2,000 per day" },
 ] as const;
 
 type EligibilityResponse = {
@@ -174,7 +174,6 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
 
     if (!isClient) return null;
 
-    const expired = remainingMs <= 0;
     const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
     const mm = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
     const ss = String(totalSeconds % 60).padStart(2, "0");
@@ -240,30 +239,39 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                     <Target size={22} className="text-white" />
                                 </div>
 
-                                <p className="text-center text-[10.5px] font-bold uppercase tracking-[0.28em] text-accent">
-                                    Welcome to CashTap AI
-                                </p>
-
                                 <h2
                                     id={titleId}
-                                    className="brand-font mx-auto mt-2 max-w-[19rem] text-center text-[1.6rem] leading-[1.12] font-black tracking-tight text-text-primary sm:text-[1.8rem]"
+                                    className="brand-font mx-auto mt-1 max-w-[19rem] text-center text-[1.6rem] leading-[1.12] font-black tracking-tight text-text-primary sm:text-[1.8rem]"
                                 >
-                                    Your Start-Up Specialist is{" "}
+                                    Welcome To{" "}
                                     <span className="bg-gradient-to-r from-accent to-[#fde047] bg-clip-text text-transparent">
-                                        standing by
+                                        CashTap AI
                                     </span>
                                 </h2>
 
-                                <p className="mx-auto mt-2.5 flex items-center justify-center gap-1.5 text-[12px] font-medium text-success">
-                                    <span className="relative flex h-1.5 w-1.5">
-                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
-                                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
-                                    </span>
-                                    Assigned to your account · online now
-                                </p>
+                                <div className="mx-auto mt-3.5 max-w-[21rem] space-y-1.5 text-center text-[13.5px] leading-relaxed text-text-secondary">
+                                    <p>
+                                        As part of our commitment to{" "}
+                                        <span className="font-bold text-text-primary">
+                                            YOUR
+                                        </span>{" "}
+                                        success…
+                                    </p>
+                                    <p>
+                                        …And to fast-track your results and skip the
+                                        learning curve.
+                                    </p>
+                                    <p className="font-semibold text-text-primary">
+                                        You have been assigned a dedicated Start-Up
+                                        Specialist.
+                                    </p>
+                                </div>
 
                                 {/* Benefits */}
-                                <div className="mt-5 space-y-2">
+                                <p className="mt-5 mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-accent">
+                                    Who will help you:
+                                </p>
+                                <div className="space-y-2">
                                     {BENEFITS.map(({ icon: Icon, text }) => (
                                         <div
                                             key={text}
@@ -279,33 +287,39 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                     ))}
                                 </div>
 
-                                {/* Vault value strip */}
-                                <div className="mt-3 flex items-center gap-3 rounded-xl bg-gradient-to-r from-accent/[0.14] to-accent/[0.04] px-3.5 py-3 ring-1 ring-inset ring-accent/25">
+                                {/* PLUS / vault value strip */}
+                                <p className="mt-4 mb-2 text-center text-[11px] font-black uppercase tracking-[0.3em] text-accent">
+                                    Plus
+                                </p>
+                                <div className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-accent/[0.14] to-accent/[0.04] px-3.5 py-3 ring-1 ring-inset ring-accent/25">
                                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-black">
                                         <Gift size={15} />
                                     </span>
                                     <div className="min-w-0 flex-1">
                                         <p className="text-[13.5px] font-bold leading-tight text-text-primary">
-                                            Secret Vault bonuses — FREE
+                                            He will unlock our secret vault bonuses
+                                            for you for FREE
                                         </p>
-                                        <p className="text-[11.5px] text-text-secondary">
-                                            Unlocked on this call
+                                        <p className="mt-0.5 text-[11.5px] text-text-secondary">
+                                            Worth over{" "}
+                                            <span className="font-bold text-accent tabular-nums">
+                                                $11,385.32
+                                            </span>{" "}
+                                            in retail value
                                         </p>
                                     </div>
-                                    <p className="brand-font shrink-0 text-right text-[15px] font-black tabular-nums text-accent">
-                                        $11,385
-                                        <span className="text-[11px]">.32</span>
-                                    </p>
                                 </div>
 
                                 {/* Countdown */}
                                 <div className="mt-5">
-                                    <p className="text-center text-[10.5px] font-semibold uppercase tracking-[0.2em] text-text-muted">
-                                        {expired
-                                            ? "Time is up — call now"
-                                            : "Your vault code expires in"}
+                                    <p className="mx-auto max-w-[21rem] text-center text-[11.5px] leading-relaxed text-text-muted">
+                                        (Your temporary code expires when this page
+                                        closes.
+                                        <br />
+                                        Call within the next 10 minutes to secure
+                                        your bonuses!)
                                     </p>
-                                    <div className="mt-2 flex items-start justify-center gap-2">
+                                    <div className="mt-2.5 flex items-start justify-center gap-2">
                                         <TimerCell value={mm} label="Min" />
                                         <span className="brand-font pt-2.5 text-xl font-black text-text-muted">
                                             :
@@ -331,16 +345,16 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                     </span>
                                     <span className="flex flex-col items-start leading-none">
                                         <span className="text-[10.5px] font-bold uppercase tracking-[0.16em] opacity-90">
-                                            Call now — tap to call
+                                            📞 Call Now — tap to call
                                         </span>
-                                        <span className="brand-font mt-1 text-[1.45rem] font-black tabular-nums tracking-wide">
+                                        <span className="brand-font mt-1 text-[1.4rem] font-black tabular-nums tracking-wide">
                                             {PHONE_DISPLAY}
                                         </span>
                                     </span>
                                 </a>
-                                <p className="mt-2 text-center text-[11px] leading-snug text-text-muted">
-                                    Call immediately to finalize your setup — your
-                                    temporary code expires when this page closes.
+                                <p className="mt-2 text-center text-[11.5px] leading-snug text-text-secondary">
+                                    Call immediately to finalize your setup and claim
+                                    your Secret Vault Code
                                 </p>
                             </div>
                         </div>
