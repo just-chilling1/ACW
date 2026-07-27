@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Check, Phone, X } from "lucide-react";
+import { Clock3, FastForward, Phone, TrendingUp, Vault, Wallet, X } from "lucide-react";
 
 const SESSION_DISMISS_KEY = "cashtap_specialist_popup_dismissed";
 const COUNTDOWN_MS = 10 * 60 * 1000;
@@ -11,9 +11,9 @@ const PHONE_DISPLAY = "425-458-1656";
 const PHONE_TEL = "tel:+14254581656";
 
 const BENEFITS = [
-    "Skip all the learning curve and all the wait",
-    "Get results from day zero",
-    "Scale your results to $1,000 - $2,000 per day",
+    { icon: FastForward, text: "Skip all the learning curve and all the wait" },
+    { icon: Clock3, text: "Get results from day zero" },
+    { icon: TrendingUp, text: "Scale your results to $1,000 - $2,000 per day" },
 ] as const;
 
 type EligibilityResponse = {
@@ -29,19 +29,6 @@ function subscribeNoop() {
 /** Client-only gate — avoids SSR/portal hydration mismatch. */
 function useIsClient() {
     return useSyncExternalStore(subscribeNoop, () => true, () => false);
-}
-
-/** Hairline divider with a centered small-caps label. */
-function SectionLabel({ children }: { children: React.ReactNode }) {
-    return (
-        <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-gradient-to-r from-transparent to-white/12" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-accent/90">
-                {children}
-            </span>
-            <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/12" />
-        </div>
-    );
 }
 
 type SpecialistWelcomePopupProps = {
@@ -228,7 +215,7 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby={titleId}
-                        className="relative z-10 w-full max-w-[24.5rem] sm:max-w-[34rem] p-[1px] max-sm:rounded-t-[1.5rem] sm:rounded-[1.5rem] bg-gradient-to-b from-accent/50 via-white/10 to-transparent shadow-[0_-16px_70px_rgba(0,0,0,0.8)]"
+                        className="relative z-10 w-full max-w-[24.5rem] sm:max-w-[30rem] max-sm:rounded-t-3xl sm:rounded-3xl bg-white shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
                         onClick={(e) => e.stopPropagation()}
                         initial={
                             reduceMotion ? false : { opacity: 0, y: 36, scale: 0.97 }
@@ -239,45 +226,43 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                         }
                         transition={{ type: "spring", stiffness: 340, damping: 30 }}
                     >
-                        <div className="relative flex max-h-[min(96dvh,44rem)] flex-col overflow-hidden max-sm:rounded-t-[calc(1.5rem-1px)] sm:rounded-[calc(1.5rem-1px)] bg-[#0B0C0F]">
-                            {/* Soft gold aurora */}
-                            <div
-                                aria-hidden
-                                className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(70%_100%_at_50%_0%,rgba(234,179,8,0.13),transparent_70%)]"
-                            />
-
-                            <button
-                                type="button"
-                                onClick={dismiss}
-                                aria-label="Close"
-                                className="absolute right-2 top-2 z-20 flex h-10 w-10 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white active:bg-white/15 touch-manipulation"
-                            >
-                                <X size={18} />
-                            </button>
+                        <div className="relative flex max-h-[min(96dvh,46rem)] flex-col overflow-hidden max-sm:rounded-t-3xl sm:rounded-3xl">
+                            {/* Header: brand row */}
+                            <div className="relative z-10 flex shrink-0 items-center gap-2 px-5 pt-[max(1.1rem,env(safe-area-inset-top))] sm:px-7 sm:pt-5">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-white">
+                                    <Wallet size={15} strokeWidth={2.5} />
+                                </span>
+                                <span className="brand-font text-[13px] font-black tracking-wide text-gray-900 uppercase">
+                                    CashTap <span className="text-emerald-600">AI</span>
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={dismiss}
+                                    aria-label="Close"
+                                    className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 active:bg-gray-200 touch-manipulation"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
 
                             {/* Content — sized to fit a phone screen without scrolling */}
                             <div
-                                className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 pb-1 pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-8 sm:pt-7"
+                                className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 pb-2 pt-3 sm:px-9"
                                 style={{ WebkitOverflowScrolling: "touch" }}
                             >
                                 {/* Title */}
-                                <p className="text-center text-[10px] font-bold uppercase tracking-[0.34em] text-text-muted">
-                                    Welcome To
-                                </p>
                                 <h2
                                     id={titleId}
-                                    className="brand-font mt-1.5 text-center text-[1.9rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
+                                    className="brand-font text-center text-[1.45rem] sm:text-[1.6rem] font-black uppercase leading-tight tracking-tight text-gray-900"
                                 >
-                                    <span className="bg-gradient-to-b from-[#fde047] via-accent to-[#b8860b] bg-clip-text text-transparent">
-                                        CashTap AI
-                                    </span>
+                                    Welcome To CashTap AI
                                 </h2>
 
                                 {/* Intro copy */}
-                                <div className="mx-auto mt-5 max-w-[21rem] space-y-1.5 text-center text-[12.5px] leading-[1.6] text-text-secondary">
+                                <div className="mx-auto mt-2 max-w-[22rem] space-y-0.5 text-center text-[12.5px] leading-[1.6] text-gray-500">
                                     <p>
                                         As part of our commitment to{" "}
-                                        <span className="font-semibold text-text-primary">
+                                        <span className="font-semibold text-gray-800">
                                             YOUR
                                         </span>{" "}
                                         success…
@@ -287,140 +272,104 @@ export function SpecialistWelcomePopup({ forceOpen = false }: SpecialistWelcomeP
                                         learning curve.
                                     </p>
                                 </div>
-                                <p className="mx-auto mt-3 max-w-[19rem] text-center text-[14.5px] font-semibold leading-snug text-text-primary">
-                                    You have been assigned a dedicated
-                                    <br />
-                                    Start-Up Specialist.
+                                <p className="mx-auto mt-2.5 max-w-[20rem] text-center text-[14px] font-bold leading-snug text-gray-900">
+                                    You have been assigned a dedicated Start-Up
+                                    Specialist.
                                 </p>
 
-                                {/* Two columns on desktop, stacked on mobile */}
-                                <div className="mt-6 grid gap-6 sm:grid-cols-[1.15fr_auto_1fr] sm:items-start sm:gap-6">
-                                    <div>
-                                        <SectionLabel>
-                                            Who will help you
-                                        </SectionLabel>
-                                        <ul className="mx-auto mt-3 max-w-[19.5rem] space-y-2 sm:mx-0 sm:max-w-none">
-                                            {BENEFITS.map((item) => (
-                                                <li
-                                                    key={item}
-                                                    className="flex items-start gap-2.5 text-[13px] leading-snug text-text-primary/90"
-                                                >
-                                                    <span className="mt-[3px] flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-accent/15">
-                                                        <Check
-                                                            size={9}
-                                                            strokeWidth={3.5}
-                                                            className="text-accent"
-                                                        />
-                                                    </span>
-                                                    <span>{item}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
+                                {/* Benefits */}
+                                <p className="mt-4 text-center text-[10.5px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                                    Who will help you
+                                </p>
+                                <ul className="mx-auto mt-2.5 max-w-[21rem] space-y-2.5">
+                                    {BENEFITS.map(({ icon: Icon, text }) => (
+                                        <li
+                                            key={text}
+                                            className="flex items-center gap-3 text-[13.5px] font-medium leading-snug text-gray-800"
+                                        >
+                                            <Icon
+                                                size={19}
+                                                strokeWidth={1.8}
+                                                className="shrink-0 text-gray-900"
+                                            />
+                                            <span>{text}</span>
+                                        </li>
+                                    ))}
+                                </ul>
 
-                                    <div
-                                        aria-hidden
-                                        className="hidden w-px self-stretch bg-gradient-to-b from-transparent via-white/12 to-transparent sm:block"
+                                {/* PLUS — vault bonus */}
+                                <div className="mx-auto mt-4 flex max-w-[22rem] items-center gap-3.5 rounded-2xl border border-emerald-100 bg-emerald-50/60 px-4 py-3">
+                                    <Vault
+                                        size={34}
+                                        strokeWidth={1.4}
+                                        className="shrink-0 text-emerald-700"
                                     />
-
-                                    <div>
-                                        <SectionLabel>Plus</SectionLabel>
-                                        <p className="mx-auto mt-3 max-w-[19.5rem] text-center text-[13.5px] font-semibold leading-relaxed text-text-primary sm:mx-0 sm:max-w-none sm:text-left">
-                                            He will unlock our secret vault bonuses
-                                            for you for{" "}
-                                            <span className="text-accent">FREE</span>
+                                    <div className="min-w-0">
+                                        <p className="text-[10.5px] font-black uppercase tracking-[0.16em] text-emerald-700">
+                                            Plus
                                         </p>
-                                        <p className="mt-1.5 text-center text-[12px] leading-relaxed text-text-muted sm:text-left">
+                                        <p className="mt-0.5 text-[13.5px] font-bold leading-snug text-gray-900">
+                                            He will unlock our secret vault bonuses
+                                            for you for FREE
+                                        </p>
+                                        <p className="mt-0.5 text-[12px] text-gray-500">
                                             Worth over{" "}
-                                            <span className="brand-font font-bold tabular-nums text-text-primary">
+                                            <span className="font-bold text-gray-900 tabular-nums">
                                                 $11,385.32
                                             </span>{" "}
                                             in retail value
                                         </p>
                                     </div>
                                 </div>
-
-                                {/* Expiry note */}
-                                <p className="mx-auto mt-6 max-w-[21rem] text-center text-[11px] leading-[1.6] text-text-muted sm:max-w-none">
-                                    (Your temporary code expires when this page
-                                    closes. Call within the next 10 minutes to secure
-                                    your bonuses!)
-                                </p>
                             </div>
 
                             {/* CTA dock with urgency timer */}
-                            <div className="relative z-10 shrink-0 border-t border-white/[0.07] px-6 pt-3.5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-8">
-                                {/* Timer: label + segmented digits + draining bar */}
-                                <div className="mb-3.5">
-                                    <div className="flex items-center justify-center gap-3">
-                                        <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-text-muted">
-                                            Code expires in
-                                        </span>
-                                        <div
-                                            className={`flex items-center gap-1 ${
-                                                urgent ? "text-error" : "text-accent"
-                                            }`}
-                                        >
-                                            <span
-                                                className={`brand-font rounded-md border px-1.5 py-0.5 text-[1.05rem] font-black leading-none tabular-nums ${
-                                                    urgent
-                                                        ? "border-error/40 bg-error/10"
-                                                        : "border-accent/30 bg-accent/[0.08]"
-                                                }`}
-                                            >
-                                                {mm}
-                                            </span>
-                                            <span className="brand-font text-[1rem] font-black leading-none opacity-70 motion-safe:animate-pulse">
-                                                :
-                                            </span>
-                                            <span
-                                                className={`brand-font rounded-md border px-1.5 py-0.5 text-[1.05rem] font-black leading-none tabular-nums ${
-                                                    urgent
-                                                        ? "border-error/40 bg-error/10"
-                                                        : "border-accent/30 bg-accent/[0.08]"
-                                                }`}
-                                            >
-                                                {ss}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="mx-auto mt-2.5 h-[3px] w-full max-w-[22rem] overflow-hidden rounded-full bg-white/[0.07]">
-                                        <div
-                                            className={`h-full rounded-full transition-[width] duration-300 ease-linear ${
-                                                urgent
-                                                    ? "bg-gradient-to-r from-error to-[#f87171]"
-                                                    : "bg-gradient-to-r from-accent to-[#fde047]"
-                                            }`}
-                                            style={{
-                                                width: `${progressPct}%`,
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-
+                            <div className="relative z-10 shrink-0 px-6 pt-3 pb-[max(1.15rem,env(safe-area-inset-bottom))] sm:px-9">
                                 <a
                                     href={PHONE_TEL}
-                                    className="group relative flex w-full min-h-[56px] items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-[#f5c211] to-[#d4a406] px-5 text-black transition-all hover:brightness-105 active:scale-[0.985] touch-manipulation select-none motion-safe:animate-[cta-pulse_2.2s_ease-in-out_infinite] shadow-[0_10px_28px_rgba(234,179,8,0.32),inset_0_1px_0_rgba(255,255,255,0.35)]"
+                                    className="group relative flex w-full min-h-[54px] items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-emerald-600 px-5 text-white transition-all hover:bg-emerald-700 active:scale-[0.985] touch-manipulation select-none motion-safe:animate-[cta-pulse-green_2.2s_ease-in-out_infinite] shadow-[0_8px_24px_rgba(5,150,105,0.35)]"
                                 >
                                     <span
                                         aria-hidden
-                                        className="absolute inset-y-0 -left-1/3 w-1/4 -skew-x-12 bg-white/30 blur-md motion-safe:animate-[sheen_3s_ease-in-out_infinite]"
+                                        className="absolute inset-y-0 -left-1/3 w-1/4 -skew-x-12 bg-white/20 blur-md motion-safe:animate-[sheen_3s_ease-in-out_infinite]"
                                     />
-                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black/90 text-[#f5c211]">
-                                        <Phone size={16} strokeWidth={2.5} />
+                                    <Phone size={18} strokeWidth={2.4} className="shrink-0" />
+                                    <span className="brand-font text-[1.15rem] font-black tabular-nums tracking-tight">
+                                        Call Now: {PHONE_DISPLAY}
                                     </span>
-                                    <span className="flex flex-col items-start leading-none">
-                                        <span className="text-[9.5px] font-black uppercase tracking-[0.2em] opacity-80">
-                                            Call now · tap to call
-                                        </span>
-                                        <span className="brand-font mt-[3px] text-[1.35rem] font-black tabular-nums tracking-tight">
-                                            {PHONE_DISPLAY}
-                                        </span>
+                                    <span className="text-[10px] font-semibold opacity-85 whitespace-nowrap">
+                                        tap to call
                                     </span>
                                 </a>
-                                <p className="mt-2.5 text-center text-[11px] leading-snug text-text-muted">
-                                    Finalize your setup and claim your Secret Vault
-                                    Code
+
+                                {/* Timer + expiry note */}
+                                <div className="mt-2.5 flex items-center justify-center gap-2">
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400">
+                                        Code expires in
+                                    </span>
+                                    <span
+                                        className={`brand-font rounded-md px-1.5 py-0.5 text-[0.95rem] font-black leading-none tabular-nums ${
+                                            urgent
+                                                ? "bg-red-50 text-red-600"
+                                                : "bg-emerald-50 text-emerald-700"
+                                        }`}
+                                    >
+                                        {mm}:{ss}
+                                    </span>
+                                </div>
+                                <div className="mx-auto mt-2 h-[3px] w-full max-w-[20rem] overflow-hidden rounded-full bg-gray-100">
+                                    <div
+                                        className={`h-full rounded-full transition-[width] duration-300 ease-linear ${
+                                            urgent ? "bg-red-500" : "bg-emerald-500"
+                                        }`}
+                                        style={{ width: `${progressPct}%` }}
+                                    />
+                                </div>
+                                <p className="mx-auto mt-2.5 max-w-[22rem] text-center text-[10.5px] leading-[1.55] text-gray-400">
+                                    Call immediately to finalize your setup and claim
+                                    your Secret Vault Code. (Your temporary code
+                                    expires when this page closes. Call within the
+                                    next 10 minutes to secure your bonuses!)
                                 </p>
                             </div>
                         </div>
