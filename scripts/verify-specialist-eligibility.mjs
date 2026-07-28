@@ -12,6 +12,7 @@ import {
     msUntilSpecialistWindowClose,
     evaluateSpecialistEligibility,
     resolveRequestCountry,
+    countryFromIp,
     SPECIALIST_TZ,
 } from "../src/lib/specialist-popup-eligibility.ts";
 
@@ -209,37 +210,40 @@ check(
     false
 );
 
-/* ---------------- Edge country headers (Cloudflare / Vercel) ---------------- */
+/* ---------------- Country resolution (headers + DigitalOcean GeoIP) ---------------- */
 function reqWithHeaders(headers) {
     return new Request("https://example.com/api/eligibility/specialist-popup", {
         headers,
     });
 }
 check(
-    "resolveCountry prefers cf-ipcountry",
-    resolveRequestCountry(
-        reqWithHeaders({
-            "cf-ipcountry": "CA",
-            "x-vercel-ip-country": "US",
-        })
-    ),
-    "CA"
-);
-check(
-    "resolveCountry falls back to x-vercel-ip-country",
+    "resolveCountry uses explicit country header",
     resolveRequestCountry(reqWithHeaders({ "x-vercel-ip-country": "us" })),
     "US"
 );
 check(
-    "resolveCountry ignores Cloudflare XX",
+    "resolveCountry ignores placeholder XX",
     resolveRequestCountry(reqWithHeaders({ "cf-ipcountry": "XX" })),
     null
 );
 check(
-    "resolveCountry null when no geo headers",
+    "resolveCountry GeoIP via do-connecting-ip (US)",
+    resolveRequestCountry(reqWithHeaders({ "do-connecting-ip": "8.8.8.8" })),
+    "US"
+);
+check(
+    "resolveCountry GeoIP via do-connecting-ip (CA)",
+    resolveRequestCountry(reqWithHeaders({ "do-connecting-ip": "24.48.0.1" })),
+    "CA"
+);
+check(
+    "resolveCountry null when no IP/headers",
     resolveRequestCountry(reqWithHeaders({})),
     null
 );
+check("countryFromIp US", countryFromIp("8.8.8.8"), "US");
+check("countryFromIp CA", countryFromIp("24.48.0.1"), "CA");
+check("countryFromIp null input", countryFromIp(null), null);
 
 /* ---------------- Result ---------------- */
 console.log(`\n${passed} passed, ${failed} failed`);

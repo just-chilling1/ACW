@@ -1,3 +1,5 @@
+import geoip from "geoip-country";
+
 /** Pacific business hours for the Start-Up Specialist welcome popup. */
 export const SPECIALIST_TZ = "America/Los_Angeles";
 
@@ -9,27 +11,102 @@ export const SPECIALIST_WINDOW_END_MINUTES = 17 * 60 + 30;
 
 const ELIGIBLE_COUNTRIES = new Set(["US", "CA"]);
 
-/** Cloudflare / edge placeholders that are not real ISO country codes. */
+/** Edge placeholders that are not real ISO country codes. */
 const INVALID_COUNTRY_CODES = new Set(["XX", "T1", "ZZ"]);
 
+function normalizeClientIp(raw: string | null | undefined): string | null {
+    if (!raw) return null;
+    let ip = raw.trim();
+    // X-Forwarded-For: client, proxy1, proxy2 — take the leftmost (client).
+    if (ip.includes(",")) ip = ip.split(",")[0]?.trim() ?? "";
+    // [IPv6]:port
+    if (ip.startsWith("[")) {
+        const end = ip.indexOf("]");
+        if (end > 0) ip = ip.slice(1, end);
+    } else if (/^\d+\.\d+\.\d+\.\d+:\d+$/.test(ip)) {
+        ip = ip.replace(/:\d+$/, "");
+    }
+    return ip || null;
+}
+
+function isPrivateOrLocalIp(ip: string): boolean {
+    if (ip === "::1" || ip === "127.0.0.1" || ip === "0.0.0.0") return true;
+    if (ip.startsWith("10.") || ip.startsWith("192.168.") || ip.startsWith("127.")) {
+        return true;
+    }
+    if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(ip)) return true;
+    const lower = ip.toLowerCase();
+    if (
+        lower.startsWith("fc") ||
+        lower.startsWith("fd") ||
+        lower.startsWith("fe80:") ||
+        lower.startsWith("::ffff:10.") ||
+        lower.startsWith("::ffff:192.168.")
+    ) {
+        return true;
+    }
+    return false;
+}
+
+/** Best-effort client IP for DigitalOcean App Platform (+ common proxies). */
+export function clientIpFromRequest(request: Request): string | null {
+    const candidates = [
+        request.headers.get("do-connecting-ip"), // DigitalOcean App Platform
+        request.headers.get("true-client-ip"),
+        request.headers.get("cf-connecting-ip"),
+        request.headers.get("x-real-ip"),
+        request.headers.get("x-forwarded-for"),
+    ];
+    for (const raw of candidates) {
+        const ip = normalizeClientIp(raw);
+        if (ip && !isPrivateOrLocalIp(ip)) return ip;
+    }
+    return null;
+}
+
+export function countryFromIp(ip: string | null | undefined): string | null {
+    if (!ip) return null;
+    try {
+        const hit = geoip.lookup(ip);
+        const code = hit?.country?.trim().toUpperCase();
+        if (
+            code &&
+            /^[A-Z]{2}$/.test(code) &&
+            !INVALID_COUNTRY_CODES.has(code)
+        ) {
+            return code;
+        }
+    } catch {
+        // corrupt / unknown IP — fail closed
+    }
+    return null;
+}
+
 /**
- * Resolve the visitor country from edge/proxy headers.
- * Production (cashtapaiaccess.com) sits behind Cloudflare on DigitalOcean,
- * so `cf-ipcountry` is the primary signal — not Vercel's header.
+ * Resolve the visitor country.
+ *
+ * Production runs on DigitalOcean App Platform, which does not expose a
+ * country header. We therefore:
+ * 1) honor any explicit country header if present, then
+ * 2) GeoIP-lookup the client IP from `do-connecting-ip` (works for both the
+ *    CashTap app and the EverAffiliate iframe embed).
  */
 export function resolveRequestCountry(request: Request): string | null {
-    const candidates = [
-        request.headers.get("cf-ipcountry"), // Cloudflare (production)
-        request.headers.get("x-vercel-ip-country"), // Vercel
-        request.headers.get("cloudfront-viewer-country"), // AWS CloudFront
-        request.headers.get("x-country-code"), // misc proxies / DO
+    const headerCandidates = [
+        request.headers.get("x-vercel-ip-country"),
+        request.headers.get("cf-ipcountry"),
+        request.headers.get("cloudfront-viewer-country"),
+        request.headers.get("x-country-code"),
     ];
 
-    for (const raw of candidates) {
+    for (const raw of headerCandidates) {
         const code = raw?.trim().toUpperCase();
         if (!code || INVALID_COUNTRY_CODES.has(code)) continue;
         if (/^[A-Z]{2}$/.test(code)) return code;
     }
+
+    const fromIp = countryFromIp(clientIpFromRequest(request));
+    if (fromIp) return fromIp;
 
     // Local/dev only: allow ?debugCountry=US to exercise the gate safely.
     if (process.env.NODE_ENV === "development") {

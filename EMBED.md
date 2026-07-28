@@ -44,8 +44,8 @@ Put this right before `</body>` on your website:
 How it behaves:
 
 1. The iframe loads invisibly (`display:none`).
-2. The popup checks eligibility against the CashTap server using the
-   **visitor's** IP and the current Pacific time.
+2. The popup checks eligibility against the CashTap server (DigitalOcean)
+   using the **visitor's** IP (GeoIP → US/CA) and the current Pacific time.
 3. If eligible, the iframe posts `{ type: "cashtap-specialist-popup", open: true }`
    and the snippet makes it visible, covering the page with the popup + dimmed
    backdrop.
