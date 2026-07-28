@@ -1,16 +1,24 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { resolveRequestCountry } from "@/lib/specialist-popup-eligibility";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const ALLOWED_EVENTS = new Set(["cta_call_click"]);
+const ALLOWED_EVENTS = new Set(["cta_call_click", "popup_open"]);
 
 export async function POST(request: Request) {
     try {
-        const body = (await request.json().catch(() => ({}))) as {
-            event?: unknown;
-        };
+        // sendBeacon often uses text/plain; accept JSON from any content-type.
+        const raw = await request.text().catch(() => "");
+        let body: { event?: unknown } = {};
+        if (raw) {
+            try {
+                body = JSON.parse(raw) as { event?: unknown };
+            } catch {
+                body = {};
+            }
+        }
         const event =
             typeof body.event === "string" && ALLOWED_EVENTS.has(body.event)
                 ? body.event
@@ -26,7 +34,7 @@ export async function POST(request: Request) {
             .insert({
                 event,
                 user_id: user?.id ?? null,
-                country: request.headers.get("x-vercel-ip-country"),
+                country: resolveRequestCountry(request),
                 user_agent:
                     request.headers.get("user-agent")?.slice(0, 300) ?? null,
             });

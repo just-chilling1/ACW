@@ -11,6 +11,7 @@ import {
     isWithinSpecialistHours,
     msUntilSpecialistWindowClose,
     evaluateSpecialistEligibility,
+    resolveRequestCountry,
     SPECIALIST_TZ,
 } from "../src/lib/specialist-popup-eligibility.ts";
 
@@ -206,6 +207,38 @@ check(
     "ineligible response has no closesInMs",
     "closesInMs" in evaluateSpecialistEligibility("US", closedTime),
     false
+);
+
+/* ---------------- Edge country headers (Cloudflare / Vercel) ---------------- */
+function reqWithHeaders(headers) {
+    return new Request("https://example.com/api/eligibility/specialist-popup", {
+        headers,
+    });
+}
+check(
+    "resolveCountry prefers cf-ipcountry",
+    resolveRequestCountry(
+        reqWithHeaders({
+            "cf-ipcountry": "CA",
+            "x-vercel-ip-country": "US",
+        })
+    ),
+    "CA"
+);
+check(
+    "resolveCountry falls back to x-vercel-ip-country",
+    resolveRequestCountry(reqWithHeaders({ "x-vercel-ip-country": "us" })),
+    "US"
+);
+check(
+    "resolveCountry ignores Cloudflare XX",
+    resolveRequestCountry(reqWithHeaders({ "cf-ipcountry": "XX" })),
+    null
+);
+check(
+    "resolveCountry null when no geo headers",
+    resolveRequestCountry(reqWithHeaders({})),
+    null
 );
 
 /* ---------------- Result ---------------- */

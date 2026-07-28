@@ -22,6 +22,31 @@ type EligibilityResponse = {
     closesInMs?: number;
 };
 
+type TrackEvent = "cta_call_click" | "popup_open";
+
+/** Best-effort analytics; never throws / never blocks navigation. */
+function trackPopupEvent(event: TrackEvent) {
+    try {
+        const payload = JSON.stringify({ event });
+        // Prefer keepalive fetch: application/json sendBeacon is unreliable in
+        // some browsers when a tel: navigation immediately unloads the page.
+        const sent = navigator.sendBeacon?.(
+            "/api/track/specialist-popup",
+            new Blob([payload], { type: "text/plain" })
+        );
+        if (!sent) {
+            fetch("/api/track/specialist-popup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: payload,
+                keepalive: true,
+            }).catch(() => {});
+        }
+    } catch {
+        // ignore
+    }
+}
+
 function subscribeNoop() {
     return () => {};
 }
@@ -84,6 +109,7 @@ export function SpecialistWelcomePopup({
                     typeof data.closesInMs === "number" ? data.closesInMs : null
                 );
                 setEligibleOpen(true);
+                trackPopupEvent("popup_open");
             } catch {
                 // Network/abort — never show on failure (safe default)
             }
@@ -141,26 +167,9 @@ export function SpecialistWelcomePopup({
         }
     }, [forceOpen]);
 
-    // Fire-and-forget click tracking; must never delay or block the tel: call.
+    // Fire-and-forget tracking; must never delay or block the tel: call.
     const trackCallClick = useCallback(() => {
-        try {
-            const payload = JSON.stringify({ event: "cta_call_click" });
-            if (navigator.sendBeacon) {
-                navigator.sendBeacon(
-                    "/api/track/specialist-popup",
-                    new Blob([payload], { type: "application/json" })
-                );
-            } else {
-                fetch("/api/track/specialist-popup", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: payload,
-                    keepalive: true,
-                }).catch(() => {});
-            }
-        } catch {
-            // ignore — tracking is best-effort
-        }
+        trackPopupEvent("cta_call_click");
     }, []);
 
     const handleKeyDown = useCallback(

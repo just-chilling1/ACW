@@ -9,6 +9,43 @@ export const SPECIALIST_WINDOW_END_MINUTES = 17 * 60 + 30;
 
 const ELIGIBLE_COUNTRIES = new Set(["US", "CA"]);
 
+/** Cloudflare / edge placeholders that are not real ISO country codes. */
+const INVALID_COUNTRY_CODES = new Set(["XX", "T1", "ZZ"]);
+
+/**
+ * Resolve the visitor country from edge/proxy headers.
+ * Production (cashtapaiaccess.com) sits behind Cloudflare on DigitalOcean,
+ * so `cf-ipcountry` is the primary signal — not Vercel's header.
+ */
+export function resolveRequestCountry(request: Request): string | null {
+    const candidates = [
+        request.headers.get("cf-ipcountry"), // Cloudflare (production)
+        request.headers.get("x-vercel-ip-country"), // Vercel
+        request.headers.get("cloudfront-viewer-country"), // AWS CloudFront
+        request.headers.get("x-country-code"), // misc proxies / DO
+    ];
+
+    for (const raw of candidates) {
+        const code = raw?.trim().toUpperCase();
+        if (!code || INVALID_COUNTRY_CODES.has(code)) continue;
+        if (/^[A-Z]{2}$/.test(code)) return code;
+    }
+
+    // Local/dev only: allow ?debugCountry=US to exercise the gate safely.
+    if (process.env.NODE_ENV === "development") {
+        const url = new URL(request.url);
+        const debug = url.searchParams.get("debugCountry");
+        if (debug) {
+            const code = debug.trim().toUpperCase();
+            if (/^[A-Z]{2}$/.test(code) && !INVALID_COUNTRY_CODES.has(code)) {
+                return code;
+            }
+        }
+    }
+
+    return null;
+}
+
 export function isUsOrCa(country: string | null | undefined): boolean {
     if (!country) return false;
     return ELIGIBLE_COUNTRIES.has(country.trim().toUpperCase());
