@@ -34,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-sidebar="expanded">
-      <body className="bg-page text-white selection:bg-accent/30">
+      <body className="app-bg text-white selection:bg-accent/30">
         <SearchProvider>
           <Shell>
             {children}

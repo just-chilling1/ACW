@@ -69,12 +69,21 @@ export async function proxy(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/forgot-password') || pathname.startsWith('/reset-password') || pathname.startsWith('/auth/callback')
+    // Public static assets (logos, thumbs, icons) must bypass auth — otherwise
+    // /_next/image and <img> requests get HTML redirects and break in the UI.
+    const isStaticAsset = /\.(?:png|jpe?g|gif|svg|webp|ico|woff2?|ttf|otf|mp4|txt|xml)$/i.test(pathname)
     // /embed/* is public so the popup can be iframed on external sites;
     // it exposes nothing beyond the geo/hours-gated popup itself.
-    const isPublicRoute = pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname === '/favicon.ico' || pathname === '/embed' || pathname.startsWith('/embed/')
+    const isPublicRoute =
+        pathname.startsWith('/_next') ||
+        pathname.startsWith('/api') ||
+        pathname === '/favicon.ico' ||
+        pathname === '/embed' ||
+        pathname.startsWith('/embed/') ||
+        isStaticAsset
     const isOnboardingRoute = pathname === '/onboarding' || pathname.startsWith('/onboarding/')
 
-    if (pathname.startsWith('/api')) {
+    if (pathname.startsWith('/api') || isStaticAsset) {
         return response
     }
 
@@ -108,12 +117,10 @@ export async function proxy(request: NextRequest) {
 export const config = {
     matcher: [
         /*
-         * Match all request paths except for the ones starting with:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * Feel free to modify this pattern to include more paths.
+         * Match all request paths except:
+         * - _next/static, _next/image
+         * - common static file extensions (served from /public)
          */
-        '/((?!_next/static|_next/image|favicon.ico).*)',
+        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf)$).*)',
     ],
 }

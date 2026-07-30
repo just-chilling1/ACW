@@ -13,7 +13,8 @@ import { GenerationProgress } from "@/components/ui/generation-progress";
 export default function SearchPage() {
     const {
         keyword, setKeyword,
-        setVariations, setPostsByVariation, setActivityByVariation, setActiveChip,
+        setVariations, setPostsByVariation, setActivityByVariation,
+        setAnalysisByVariation, setSelectedAds, setActiveChip,
         history, addToHistory
     } = useSearch();
     const [loading, setLoading] = useState(false);
@@ -29,6 +30,11 @@ export default function SearchPage() {
         setShowOfferBanner(true);
         setError("");
         addToHistory(searchVal);
+        // Reset downstream workflow so steps 2–4 re-lock until this run completes
+        setPostsByVariation({});
+        setActivityByVariation({});
+        setAnalysisByVariation({});
+        setSelectedAds([]);
 
         try {
             const resp = await fetch("/api/search", {
@@ -45,6 +51,8 @@ export default function SearchPage() {
 
             setVariations(data.variations || []);
             setActiveChip(data.variations?.[0] || "");
+            // Brief hold so the generation bar + offer banner are visible before advancing
+            await new Promise((r) => setTimeout(r, 900));
             router.push("/analysis");
         } catch (e) {
             console.error(e);
@@ -58,13 +66,12 @@ export default function SearchPage() {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center min-h-[70vh] gap-10 max-w-xl mx-auto w-full"
+            className="flex flex-col gap-6 max-w-6xl mx-auto w-full py-6"
         >
             <PageHeader
                 eyebrow="STEP 1 OF 4"
                 title="Enter Your Ad Topic"
                 subtitle="Type one topic below. We will find related ads and conversations from Reddit and YouTube."
-                className="text-center items-center [&_.ds-h1]:inline-flex [&_.ds-h1]:items-center [&_.ds-h1]:gap-2 [&_.ds-h1]:justify-center"
                 actions={
                     <InfoHint
                         label="What is an ad topic?"
@@ -84,7 +91,7 @@ export default function SearchPage() {
             )}
 
             {/* Search Input */}
-            <div className="w-full flex flex-col gap-3">
+            <div className="w-full max-w-2xl flex flex-col gap-3">
                 <div className="relative group">
                     <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent transition-colors" />
                     <input

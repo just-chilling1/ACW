@@ -1,26 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     LayoutGrid, Search, Radar, MessageSquare, MoreHorizontal,
     Brain, GraduationCap, TrendingUp, Sparkles,
-    LogOut, ExternalLink, X, Headphones, ChevronRight
+    LogOut, ExternalLink, X, Headphones, ChevronRight, Lock
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useSearch } from "@/context/SearchContext";
 import { PREMIUM_FEATURES } from "@/lib/premium-features";
+import { getWorkflowProgress, isWorkflowStepLocked } from "@/lib/workflow-progress";
 
 const MAIN_TABS = [
     { path: "/dashboard", label: "Home", icon: LayoutGrid },
     { path: "/search", label: "Search", icon: Search },
-    { path: "/radar", label: "Find Ads", icon: Radar },
-    { path: "/replies", label: "Replies", icon: MessageSquare },
+    { path: "/radar", label: "Find Ads", icon: Radar, requiresWorkflowStep: 2 },
+    { path: "/replies", label: "Replies", icon: MessageSquare, requiresWorkflowStep: 3 },
 ];
 
 const MORE_NAV = [
-    { path: "/analysis", label: "Step 2: Check Demand", icon: Brain },
+    { path: "/analysis", label: "Step 2: Check Demand", icon: Brain, requiresWorkflowStep: 1 },
     { path: "/training", label: "Training", icon: GraduationCap },
     { path: "/scale-training", label: "Scale to $1k–$5k/day", icon: TrendingUp },
 ];
@@ -40,8 +41,18 @@ const MORE_ITEM_TEXT =
 
 export function BottomNav() {
     const pathname = usePathname();
-    const { resetSession } = useSearch();
+    const { resetSession, variations, analysisByVariation, selectedAds } = useSearch();
     const [moreOpen, setMoreOpen] = useState(false);
+
+    const workflowProgress = useMemo(
+        () =>
+            getWorkflowProgress(
+                variations.length > 0,
+                Object.keys(analysisByVariation).length > 0,
+                selectedAds.length > 0
+            ),
+        [variations.length, analysisByVariation, selectedAds.length]
+    );
 
     useEffect(() => {
         setMoreOpen(false);
@@ -68,6 +79,21 @@ export function BottomNav() {
                     {MAIN_TABS.map((tab) => {
                         const Icon = tab.icon;
                         const active = pathname === tab.path;
+                        const locked = isWorkflowStepLocked(tab.requiresWorkflowStep, workflowProgress);
+
+                        if (locked) {
+                            return (
+                                <div
+                                    key={tab.path}
+                                    title="Complete the previous step first"
+                                    className="relative flex flex-col items-center justify-center gap-1 text-text-muted/40 cursor-not-allowed"
+                                >
+                                    <Lock size={22} strokeWidth={1.8} />
+                                    <span className="text-[11px] font-semibold leading-none">{tab.label}</span>
+                                </div>
+                            );
+                        }
+
                         return (
                             <Link
                                 key={tab.path}
@@ -143,6 +169,21 @@ export function BottomNav() {
                                 {MORE_NAV.map((item) => {
                                     const Icon = item.icon;
                                     const active = pathname === item.path;
+                                    const locked = isWorkflowStepLocked(item.requiresWorkflowStep, workflowProgress);
+
+                                    if (locked) {
+                                        return (
+                                            <div
+                                                key={item.path}
+                                                title="Complete the previous step first"
+                                                className={clsx(MORE_ROW, "opacity-40 cursor-not-allowed text-text-muted")}
+                                            >
+                                                <Lock size={16} className="shrink-0" />
+                                                <span className={MORE_ITEM_TEXT}>{item.label}</span>
+                                            </div>
+                                        );
+                                    }
+
                                     return (
                                         <Link
                                             key={item.path}
