@@ -13,6 +13,8 @@ import { clsx } from "clsx";
 import { InfoHint } from "@/components/ui/InfoHint";
 import { PageHeader } from "@/components/ui/page-header";
 import { GenerationProgress } from "@/components/ui/generation-progress";
+import { Field } from "@/components/ui/field";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function PlatformBadge({ platform }: { platform: string }) {
     const isReddit = platform === "Reddit";
@@ -136,25 +138,24 @@ export default function RepliesPage() {
             {/* Header */}
             <PageHeader
                 eyebrow="STEP 4 OF 4"
+                step={4}
                 title="Create Replies"
                 subtitle={`${currentAds.length} ad${currentAds.length !== 1 ? "s" : ""} selected for "${keyword}"`}
-            />
-
-            {/* Affiliate link */}
-                <div className="flex items-center gap-3 p-3 bg-[#0c0c0e] border border-border-dim/30 rounded-xl">
-                    <LinkIcon size={14} className="text-text-muted shrink-0" />
-                    <input
-                        type="text"
-                        placeholder="Paste your affiliate link here (optional — it gets inserted into replies)"
-                        className="bg-transparent border-none outline-none text-sm text-text-primary placeholder:text-text-muted/50 flex-1"
-                        value={affiliateLink}
-                        onChange={(e) => setAffiliateLink(e.target.value)}
-                    />
+                actions={
                     <InfoHint
                         label="What is an affiliate link?"
                         text="Affiliate link = your own special link. When someone buys through it, you get paid."
                     />
-                </div>
+                }
+            />
+
+            <Field
+                label="Affiliate link"
+                placeholder="Paste your affiliate link here (optional — it gets inserted into replies)"
+                value={affiliateLink}
+                onChange={(e) => setAffiliateLink(e.target.value)}
+                trailing={<LinkIcon size={14} strokeWidth={1.75} className="text-text-muted" />}
+            />
 
             {/* Ad cards */}
             <div className="flex flex-col gap-4">
@@ -169,7 +170,7 @@ export default function RepliesPage() {
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.04 }}
-                            className="border border-border-dim/30 rounded-xl bg-[#0c0c0e] overflow-hidden"
+                            className="card-base overflow-hidden p-0!"
                         >
                             {/* Ad header */}
                             <div className="p-4 flex items-start justify-between gap-3">
@@ -261,35 +262,41 @@ export default function RepliesPage() {
                                     >
                                         <div className="p-4">
                                             {isLoading ? (
-                                                <div className="flex flex-col items-center py-10 gap-3">
-                                                    <div className="w-10 h-10 border-2 border-border-dim border-t-accent rounded-full animate-spin" />
-                                                    <span className="text-xs text-text-muted">Writing 3 reply options...</span>
+                                                <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                                                    {[0, 1, 2].map((i) => (
+                                                        <div key={i} className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4">
+                                                            <Skeleton className="h-3 w-24" />
+                                                            <Skeleton className="h-3 w-full" />
+                                                            <Skeleton className="h-3 w-4/5" />
+                                                            <Skeleton className="h-3 w-3/5" />
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             ) : (
-                                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                                                <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
                                                     {replies.map((reply, rIdx) => {
                                                         const labels = ["Short & Direct", "Detailed Value", "Curiosity Hook"];
                                                         const uniqueId = `${post.id}-${rIdx}`;
                                                         const isCopied = copiedId === uniqueId;
 
                                                         return (
-                                                            <div key={rIdx} className="flex flex-col bg-[#111113] border border-border-dim/20 rounded-lg p-4 hover:border-accent/20 transition-all group">
-                                                                <div className="flex items-center justify-between mb-2.5">
-                                                                    <span className="text-[9px] font-black text-accent uppercase tracking-widest">{labels[rIdx]}</span>
+                                                            <div key={rIdx} className="group flex flex-col rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4 transition-colors hover:border-[rgba(234,179,8,0.3)]">
+                                                                <div className="mb-2.5 flex items-center justify-between">
+                                                                    <span className="page-eyebrow text-[10px]! tracking-[0.12em]!">{labels[rIdx]}</span>
                                                                     <button
                                                                         onClick={() => handleCopy(reply, uniqueId)}
                                                                         className={clsx(
-                                                                            "flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-all",
+                                                                            "flex items-center gap-1 rounded px-2 py-1 text-[10px] font-bold transition-all",
                                                                             isCopied
-                                                                                ? "bg-green-500 text-black"
-                                                                                : "bg-page border border-border-dim text-text-muted hover:bg-accent hover:text-black hover:border-accent"
+                                                                                ? "bg-[var(--success)] text-white"
+                                                                                : "btn-secondary px-2 py-1 text-[10px]"
                                                                         )}
                                                                     >
                                                                         {isCopied ? <Check size={10} /> : <Copy size={10} />}
                                                                         <span>{isCopied ? "Copied!" : "Copy"}</span>
                                                                     </button>
                                                                 </div>
-                                                                <p className="text-[12px] text-text-secondary leading-relaxed group-hover:text-text-primary transition-colors">
+                                                                <p className="text-[12px] leading-relaxed text-text-secondary transition-colors group-hover:text-text-primary">
                                                                     {renderFormattedReply(reply)}
                                                                 </p>
                                                             </div>

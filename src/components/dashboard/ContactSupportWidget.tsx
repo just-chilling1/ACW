@@ -7,8 +7,7 @@ import { APP_SUPPORT_NAME, FREE_TRAINING_URL, SUPPORT_EMAIL } from '@/lib/suppor
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
-const fieldClass =
-  'w-full min-w-0 rounded-xl border border-border-dim/50 bg-bg-secondary/80 px-3.5 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20'
+const fieldClass = 'input-base'
 
 async function parseJsonResponse(res: Response) {
   const text = await res.text()

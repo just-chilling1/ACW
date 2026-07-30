@@ -46,59 +46,69 @@ export default function DashboardPage() {
     >
       <PageHeader
         eyebrow="HOME"
-        title="Welcome to CashTap AI"
+        title={
+          <>
+            Welcome to <span className="text-gradient">CashTap AI</span>
+          </>
+        }
         subtitle="Watch the videos below in order — then enter a topic and start finding ads to reply to. The Training Academy is there whenever you want a deeper walkthrough."
       />
 
-      <div className="grid grid-cols-1 gap-8 xl:grid-cols-4">
-        <div className="flex flex-col gap-8 xl:col-span-3">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="flex min-w-0 flex-col gap-8">
           <section className="space-y-4">
             <div className="flex items-center gap-3">
-              <Play className="h-7 w-7 text-[#EAB308]" />
-              <h2 className="ds-h2 text-text-primary">Start Here</h2>
+              <Play className="h-5 w-5 text-[var(--gold)]" strokeWidth={1.75} />
+              <h2 className="ds-h2">Start Here</h2>
             </div>
-            {VISIBLE_VIDEOS[0] ? <DashboardVideoCard video={VISIBLE_VIDEOS[0]} /> : null}
+            {VISIBLE_VIDEOS[0] ? (
+              <DashboardVideoCard video={VISIBLE_VIDEOS[0]} chip="VIDEO 1" />
+            ) : null}
           </section>
 
           <BonusTrainingCard />
 
-          {VISIBLE_VIDEOS[1] ? <DashboardVideoCard video={VISIBLE_VIDEOS[1]} /> : null}
+          {VISIBLE_VIDEOS[1] ? (
+            <DashboardVideoCard video={VISIBLE_VIDEOS[1]} chip="VIDEO 2" />
+          ) : null}
 
           <BonusTrainingCard />
 
-          {VISIBLE_VIDEOS[2] ? <DashboardVideoCard video={VISIBLE_VIDEOS[2]} /> : null}
+          {VISIBLE_VIDEOS[2] ? (
+            <DashboardVideoCard video={VISIBLE_VIDEOS[2]} chip="VIDEO 3" />
+          ) : null}
 
           <div className="flex flex-col gap-3">
             <Link
               href="/search"
-              className="btn-primary flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl px-8 text-sm font-bold"
+              className="btn-primary flex min-h-[52px] w-full items-center justify-center gap-2 px-8 text-sm"
             >
-              <Search size={20} />
+              <Search size={18} strokeWidth={1.75} />
               Get Started Now — Enter Topic
             </Link>
             <Link
               href="/training"
-              className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl border border-border-dim/50 bg-surface/40 px-8 text-sm font-bold text-text-primary transition-colors hover:border-accent/40"
+              className="btn-secondary flex min-h-[52px] w-full items-center justify-center gap-2 px-8 text-sm"
             >
-              <BookOpen size={20} />
+              <BookOpen size={18} strokeWidth={1.75} />
               Know More from the Training Academy
             </Link>
           </div>
 
-          <section className="card-base border-accent/30 p-6">
+          <section className="card-base border-[rgba(234,179,8,0.25)]">
             <div className="flex flex-col items-center justify-between gap-5 sm:flex-row">
               <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#EAB308] to-[#6366F1] shadow-lg">
-                  <Headphones size={28} className="text-white" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-[rgba(234,179,8,0.3)] bg-[rgba(234,179,8,0.08)]">
+                  <Headphones size={22} strokeWidth={1.5} className="text-[var(--gold)]" />
                 </div>
                 <div>
-                  <h3 className="mb-0.5 text-xl font-extrabold text-text-primary">Need Help?</h3>
+                  <h3 className="mb-0.5 text-lg font-semibold text-text-primary">Need Help?</h3>
                   <p className="text-sm text-text-muted">Priority support available 24/7</p>
                 </div>
               </div>
               <a
                 href={`mailto:${SUPPORT_EMAIL}`}
-                className="btn-primary inline-flex min-h-12 items-center justify-center px-8 font-extrabold"
+                className="btn-primary inline-flex min-h-12 items-center justify-center px-8"
               >
                 Contact Support
               </a>

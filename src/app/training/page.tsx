@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
     GraduationCap, Search, Brain, Radar, MessageSquare,
-    ChevronDown, ChevronUp, ArrowRight, Lightbulb, HelpCircle,
+    ArrowRight, Lightbulb, HelpCircle,
     CheckCircle2, Target, Copy, ExternalLink, DollarSign, Zap,
     BookOpen, Star
 } from "lucide-react";
@@ -12,6 +12,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { VideoThumbnail } from "@/components/ui/video-thumbnail";
 import { VideoOverlay } from "@/components/ui/video-overlay";
+import { Accordion } from "@/components/ui/accordion";
 
 const VIDEOS = [
     {
@@ -296,39 +297,6 @@ const PRO_TIPS = [
     { icon: Star, title: "Be helpful first", text: "Replies that genuinely answer the question AND include your link perform 3x better than spammy ones." },
 ];
 
-function FAQItem({ q, a }: { q: string; a: string }) {
-    const [open, setOpen] = useState(false);
-    return (
-        <div className="border border-border-dim/20 rounded-xl overflow-hidden">
-            <button
-                onClick={() => setOpen(!open)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-accent/3 transition-colors"
-            >
-                <div className="flex items-center gap-3">
-                    <HelpCircle size={15} className="text-accent shrink-0" />
-                    <span className="text-sm font-semibold text-text-primary">{q}</span>
-                </div>
-                {open ? <ChevronUp size={14} className="text-text-muted shrink-0" /> : <ChevronDown size={14} className="text-text-muted shrink-0" />}
-            </button>
-            <AnimatePresence>
-                {open && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                    >
-                        <div className="px-4 pb-4 pl-12">
-                            <p className="text-[13px] text-text-secondary leading-relaxed">{a}</p>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-}
-
 export default function TrainingPage() {
     const [openVideo, setOpenVideo] = useState<{ id: string; title: string } | null>(null);
 
@@ -336,11 +304,15 @@ export default function TrainingPage() {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col gap-12 max-w-5xl mx-auto w-full py-6"
+            className="mx-auto flex w-full max-w-6xl flex-col gap-12 py-6"
         >
             <PageHeader
                 eyebrow="TRAINING"
-                title="Training Academy"
+                title={
+                    <>
+                        Training <span className="text-gradient">Academy</span>
+                    </>
+                }
                 subtitle="Everything you need to start earning with CashTap AI."
             />
 
@@ -359,7 +331,7 @@ export default function TrainingPage() {
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.1 }}
-                            className="border border-border-dim/30 rounded-xl overflow-hidden bg-[#0c0c0e]"
+                            className="border border-[var(--border-subtle)] rounded-[var(--radius-lg)] overflow-hidden bg-[var(--surface-1)]"
                         >
                             <VideoThumbnail
                                 videoId={video.id}
@@ -398,7 +370,7 @@ export default function TrainingPage() {
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.05 + i * 0.05 }}
-                            className="border border-border-dim/30 rounded-xl overflow-hidden bg-[#0c0c0e]"
+                            className="border border-[var(--border-subtle)] rounded-[var(--radius-lg)] overflow-hidden bg-[var(--surface-1)]"
                         >
                             <VideoThumbnail
                                 videoId={video.id}
@@ -433,7 +405,7 @@ export default function TrainingPage() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.08 }}
-                                className="border border-border-dim/20 rounded-xl bg-[#0c0c0e] p-5 flex flex-col gap-4"
+                                className="border border-[var(--border-subtle)] rounded-[var(--radius-lg)] bg-[var(--surface-1)] p-5 flex flex-col gap-4"
                             >
                                 <div className="flex items-start gap-4">
                                     <div className="w-10 h-10 bg-accent/10 border border-accent/20 rounded-lg flex items-center justify-center shrink-0">
@@ -493,7 +465,7 @@ export default function TrainingPage() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.06 }}
-                                className="border border-border-dim/20 rounded-xl bg-[#0c0c0e] p-4 flex flex-col gap-2.5"
+                                className="border border-[var(--border-subtle)] rounded-[var(--radius-lg)] bg-[var(--surface-1)] p-4 flex flex-col gap-2.5"
                             >
                                 <div className="flex items-center gap-2.5">
                                     <div className="w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center shrink-0">
@@ -515,7 +487,7 @@ export default function TrainingPage() {
                     <h2 className="text-lg font-bold text-white">Quick Start Checklist</h2>
                 </div>
 
-                <div className="border border-green-500/15 rounded-xl bg-green-500/3 p-5 flex flex-col gap-3">
+                <div className="border border-green-500/15 rounded-[var(--radius-lg)] bg-green-500/3 p-5 flex flex-col gap-3">
                     {[
                         "Watch both training videos above",
                         "Go to Step 1 and search for your first topic",
@@ -536,27 +508,28 @@ export default function TrainingPage() {
             </section>
 
             {/* FAQ */}
-            <section className="flex flex-col gap-8">
+            <section className="flex flex-col gap-6">
                 <div className="flex items-center gap-2">
-                    <HelpCircle size={16} className="text-accent" />
-                    <h2 className="text-lg font-bold text-white">Frequently Asked Questions</h2>
-                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest ml-2">{FAQ_SECTIONS.reduce((acc, s) => acc + s.items.length, 0)} answers</span>
+                    <HelpCircle size={16} strokeWidth={1.75} className="text-[var(--gold)]" />
+                    <h2 className="ds-h2">Frequently Asked Questions</h2>
+                    <span className="ml-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
+                        {FAQ_SECTIONS.reduce((acc, s) => acc + s.items.length, 0)} answers
+                    </span>
                 </div>
 
-                <div className="flex flex-col gap-6">
-                    {FAQ_SECTIONS.map((section, si) => (
-                        <div key={si} className="flex flex-col gap-2">
-                            <h3 className="text-[11px] font-bold text-accent uppercase tracking-[0.15em] px-1 mb-1">{section.title}</h3>
-                            {section.items.map((item, i) => (
-                                <FAQItem key={`${si}-${i}`} q={item.q} a={item.a} />
-                            ))}
-                        </div>
-                    ))}
-                </div>
+                <Accordion
+                    groups={FAQ_SECTIONS.map((section) => ({
+                        category: section.title,
+                        items: section.items.map((item) => ({
+                            question: item.q,
+                            answer: item.a,
+                        })),
+                    }))}
+                />
             </section>
 
             {/* CTA */}
-            <section className="border border-accent/20 rounded-xl bg-accent/5 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <section className="border border-accent/20 rounded-[var(--radius-lg)] bg-accent/5 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex flex-col gap-1">
                     <h3 className="text-base font-bold text-white">Ready to start earning?</h3>
                     <p className="text-[13px] text-text-muted">Go to Step 1 and search for your first topic now.</p>

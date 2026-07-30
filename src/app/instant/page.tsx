@@ -188,11 +188,15 @@ export default function InstantIncomePage() {
         <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex flex-col gap-0 max-w-5xl mx-auto w-full py-6"
+            className="mx-auto flex w-full max-w-6xl flex-col gap-0 py-6"
         >
             <PageHeader
                 eyebrow="PREMIUM"
-                title="Instant Income: Facebook Posts"
+                title={
+                    <>
+                        Instant Income: <span className="text-gradient">Facebook Posts</span>
+                    </>
+                }
                 subtitle="200+ ready-to-post messages for Facebook groups — copy, paste, and earn."
             />
 
@@ -206,18 +210,15 @@ export default function InstantIncomePage() {
             )}
 
             {/* Hero Section */}
-            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent/10 via-surface to-accent-muted/10 border border-accent/20 p-8 md:p-12 flex flex-col items-center text-center gap-4">
-                <div className="absolute top-0 right-0 w-60 h-60 bg-accent/10 rounded-full blur-[100px] pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-accent-muted/10 rounded-full blur-[80px] pointer-events-none" />
-
+            <section className="card-base relative flex flex-col items-center gap-4 overflow-hidden p-8 text-center md:p-12">
                 <div className="relative z-10 flex flex-col items-center gap-6">
-                    <div className="w-20 h-20 bg-accent/15 border border-accent/30 rounded-3xl flex items-center justify-center">
-                        <Facebook size={40} className="text-accent" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-[var(--radius-lg)] border border-[rgba(234,179,8,0.3)] bg-[rgba(234,179,8,0.08)]">
+                        <Facebook size={32} strokeWidth={1.5} className="text-[var(--gold)]" />
                     </div>
 
                     <h2 className="ds-h2">200+ Ready-to-Post Messages for Facebook Groups</h2>
 
-                    <p className="text-text-secondary text-base max-w-2xl leading-relaxed">
+                    <p className="max-w-2xl text-base leading-relaxed text-text-secondary">
                         Copy these proven posts, paste them in Facebook groups, and start making money TODAY. No tech skills needed!
                     </p>
                 </div>
@@ -276,7 +277,7 @@ export default function InstantIncomePage() {
                         }
                     ].map((step) => (
                         <div key={step.num} className="bg-accent/5 border border-accent/15 rounded-2xl p-6 flex flex-col gap-4">
-                            <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-black font-black text-sm">
+                            <div className="w-10 h-10 bg-accent rounded-[var(--radius-lg)] flex items-center justify-center text-black font-black text-sm">
                                 {step.num}
                             </div>
                             <h3 className="text-lg font-bold text-text-primary">{step.title}</h3>
@@ -309,7 +310,7 @@ export default function InstantIncomePage() {
                         >
                             <div className="px-8 pb-8 flex flex-col gap-6">
                                 {/* Step 1 */}
-                                <div className="bg-surface border border-border-dim rounded-xl p-6 flex flex-col gap-3">
+                                <div className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-6 flex flex-col gap-3">
                                     <h3 className="text-base font-bold text-text-primary">Step 1: Find Facebook Groups</h3>
                                     <ul className="flex flex-col gap-2.5 text-sm text-text-secondary leading-relaxed">
                                         <li className="flex gap-2"><span className="text-accent mt-0.5">•</span>Go to Facebook and click the search bar at the top. Type keywords like &quot;weight loss support&quot;, &quot;make money online&quot;, or &quot;fitness motivation&quot;</li>
@@ -320,7 +321,7 @@ export default function InstantIncomePage() {
                                 </div>
 
                                 {/* Step 2 */}
-                                <div className="bg-surface border border-border-dim rounded-xl p-6 flex flex-col gap-3">
+                                <div className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-6 flex flex-col gap-3">
                                     <h3 className="text-base font-bold text-text-primary">Step 2: Read the Group Rules</h3>
                                     <ul className="flex flex-col gap-2.5 text-sm text-text-secondary leading-relaxed">
                                         <li className="flex gap-2"><span className="text-accent mt-0.5">•</span>Click &quot;About&quot; in the group to see the rules. Most groups allow personal stories but not direct selling</li>
@@ -330,7 +331,7 @@ export default function InstantIncomePage() {
                                 </div>
 
                                 {/* Step 3 */}
-                                <div className="bg-surface border border-border-dim rounded-xl p-6 flex flex-col gap-3">
+                                <div className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-6 flex flex-col gap-3">
                                     <h3 className="text-base font-bold text-text-primary">Step 3: Post Your Message</h3>
                                     <ul className="flex flex-col gap-2.5 text-sm text-text-secondary leading-relaxed">
                                         <li className="flex gap-2"><span className="text-accent mt-0.5">•</span>Click &quot;Write something...&quot; in the group. Paste your copied message. Click &quot;Post&quot;. That&apos;s it!</li>
@@ -403,7 +404,7 @@ export default function InstantIncomePage() {
                     <p className="text-sm text-text-secondary leading-relaxed">
                         We recommend using <strong className="text-text-primary">DigiStore24</strong> - a free affiliate marketplace where you can find thousands of products to promote and earn commissions.
                     </p>
-                    <div className="bg-surface border border-border-dim rounded-xl p-5 flex flex-col gap-3">
+                    <div className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-5 flex flex-col gap-3">
                         <p className="text-sm font-medium text-text-secondary">How to Get Started (3 Easy Steps):</p>
                         <ol className="flex flex-col gap-2 text-sm text-text-secondary list-decimal list-inside">
                             <li>Go to <a href="https://www.digistore24.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">digistore24.com</a> and create a FREE account (takes 2 minutes)</li>
@@ -434,7 +435,7 @@ export default function InstantIncomePage() {
                     <input
                         type="url"
                         placeholder="https://your-affiliate-link.com"
-                        className="w-full bg-surface border border-border-dim rounded-xl px-5 py-4 text-sm text-text-primary placeholder:text-text-muted/50 outline-none focus:border-accent/50 transition-colors"
+                        className="w-full bg-surface border border-border-dim rounded-[var(--radius-lg)] px-5 py-4 text-sm text-text-primary placeholder:text-text-muted/50 outline-none focus:border-accent/50 transition-colors"
                         value={affiliateLink}
                         onChange={(e) => setAffiliateLink(e.target.value)}
                     />
@@ -485,7 +486,7 @@ export default function InstantIncomePage() {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: Math.min(idx * 0.03, 1) }}
-                                        className="bg-surface border border-border-dim rounded-xl p-5 flex flex-col gap-4 hover:border-accent/20 transition-all group"
+                                        className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-5 flex flex-col gap-4 hover:border-accent/20 transition-all group"
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">

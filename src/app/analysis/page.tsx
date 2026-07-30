@@ -13,6 +13,7 @@ import { clsx } from "clsx";
 import { InfoHint } from "@/components/ui/InfoHint";
 import { PageHeader } from "@/components/ui/page-header";
 import { GenerationProgress } from "@/components/ui/generation-progress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function LevelBadge({ level }: { level: string }) {
     const l = level?.toLowerCase() || "";
@@ -187,24 +188,25 @@ export default function AnalysisPage() {
         >
             <PageHeader
                 eyebrow="STEP 2 OF 4"
+                step={2}
                 title="Check Demand"
                 subtitle={`Topic: "${keyword}" · ${variations.length} keyword ideas found`}
                 actions={
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setShowGuide(!showGuide)}
-                            className="flex items-center gap-2 px-3 py-2 border border-border-dim rounded-lg text-[11px] font-bold text-text-muted hover:text-text-primary hover:border-accent/30 transition-all"
+                            className="btn-secondary h-10 px-4 text-xs"
                         >
-                            <Info size={13} />
+                            <Info size={13} strokeWidth={1.75} />
                             <span>{showGuide ? "Hide Guide" : "How to Read This"}</span>
                         </button>
                         <button
                             onClick={() => router.push("/radar")}
                             disabled={analyzedCount === 0}
-                            className="btn-primary h-10 px-5 text-sm rounded-lg"
+                            className="btn-primary h-10 px-5 text-sm"
                         >
                             <span>Step 3: Find Ads</span>
-                            <ArrowRight size={16} />
+                            <ArrowRight size={16} strokeWidth={1.75} />
                         </button>
                     </div>
                 }
@@ -221,17 +223,18 @@ export default function AnalysisPage() {
 
             {/* Progress bar */}
             <div className="flex items-center gap-3">
-                <div className="flex-1 h-1.5 bg-surface rounded-full overflow-hidden border border-border-dim/20">
+                <div className="flex-1 h-1.5 overflow-hidden rounded-full border border-[var(--border-subtle)] bg-[var(--surface-2)]">
                     <motion.div
-                        animate={{ width: `${(analyzedCount / variations.length) * 100}%` }}
-                        className="h-full bg-accent rounded-full"
+                        animate={{ width: `${(analyzedCount / Math.max(variations.length, 1)) * 100}%` }}
+                        className="h-full rounded-full"
+                        style={{ background: "var(--grad-brand)" }}
                         transition={{ duration: 0.5 }}
                     />
                 </div>
-                <span className="text-[11px] font-bold text-text-muted tabular-nums shrink-0">
+                <span className="shrink-0 text-[11px] font-semibold tabular-nums text-text-muted">
                     {allAnalyzed ? (
-                        <span className="flex items-center gap-1 text-green-400">
-                            <CheckCircle2 size={12} />
+                        <span className="flex items-center gap-1 text-[var(--success)]">
+                            <CheckCircle2 size={12} strokeWidth={1.75} />
                             All analyzed
                         </span>
                     ) : (
@@ -249,7 +252,7 @@ export default function AnalysisPage() {
                         exit={{ opacity: 0, height: 0 }}
                         className="overflow-hidden"
                     >
-                        <div className="bg-[#0c0c0e] border border-border-dim/30 rounded-xl p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="card-base grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                             <div className="flex flex-col gap-1.5">
                                 <div className="flex items-center gap-2">
                                     <BarChart3 size={14} className="text-accent" />
@@ -294,10 +297,10 @@ export default function AnalysisPage() {
             </AnimatePresence>
 
             {/* Data Table */}
-            <div id="generation-results" className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 scroll-mt-24">
-            <div className="min-w-[640px] border border-border-dim/30 rounded-xl overflow-hidden bg-[#0a0a0c]">
+            <div id="generation-results" className="-mx-4 scroll-mt-24 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <div className="min-w-[640px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] shadow-[var(--elevation-1)]">
                 {/* Table Header */}
-                <div className="grid grid-cols-12 gap-4 px-5 py-3 bg-[#0c0c0e] border-b border-border-dim/20">
+                <div className="sticky top-0 grid grid-cols-12 gap-4 border-b border-[var(--border-subtle)] bg-[var(--surface-1)] px-5 py-3">
                     <div className="col-span-4">
                         <SortHeader label="Keyword" sKey="keyword" tooltip="The ad topic variation we are analyzing. Click to sort alphabetically." />
                     </div>
@@ -316,7 +319,7 @@ export default function AnalysisPage() {
                 </div>
 
                 {/* Table Rows */}
-                <div className="divide-y divide-border-dim/10">
+                <div className="divide-y divide-[var(--border-subtle)]">
                     {sortedVariations.map((v, i) => {
                         const data = analysisByVariation[v];
                         const isLoading = loadingChips.has(v);
@@ -330,60 +333,49 @@ export default function AnalysisPage() {
                                 transition={{ delay: i * 0.03 }}
                                 onClick={() => setActiveChip(v)}
                                 className={clsx(
-                                    "grid grid-cols-12 gap-4 px-5 py-3.5 w-full text-left transition-all hover:bg-accent/3",
-                                    isSelected && "bg-accent/5 border-l-2 border-l-accent"
+                                    "grid w-full grid-cols-12 gap-4 px-5 py-3.5 text-left transition-colors hover:bg-[var(--surface-3)]",
+                                    isSelected && "border-l-2 border-l-[var(--gold)] bg-[rgba(234,179,8,0.06)]"
                                 )}
                             >
-                                {/* Keyword */}
-                                <div className="col-span-4 flex items-center gap-2 min-w-0">
-                                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />}
+                                <div className="col-span-4 flex min-w-0 items-center gap-2">
+                                    {isSelected && <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--gold)]" />}
                                     <span className={clsx(
-                                        "text-sm font-medium truncate",
-                                        isSelected ? "text-accent" : "text-text-primary"
+                                        "truncate text-sm font-medium",
+                                        isSelected ? "text-[var(--gold)]" : "text-text-primary"
                                     )}>{v}</span>
                                 </div>
 
-                                {/* Level */}
                                 <div className="col-span-2 flex items-center">
                                     {isLoading ? (
-                                        <Loader2 size={14} className="animate-spin text-text-muted" />
+                                        <Skeleton className="h-5 w-16 rounded-full" />
                                     ) : data ? (
                                         <LevelBadge level={data.level} />
                                     ) : (
-                                        <span className="text-[10px] text-text-muted">—</span>
+                                        <Skeleton className="h-5 w-16 rounded-full" />
                                     )}
                                 </div>
 
-                                {/* Count */}
                                 <div className="col-span-1 flex items-center">
-                                    {isLoading ? (
-                                        <div className="w-8 h-3 bg-surface rounded animate-pulse" />
-                                    ) : data ? (
-                                        <span className="text-sm font-bold text-text-primary tabular-nums">{data.count}</span>
+                                    {isLoading || !data ? (
+                                        <Skeleton className="h-3 w-8" />
                                     ) : (
-                                        <span className="text-[10px] text-text-muted">—</span>
+                                        <span className="text-sm font-semibold tabular-nums text-text-primary">{data.count}</span>
                                     )}
                                 </div>
 
-                                {/* Confidence */}
                                 <div className="col-span-2 flex items-center">
-                                    {isLoading ? (
-                                        <div className="w-full h-3 bg-surface rounded animate-pulse" />
-                                    ) : data ? (
-                                        <ConfidenceBar value={data.confidence ?? 0} />
+                                    {isLoading || !data ? (
+                                        <Skeleton className="h-2 w-full" />
                                     ) : (
-                                        <span className="text-[10px] text-text-muted">—</span>
+                                        <ConfidenceBar value={data.confidence ?? 0} />
                                     )}
                                 </div>
 
-                                {/* Type */}
-                                <div className="col-span-3 flex items-center min-w-0">
-                                    {isLoading ? (
-                                        <div className="w-20 h-3 bg-surface rounded animate-pulse" />
-                                    ) : data ? (
-                                        <span className="text-[12px] text-text-secondary truncate">{data.type || "Questions"}</span>
+                                <div className="col-span-3 flex min-w-0 items-center">
+                                    {isLoading || !data ? (
+                                        <Skeleton className="h-3 w-20" />
                                     ) : (
-                                        <span className="text-[10px] text-text-muted">—</span>
+                                        <span className="truncate text-[12px] text-text-secondary">{data.type || "Questions"}</span>
                                     )}
                                 </div>
                             </motion.button>
@@ -399,7 +391,7 @@ export default function AnalysisPage() {
                     key={activeChip}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#0c0c0e] border border-border-dim/30 rounded-xl p-5 flex flex-col gap-3"
+                    className="card-base flex flex-col gap-3"
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">

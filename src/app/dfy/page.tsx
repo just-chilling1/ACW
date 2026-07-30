@@ -170,11 +170,15 @@ export default function DfyPage() {
         <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex flex-col gap-10 py-10 max-w-5xl mx-auto w-full"
+            className="mx-auto flex w-full max-w-6xl flex-col gap-10 py-10"
         >
             <PageHeader
                 eyebrow="PREMIUM"
-                title="Done-For-You Vault"
+                title={
+                    <>
+                        Done-For-You <span className="text-gradient">Vault</span>
+                    </>
+                }
                 subtitle="5 proven search angles and keywords — pick one, add your link, get ready-made replies."
             />
 
@@ -292,7 +296,7 @@ export default function DfyPage() {
                                         {kw.description}
                                     </p>
 
-                                    <div className="flex items-center gap-2 text-[11px] font-black text-accent uppercase tracking-widest mt-auto pt-3 border-t border-border-dim/30 group-hover:gap-3 transition-all">
+                                    <div className="flex items-center gap-2 text-[11px] font-black text-accent uppercase tracking-widest mt-auto pt-3 border-t border-[var(--border-subtle)] group-hover:gap-3 transition-all">
                                         <span>Select This Keyword</span>
                                         <ChevronRight size={13} />
                                     </div>
@@ -351,7 +355,7 @@ export default function DfyPage() {
                                 <input
                                     type="url"
                                     placeholder="https://www.digistore24.com/redir/XXXXX/your-id/"
-                                    className="w-full bg-[#0c0c0e] border border-border-dim/40 rounded-xl px-4 py-4 text-sm text-text-primary placeholder:text-text-muted/40 outline-none focus:border-accent/40 transition-colors"
+                                    className="w-full bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-[var(--radius-lg)] px-4 py-4 text-sm text-text-primary placeholder:text-text-muted/40 outline-none focus:border-accent/40 transition-colors"
                                     value={affiliateLink}
                                     onChange={(e) => {
                                         setAffiliateLink(e.target.value);
@@ -425,10 +429,10 @@ export default function DfyPage() {
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: idx * 0.05 }}
-                                                className="border border-border-dim/30 rounded-xl bg-[#0c0c0e] overflow-hidden"
+                                                className="border border-[var(--border-subtle)] rounded-[var(--radius-lg)] bg-[var(--surface-1)] overflow-hidden"
                                             >
                                                 {/* Post header */}
-                                                <div className="p-4 flex items-start justify-between gap-3 border-b border-border-dim/15">
+                                                <div className="p-4 flex items-start justify-between gap-3 border-b border-[var(--border-subtle)]">
                                                     <div className="flex flex-col gap-2 flex-1 min-w-0">
                                                         <div className="flex items-center gap-2">
                                                             <span className={clsx(
@@ -468,7 +472,7 @@ export default function DfyPage() {
                                                             const isCopied = copiedId === uniqueId;
 
                                                             return (
-                                                                <div key={rIdx} className="flex flex-col bg-[#111113] border border-border-dim/20 rounded-lg p-4 hover:border-accent/20 transition-all group">
+                                                                <div key={rIdx} className="flex flex-col bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-4 hover:border-accent/20 transition-all group">
                                                                     <div className="flex items-center justify-between mb-2.5">
                                                                         <span className="text-[9px] font-black text-accent uppercase tracking-widest">
                                                                             {labels[rIdx] || `Reply #${rIdx + 1}`}

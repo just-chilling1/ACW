@@ -148,6 +148,7 @@ export default function AutomatedProfitsPage() {
     const [loadingNiche, setLoadingNiche] = useState(false);
     const [loadingLabel, setLoadingLabel] = useState("Loading traffic sources...");
     const [videoOpen, setVideoOpen] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(24);
     const delayRef = useRef<number | null>(null);
 
     useEffect(() => () => {
@@ -173,6 +174,7 @@ export default function AutomatedProfitsPage() {
         setLoadingLabel(`Loading ${niche} traffic sources...`);
         delayRef.current = window.setTimeout(() => {
             setSelectedNiche(niche);
+            setVisibleCount(24);
             setLoadingNiche(false);
             delayRef.current = null;
         }, randomDelay(3500, 4500));
@@ -201,11 +203,15 @@ export default function AutomatedProfitsPage() {
         <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex flex-col gap-0 max-w-5xl mx-auto w-full py-6"
+            className="mx-auto flex w-full max-w-6xl flex-col gap-0 py-6"
         >
             <PageHeader
                 eyebrow="PREMIUM"
-                title="Automated Income — Traffic On Autopilot"
+                title={
+                    <>
+                        Automated Income — Traffic On <span className="text-gradient">Autopilot</span>
+                    </>
+                }
                 subtitle="100+ free traffic sources — submit once and get ongoing visitors automatically."
             />
 
@@ -219,16 +225,13 @@ export default function AutomatedProfitsPage() {
             )}
 
             {/* Hero */}
-            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent/10 via-surface to-accent-muted/10 border border-accent/20 p-8 md:p-12 flex flex-col items-center text-center gap-4">
-                <div className="absolute top-0 right-0 w-60 h-60 bg-accent/10 rounded-full blur-[100px] pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-accent-muted/10 rounded-full blur-[80px] pointer-events-none" />
-
+            <section className="card-base relative flex flex-col items-center gap-4 overflow-hidden p-8 text-center md:p-12">
                 <div className="relative z-10 flex flex-col items-center gap-6">
-                    <div className="w-20 h-20 bg-accent/15 border border-accent/30 rounded-3xl flex items-center justify-center">
-                        <TrendingUp size={40} className="text-accent" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-[var(--radius-lg)] border border-[rgba(234,179,8,0.3)] bg-[rgba(234,179,8,0.08)]">
+                        <TrendingUp size={32} strokeWidth={1.5} className="text-[var(--gold)]" />
                     </div>
                     <h2 className="ds-h2">100+ Free Traffic Sources — Submit Once, Get Traffic Forever</h2>
-                    <p className="text-text-secondary text-base max-w-2xl leading-relaxed">
+                    <p className="max-w-2xl text-base leading-relaxed text-text-secondary">
                         Stop chasing traffic every day. Submit your link to these 100+ sites ONCE and get ongoing traffic automatically. Our members have generated over 2.8 million visitors using these sources.
                     </p>
                 </div>
@@ -265,7 +268,7 @@ export default function AutomatedProfitsPage() {
                     <h2 className="text-xl font-bold text-text-primary">How This Works (Super Simple!)</h2>
                 </div>
 
-                <div className="bg-surface border border-border-dim rounded-xl p-6 flex flex-col gap-4">
+                <div className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-6 flex flex-col gap-4">
                     <h3 className="text-base font-bold text-text-primary">The Secret To Automated Traffic:</h3>
                     <p className="text-sm text-text-secondary leading-relaxed">Most people waste hours every day posting on social media for traffic.</p>
                     <p className="text-sm text-text-secondary leading-relaxed">But what if you could submit your link ONCE and get traffic for months or even YEARS?</p>
@@ -279,7 +282,7 @@ export default function AutomatedProfitsPage() {
                         { num: "3", title: "Get Automatic Traffic", desc: "Once submitted, these sites send you traffic automatically. No daily work needed!" },
                     ].map((step) => (
                         <div key={step.num} className="bg-accent/5 border border-accent/15 rounded-2xl p-6 flex flex-col gap-4">
-                            <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white font-black text-sm">
+                            <div className="w-10 h-10 bg-accent rounded-[var(--radius-lg)] flex items-center justify-center text-white font-black text-sm">
                                 {step.num}
                             </div>
                             <h3 className="text-lg font-bold text-text-primary">{step.title}</h3>
@@ -288,7 +291,7 @@ export default function AutomatedProfitsPage() {
                     ))}
                 </div>
 
-                <div className="bg-accent/5 border border-accent/20 rounded-xl p-5 flex items-start gap-3">
+                <div className="bg-accent/5 border border-accent/20 rounded-[var(--radius-lg)] p-5 flex items-start gap-3">
                     <Lightbulb size={18} className="text-accent shrink-0 mt-0.5" />
                     <div>
                         <span className="text-sm font-bold text-accent">Pro Tip: </span>
@@ -311,7 +314,7 @@ export default function AutomatedProfitsPage() {
                     <input
                         type="url"
                         placeholder="https://your-page-url.com"
-                        className="w-full bg-surface border border-border-dim rounded-xl px-5 py-4 text-sm text-text-primary placeholder:text-text-muted/50 outline-none focus:border-accent/50 transition-colors"
+                        className="w-full bg-surface border border-border-dim rounded-[var(--radius-lg)] px-5 py-4 text-sm text-text-primary placeholder:text-text-muted/50 outline-none focus:border-accent/50 transition-colors"
                         value={pageUrl}
                         onChange={(e) => setPageUrl(e.target.value)}
                     />
@@ -338,20 +341,21 @@ export default function AutomatedProfitsPage() {
                 </div>
 
                 {/* Progress Tracker */}
-                <div className="glass-card p-6 flex flex-col gap-3">
+                <div className="card-base flex flex-col gap-3">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="text-base font-bold text-text-primary">Your Progress:</h3>
+                            <h3 className="ds-h3">Your Progress:</h3>
                             <p className="text-sm text-text-secondary">{completedCount} of {filteredSources.length} sources completed</p>
                         </div>
                         <div className="text-right">
-                            <span className="text-2xl font-black text-accent">{progressPercent}%</span>
+                            <span className="text-2xl font-bold tabular-nums text-[var(--gold)]">{progressPercent}%</span>
                             <p className="text-xs text-text-muted">Complete</p>
                         </div>
                     </div>
-                    <div className="w-full h-2 bg-surface rounded-full overflow-hidden">
+                    <div className="h-2 w-full overflow-hidden rounded-full border border-[var(--border-subtle)] bg-[var(--surface-2)]">
                         <motion.div
-                            className="h-full bg-accent rounded-full"
+                            className="h-full rounded-full"
+                            style={{ background: "var(--grad-brand)" }}
                             initial={{ width: 0 }}
                             animate={{ width: `${progressPercent}%` }}
                             transition={{ duration: 0.5 }}
@@ -359,9 +363,9 @@ export default function AutomatedProfitsPage() {
                     </div>
                 </div>
 
-                {/* Traffic Sources Grid */}
+                {/* Traffic Sources Grid (windowed for long lists) */}
                 <div id="generation-results" className="grid grid-cols-1 md:grid-cols-2 gap-5 scroll-mt-24">
-                    {!loadingNiche && filteredSources.map((source, idx) => {
+                    {!loadingNiche && filteredSources.slice(0, visibleCount).map((source, idx) => {
                         const isExpanded = expandedId === source.id;
                         const isDone = completed.has(source.id);
 
@@ -372,7 +376,7 @@ export default function AutomatedProfitsPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: Math.min(idx * 0.03, 0.8) }}
                                 className={clsx(
-                                    "bg-surface border rounded-xl overflow-hidden transition-all",
+                                    "bg-surface border rounded-[var(--radius-lg)] overflow-hidden transition-all",
                                     isDone ? "border-accent/30 bg-accent/5" : "border-border-dim hover:border-accent/20"
                                 )}
                             >
@@ -495,6 +499,17 @@ export default function AutomatedProfitsPage() {
                         );
                     })}
                 </div>
+                {!loadingNiche && visibleCount < filteredSources.length && (
+                    <div className="mt-6 flex justify-center">
+                        <button
+                            type="button"
+                            onClick={() => setVisibleCount((c) => c + 24)}
+                            className="btn-secondary px-6 py-2.5 text-sm"
+                        >
+                            Show more sources ({filteredSources.length - visibleCount} remaining)
+                        </button>
+                    </div>
+                )}
             </section>
 
             {/* Footer */}

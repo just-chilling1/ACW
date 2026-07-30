@@ -9,57 +9,66 @@ import { SupportBanner } from "../dashboard/SupportBanner";
 import { SpecialistWelcomePopup } from "../ui/specialist-welcome-popup";
 
 export function Shell({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password" || pathname === "/reset-password" || pathname === "/onboarding" || pathname.startsWith("/onboarding/") || pathname.startsWith("/auth/") || pathname.startsWith("/dev/") || pathname.startsWith("/embed/");
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const pathname = usePathname();
+  const isAuthPage =
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password" ||
+    pathname === "/onboarding" ||
+    pathname.startsWith("/onboarding/") ||
+    pathname.startsWith("/auth/") ||
+    pathname.startsWith("/dev/") ||
+    pathname.startsWith("/embed/");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-    useEffect(() => {
-        const saved = localStorage.getItem("cashtap_sidebar_collapsed");
-        if (saved === "1") setSidebarCollapsed(true);
-    }, []);
+  useEffect(() => {
+    const saved = localStorage.getItem("cashtap_sidebar_collapsed");
+    if (saved === "1") setSidebarCollapsed(true);
+  }, []);
 
-    useEffect(() => {
-        document.documentElement.dataset.sidebar = sidebarCollapsed ? "collapsed" : "expanded";
-        localStorage.setItem("cashtap_sidebar_collapsed", sidebarCollapsed ? "1" : "0");
-    }, [sidebarCollapsed]);
+  useEffect(() => {
+    document.documentElement.dataset.sidebar = sidebarCollapsed ? "collapsed" : "expanded";
+    localStorage.setItem("cashtap_sidebar_collapsed", sidebarCollapsed ? "1" : "0");
+  }, [sidebarCollapsed]);
 
-    useEffect(() => {
-        document.body.style.overflow = "";
-    }, [pathname]);
+  useEffect(() => {
+    document.body.style.overflow = "";
+  }, [pathname]);
 
-    if (isAuthPage) {
-        return <>{children}</>;
-    }
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
 
-    return (
-        <div className="flex h-dvh overflow-hidden app-bg w-full max-w-[100vw]">
-            <Sidebar
-                collapsed={sidebarCollapsed}
-                onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
-            />
+  return (
+    <div className="app-bg flex h-dvh w-full max-w-[100vw] overflow-hidden">
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
+      />
 
-            <main className="flex-1 min-w-0 min-h-0 w-full overflow-x-hidden overflow-y-auto scroll-smooth relative lg:pl-[var(--sidebar-w)] transition-[padding] duration-300">
-                <div className="lg:hidden sticky top-0 z-30 flex items-center justify-center px-4 h-14 pt-[env(safe-area-inset-top)] bg-[#0A0A0B]/80 backdrop-blur border-b border-border-dim">
-                    <Image
-                        src="/logo.png"
-                        alt="CashTap AI"
-                        width={160}
-                        height={36}
-                        className="h-7 w-auto object-contain"
-                        priority
-                    />
-                </div>
-
-                <div className="px-4 sm:px-6 lg:px-8 pt-6 lg:pt-10 pb-24 lg:pb-16 max-w-7xl mx-auto min-h-full flex flex-col w-full min-w-0">
-                    {children}
-                    <div className="mt-auto pt-12">
-                        <SupportBanner />
-                    </div>
-                </div>
-            </main>
-
-            <BottomNav />
-            <SpecialistWelcomePopup />
+      <main className="relative min-h-0 min-w-0 w-full flex-1 overflow-x-hidden overflow-y-auto scroll-smooth transition-[padding] duration-300 lg:pl-[var(--sidebar-w)]">
+        <div className="sticky top-0 z-30 flex h-14 items-center justify-center border-b border-[var(--border-subtle)] bg-[rgba(10,10,11,0.8)] px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
+          <Image
+            src="/logo.png"
+            alt="CashTap AI"
+            width={160}
+            height={36}
+            className="h-7 w-auto object-contain"
+            priority
+          />
         </div>
-    );
+
+        <div className="mx-auto flex min-h-full w-full min-w-0 max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-16 lg:pt-10">
+          {children}
+          <div className="mt-auto pt-12">
+            <SupportBanner />
+          </div>
+        </div>
+      </main>
+
+      <BottomNav />
+      <SpecialistWelcomePopup />
+    </div>
+  );
 }

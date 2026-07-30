@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Play } from "lucide-react";
+import { clsx } from "clsx";
 import { VideoOverlay } from "@/components/ui/video-overlay";
 import { getVimeoEmbedUrl } from "@/lib/vimeo";
 import {
@@ -11,17 +12,20 @@ import {
 
 type Props = {
   video: DashboardTrainingVideo;
+  chip?: string;
+  className?: string;
 };
 
-export function DashboardVideoCard({ video }: Props) {
+export function DashboardVideoCard({ video, chip, className }: Props) {
   const [playing, setPlaying] = useState(false);
   const canPlay = isPlayableVimeoId(video.id);
 
   return (
     <>
-      <div className="card-base overflow-hidden border-border-dim/40 p-0! shadow-lg">
+      <div className={clsx("card-base overflow-hidden p-0!", className)}>
         <div className="p-5 pb-3">
-          <h3 className="text-lg font-bold text-text-primary md:text-xl">{video.title}</h3>
+          {chip ? <span className="page-eyebrow mb-2 inline-block">{chip}</span> : null}
+          <h3 className="ds-h3">{video.title}</h3>
           <p className="mt-1 text-sm leading-relaxed text-text-muted">{video.description}</p>
         </div>
 
@@ -47,8 +51,8 @@ export function DashboardVideoCard({ video }: Props) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-black/25" />
           <span className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#EAB308] text-black shadow-2xl ring-4 ring-black/30 transition-transform group-hover:scale-105">
-              <Play className="ml-1 h-8 w-8 fill-current" aria-hidden />
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--gold)] text-[#0A0A0B] shadow-lg ring-4 ring-black/30 transition-transform duration-150 group-hover:scale-105">
+              <Play className="ml-0.5 h-7 w-7 fill-current" aria-hidden />
             </span>
             <span className="text-sm font-semibold text-white drop-shadow-lg">
               Click to Play Video
@@ -66,3 +70,6 @@ export function DashboardVideoCard({ video }: Props) {
     </>
   );
 }
+
+/** Design-system alias */
+export const VideoCard = DashboardVideoCard;
