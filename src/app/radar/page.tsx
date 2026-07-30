@@ -109,12 +109,33 @@ export default function RadarPage() {
 
   const [loadingChip, setLoadingChip] = useState<string | null>(null);
   const [showOfferBanner, setShowOfferBanner] = useState(false);
+  const [requestedChips, setRequestedChips] = useState<Set<string>>(new Set());
   const router = useRouter();
 
   const currentPosts = postsByVariation[activeChip] || [];
+  const hasFetchedActive = requestedChips.has(activeChip);
+
+  // Resume chips that already have results in this session — never auto-fetch on mount.
+  useEffect(() => {
+    const loaded = Object.keys(postsByVariation);
+    if (loaded.length === 0) return;
+    setRequestedChips((prev) => {
+      const next = new Set(prev);
+      let changed = false;
+      loaded.forEach((k) => {
+        if (!next.has(k)) {
+          next.add(k);
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [postsByVariation]);
 
   const fetchPostsForChip = async (chip: string) => {
+    if (!chip || loadingChip) return;
     setShowOfferBanner(true);
+    setRequestedChips((prev) => new Set(prev).add(chip));
     setLoadingChip(chip);
     try {
       const resp = await fetch("/api/jackpots", {
@@ -125,23 +146,16 @@ export default function RadarPage() {
       if (resp.ok) {
         const data = await resp.json();
         setPostsByVariation({ ...postsByVariation, [chip]: data.results || [] });
+      } else {
+        setPostsByVariation({ ...postsByVariation, [chip]: [] });
       }
     } catch (e) {
       console.error("Fetch ads failed:", e);
+      setPostsByVariation({ ...postsByVariation, [chip]: [] });
     } finally {
       setLoadingChip(null);
     }
   };
-
-  useEffect(() => {
-    if (
-      activeChip &&
-      (!postsByVariation[activeChip] || postsByVariation[activeChip].length === 0) &&
-      !loadingChip
-    ) {
-      fetchPostsForChip(activeChip);
-    }
-  }, [activeChip]);
 
   const togglePostSelection = (post: Ad) => {
     const isAlreadySelected = selectedAds.some((p) => p.id === post.id);
@@ -207,15 +221,6 @@ export default function RadarPage() {
         }
       />
 
-      {(loadingChip !== null || showOfferBanner) && (
-        <GenerationProgress
-          active={loadingChip !== null}
-          showBanner={showOfferBanner}
-          label={`Finding ads for "${loadingChip || activeChip}"...`}
-          offer="earnings"
-        />
-      )}
-
       <div id="radar-keyword-chips" className="flex flex-wrap gap-2">
         {variations.map((v) => (
           <SelectableChip
@@ -227,11 +232,40 @@ export default function RadarPage() {
         ))}
       </div>
 
+      {!hasFetchedActive && (
+        <div className="card-base flex flex-col items-center gap-4 p-8! text-center">
+          <p className="max-w-md text-sm leading-relaxed text-text-secondary">
+            Select a keyword above, then click below to find ads. Nothing runs until you start.
+          </p>
+          <button
+            type="button"
+            onClick={() => fetchPostsForChip(activeChip)}
+            disabled={!activeChip || loadingChip !== null}
+            className="btn-primary h-12 min-w-[220px] px-8"
+          >
+            <Search size={18} strokeWidth={1.75} />
+            Find Ads
+            <ArrowRight size={16} strokeWidth={1.75} />
+          </button>
+        </div>
+      )}
+
+      {(loadingChip !== null || (showOfferBanner && hasFetchedActive)) && (
+        <div className="min-h-[140px]">
+          <GenerationProgress
+            active={loadingChip !== null}
+            showBanner={showOfferBanner}
+            label={`Finding ads for "${loadingChip || activeChip}"...`}
+            offer="earnings"
+          />
+        </div>
+      )}
+
       <div id="generation-results" className="scroll-mt-24">
         <AnimatePresence mode="popLayout">
           {loadingChip === activeChip ? (
             <SkeletonCards count={6} />
-          ) : currentPosts.length > 0 ? (
+          ) : hasFetchedActive && currentPosts.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {currentPosts.map((post) => (
                 <RadarAdCard
@@ -242,23 +276,20 @@ export default function RadarPage() {
                 />
               ))}
             </div>
-          ) : (
+          ) : hasFetchedActive ? (
             <div className="col-span-full flex flex-col items-center justify-center gap-3 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] py-16">
               <Search size={32} strokeWidth={1.5} className="text-text-muted/30" />
               <p className="text-sm font-medium text-text-muted">
                 No ads found for &ldquo;{activeChip}&rdquo;
               </p>
-              <p className="text-[11px] text-text-muted">Try clicking a different keyword above.</p>
+              <p className="text-[11px] text-text-muted">Try a different keyword, then click Find Ads again.</p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
                 <button
-                  onClick={() => {
-                    document
-                      .getElementById("radar-keyword-chips")
-                      ?.scrollIntoView({ behavior: "smooth", block: "center" });
-                  }}
+                  type="button"
+                  onClick={() => fetchPostsForChip(activeChip)}
                   className="btn-secondary px-4 py-2.5 text-[13px]"
                 >
-                  Try another keyword
+                  Search again
                 </button>
                 <button
                   onClick={() => router.push("/search")}
@@ -268,7 +299,7 @@ export default function RadarPage() {
                 </button>
               </div>
             </div>
-          )}
+          ) : null}
         </AnimatePresence>
       </div>
 

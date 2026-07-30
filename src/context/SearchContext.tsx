@@ -72,13 +72,12 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
                 const savedVariations = localStorage.getItem("cashtap_current_variations");
                 const savedChip = localStorage.getItem("cashtap_current_chip");
                 const savedAffiliate = localStorage.getItem("cashtap_current_affiliate");
-                const savedSelected = localStorage.getItem("cashtap_selected_posts");
-
                 if (savedKeyword) setKeyword(savedKeyword);
                 if (savedVariations) setVariations(JSON.parse(savedVariations));
                 if (savedChip) setActiveChip(savedChip);
                 if (savedAffiliate) setAffiliateLink(savedAffiliate);
-                if (savedSelected) setSelectedAds(JSON.parse(savedSelected));
+                // Do not restore selected ads across reloads — analysis/posts are session-only,
+                // so restoring ads would unlock later steps out of order.
 
                 // Fetch real history from Supabase
                 const { data, error } = await supabase

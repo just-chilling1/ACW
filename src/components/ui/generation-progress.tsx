@@ -84,7 +84,7 @@ export function GenerationProgress({
           </div>
         </div>
       )}
-      {showBanner && <Banner compact={active} />}
+      {showBanner && <Banner />}
     </div>
   );
 }

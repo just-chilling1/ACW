@@ -65,6 +65,7 @@ export default function AnalysisPage() {
         variations, activeChip, setActiveChip,
         analysisByVariation, setAnalysisByVariation,
         activityByVariation, setActivityByVariation,
+        setPostsByVariation, setSelectedAds,
         keyword
     } = useSearch();
     const [loadingChips, setLoadingChips] = useState<Set<string>>(new Set());
@@ -72,6 +73,7 @@ export default function AnalysisPage() {
     const [sortDir, setSortDir] = useState<SortDir>("desc");
     const [showGuide, setShowGuide] = useState(false);
     const [showOfferBanner, setShowOfferBanner] = useState(false);
+    const [hasStarted, setHasStarted] = useState(false);
     const router = useRouter();
 
     const analysisRef = useRef(analysisByVariation);
@@ -79,9 +81,15 @@ export default function AnalysisPage() {
     useEffect(() => { analysisRef.current = analysisByVariation; }, [analysisByVariation]);
     useEffect(() => { activityRef.current = activityByVariation; }, [activityByVariation]);
 
+    // Resume UI if analysis already exists from this session (never auto-start a new run).
+    useEffect(() => {
+        if (Object.keys(analysisByVariation).length > 0) {
+            setHasStarted(true);
+        }
+    }, [analysisByVariation]);
+
     const fetchAnalysis = useCallback(async (variation: string) => {
         if (analysisRef.current[variation]) return;
-        setShowOfferBanner(true);
         setLoadingChips(prev => new Set(prev).add(variation));
         try {
             const resp = await fetch("/api/analysis", {
@@ -105,18 +113,22 @@ export default function AnalysisPage() {
         }
     }, [setAnalysisByVariation, setActivityByVariation]);
 
-    useEffect(() => {
-        if (variations.length > 0) {
-            variations.forEach((v, i) => {
-                if (!analysisRef.current[v]) {
-                    setTimeout(() => fetchAnalysis(v), i * 600);
-                }
-            });
-        }
-    }, [variations, fetchAnalysis]);
+    const startAnalysis = useCallback(() => {
+        if (variations.length === 0 || loadingChips.size > 0) return;
+        setPostsByVariation({});
+        setSelectedAds([]);
+        setHasStarted(true);
+        setShowOfferBanner(true);
+        variations.forEach((v, i) => {
+            if (!analysisRef.current[v]) {
+                window.setTimeout(() => fetchAnalysis(v), i * 600);
+            }
+        });
+    }, [variations, loadingChips.size, fetchAnalysis, setPostsByVariation, setSelectedAds]);
 
     const analyzedCount = variations.filter(v => analysisByVariation[v]).length;
-    const allAnalyzed = analyzedCount === variations.length;
+    const allAnalyzed = variations.length > 0 && analyzedCount === variations.length;
+    const isGenerating = loadingChips.size > 0;
 
     const handleSort = (key: SortKey) => {
         if (sortKey === key) {
@@ -212,16 +224,32 @@ export default function AnalysisPage() {
                 }
             />
 
-            {(loadingChips.size > 0 || showOfferBanner) && (
-                <GenerationProgress
-                    active={loadingChips.size > 0}
-                    showBanner={showOfferBanner}
-                    label="Analyzing keyword demand..."
-                    offer="earnings"
-                />
+            {!hasStarted && (
+                <div className="card-base flex flex-col items-center gap-4 p-8! text-center">
+                    <p className="max-w-md text-sm leading-relaxed text-text-secondary">
+                        We found <strong className="text-text-primary">{variations.length}</strong> keyword ideas for
+                        &ldquo;{keyword}&rdquo;. Click below to check demand — nothing runs until you start.
+                    </p>
+                    <button type="button" onClick={startAnalysis} className="btn-primary h-12 min-w-[220px] px-8">
+                        <Brain size={18} strokeWidth={1.75} />
+                        Check Demand
+                        <ArrowRight size={16} strokeWidth={1.75} />
+                    </button>
+                </div>
             )}
 
-            {/* Progress bar */}
+            {hasStarted && (isGenerating || showOfferBanner) && (
+                <div className="min-h-[140px]">
+                    <GenerationProgress
+                        active={isGenerating}
+                        showBanner={showOfferBanner}
+                        label="Analyzing keyword demand..."
+                        offer="earnings"
+                    />
+                </div>
+            )}
+
+            {hasStarted && (
             <div className="flex items-center gap-3">
                 <div className="flex-1 h-1.5 overflow-hidden rounded-full border border-[var(--border-subtle)] bg-[var(--surface-2)]">
                     <motion.div
@@ -242,6 +270,7 @@ export default function AnalysisPage() {
                     )}
                 </span>
             </div>
+            )}
 
             {/* How-to-read guide */}
             <AnimatePresence>
@@ -296,7 +325,8 @@ export default function AnalysisPage() {
                 )}
             </AnimatePresence>
 
-            {/* Data Table */}
+            {/* Data Table — only after user starts analysis */}
+            {hasStarted && (
             <div id="generation-results" className="-mx-4 scroll-mt-24 overflow-x-auto px-4 sm:mx-0 sm:px-0">
             <div className="min-w-[640px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] shadow-[var(--elevation-1)]">
                 {/* Table Header */}
@@ -351,31 +381,37 @@ export default function AnalysisPage() {
                                     ) : data ? (
                                         <LevelBadge level={data.level} />
                                     ) : (
-                                        <Skeleton className="h-5 w-16 rounded-full" />
+                                        <span className="text-[11px] text-text-muted">—</span>
                                     )}
                                 </div>
 
                                 <div className="col-span-1 flex items-center">
-                                    {isLoading || !data ? (
+                                    {isLoading ? (
                                         <Skeleton className="h-3 w-8" />
-                                    ) : (
+                                    ) : data ? (
                                         <span className="text-sm font-semibold tabular-nums text-text-primary">{data.count}</span>
+                                    ) : (
+                                        <span className="text-[11px] text-text-muted">—</span>
                                     )}
                                 </div>
 
                                 <div className="col-span-2 flex items-center">
-                                    {isLoading || !data ? (
+                                    {isLoading ? (
                                         <Skeleton className="h-2 w-full" />
-                                    ) : (
+                                    ) : data ? (
                                         <ConfidenceBar value={data.confidence ?? 0} />
+                                    ) : (
+                                        <span className="text-[11px] text-text-muted">—</span>
                                     )}
                                 </div>
 
                                 <div className="col-span-3 flex min-w-0 items-center">
-                                    {isLoading || !data ? (
+                                    {isLoading ? (
                                         <Skeleton className="h-3 w-20" />
-                                    ) : (
+                                    ) : data ? (
                                         <span className="truncate text-[12px] text-text-secondary">{data.type || "Questions"}</span>
+                                    ) : (
+                                        <span className="text-[11px] text-text-muted">Pending</span>
                                     )}
                                 </div>
                             </motion.button>
@@ -384,9 +420,10 @@ export default function AnalysisPage() {
                 </div>
             </div>
             </div>
+            )}
 
             {/* Selected detail panel */}
-            {analysisByVariation[activeChip] && (
+            {hasStarted && analysisByVariation[activeChip] && (
                 <motion.div
                     key={activeChip}
                     initial={{ opacity: 0, y: 10 }}

@@ -1,5 +1,7 @@
 /**
  * Workflow unlock level from SearchContext state.
+ * Steps unlock strictly in order — later flags are ignored until earlier ones exist.
+ *
  * 0 — only Step 1 open
  * 1 — Step 2 unlocked (topic CTA completed → variations)
  * 2 — Step 3 unlocked (demand checked)
@@ -10,10 +12,10 @@ export function getWorkflowProgress(
   hasAnalysis: boolean,
   hasSelectedAds: boolean
 ): number {
-  if (hasSelectedAds) return 3;
-  if (hasAnalysis) return 2;
-  if (hasVariations) return 1;
-  return 0;
+  if (!hasVariations) return 0;
+  if (!hasAnalysis) return 1;
+  if (!hasSelectedAds) return 2;
+  return 3;
 }
 
 /** Locked until workflowProgress >= requiresWorkflowStep. */
@@ -23,4 +25,13 @@ export function isWorkflowStepLocked(
 ): boolean {
   if (!requiresWorkflowStep) return false;
   return workflowProgress < requiresWorkflowStep;
+}
+
+/** Step N is completed only after the user has progressed past it. */
+export function isWorkflowStepCompleted(
+  stepIndex: number | undefined,
+  workflowProgress: number
+): boolean {
+  if (!stepIndex) return false;
+  return workflowProgress >= stepIndex;
 }

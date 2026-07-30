@@ -7,7 +7,6 @@ import { useSearch } from "@/context/SearchContext";
 import { motion } from "framer-motion";
 import { InfoHint } from "@/components/ui/InfoHint";
 import { InlineError } from "@/components/ui/InlineError";
-import { PageHeader } from "@/components/ui/page-header";
 import { GenerationProgress } from "@/components/ui/generation-progress";
 import { Field } from "@/components/ui/field";
 import { Steps } from "@/components/ui/steps";
@@ -70,34 +69,29 @@ export default function SearchPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mx-auto flex w-full max-w-6xl flex-col gap-8 py-2"
+      className="mx-auto flex w-full max-w-3xl flex-col gap-10 py-4 sm:py-10"
     >
-      <PageHeader
-        eyebrow="STEP 1 OF 4"
-        step={1}
-        title="Enter Your Ad Topic"
-        subtitle="Type one topic below. We will find related ads and conversations from Reddit and YouTube."
-        actions={
-          <InfoHint
-            label="What is an ad topic?"
-            text="A topic is just the subject people are searching for — like 'weight loss' or 'dog food'. Pick one thing you want to promote."
-          />
-        }
-      />
-
-      {(loading || showOfferBanner) && (
-        <GenerationProgress
-          active={loading}
-          showBanner={showOfferBanner}
-          label="Finding ads..."
-          offer="earnings"
-          scrollOnComplete={false}
+      <header className="flex flex-col items-center gap-4 text-center">
+        <span className="page-eyebrow">STEP 1 OF 4</span>
+        <h1 className="ds-h1">Enter Your Ad Topic</h1>
+        <p className="ds-subtitle max-w-xl">
+          Type one topic below. We will find related ads and conversations from Reddit and YouTube.
+        </p>
+        <div className="flex w-full max-w-md items-center gap-3">
+          <div className="h-1 flex-1 overflow-hidden rounded-full border border-[var(--border-subtle)] bg-[var(--surface-2)]">
+            <div className="h-full w-1/4 rounded-full" style={{ background: "var(--grad-brand)" }} />
+          </div>
+          <span className="text-[11px] font-semibold tabular-nums text-text-muted">1/4</span>
+        </div>
+        <InfoHint
+          label="What is an ad topic?"
+          text="A topic is just the subject people are searching for — like 'weight loss' or 'dog food'. Pick one thing you want to promote."
         />
-      )}
+      </header>
 
-      <div className="card-base flex max-w-2xl flex-col gap-4">
+      <div className="card-base flex flex-col gap-6 p-6! sm:gap-7 sm:p-10!">
         <Field
           label="Topic"
           placeholder='e.g. "weight loss", "dog food", "acne"'
@@ -111,60 +105,71 @@ export default function SearchPage() {
         <button
           onClick={() => handleSearch()}
           disabled={loading || !keyword}
-          className="btn-primary h-12 w-full text-sm"
+          className="btn-primary h-14 w-full text-base"
         >
           {loading ? (
             <>
-              <Loader2 className="animate-spin" size={18} />
+              <Loader2 className="animate-spin" size={20} />
               Finding Ads...
             </>
           ) : (
             <>
-              <Search size={18} strokeWidth={1.75} />
+              <Search size={20} strokeWidth={1.75} />
               Find Ads
-              <ArrowRight size={16} strokeWidth={1.75} />
+              <ArrowRight size={18} strokeWidth={1.75} />
             </>
           )}
         </button>
 
         <InlineError message={error} />
+
+        {history.length > 0 && (
+          <div className="border-t border-[var(--border-subtle)] pt-6">
+            <div className="mb-3 flex items-center justify-center gap-2">
+              <History size={14} strokeWidth={1.75} className="text-text-muted" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
+                Recent
+              </span>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              {history.map((h, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    setKeyword(h);
+                    handleSearch(h);
+                  }}
+                  disabled={loading}
+                  className="btn-chip disabled:opacity-50"
+                >
+                  {h}
+                  <ArrowRight size={12} strokeWidth={1.75} className="opacity-50" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {history.length > 0 && (
-        <div className="max-w-2xl">
-          <div className="mb-3 flex items-center gap-2">
-            <History size={14} strokeWidth={1.75} className="text-text-muted" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-              Recent
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {history.map((h, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setKeyword(h);
-                  handleSearch(h);
-                }}
-                disabled={loading}
-                className="btn-chip disabled:opacity-50"
-              >
-                {h}
-                <ArrowRight size={12} strokeWidth={1.75} className="opacity-50" />
-              </button>
-            ))}
-          </div>
+      {(loading || showOfferBanner) && (
+        <div className="min-h-[140px]">
+          <GenerationProgress
+            active={loading}
+            showBanner={showOfferBanner}
+            label="Finding ads..."
+            offer="earnings"
+            scrollOnComplete={false}
+          />
         </div>
       )}
 
-      <div className="max-w-2xl border-t border-[var(--border-subtle)] pt-6">
-        <p className="page-eyebrow mb-4">How it works</p>
+      <div className="border-t border-[var(--border-subtle)] pt-8">
+        <p className="page-eyebrow mb-5 text-center">How it works</p>
         <Steps
-          compact
           items={[
-            { title: "Type a topic" },
-            { title: "We find ads" },
-            { title: "You copy & earn" },
+            { title: "Type a topic", description: "Enter what you want to promote." },
+            { title: "We find ads", description: "Demand and conversations surface." },
+            { title: "You copy & earn", description: "Reply with your link." },
           ]}
         />
       </div>

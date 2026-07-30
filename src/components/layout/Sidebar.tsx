@@ -12,7 +12,11 @@ import Image from "next/image";
 import { useSearch } from "@/context/SearchContext";
 import { clsx } from "clsx";
 import { PREMIUM_FEATURES } from "@/lib/premium-features";
-import { getWorkflowProgress, isWorkflowStepLocked } from "@/lib/workflow-progress";
+import {
+  getWorkflowProgress,
+  isWorkflowStepCompleted,
+  isWorkflowStepLocked,
+} from "@/lib/workflow-progress";
 
 const STEPS = [
   { path: "/dashboard", label: "Home", icon: LayoutGrid },
@@ -76,21 +80,13 @@ export function Sidebar({
     return () => nav.removeEventListener("wheel", onWheel);
   }, [collapsed]);
 
-  const isStepCompleted = useCallback(
-    (stepIndex?: number) => {
-      if (!stepIndex) return false;
-      // stepIndex 1 completed when progress >= 1, etc.
-      return workflowProgress >= stepIndex;
-    },
-    [workflowProgress]
-  );
-
   const renderStepLink = useCallback(
     (step: (typeof STEPS)[number], collapsedView: boolean) => {
       const isActive = pathname === step.path;
       const Icon = step.icon;
       const locked = isWorkflowStepLocked(step.requiresWorkflowStep, workflowProgress);
-      const completed = isStepCompleted(step.stepIndex) && !isActive && !locked;
+      const completed =
+        isWorkflowStepCompleted(step.stepIndex, workflowProgress) && !isActive && !locked;
 
       if (locked) {
         return (
@@ -145,7 +141,7 @@ export function Sidebar({
         </Link>
       );
     },
-    [pathname, workflowProgress, isStepCompleted]
+    [pathname, workflowProgress]
   );
 
   return (
