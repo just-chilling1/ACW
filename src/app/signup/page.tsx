@@ -87,7 +87,7 @@ export default function SignupPage() {
                             className="h-12 w-auto object-contain"
                             priority
                         />
-                        <p className="text-sm text-text-secondary">Join our accelerator network</p>
+                        <p className="text-sm text-text-secondary">Join the system built to maximize every click</p>
                     </div>
 
                     <form onSubmit={handleSignup} className="flex flex-col gap-5">

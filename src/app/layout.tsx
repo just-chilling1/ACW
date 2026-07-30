@@ -4,8 +4,8 @@ import { SearchProvider } from "@/context/SearchContext";
 import { Shell } from "@/components/layout/Shell";
 
 export const metadata: Metadata = {
-  title: "CashTap AI | Premium Earning Accelerator",
-  description: "Identify high-potential discussions and generate natural responses that convert.",
+  title: "CashTap AI | High-Converting Ad Reply System",
+  description: "Find high-intent conversations and generate replies that convert — the AI system built to maximize every click.",
   icons: {
     icon: [
       { url: "/favicon.png", sizes: "48x48", type: "image/png" },

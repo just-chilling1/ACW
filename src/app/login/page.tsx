@@ -80,7 +80,7 @@ export default function LoginPage() {
                             className="h-12 w-auto object-contain"
                             priority
                         />
-                        <p className="text-sm text-text-secondary">Premium Earning Accelerator</p>
+                        <p className="text-sm text-text-secondary">The AI system for high-converting ad replies</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="flex flex-col gap-5">

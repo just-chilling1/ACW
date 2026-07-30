@@ -10,7 +10,7 @@ export const ONBOARDING_DASHBOARD_ROUTE = "/dashboard";
 export const ONBOARDING_META_KEY = "onboarding_completed" as const;
 
 export const onboardingContent = {
-    productTagline: "Find conversations. Post replies. Get paid.",
+    productTagline: "High-intent ads. Replies that convert.",
     dashboardRoute: ONBOARDING_DASHBOARD_ROUTE,
 
     activation: {

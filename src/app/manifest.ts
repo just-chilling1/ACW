@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
     return {
         name: "CashTap AI",
         short_name: "CashTap AI",
-        description: "Find ads, create replies, and earn commissions with AI.",
+        description: "The AI system for finding high-intent ads and writing replies that convert.",
         start_url: "/dashboard",
         display: "standalone",
         background_color: "#0A0A0B",
