@@ -1,18 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     GraduationCap, Search, Brain, Radar, MessageSquare,
     ArrowRight, Lightbulb, HelpCircle,
     CheckCircle2, Target, Copy, ExternalLink, DollarSign, Zap,
-    BookOpen, Star
+    BookOpen, Star, Play
 } from "lucide-react";
 import Link from "next/link";
+import { clsx } from "clsx";
 import { PageHeader } from "@/components/ui/page-header";
 import { VideoThumbnail } from "@/components/ui/video-thumbnail";
 import { VideoOverlay } from "@/components/ui/video-overlay";
 import { Accordion } from "@/components/ui/accordion";
+
+type TrainingTab = "videos" | "faq";
+
+const TABS: { id: TrainingTab; label: string; icon: typeof Play }[] = [
+    { id: "videos", label: "Videos", icon: Play },
+    { id: "faq", label: "FAQ", icon: HelpCircle },
+];
 
 const VIDEOS = [
     {
@@ -288,6 +296,13 @@ const FAQ_SECTIONS = [
     },
 ];
 
+
+const PREMIUM_VIDEOS = [
+    { id: "1171728175", badge: "Premium Feature 1", title: "Done For You", desc: "Learn how to use the Done-For-You feature to pick a keyword, add your link, and get ready-made replies to post and earn." },
+    { id: "1171734563", badge: "Premium Feature 2", title: "Automated Profits", desc: "Learn how to use the Automated Profits feature to submit your link to 100+ traffic sources and get automated traffic forever." },
+    { id: "1171721099", badge: "Premium Feature 3", title: "Instant Income", desc: "Learn how to use the Instant Income feature to copy proven Facebook posts and start earning commissions right away." },
+];
+
 const PRO_TIPS = [
     { icon: Target, title: "Pick trending topics", text: "Topics with \"High\" demand have the most active conversations. More eyeballs on your reply = more clicks." },
     { icon: Copy, title: "Volume wins", text: "Post at least 5-10 replies per day across different ads. Consistency is the #1 factor for earning." },
@@ -297,14 +312,17 @@ const PRO_TIPS = [
     { icon: Star, title: "Be helpful first", text: "Replies that genuinely answer the question AND include your link perform 3x better than spammy ones." },
 ];
 
+
 export default function TrainingPage() {
+    const [tab, setTab] = useState<TrainingTab>("videos");
     const [openVideo, setOpenVideo] = useState<{ id: string; title: string } | null>(null);
+    const faqCount = FAQ_SECTIONS.reduce((acc, s) => acc + s.items.length, 0);
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mx-auto flex w-full max-w-6xl flex-col gap-12 py-6"
+            className="mx-auto flex w-full max-w-6xl flex-col gap-6 py-6"
         >
             <PageHeader
                 eyebrow="TRAINING"
@@ -316,233 +334,268 @@ export default function TrainingPage() {
                 subtitle="Everything you need to start earning with CashTap AI."
             />
 
-            {/* Video Training */}
-            <section className="flex flex-col gap-6">
-                <div className="flex items-center gap-2">
-                    <GraduationCap size={16} className="text-accent" />
-                    <h2 className="ds-h2">Video Training</h2>
-                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest ml-2">Watch these first</span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {VIDEOS.map((video, i) => (
-                        <motion.div
-                            key={video.id}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="border border-[var(--border-subtle)] rounded-[var(--radius-lg)] overflow-hidden bg-[var(--surface-1)]"
+            <div
+                role="tablist"
+                aria-label="Training sections"
+                className="flex gap-1 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-1"
+            >
+                {TABS.map((item) => {
+                    const Icon = item.icon;
+                    const active = tab === item.id;
+                    return (
+                        <button
+                            key={item.id}
+                            type="button"
+                            role="tab"
+                            aria-selected={active}
+                            onClick={() => setTab(item.id)}
+                            className={clsx(
+                                "flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-md)] px-4 py-3 text-sm font-semibold transition-colors",
+                                active
+                                    ? "bg-[var(--gold)] text-[#0A0A0B]"
+                                    : "text-text-muted hover:bg-[var(--surface-2)] hover:text-text-primary"
+                            )}
                         >
-                            <VideoThumbnail
-                                videoId={video.id}
-                                title={video.title}
-                                onPlay={() => setOpenVideo({ id: video.id, title: video.title })}
-                            />
-                            <div className="p-4 flex flex-col gap-1.5">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[9px] font-bold text-accent uppercase tracking-widest bg-accent/10 px-2 py-0.5 rounded">
-                                        Video {i + 1}
-                                    </span>
-                                </div>
-                                <h3 className="text-sm font-bold text-white">{video.title}</h3>
-                                <p className="text-[12px] text-text-muted leading-relaxed">{video.description}</p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Premium Features */}
-            <section className="flex flex-col gap-6">
-                <div className="flex items-center gap-2">
-                    <Star size={16} className="text-accent" />
-                    <h2 className="ds-h2">Premium Features</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {[
-                        { id: "1171728175", badge: "Premium Feature 1", title: "Done For You", desc: "Learn how to use the Done-For-You feature to pick a keyword, add your link, and get ready-made replies to post and earn." },
-                        { id: "1171734563", badge: "Premium Feature 2", title: "Automated Profits", desc: "Learn how to use the Automated Profits feature to submit your link to 100+ traffic sources and get automated traffic forever." },
-                        { id: "1171721099", badge: "Premium Feature 3", title: "Instant Income", desc: "Learn how to use the Instant Income feature to copy proven Facebook posts and start earning commissions right away." },
-                    ].map((video, i) => (
-                        <motion.div
-                            key={video.id}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.05 + i * 0.05 }}
-                            className="border border-[var(--border-subtle)] rounded-[var(--radius-lg)] overflow-hidden bg-[var(--surface-1)]"
-                        >
-                            <VideoThumbnail
-                                videoId={video.id}
-                                title={video.title}
-                                onPlay={() => setOpenVideo({ id: video.id, title: video.title })}
-                            />
-                            <div className="p-4 flex flex-col gap-1.5">
-                                <span className="text-[9px] font-bold text-accent uppercase tracking-widest bg-accent/10 px-2 py-0.5 rounded w-fit">
-                                    {video.badge}
-                                </span>
-                                <h3 className="text-sm font-bold text-white">{video.title}</h3>
-                                <p className="text-[12px] text-text-muted leading-relaxed">{video.desc}</p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Step-by-Step Guide */}
-            <section className="flex flex-col gap-6">
-                <div className="flex items-center gap-2">
-                    <BookOpen size={16} className="text-accent" />
-                    <h2 className="text-lg font-bold text-white">Step-by-Step Guide</h2>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                    {STEPS_GUIDE.map((s, i) => {
-                        const Icon = s.icon;
-                        return (
-                            <motion.div
-                                key={s.step}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.08 }}
-                                className="border border-[var(--border-subtle)] rounded-[var(--radius-lg)] bg-[var(--surface-1)] p-5 flex flex-col gap-4"
-                            >
-                                <div className="flex items-start gap-4">
-                                    <div className="w-10 h-10 bg-accent/10 border border-accent/20 rounded-lg flex items-center justify-center shrink-0">
-                                        <Icon size={18} className="text-accent" />
-                                    </div>
-                                    <div className="flex flex-col gap-1 flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[9px] font-bold text-accent uppercase tracking-widest">Step {s.step}</span>
-                                        </div>
-                                        <h3 className="text-base font-bold text-white">{s.title}</h3>
-                                        <p className="text-[13px] text-text-secondary leading-relaxed">{s.description}</p>
-                                    </div>
-                                </div>
-
-                                {/* Tips */}
-                                <div className="pl-14 flex flex-col gap-3">
-                                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Tips</p>
-                                    <div className="flex flex-col gap-2">
-                                        {s.tips.map((tip, j) => (
-                                            <div key={j} className="flex items-start gap-2">
-                                                <CheckCircle2 size={12} className="text-green-400 shrink-0 mt-0.5" />
-                                                <span className="text-[12px] text-text-secondary leading-relaxed">{tip}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {s.examples.length > 0 && (
-                                        <div className="flex flex-wrap gap-2 mt-1">
-                                            <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Try:</span>
-                                            {s.examples.map((ex, j) => (
-                                                <span key={j} className="text-[11px] px-2.5 py-1 bg-accent/5 border border-accent/15 rounded-md text-accent font-medium">
-                                                    {ex}
-                                                </span>
-                                            ))}
-                                        </div>
+                            <Icon size={16} strokeWidth={2} />
+                            {item.label}
+                            {item.id === "faq" && (
+                                <span
+                                    className={clsx(
+                                        "rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
+                                        active ? "bg-black/15" : "bg-[var(--surface-3)] text-text-muted"
                                     )}
-                                </div>
-                            </motion.div>
-                        );
-                    })}
-                </div>
-            </section>
+                                >
+                                    {faqCount}
+                                </span>
+                            )}
+                        </button>
+                    );
+                })}
+            </div>
 
-            {/* Pro Tips */}
-            <section className="flex flex-col gap-6">
-                <div className="flex items-center gap-2">
-                    <Zap size={16} className="text-accent" />
-                    <h2 className="text-lg font-bold text-white">Pro Tips for More Earnings</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {PRO_TIPS.map((tip, i) => {
-                        const Icon = tip.icon;
-                        return (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.06 }}
-                                className="border border-[var(--border-subtle)] rounded-[var(--radius-lg)] bg-[var(--surface-1)] p-4 flex flex-col gap-2.5"
-                            >
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center shrink-0">
-                                        <Icon size={15} className="text-accent" />
-                                    </div>
-                                    <h3 className="text-[13px] font-bold text-white">{tip.title}</h3>
-                                </div>
-                                <p className="text-[12px] text-text-muted leading-relaxed">{tip.text}</p>
-                            </motion.div>
-                        );
-                    })}
-                </div>
-            </section>
-
-            {/* Quick Start Checklist */}
-            <section className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                    <CheckCircle2 size={16} className="text-green-400" />
-                    <h2 className="text-lg font-bold text-white">Quick Start Checklist</h2>
-                </div>
-
-                <div className="border border-green-500/15 rounded-[var(--radius-lg)] bg-green-500/3 p-5 flex flex-col gap-3">
-                    {[
-                        "Watch both training videos above",
-                        "Go to Step 1 and search for your first topic",
-                        "Check demand in Step 2 — look for \"High\" activity keywords",
-                        "Select at least 3 ads in Step 3",
-                        "Paste your affiliate link in Step 4 and create replies",
-                        "Copy a reply, go to the original ad, and paste it as a comment",
-                        "Repeat daily — aim for 5-10 replies per day",
-                    ].map((item, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                            <div className="w-5 h-5 rounded-md border border-green-500/20 bg-green-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                                <span className="text-[9px] font-black text-green-400">{i + 1}</span>
+            <AnimatePresence mode="wait">
+                {tab === "videos" ? (
+                    <motion.div
+                        key="videos"
+                        role="tabpanel"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.18 }}
+                        className="flex flex-col gap-8"
+                    >
+                        <section className="flex flex-col gap-4">
+                            <div className="flex items-center gap-2">
+                                <GraduationCap size={16} className="text-accent" />
+                                <h2 className="ds-h2">Video Training</h2>
+                                <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                                    Watch these first
+                                </span>
                             </div>
-                            <span className="text-[13px] text-text-secondary leading-relaxed">{item}</span>
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                {VIDEOS.map((video, i) => (
+                                    <div
+                                        key={video.id}
+                                        className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)]"
+                                    >
+                                        <VideoThumbnail
+                                            videoId={video.id}
+                                            title={video.title}
+                                            onPlay={() => setOpenVideo({ id: video.id, title: video.title })}
+                                        />
+                                        <div className="flex flex-col gap-1.5 p-4">
+                                            <span className="w-fit rounded bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-accent">
+                                                Video {i + 1}
+                                            </span>
+                                            <h3 className="text-sm font-bold text-white">{video.title}</h3>
+                                            <p className="text-[12px] leading-relaxed text-text-muted">{video.description}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section className="flex flex-col gap-4">
+                            <div className="flex items-center gap-2">
+                                <Star size={16} className="text-accent" />
+                                <h2 className="ds-h2">Premium Features</h2>
+                            </div>
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                {PREMIUM_VIDEOS.map((video) => (
+                                    <div
+                                        key={video.id}
+                                        className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)]"
+                                    >
+                                        <VideoThumbnail
+                                            videoId={video.id}
+                                            title={video.title}
+                                            onPlay={() => setOpenVideo({ id: video.id, title: video.title })}
+                                        />
+                                        <div className="flex flex-col gap-1.5 p-4">
+                                            <span className="w-fit rounded bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-accent">
+                                                {video.badge}
+                                            </span>
+                                            <h3 className="text-sm font-bold text-white">{video.title}</h3>
+                                            <p className="text-[12px] leading-relaxed text-text-muted">{video.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        <details className="group rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)]">
+                            <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-4 text-sm font-semibold text-text-primary [&::-webkit-details-marker]:hidden">
+                                <BookOpen size={16} className="text-accent" />
+                                Step-by-Step Guide
+                                <span className="ml-auto text-[11px] font-medium text-text-muted group-open:hidden">Show</span>
+                                <span className="ml-auto hidden text-[11px] font-medium text-text-muted group-open:inline">Hide</span>
+                            </summary>
+                            <div className="flex flex-col gap-4 border-t border-[var(--border-subtle)] px-5 py-5">
+                                {STEPS_GUIDE.map((s) => {
+                                    const Icon = s.icon;
+                                    return (
+                                        <div
+                                            key={s.step}
+                                            className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4"
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/20 bg-accent/10">
+                                                    <Icon size={16} className="text-accent" />
+                                                </div>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[9px] font-bold uppercase tracking-widest text-accent">
+                                                        Step {s.step}
+                                                    </span>
+                                                    <h3 className="text-sm font-bold text-white">{s.title}</h3>
+                                                    <p className="text-[13px] leading-relaxed text-text-secondary">{s.description}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col gap-2 pl-12">
+                                                {s.tips.map((tip, j) => (
+                                                    <div key={j} className="flex items-start gap-2">
+                                                        <CheckCircle2 size={12} className="mt-0.5 shrink-0 text-green-400" />
+                                                        <span className="text-[12px] leading-relaxed text-text-secondary">{tip}</span>
+                                                    </div>
+                                                ))}
+                                                {s.examples.length > 0 && (
+                                                    <div className="mt-1 flex flex-wrap gap-2">
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Try:</span>
+                                                        {s.examples.map((ex) => (
+                                                            <span
+                                                                key={ex}
+                                                                className="rounded-md border border-accent/15 bg-accent/5 px-2.5 py-1 text-[11px] font-medium text-accent"
+                                                            >
+                                                                {ex}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </details>
+
+                        <details className="group rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)]">
+                            <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-4 text-sm font-semibold text-text-primary [&::-webkit-details-marker]:hidden">
+                                <Zap size={16} className="text-accent" />
+                                Pro Tips for More Earnings
+                                <span className="ml-auto text-[11px] font-medium text-text-muted group-open:hidden">Show</span>
+                                <span className="ml-auto hidden text-[11px] font-medium text-text-muted group-open:inline">Hide</span>
+                            </summary>
+                            <div className="grid grid-cols-1 gap-3 border-t border-[var(--border-subtle)] px-5 py-5 md:grid-cols-2 lg:grid-cols-3">
+                                {PRO_TIPS.map((tip) => {
+                                    const Icon = tip.icon;
+                                    return (
+                                        <div
+                                            key={tip.title}
+                                            className="flex flex-col gap-2.5 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4"
+                                        >
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10">
+                                                    <Icon size={15} className="text-accent" />
+                                                </div>
+                                                <h3 className="text-[13px] font-bold text-white">{tip.title}</h3>
+                                            </div>
+                                            <p className="text-[12px] leading-relaxed text-text-muted">{tip.text}</p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </details>
+
+                        <details className="group rounded-[var(--radius-lg)] border border-green-500/15 bg-green-500/3" open>
+                            <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-4 text-sm font-semibold text-text-primary [&::-webkit-details-marker]:hidden">
+                                <CheckCircle2 size={16} className="text-green-400" />
+                                Quick Start Checklist
+                                <span className="ml-auto text-[11px] font-medium text-text-muted group-open:hidden">Show</span>
+                                <span className="ml-auto hidden text-[11px] font-medium text-text-muted group-open:inline">Hide</span>
+                            </summary>
+                            <div className="flex flex-col gap-3 border-t border-green-500/15 px-5 py-5">
+                                {[
+                                    "Watch both training videos above",
+                                    "Go to Step 1 and search for your first topic",
+                                    "Check demand in Step 2 — look for \"High\" activity keywords",
+                                    "Select at least 3 ads in Step 3",
+                                    "Paste your affiliate link in Step 4 and create replies",
+                                    "Copy a reply, go to the original ad, and paste it as a comment",
+                                    "Repeat daily — aim for 5-10 replies per day",
+                                ].map((item, i) => (
+                                    <div key={item} className="flex items-start gap-3">
+                                        <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-green-500/20 bg-green-500/10">
+                                            <span className="text-[9px] font-black text-green-400">{i + 1}</span>
+                                        </div>
+                                        <span className="text-[13px] leading-relaxed text-text-secondary">{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </details>
+
+                        <section className="flex flex-col items-center justify-between gap-4 rounded-[var(--radius-lg)] border border-accent/20 bg-accent/5 p-6 md:flex-row">
+                            <div className="flex flex-col gap-1">
+                                <h3 className="text-base font-bold text-white">Ready to start earning?</h3>
+                                <p className="text-[13px] text-text-muted">Go to Step 1 and search for your first topic now.</p>
+                            </div>
+                            <Link
+                                href="/search"
+                                className="btn-primary flex h-11 shrink-0 items-center gap-2 rounded-lg px-6 text-sm"
+                            >
+                                <Search size={16} />
+                                <span>Go to Step 1</span>
+                                <ArrowRight size={14} />
+                            </Link>
+                        </section>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="faq"
+                        role="tabpanel"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.18 }}
+                        className="flex flex-col gap-5"
+                    >
+                        <div className="flex items-center gap-2">
+                            <HelpCircle size={16} strokeWidth={1.75} className="text-[var(--gold)]" />
+                            <h2 className="ds-h2">Frequently Asked Questions</h2>
+                            <span className="ml-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
+                                {faqCount} answers
+                            </span>
                         </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* FAQ */}
-            <section className="flex flex-col gap-6">
-                <div className="flex items-center gap-2">
-                    <HelpCircle size={16} strokeWidth={1.75} className="text-[var(--gold)]" />
-                    <h2 className="ds-h2">Frequently Asked Questions</h2>
-                    <span className="ml-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-                        {FAQ_SECTIONS.reduce((acc, s) => acc + s.items.length, 0)} answers
-                    </span>
-                </div>
-
-                <Accordion
-                    groups={FAQ_SECTIONS.map((section) => ({
-                        category: section.title,
-                        items: section.items.map((item) => ({
-                            question: item.q,
-                            answer: item.a,
-                        })),
-                    }))}
-                />
-            </section>
-
-            {/* CTA */}
-            <section className="border border-accent/20 rounded-[var(--radius-lg)] bg-accent/5 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                    <h3 className="text-base font-bold text-white">Ready to start earning?</h3>
-                    <p className="text-[13px] text-text-muted">Go to Step 1 and search for your first topic now.</p>
-                </div>
-                <Link
-                    href="/search"
-                    className="btn-primary h-11 px-6 text-sm rounded-lg flex items-center gap-2 shrink-0"
-                >
-                    <Search size={16} />
-                    <span>Go to Step 1</span>
-                    <ArrowRight size={14} />
-                </Link>
-            </section>
+                        <Accordion
+                            groups={FAQ_SECTIONS.map((section) => ({
+                                category: section.title,
+                                items: section.items.map((item) => ({
+                                    question: item.q,
+                                    answer: item.a,
+                                })),
+                            }))}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {openVideo && (
                 <VideoOverlay
