@@ -1,48 +1,76 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import type { EmailOtpType } from "@supabase/supabase-js";
+
+const SITE_URL = "https://cashtapaiaccess.com";
+
+function safeNextPath(next: string | null): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return "/reset-password";
+  return next;
+}
 
 export async function GET(request: NextRequest) {
-    const { searchParams } = new URL(request.url);
-    const code = searchParams.get("code");
-    const next = searchParams.get("next") ?? "/reset-password";
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get("code");
+  const tokenHash = searchParams.get("token_hash");
+  const type = searchParams.get("type") as EmailOtpType | null;
+  const next = safeNextPath(
+    searchParams.get("next") ?? (type === "recovery" ? "/reset-password" : null),
+  );
 
-    if (code) {
-        const response = NextResponse.redirect(new URL(next, request.url));
+  const redirectTarget = new URL(next, SITE_URL);
 
-        const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    get(name: string) {
-                        return request.cookies.get(name)?.value;
-                    },
-                    set(name: string, value: string, options: CookieOptions) {
-                        response.cookies.set({ name, value, ...options });
-                    },
-                    remove(name: string, options: CookieOptions) {
-                        response.cookies.set({ name, value: "", ...options });
-                    },
-                },
-            }
-        );
+  if (code || (tokenHash && type)) {
+    const response = NextResponse.redirect(redirectTarget);
 
-        try {
-            const { error } = await supabase.auth.exchangeCodeForSession(code);
-            if (error) {
-                console.error("Code exchange error:", error.message);
-                const errorUrl = new URL("/reset-password", request.url);
-                errorUrl.searchParams.set("error", error.message);
-                return NextResponse.redirect(errorUrl);
-            }
-            return response;
-        } catch (err: any) {
-            console.error("Code exchange exception:", err);
-            const errorUrl = new URL("/reset-password", request.url);
-            errorUrl.searchParams.set("error", "Failed to verify reset link. Please try again.");
-            return NextResponse.redirect(errorUrl);
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return request.cookies.get(name)?.value;
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            response.cookies.set({ name, value, ...options });
+          },
+          remove(name: string, options: CookieOptions) {
+            response.cookies.set({ name, value: "", ...options });
+          },
+        },
+      },
+    );
+
+    try {
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.error("Code exchange error:", error.message);
+          const errorUrl = new URL("/reset-password", SITE_URL);
+          errorUrl.searchParams.set("error", error.message);
+          return NextResponse.redirect(errorUrl);
         }
-    }
+        return response;
+      }
 
-    return NextResponse.redirect(new URL("/login", request.url));
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash!,
+        type: type!,
+      });
+      if (error) {
+        console.error("OTP verify error:", error.message);
+        const errorUrl = new URL("/reset-password", SITE_URL);
+        errorUrl.searchParams.set("error", error.message);
+        return NextResponse.redirect(errorUrl);
+      }
+      return response;
+    } catch (err: unknown) {
+      console.error("Auth callback exception:", err);
+      const errorUrl = new URL("/reset-password", SITE_URL);
+      errorUrl.searchParams.set("error", "Failed to verify reset link. Please try again.");
+      return NextResponse.redirect(errorUrl);
+    }
+  }
+
+  return NextResponse.redirect(new URL("/login", SITE_URL));
 }
