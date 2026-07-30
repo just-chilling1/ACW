@@ -4,10 +4,11 @@ import { useCallback, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-    LayoutGrid, Radar, LogOut, ChevronRight, GraduationCap, Target, Sparkles,
+    LayoutGrid, Radar, LogOut, ChevronRight, GraduationCap, Sparkles,
     Search, MessageSquare, Brain, TrendingUp, ExternalLink,
     PanelLeftClose, PanelLeftOpen
 } from "lucide-react";
+import Image from "next/image";
 import { useSearch } from "@/context/SearchContext";
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
@@ -109,21 +110,30 @@ export function Sidebar({
                 <div className="flex items-center justify-between gap-2 px-1">
                     <Link
                         href="/dashboard"
-                        className={clsx("flex items-center gap-3 group min-w-0", collapsed && "justify-center w-full")}
+                        className={clsx(
+                            "flex items-center group min-w-0",
+                            collapsed ? "justify-center w-full" : "w-[80%] mx-auto pt-1"
+                        )}
                         title="CashTap AI"
                     >
-                        <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent-muted flex items-center justify-center rounded-lg shadow-gold shrink-0">
-                            <Target size={22} className="text-white" />
-                        </div>
-                        {!collapsed && (
-                            <div className="flex flex-col min-w-0">
-                                <span className="brand-font text-[20px] text-text-primary tracking-tight leading-none whitespace-nowrap">
-                                    CashTap&nbsp;AI
-                                </span>
-                                <span className="text-[10px] font-bold text-text-muted mt-1 whitespace-nowrap">
-                                    Simple AI Ad Helper
-                                </span>
-                            </div>
+                        {collapsed ? (
+                            <Image
+                                src="/logo-mark.png"
+                                alt="CashTap AI"
+                                width={40}
+                                height={40}
+                                className="h-10 w-10 object-contain"
+                                priority
+                            />
+                        ) : (
+                            <Image
+                                src="/logo.png"
+                                alt="CashTap AI"
+                                width={220}
+                                height={48}
+                                className="h-auto w-full object-contain object-left"
+                                priority
+                            />
                         )}
                     </Link>
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Target } from "lucide-react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import {
     onboardingContent,
@@ -72,21 +72,21 @@ export function OnboardingFlow() {
         }
     };
 
-    const logo = (
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 shadow-[0_4px_16px_rgba(234,179,8,0.35)]">
-            <Target size={24} className="text-white" strokeWidth={2.5} />
-        </div>
-    );
-
     return (
         <div className="fixed inset-0 z-[300] flex h-dvh overflow-hidden bg-gradient-to-br from-slate-50 via-white to-amber-50">
             <aside className="hidden w-72 shrink-0 flex-col border-r border-slate-200 bg-white p-8 lg:flex">
-                <div className="flex items-center gap-3">
-                    {logo}
-                    <div>
-                        <p className="text-lg font-black text-slate-900">{ONBOARDING_PRODUCT_NAME}</p>
-                        <p className="text-sm text-slate-500">{onboardingContent.productTagline}</p>
+                <div className="flex flex-col gap-2">
+                    <div className="inline-flex w-fit rounded-xl bg-[#0A0A0B] px-3 py-2.5">
+                        <Image
+                            src="/logo.png"
+                            alt={ONBOARDING_PRODUCT_NAME}
+                            width={200}
+                            height={44}
+                            className="h-8 w-auto object-contain"
+                            priority
+                        />
                     </div>
+                    <p className="text-sm text-slate-500">{onboardingContent.productTagline}</p>
                 </div>
 
                 <ul className="mt-10 space-y-3">
@@ -109,7 +109,16 @@ export function OnboardingFlow() {
             <main className="flex flex-1 min-h-0 flex-col overflow-y-auto">
                 <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-6 py-12 sm:px-10">
                     <div className="mb-8 flex items-center gap-3 lg:hidden">
-                        {logo}
+                        <div className="rounded-xl bg-[#0A0A0B] px-2.5 py-2">
+                            <Image
+                                src="/logo-mark.png"
+                                alt={ONBOARDING_PRODUCT_NAME}
+                                width={40}
+                                height={40}
+                                className="h-9 w-9 object-contain"
+                                priority
+                            />
+                        </div>
                         <div>
                             <p className="text-base font-black text-slate-900">{ONBOARDING_PRODUCT_NAME}</p>
                             <p className="text-xs text-slate-500">{onboardingContent.productTagline}</p>

@@ -4,7 +4,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { Mail, ArrowLeft, Target, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Mail, ArrowLeft, ShieldCheck, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
 import { FloatingSupportButton } from "@/components/support/FloatingSupportButton";
 
 export default function ForgotPasswordPage() {
@@ -50,9 +51,14 @@ export default function ForgotPasswordPage() {
             >
                 <div className="glass-card p-10 flex flex-col gap-8 border-[#141414] shadow-2xl">
                     <div className="flex flex-col items-center gap-4 text-center">
-                        <div className="w-16 h-16 bg-accent flex items-center justify-center rounded-xl shadow-gold">
-                            <Target size={32} className="text-black" />
-                        </div>
+                        <Image
+                            src="/logo.png"
+                            alt="CashTap AI"
+                            width={220}
+                            height={48}
+                            className="h-10 w-auto object-contain"
+                            priority
+                        />
                         <div className="flex flex-col">
                             <h1 className="brand-font text-[28px] text-text-primary leading-tight">Reset Password</h1>
                             <p className="text-sm text-text-secondary mt-1">
