@@ -11,15 +11,17 @@ export function BonusTrainingCard() {
     <Callout
       variant="promo"
       actions={
-        <Link
-          href={FREE_TRAINING_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-primary inline-flex w-full max-w-xl text-sm sm:w-auto"
-        >
-          Yes! Show Me How To Earn $1,000-$5,000 A Day
-          <ArrowRight className="h-4 w-4 shrink-0" />
-        </Link>
+        <div className="flex justify-center pt-1">
+          <Link
+            href={FREE_TRAINING_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary inline-flex w-full max-w-xl justify-center text-sm sm:w-auto"
+          >
+            Yes! Show Me How To Earn $1,000-$5,000 A Day
+            <ArrowRight className="h-4 w-4 shrink-0" />
+          </Link>
+        </div>
       }
     >
       <p>

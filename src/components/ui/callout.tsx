@@ -61,9 +61,9 @@ export function Callout({
         </div>
         <div className={clsx("min-w-0 flex-1 space-y-3 text-sm leading-relaxed text-text-secondary", dismissible && "pr-8")}>
           {children}
-          {actions ? <div className="pt-1">{actions}</div> : null}
         </div>
       </div>
+      {actions ? <div className="mt-4 flex justify-center">{actions}</div> : null}
     </div>
   );
 }
