@@ -12,7 +12,6 @@ import { DashboardVideoCard } from "@/components/ui/dashboard-video-card";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/page-header";
 import { DASHBOARD_TRAINING_VIDEOS } from "@/lib/dashboard-training-videos";
-import { SUPPORT_EMAIL } from "@/lib/support";
 
 const VISIBLE_VIDEOS = DASHBOARD_TRAINING_VIDEOS.filter((v) => v.visible !== false);
 
@@ -106,12 +105,12 @@ export default function DashboardPage() {
                   <p className="text-sm text-text-muted">Priority support available 24/7</p>
                 </div>
               </div>
-              <a
-                href={`mailto:${SUPPORT_EMAIL}`}
+              <Link
+                href="/support"
                 className="btn-primary inline-flex min-h-12 items-center justify-center px-8"
               >
                 Contact Support
-              </a>
+              </Link>
             </div>
           </section>
 

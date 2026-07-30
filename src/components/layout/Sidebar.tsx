@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   LayoutGrid, Radar, LogOut, ChevronRight, GraduationCap, Sparkles,
   Search, MessageSquare, Brain, TrendingUp, ExternalLink,
-  PanelLeftClose, PanelLeftOpen, Lock, Check
+  PanelLeftClose, PanelLeftOpen, Lock, Check, HelpCircle
 } from "lucide-react";
 import Image from "next/image";
 import { useSearch } from "@/context/SearchContext";
@@ -26,6 +26,7 @@ const STEPS = [
   { path: "/replies", label: "Step 4: Create Replies", icon: MessageSquare, requiresWorkflowStep: 3, stepIndex: 4 },
   { path: "/training", label: "Training", icon: GraduationCap },
   { path: "/scale-training", label: "Scale to $1k–$5k/day", icon: TrendingUp },
+  { path: "/support", label: "Support", icon: HelpCircle },
 ];
 
 const EXCLUSIVE_OFFERS = [

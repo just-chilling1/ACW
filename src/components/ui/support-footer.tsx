@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { Clock, Headphones, ShieldCheck, Star } from "lucide-react";
-import { SUPPORT_EMAIL } from "@/lib/support";
 
 export function SupportFooter() {
   return (
@@ -16,12 +16,12 @@ export function SupportFooter() {
             <p className="text-sm text-text-secondary">Our support team is here for you 24/7</p>
           </div>
         </div>
-        <a
-          href={`mailto:${SUPPORT_EMAIL}`}
+        <Link
+          href="/support"
           className="btn-primary h-[42px] whitespace-nowrap px-7"
         >
           Contact Support
-        </a>
+        </Link>
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-[var(--border-subtle)] pt-4">

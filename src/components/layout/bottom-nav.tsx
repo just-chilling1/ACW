@@ -24,6 +24,7 @@ const MORE_NAV = [
     { path: "/analysis", label: "Step 2: Check Demand", icon: Brain, requiresWorkflowStep: 1 },
     { path: "/training", label: "Training", icon: GraduationCap },
     { path: "/scale-training", label: "Scale to $1k–$5k/day", icon: TrendingUp },
+    { path: "/support", label: "Support", icon: Headphones },
 ];
 
 const EXCLUSIVE_OFFERS = [
@@ -250,13 +251,13 @@ export function BottomNav() {
                             </div>
 
                             <div className="flex flex-col gap-0.5 border-t border-[var(--border-subtle)] pt-3 [@media(max-height:740px)]:pt-2">
-                                <a
-                                    href="mailto:cashtapai@neoai.freshdesk.com"
+                                <Link
+                                    href="/support"
                                     className={clsx(MORE_ROW, "text-text-secondary hover:bg-white/5")}
                                 >
                                     <Headphones size={16} className="shrink-0" />
-                                    <span className={MORE_ITEM_TEXT}>Contact Support</span>
-                                </a>
+                                    <span className={MORE_ITEM_TEXT}>Support Center</span>
+                                </Link>
                                 <button
                                     type="button"
                                     onClick={() => {
