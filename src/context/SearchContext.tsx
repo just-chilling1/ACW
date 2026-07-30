@@ -30,11 +30,11 @@ interface SearchContextType {
     activeChip: string;
     setActiveChip: (c: string) => void;
     postsByVariation: Record<string, Ad[]>;
-    setPostsByVariation: (p: Record<string, Ad[]>) => void;
+    setPostsByVariation: React.Dispatch<React.SetStateAction<Record<string, Ad[]>>>;
     activityByVariation: Record<string, string>;
-    setActivityByVariation: (a: Record<string, string>) => void;
+    setActivityByVariation: React.Dispatch<React.SetStateAction<Record<string, string>>>;
     analysisByVariation: Record<string, AnalysisData>;
-    setAnalysisByVariation: (a: Record<string, AnalysisData>) => void;
+    setAnalysisByVariation: React.Dispatch<React.SetStateAction<Record<string, AnalysisData>>>;
     affiliateLink: string;
     setAffiliateLink: (l: string) => void;
     expandedPostId: string | null;
