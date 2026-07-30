@@ -24,29 +24,29 @@ export function MilestoneTracker({ totalSearches }: MilestoneTrackerProps) {
         : 100;
 
     return (
-        <div className="card-base border-accent/10 flex flex-col gap-5 p-6">
+        <div className="card-base flex flex-col gap-5 p-6!">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
-                        <Trophy size={18} className="text-accent" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)]">
+                        <Trophy size={18} className="text-[var(--gold)]" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-bold text-white">Your Progress</span>
-                        <span className="text-[10px] text-text-muted uppercase tracking-widest">
+                        <span className="text-sm font-bold text-text-primary">Your Progress</span>
+                        <span className="text-[10px] uppercase tracking-widest text-text-muted">
                             {currentMilestone ? currentMilestone.label : "Just Getting Started"}
                         </span>
                     </div>
                 </div>
                 {currentMilestone && (
-                    <div className="bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                        <currentMilestone.icon size={12} className="text-accent" />
-                        <span className="text-[10px] font-black text-accent uppercase">{currentMilestone.label}</span>
+                    <div className="flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 py-1.5">
+                        <currentMilestone.icon size={12} className="text-[var(--gold)]" />
+                        <span className="text-[10px] font-semibold uppercase text-[var(--gold)]">{currentMilestone.label}</span>
                     </div>
                 )}
             </div>
 
             {currentMilestone && (
-                <p className="text-xs text-green-400 font-medium bg-green-500/5 border border-green-500/10 rounded-lg px-3 py-2">
+                <p className="rounded-lg border border-[rgba(16,185,129,0.15)] bg-[rgba(16,185,129,0.08)] px-3 py-2 text-xs font-medium text-[var(--success)]">
                     {currentMilestone.reward}
                 </p>
             )}
@@ -54,17 +54,18 @@ export function MilestoneTracker({ totalSearches }: MilestoneTrackerProps) {
             {nextMilestone && (
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between text-[10px]">
-                        <span className="text-text-muted font-bold uppercase tracking-widest">
+                        <span className="font-semibold uppercase tracking-wider text-text-muted">
                             Next: {nextMilestone.label}
                         </span>
-                        <span className="text-accent font-black">{totalSearches}/{nextMilestone.threshold}</span>
+                        <span className="font-semibold tabular-nums text-[var(--gold)]">{totalSearches}/{nextMilestone.threshold}</span>
                     </div>
-                    <div className="w-full h-2.5 bg-page rounded-full overflow-hidden border border-border-dim/30">
+                    <div className="h-2.5 w-full overflow-hidden rounded-full border border-[var(--border-subtle)] bg-[var(--surface-2)]">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progressToNext}%` }}
                             transition={{ duration: 1.5, ease: "easeOut" }}
-                            className="h-full bg-accent rounded-full"
+                            className="h-full rounded-full"
+                            style={{ background: "var(--grad-brand)" }}
                         />
                     </div>
                 </div>

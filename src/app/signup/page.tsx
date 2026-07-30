@@ -5,10 +5,11 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, UserPlus, ShieldAlert, User, Eye, EyeOff } from "lucide-react";
+import { Mail, UserPlus, ShieldAlert, User, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { ONBOARDING_META_KEY } from "@/config/onboarding-content";
 import { FloatingSupportButton } from "@/components/support/FloatingSupportButton";
+import { Field } from "@/components/ui/field";
 
 export default function SignupPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -64,20 +65,15 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="min-h-dvh bg-[#050505] flex items-center justify-center p-6 relative overflow-x-hidden">
+        <div className="app-bg min-h-dvh flex items-center justify-center p-6 relative overflow-x-hidden">
             <FloatingSupportButton />
-            {/* Background Accents */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D4AF37]/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#D4AF37]/5 rounded-full blur-[120px]" />
-            </div>
 
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full max-w-md relative z-10"
             >
-                <div className="glass-card p-10 flex flex-col gap-8 border-[#141414] shadow-2xl">
+                <div className="card-base flex flex-col gap-8 p-10">
                     <div className="flex flex-col items-center gap-4 text-center">
                         <Image
                             src="/logo.png"
@@ -103,9 +99,9 @@ export default function SignupPage() {
                         )}
 
                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-[#475569] ml-1">Full Name</label>
+                            <label className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted ml-1">Full Name</label>
                             <div className="relative group">
-                                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#475569] group-focus-within:text-[#D4AF37] transition-colors" />
+                                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent transition-colors" />
                                 <input
                                     type="text"
                                     required
@@ -118,9 +114,9 @@ export default function SignupPage() {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-[#475569] ml-1">Email</label>
+                            <label className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted ml-1">Email</label>
                             <div className="relative group">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#475569] group-focus-within:text-[#D4AF37] transition-colors" size={18} />
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent transition-colors" size={18} />
                                 <input
                                     type="email"
                                     required
@@ -132,27 +128,24 @@ export default function SignupPage() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-[#475569] ml-1">Password</label>
-                            <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#475569] group-focus-within:text-[#D4AF37] transition-colors" size={18} />
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••••••"
-                                    className="input-base w-full pl-12 pr-12"
-                                />
+                        <Field
+                            label="Password"
+                            type={showPassword ? "text" : "password"}
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••••••"
+                            className="[&_input]:pl-12"
+                            trailing={
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#D4AF37] transition-colors"
+                                    className="text-text-muted hover:text-accent transition-colors"
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
-                            </div>
-                        </div>
+                            }
+                        />
 
                         <button
                             type="submit"
@@ -170,11 +163,11 @@ export default function SignupPage() {
                         </button>
                     </form>
 
-                    <div className="flex flex-col items-center gap-4 border-t border-[#141414] pt-8">
-                        <p className="text-[#475569] text-xs">Already have an account?</p>
+                    <div className="flex flex-col items-center gap-4 border-t border-[var(--border-subtle)] pt-8">
+                        <p className="text-text-muted text-xs">Already have an account?</p>
                         <Link
                             href="/login"
-                            className="brand-font text-accent text-xs font-bold tracking-wide hover:text-white transition-colors"
+                            className="brand-font text-accent text-xs font-bold tracking-wide hover:text-text-primary transition-colors"
                         >
                             Log In
                         </Link>
@@ -182,7 +175,7 @@ export default function SignupPage() {
                 </div>
 
                 <div className="mt-8 text-center">
-                    <p className="brand-font text-[10px] text-text-muted uppercase tracking-widest font-bold">
+                    <p className="page-eyebrow">
                         Secure Connection Established
                     </p>
                 </div>

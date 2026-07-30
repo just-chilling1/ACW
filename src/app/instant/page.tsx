@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { InfoHint } from "@/components/ui/InfoHint";
+import { Field } from "@/components/ui/field";
+import { SelectableChip } from "@/components/ui/selectable-chip";
 import { PageHeader } from "@/components/ui/page-header";
 import { GenerationProgress } from "@/components/ui/generation-progress";
 import { VideoThumbnail } from "@/components/ui/video-thumbnail";
@@ -225,7 +227,7 @@ export default function InstantIncomePage() {
             </section>
 
             {/* Video Tutorial Section */}
-            <section className="mt-10 glass-card p-0 overflow-hidden">
+            <section className="card-base mt-10 overflow-hidden p-0!">
                 <div className="flex flex-col md:flex-row">
                     <div className="md:w-1/2">
                         <VideoThumbnail
@@ -237,8 +239,8 @@ export default function InstantIncomePage() {
                     </div>
                     <div className="md:w-1/2 p-8 md:p-10 flex flex-col justify-center gap-4">
                         <div className="flex items-center gap-2">
-                            <Sparkles size={14} className="text-accent" />
-                            <span className="text-[11px] font-bold text-accent uppercase tracking-[0.2em]">Watch First</span>
+                            <Sparkles size={14} className="text-[var(--gold)]" />
+                            <span className="page-eyebrow text-[11px]!">Watch First</span>
                         </div>
                         <h2 className="ds-h2">How to Use Instant Income</h2>
                         <p className="text-text-secondary leading-relaxed">
@@ -249,13 +251,13 @@ export default function InstantIncomePage() {
             </section>
 
             {/* 3 Steps Section */}
-            <section className="mt-10 glass-card p-8">
-                <div className="flex items-center gap-3 mb-8">
-                    <CheckCircle2 size={22} className="text-accent" />
+            <section className="card-base mt-10 p-8!">
+                <div className="mb-8 flex items-center gap-3">
+                    <CheckCircle2 size={22} className="text-[var(--gold)]" />
                     <h2 className="text-xl font-bold text-text-primary">How to Use This (3 Simple Steps)</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
                     {[
                         {
                             num: "1",
@@ -276,8 +278,8 @@ export default function InstantIncomePage() {
                             icon: Copy
                         }
                     ].map((step) => (
-                        <div key={step.num} className="bg-accent/5 border border-accent/15 rounded-2xl p-6 flex flex-col gap-4">
-                            <div className="w-10 h-10 bg-accent rounded-[var(--radius-lg)] flex items-center justify-center text-black font-black text-sm">
+                        <div key={step.num} className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--gold)] text-sm font-semibold text-[#0A0A0B]">
                                 {step.num}
                             </div>
                             <h3 className="text-lg font-bold text-text-primary">{step.title}</h3>
@@ -288,13 +290,13 @@ export default function InstantIncomePage() {
             </section>
 
             {/* How to Find & Post Guide (Collapsible) */}
-            <section className="mt-10 glass-card overflow-hidden">
+            <section className="card-base mt-10 overflow-hidden p-0!">
                 <button
                     onClick={() => setShowGuide(!showGuide)}
                     className="w-full p-8 flex items-center justify-between text-left"
                 >
                     <div className="flex items-center gap-3">
-                        <BookOpen size={22} className="text-accent" />
+                        <BookOpen size={22} className="text-[var(--gold)]" />
                         <h2 className="text-xl font-bold text-text-primary">How to Find & Post in Facebook Groups</h2>
                     </div>
                     {showGuide ? <ChevronUp size={20} className="text-text-muted" /> : <ChevronDown size={20} className="text-text-muted" />}
@@ -310,7 +312,7 @@ export default function InstantIncomePage() {
                         >
                             <div className="px-8 pb-8 flex flex-col gap-6">
                                 {/* Step 1 */}
-                                <div className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-6 flex flex-col gap-3">
+                                <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6">
                                     <h3 className="text-base font-bold text-text-primary">Step 1: Find Facebook Groups</h3>
                                     <ul className="flex flex-col gap-2.5 text-sm text-text-secondary leading-relaxed">
                                         <li className="flex gap-2"><span className="text-accent mt-0.5">•</span>Go to Facebook and click the search bar at the top. Type keywords like &quot;weight loss support&quot;, &quot;make money online&quot;, or &quot;fitness motivation&quot;</li>
@@ -321,7 +323,7 @@ export default function InstantIncomePage() {
                                 </div>
 
                                 {/* Step 2 */}
-                                <div className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-6 flex flex-col gap-3">
+                                <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6">
                                     <h3 className="text-base font-bold text-text-primary">Step 2: Read the Group Rules</h3>
                                     <ul className="flex flex-col gap-2.5 text-sm text-text-secondary leading-relaxed">
                                         <li className="flex gap-2"><span className="text-accent mt-0.5">•</span>Click &quot;About&quot; in the group to see the rules. Most groups allow personal stories but not direct selling</li>
@@ -331,7 +333,7 @@ export default function InstantIncomePage() {
                                 </div>
 
                                 {/* Step 3 */}
-                                <div className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-6 flex flex-col gap-3">
+                                <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6">
                                     <h3 className="text-base font-bold text-text-primary">Step 3: Post Your Message</h3>
                                     <ul className="flex flex-col gap-2.5 text-sm text-text-secondary leading-relaxed">
                                         <li className="flex gap-2"><span className="text-accent mt-0.5">•</span>Click &quot;Write something...&quot; in the group. Paste your copied message. Click &quot;Post&quot;. That&apos;s it!</li>
@@ -347,9 +349,9 @@ export default function InstantIncomePage() {
             </section>
 
             {/* How Much Can You Make? */}
-            <section className="mt-10 glass-card p-8">
-                <div className="flex items-center gap-3 mb-6">
-                    <DollarSign size={22} className="text-accent" />
+            <section className="card-base mt-10 p-8!">
+                <div className="mb-6 flex items-center gap-3">
+                    <DollarSign size={22} className="text-[var(--gold)]" />
                     <h2 className="text-xl font-bold text-text-primary">How Much Can You Make?</h2>
                 </div>
                 <p className="text-text-secondary mb-5 leading-relaxed">
@@ -378,33 +380,27 @@ export default function InstantIncomePage() {
                     <h3 className="text-base font-bold text-text-primary">Step 1: Choose Your Niche</h3>
                     <div className="flex flex-wrap gap-2">
                         {NICHES.map((niche) => (
-                            <button
+                            <SelectableChip
                                 key={niche}
-                                onClick={() => handleNicheChange(niche)}
+                                label={niche}
+                                selected={selectedNiche === niche}
                                 disabled={loadingReveal}
-                                className={clsx(
-                                    "px-5 py-2.5 rounded-full text-sm font-bold transition-all border",
-                                    selectedNiche === niche
-                                        ? "bg-accent border-accent text-white"
-                                        : "bg-surface border-border-dim text-text-secondary hover:border-accent/30 hover:text-text-primary"
-                                )}
-                            >
-                                {niche}
-                            </button>
+                                onClick={() => handleNicheChange(niche)}
+                            />
                         ))}
                     </div>
                 </div>
 
                 {/* Where to Get Your Affiliate Link */}
-                <div className="glass-card p-6 flex flex-col gap-4">
+                <div className="card-base flex flex-col gap-4 p-6!">
                     <div className="flex items-center gap-2">
-                        <CheckCircle2 size={16} className="text-accent" />
+                        <CheckCircle2 size={16} className="text-[var(--gold)]" />
                         <h3 className="text-base font-medium text-text-primary">Where to Get Your Affiliate Link</h3>
                     </div>
-                    <p className="text-sm text-text-secondary leading-relaxed">
+                    <p className="text-sm leading-relaxed text-text-secondary">
                         We recommend using <strong className="text-text-primary">DigiStore24</strong> - a free affiliate marketplace where you can find thousands of products to promote and earn commissions.
                     </p>
-                    <div className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-5 flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-5">
                         <p className="text-sm font-medium text-text-secondary">How to Get Started (3 Easy Steps):</p>
                         <ol className="flex flex-col gap-2 text-sm text-text-secondary list-decimal list-inside">
                             <li>Go to <a href="https://www.digistore24.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">digistore24.com</a> and create a FREE account (takes 2 minutes)</li>
@@ -432,14 +428,13 @@ export default function InstantIncomePage() {
                             text="Affiliate link = your own special link. When someone buys through it, you get paid."
                         />
                     </h3>
-                    <input
+                    <Field
                         type="url"
                         placeholder="https://your-affiliate-link.com"
-                        className="w-full bg-surface border border-border-dim rounded-[var(--radius-lg)] px-5 py-4 text-sm text-text-primary placeholder:text-text-muted/50 outline-none focus:border-accent/50 transition-colors"
                         value={affiliateLink}
                         onChange={(e) => setAffiliateLink(e.target.value)}
+                        hint="We&apos;ll automatically add your link to all the posts below"
                     />
-                    <p className="text-xs text-text-muted">We&apos;ll automatically add your link to all the posts below</p>
 
                     <motion.button
                         onClick={handleShowPosts}
@@ -468,7 +463,7 @@ export default function InstantIncomePage() {
                             <h2 className="text-xl font-bold text-text-primary">
                                 {filteredPosts.length} Posts Ready — {selectedNiche}
                             </h2>
-                            <span className="text-[11px] font-bold text-accent bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-full">
+                            <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 py-1.5 text-[11px] font-semibold text-[var(--gold)]">
                                 Copy → Paste → Earn
                             </span>
                         </div>
@@ -486,11 +481,11 @@ export default function InstantIncomePage() {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: Math.min(idx * 0.03, 1) }}
-                                        className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-5 flex flex-col gap-4 hover:border-accent/20 transition-all group"
+                                        className="card-base group flex flex-col gap-4 p-5! transition-all hover:border-[rgba(234,179,8,0.3)]"
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-[10px] font-bold text-accent bg-accent/10 px-2.5 py-1 rounded-md uppercase tracking-widest">
+                                                <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
                                                     {post.niche}
                                                 </span>
                                                 <span className="text-[10px] text-text-muted">Post #{idx + 1}</span>
@@ -498,10 +493,10 @@ export default function InstantIncomePage() {
                                             <button
                                                 onClick={() => handleCopy(post.text, post.id)}
                                                 className={clsx(
-                                                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+                                                    "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
                                                     isCopied
-                                                        ? "bg-green-500 text-black"
-                                                        : "bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-black"
+                                                        ? "border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.12)] text-[var(--success)]"
+                                                        : "btn-secondary px-3 py-1.5 text-xs"
                                                 )}
                                             >
                                                 {isCopied ? <Check size={12} /> : <Copy size={12} />}
@@ -521,11 +516,11 @@ export default function InstantIncomePage() {
             </AnimatePresence>
 
             {/* Footer */}
-            <footer className="mt-16 pt-8 border-t border-white/5 flex flex-col items-center gap-4 pb-10">
-                <div className="flex items-center gap-6 flex-wrap justify-center">
+            <footer className="mt-16 flex flex-col items-center gap-4 border-t border-[var(--border-subtle)] pt-8 pb-10">
+                <div className="flex flex-wrap items-center justify-center gap-6">
                     {["200+ Posts", "9 Niches", "Auto Link Insertion", "Copy & Earn"].map((b, i) => (
-                        <div key={i} className="flex items-center gap-2 text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">
-                            <div className="w-1 h-1 rounded-full bg-accent" />
+                        <div key={i} className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-text-muted">
+                            <div className="h-1 w-1 rounded-full bg-[var(--gold)]" />
                             {b}
                         </div>
                     ))}

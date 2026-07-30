@@ -51,60 +51,54 @@ export function VideoOverlay({ open, onClose, videoUrl, title }: VideoOverlayPro
             />
 
             <div
-                className="relative z-10 flex flex-col w-full max-w-5xl h-[100dvh] sm:h-[min(92dvh,56rem)] bg-[#0a0a0c] border border-white/10 sm:rounded-2xl overflow-hidden shadow-2xl"
+                className="relative z-10 flex h-[100dvh] w-full max-w-5xl flex-col overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-app)] shadow-[var(--elevation-3)] sm:h-[min(92dvh,56rem)] sm:rounded-[var(--radius-lg)]"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="shrink-0 flex items-center justify-between gap-3 px-4 sm:px-5 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] border-b border-white/10 bg-[#0c0c0e]">
-                    <h2 className="text-sm sm:text-base font-bold text-white truncate pr-2">{title}</h2>
+                <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--border-subtle)] bg-[var(--surface-1)] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
+                    <h2 className="truncate pr-2 text-sm font-semibold text-text-primary sm:text-base">{title}</h2>
                     <button
                         type="button"
                         onClick={onClose}
                         aria-label="Close"
-                        className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-white/5 hover:text-text-primary"
                     >
-                        <X size={20} />
+                        <X size={20} strokeWidth={1.75} />
                     </button>
                 </div>
 
-                <div className="flex-1 min-h-0 bg-black">
+                <div className="min-h-0 flex-1 bg-black">
                     <iframe
                         src={toEmbedUrl(videoUrl)}
-                        className="w-full h-full border-0"
+                        className="h-full w-full border-0"
                         allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
                         allowFullScreen
                         title={title}
                     />
                 </div>
 
-                <div className="shrink-0 relative overflow-hidden border-t border-green-500/30 bg-[#0c0e0c] px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-                    <div className="absolute -top-16 -right-16 w-32 h-32 bg-green-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
-                    <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-green-500/5 rounded-full blur-2xl pointer-events-none" />
-
-                    <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className="relative flex h-2.5 w-2.5">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60" />
-                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400" />
-                                </span>
-                                <span className="text-[10px] font-bold text-green-400 uppercase tracking-widest">
+                <div className="relative shrink-0 overflow-hidden border-t border-[var(--border-subtle)] bg-[var(--surface-1)] px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                    <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                        <div className="min-w-0 flex-1">
+                            <div className="mb-1 flex items-center gap-2">
+                                <span className="inline-flex h-2 w-2 rounded-full bg-[var(--success)]" />
+                                <span className="page-eyebrow text-[var(--success)]!">
                                     Account Verified
                                 </span>
                             </div>
                             <div className="flex items-start gap-2">
-                                <CheckCircle2 size={16} className="text-green-400 shrink-0 mt-0.5" />
+                                <CheckCircle2 size={16} strokeWidth={1.75} className="mt-0.5 shrink-0 text-[var(--success)]" />
                                 <div>
-                                    <p className="text-sm font-black text-white leading-tight">
+                                    <p className="text-sm font-semibold leading-tight text-text-primary">
                                         Congratulations! You&apos;re Eligible To Withdraw{" "}
-                                        <span className="text-green-400">{WITHDRAW_AMOUNT}</span>
+                                        <span className="text-[var(--success)]">{WITHDRAW_AMOUNT}</span>
                                     </p>
-                                    <p className="text-[11px] text-text-muted mt-0.5">
+                                    <p className="mt-0.5 text-[11px] text-text-muted">
                                         Available balance from your activity
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 mt-1.5 text-[10px] text-text-muted">
-                                <ShieldCheck size={10} className="text-green-400" />
+                            <div className="mt-1.5 flex items-center gap-2 text-[10px] text-text-muted">
+                                <ShieldCheck size={10} className="text-[var(--success)]" />
                                 <span>Verified Balance</span>
                                 <span>·</span>
                                 <span>Ref: HX-29459-9022</span>
@@ -115,11 +109,11 @@ export function VideoOverlay({ open, onClose, videoUrl, title }: VideoOverlayPro
                             href={WITHDRAW_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="shrink-0 inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-green-500 hover:bg-green-400 text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_4px_20px_rgba(34,197,94,0.35)] hover:shadow-[0_6px_28px_rgba(34,197,94,0.45)] active:scale-[0.98]"
+                            className="btn-primary shrink-0 min-h-[44px] px-5 text-xs sm:text-sm"
                         >
-                            <DollarSign size={16} />
+                            <DollarSign size={16} strokeWidth={2} />
                             Withdraw Now
-                            <ArrowRight size={14} />
+                            <ArrowRight size={14} strokeWidth={2} />
                         </a>
                     </div>
                 </div>

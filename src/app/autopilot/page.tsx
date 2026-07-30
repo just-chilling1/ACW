@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { InfoHint } from "@/components/ui/InfoHint";
+import { Field } from "@/components/ui/field";
+import { SelectableChip } from "@/components/ui/selectable-chip";
 import { PageHeader } from "@/components/ui/page-header";
 import { GenerationProgress } from "@/components/ui/generation-progress";
 import { VideoThumbnail } from "@/components/ui/video-thumbnail";
@@ -191,12 +193,12 @@ export default function AutomatedProfitsPage() {
     const progressPercent = filteredSources.length > 0 ? Math.round((completedCount / filteredSources.length) * 100) : 0;
 
     const typeBadgeColor: Record<SourceType, string> = {
-        Forum: "bg-accent/15 text-accent border-accent/25",
-        Social: "bg-green-500/15 text-green-400 border-green-500/25",
-        Directory: "bg-blue-500/15 text-blue-400 border-blue-500/25",
-        Blog: "bg-purple-500/15 text-purple-400 border-purple-500/25",
-        "Q&A": "bg-orange-500/15 text-orange-400 border-orange-500/25",
-        Classified: "bg-pink-500/15 text-pink-400 border-pink-500/25",
+        Forum: "border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted",
+        Social: "border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted",
+        Directory: "border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted",
+        Blog: "border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted",
+        "Q&A": "border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted",
+        Classified: "border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted",
     };
 
     return (
@@ -238,7 +240,7 @@ export default function AutomatedProfitsPage() {
             </section>
 
             {/* Video Tutorial */}
-            <section className="mt-10 glass-card p-0 overflow-hidden">
+            <section className="card-base mt-10 overflow-hidden p-0!">
                 <div className="flex flex-col md:flex-row">
                     <div className="md:w-1/2">
                         <VideoThumbnail
@@ -250,8 +252,8 @@ export default function AutomatedProfitsPage() {
                     </div>
                     <div className="md:w-1/2 p-8 md:p-10 flex flex-col justify-center gap-4">
                         <div className="flex items-center gap-2">
-                            <Sparkles size={14} className="text-accent" />
-                            <span className="text-[11px] font-bold text-accent uppercase tracking-[0.2em]">Watch First</span>
+                            <Sparkles size={14} className="text-[var(--gold)]" />
+                            <span className="page-eyebrow text-[11px]!">Watch First</span>
                         </div>
                         <h2 className="ds-h2">How to Use Automated Income</h2>
                         <p className="text-text-secondary leading-relaxed">
@@ -262,17 +264,17 @@ export default function AutomatedProfitsPage() {
             </section>
 
             {/* How This Works */}
-            <section className="mt-10 glass-card p-8 flex flex-col gap-8">
+            <section className="card-base mt-10 flex flex-col gap-8 p-8!">
                 <div className="flex items-center gap-3">
-                    <BookOpen size={22} className="text-accent" />
+                    <BookOpen size={22} className="text-[var(--gold)]" />
                     <h2 className="text-xl font-bold text-text-primary">How This Works (Super Simple!)</h2>
                 </div>
 
-                <div className="bg-surface border border-border-dim rounded-[var(--radius-lg)] p-6 flex flex-col gap-4">
+                <div className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6">
                     <h3 className="text-base font-bold text-text-primary">The Secret To Automated Traffic:</h3>
                     <p className="text-sm text-text-secondary leading-relaxed">Most people waste hours every day posting on social media for traffic.</p>
                     <p className="text-sm text-text-secondary leading-relaxed">But what if you could submit your link ONCE and get traffic for months or even YEARS?</p>
-                    <p className="text-sm text-accent font-bold leading-relaxed">That&apos;s exactly what these traffic sources do. You submit once, and they send you visitors automatically - no daily work required!</p>
+                    <p className="text-sm font-bold leading-relaxed text-[var(--gold)]">That&apos;s exactly what these traffic sources do. You submit once, and they send you visitors automatically - no daily work required!</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -281,8 +283,8 @@ export default function AutomatedProfitsPage() {
                         { num: "2", title: "Submit Your Link", desc: "Follow the simple step-by-step instructions to submit your link to each site. Takes 5-15 minutes per site." },
                         { num: "3", title: "Get Automatic Traffic", desc: "Once submitted, these sites send you traffic automatically. No daily work needed!" },
                     ].map((step) => (
-                        <div key={step.num} className="bg-accent/5 border border-accent/15 rounded-2xl p-6 flex flex-col gap-4">
-                            <div className="w-10 h-10 bg-accent rounded-[var(--radius-lg)] flex items-center justify-center text-white font-black text-sm">
+                        <div key={step.num} className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--gold)] text-sm font-semibold text-[#0A0A0B]">
                                 {step.num}
                             </div>
                             <h3 className="text-lg font-bold text-text-primary">{step.title}</h3>
@@ -291,10 +293,10 @@ export default function AutomatedProfitsPage() {
                     ))}
                 </div>
 
-                <div className="bg-accent/5 border border-accent/20 rounded-[var(--radius-lg)] p-5 flex items-start gap-3">
-                    <Lightbulb size={18} className="text-accent shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[rgba(234,179,8,0.2)] bg-[rgba(234,179,8,0.06)] p-5">
+                    <Lightbulb size={18} className="mt-0.5 shrink-0 text-[var(--gold)]" />
                     <div>
-                        <span className="text-sm font-bold text-accent">Pro Tip: </span>
+                        <span className="text-sm font-bold text-[var(--gold)]">Pro Tip: </span>
                         <span className="text-sm text-text-secondary">Set aside 2-3 hours and submit to as many sources as possible. The more you submit to, the more automatic traffic you get. Most members submit to 50+ sources in their first week!</span>
                     </div>
                 </div>
@@ -303,40 +305,33 @@ export default function AutomatedProfitsPage() {
             {/* ====== INTERACTIVE SECTION ====== */}
             <section className="mt-14 flex flex-col gap-8">
                 {/* Page URL Input */}
-                <div className="glass-card p-8 flex flex-col gap-4">
-                    <h3 className="text-lg font-bold text-text-primary inline-flex items-center gap-2">
+                <div className="card-base flex flex-col gap-4 p-8!">
+                    <h3 className="inline-flex items-center gap-2 text-lg font-bold text-text-primary">
                         Enter Your Page URL:
                         <InfoHint
                             label="What is a page URL or affiliate link?"
                             text="This is the web address you want to promote — usually your affiliate link (your own special link that pays you when someone buys through it)."
                         />
                     </h3>
-                    <input
+                    <Field
                         type="url"
                         placeholder="https://your-page-url.com"
-                        className="w-full bg-surface border border-border-dim rounded-[var(--radius-lg)] px-5 py-4 text-sm text-text-primary placeholder:text-text-muted/50 outline-none focus:border-accent/50 transition-colors"
                         value={pageUrl}
                         onChange={(e) => setPageUrl(e.target.value)}
+                        hint="This is the page you want to promote. We&apos;ll automatically insert it in all the submission descriptions below."
                     />
-                    <p className="text-xs text-text-muted">This is the page you want to promote. We&apos;ll automatically insert it in all the submission descriptions below.</p>
                 </div>
 
                 {/* Niche Selector */}
                 <div className="flex flex-wrap gap-2">
                     {NICHES.map((niche) => (
-                        <button
+                        <SelectableChip
                             key={niche}
-                            onClick={() => handleNicheChange(niche)}
+                            label={niche}
+                            selected={selectedNiche === niche}
                             disabled={loadingNiche}
-                            className={clsx(
-                                "px-5 py-2.5 rounded-full text-sm font-bold transition-all border",
-                                selectedNiche === niche
-                                    ? "bg-accent border-accent text-white"
-                                    : "bg-surface border-border-dim text-text-secondary hover:border-accent/30 hover:text-text-primary"
-                            )}
-                        >
-                            {niche}
-                        </button>
+                            onClick={() => handleNicheChange(niche)}
+                        />
                     ))}
                 </div>
 
@@ -376,25 +371,25 @@ export default function AutomatedProfitsPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: Math.min(idx * 0.03, 0.8) }}
                                 className={clsx(
-                                    "bg-surface border rounded-[var(--radius-lg)] overflow-hidden transition-all",
-                                    isDone ? "border-accent/30 bg-accent/5" : "border-border-dim hover:border-accent/20"
+                                    "card-base overflow-hidden p-0! transition-all",
+                                    isDone ? "border-[rgba(16,185,129,0.35)]" : "hover:border-[rgba(234,179,8,0.3)]"
                                 )}
                             >
-                                <div className="p-5 flex flex-col gap-3">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <span className={clsx("text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider", typeBadgeColor[source.type])}>
+                                <div className="flex flex-col gap-3 p-5">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className={clsx("rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", typeBadgeColor[source.type])}>
                                             {source.type}
                                         </span>
                                         <span className={clsx(
-                                            "text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider",
+                                            "rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
                                             source.difficulty === "Easy"
-                                                ? "bg-green-500/15 text-green-400 border-green-500/25"
-                                                : "bg-yellow-500/15 text-yellow-400 border-yellow-500/25"
+                                                ? "bg-[rgba(16,185,129,0.12)] text-[var(--success)]"
+                                                : "bg-[rgba(245,179,1,0.12)] text-[var(--warning)]"
                                         )}>
                                             {source.difficulty}
                                         </span>
                                         {isDone && (
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-accent/20 text-accent border border-accent/30 uppercase tracking-wider ml-auto">
+                                            <span className="ml-auto rounded-md border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.12)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--success)]">
                                                 Done
                                             </span>
                                         )}
@@ -430,7 +425,7 @@ export default function AutomatedProfitsPage() {
                                             exit={{ height: 0, opacity: 0 }}
                                             className="overflow-hidden"
                                         >
-                                            <div className="px-5 pb-5 flex flex-col gap-4 border-t border-border-dim pt-4">
+                                            <div className="flex flex-col gap-4 border-t border-[var(--border-subtle)] px-5 pb-5 pt-4">
                                                 <div className="flex flex-col gap-2.5">
                                                     {source.instructions.map((step, i) => (
                                                         <div key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
@@ -441,12 +436,12 @@ export default function AutomatedProfitsPage() {
                                                 </div>
 
                                                 <div className="flex flex-col gap-2">
-                                                    <div className="flex items-center gap-2 text-sm font-bold text-accent">
+                                                    <div className="flex items-center gap-2 text-sm font-bold text-[var(--gold)]">
                                                         <Clipboard size={14} />
                                                         <span>Use This Description When Submitting:</span>
                                                     </div>
-                                                    <div className="bg-black/30 border border-border-dim rounded-lg p-3 flex items-center justify-between gap-3">
-                                                        <p className="text-sm text-text-secondary flex-1 break-all">
+                                                    <div className="flex items-center justify-between gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3">
+                                                        <p className="flex-1 break-all text-sm text-text-secondary">
                                                             {source.description.replace("{LINK}", pageUrl || "[YOUR_LINK]")}
                                                         </p>
                                                         <button
@@ -456,10 +451,10 @@ export default function AutomatedProfitsPage() {
                                                                 setTimeout(() => setCopiedDescId(null), 2000);
                                                             }}
                                                             className={clsx(
-                                                                "shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all",
+                                                                "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
                                                                 copiedDescId === source.id
-                                                                    ? "bg-accent text-white"
-                                                                    : "bg-surface border border-border-dim text-text-secondary hover:border-accent/30"
+                                                                    ? "border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.12)] text-[var(--success)]"
+                                                                    : "btn-secondary px-3 py-1.5 text-xs"
                                                             )}
                                                         >
                                                             {copiedDescId === source.id ? <CheckCircle2 size={12} /> : <Copy size={12} />}
@@ -481,10 +476,10 @@ export default function AutomatedProfitsPage() {
                                                     <button
                                                         onClick={() => toggleCompleted(source.id)}
                                                         className={clsx(
-                                                            "py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all",
+                                                            "flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold transition-all",
                                                             isDone
-                                                                ? "bg-accent text-white"
-                                                                : "bg-surface border border-border-dim text-text-secondary hover:border-accent/30"
+                                                                ? "border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.12)] text-[var(--success)]"
+                                                                : "btn-secondary px-4 py-2.5 text-xs"
                                                         )}
                                                     >
                                                         <CheckCircle2 size={13} />
@@ -513,11 +508,11 @@ export default function AutomatedProfitsPage() {
             </section>
 
             {/* Footer */}
-            <footer className="mt-16 pt-8 border-t border-white/5 flex flex-col items-center gap-4 pb-10">
-                <div className="flex items-center gap-6 flex-wrap justify-center">
+            <footer className="mt-16 flex flex-col items-center gap-4 border-t border-[var(--border-subtle)] pt-8 pb-10">
+                <div className="flex flex-wrap items-center justify-center gap-6">
                     {["100+ Sources", "9 Niches", "Submit Once", "Traffic Forever"].map((b, i) => (
-                        <div key={i} className="flex items-center gap-2 text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">
-                            <div className="w-1 h-1 rounded-full bg-accent" />
+                        <div key={i} className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-text-muted">
+                            <div className="h-1 w-1 rounded-full bg-[var(--gold)]" />
                             {b}
                         </div>
                     ))}

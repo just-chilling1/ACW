@@ -35,7 +35,7 @@ const EXCLUSIVE_OFFERS = [
 const MORE_ROW =
     "flex items-center gap-2.5 min-h-[44px] py-2 px-2.5 rounded-xl transition-colors [@media(max-height:740px)]:min-h-[40px] [@media(max-height:740px)]:py-1.5";
 const MORE_SECTION_LABEL =
-    "text-[10px] font-black tracking-[0.18em] text-text-muted uppercase px-1.5 mb-0.5 [@media(max-height:740px)]:text-[9px]";
+    "text-[10px] font-semibold tracking-[0.12em] text-text-muted uppercase px-1.5 mb-0.5 [@media(max-height:740px)]:text-[9px]";
 const MORE_ITEM_TEXT =
     "text-[13px] font-medium flex-1 min-w-0 leading-snug [@media(max-height:740px)]:text-[12px]";
 
@@ -72,7 +72,7 @@ export function BottomNav() {
     return (
         <>
             <nav
-                className="lg:hidden fixed bottom-0 inset-x-0 z-50 border-t border-border-dim/60 bg-[#0A0A0B]/95 backdrop-blur-md"
+                className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-subtle)] bg-[rgba(10,10,11,0.92)] backdrop-blur-md lg:hidden"
                 style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
             >
                 <div className="grid grid-cols-5 h-16">
@@ -138,7 +138,7 @@ export function BottomNav() {
                         onClick={() => setMoreOpen(false)}
                     />
                     <div
-                        className="absolute bottom-0 inset-x-0 mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-t-2xl border-t border-border-dim bg-[#0c0c0e] shadow-[0_-12px_40px_rgba(0,0,0,0.45)] max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-0.75rem))] supports-[height:100dvh]:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-0.75rem))]"
+                        className="absolute bottom-0 inset-x-0 mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-t-2xl border-t border-[var(--border-subtle)] bg-[var(--surface-1)] shadow-[0_-12px_40px_rgba(0,0,0,0.45)] max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-0.75rem))] supports-[height:100dvh]:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-0.75rem))]"
                         role="dialog"
                         aria-modal="true"
                         aria-label="More menu"
@@ -203,8 +203,8 @@ export function BottomNav() {
                             </div>
 
                             <div className="premium-nav-section flex flex-col gap-0.5 p-1.5 [@media(max-height:740px)]:p-1">
-                                <span className="flex items-center gap-1.5 px-1.5 pb-1 pt-0.5 text-[10px] font-black uppercase tracking-[0.18em] text-accent [@media(max-height:740px)]:text-[9px]">
-                                    <Sparkles size={11} className="animate-sparkle-pulse shrink-0" fill="currentColor" />
+                                <span className="flex items-center gap-1.5 px-1.5 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--gold)] [@media(max-height:740px)]:text-[9px]">
+                                    <Sparkles size={11} className="shrink-0" strokeWidth={1.75} />
                                     Premium Features
                                 </span>
                                 {PREMIUM_FEATURES.map((item) => {
@@ -238,18 +238,18 @@ export function BottomNav() {
                                         href={promo.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex min-h-[44px] items-center justify-between gap-2.5 rounded-xl border border-accent/25 bg-[#0A0A0B] px-2.5 py-2 transition-colors hover:border-accent/50 [@media(max-height:740px)]:min-h-[40px] [@media(max-height:740px)]:py-1.5"
+                                        className="flex min-h-[44px] items-center justify-between gap-2.5 rounded-[var(--radius-md)] border border-[rgba(234,179,8,0.22)] bg-[var(--surface-2)] px-2.5 py-2 transition-colors hover:border-[rgba(234,179,8,0.4)] [@media(max-height:740px)]:min-h-[40px] [@media(max-height:740px)]:py-1.5"
                                     >
                                         <div className="flex min-w-0 flex-col gap-0.5">
-                                            <span className="text-[12px] font-semibold leading-tight text-accent [@media(max-height:740px)]:text-[11px]">{promo.title}</span>
+                                            <span className="text-[12px] font-semibold leading-tight text-[var(--gold)] [@media(max-height:740px)]:text-[11px]">{promo.title}</span>
                                             <span className="text-[9px] font-medium text-text-muted">Claim Now</span>
                                         </div>
-                                        <ExternalLink size={13} className="shrink-0 text-accent" />
+                                        <ExternalLink size={13} className="shrink-0 text-[var(--gold)]" />
                                     </a>
                                 ))}
                             </div>
 
-                            <div className="flex flex-col gap-0.5 border-t border-white/5 pt-3 [@media(max-height:740px)]:pt-2">
+                            <div className="flex flex-col gap-0.5 border-t border-[var(--border-subtle)] pt-3 [@media(max-height:740px)]:pt-2">
                                 <a
                                     href="mailto:cashtapai@neoai.freshdesk.com"
                                     className={clsx(MORE_ROW, "text-text-secondary hover:bg-white/5")}

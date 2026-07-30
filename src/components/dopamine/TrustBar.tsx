@@ -4,7 +4,7 @@ import { ShieldCheck, Star, Users, DollarSign, Clock } from "lucide-react";
 
 export function TrustBar() {
     return (
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 py-3 px-4 bg-[#0A0A0B] border border-border-dim/30 rounded-xl">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-4 py-3">
             <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
                 <ShieldCheck size={11} className="text-green-400" />
                 <span>100% Secure</span>

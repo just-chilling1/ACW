@@ -5,9 +5,10 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, LogIn, ShieldAlert, Eye, EyeOff, Star, Users, DollarSign, ShieldCheck } from "lucide-react";
+import { Mail, LogIn, ShieldAlert, Eye, EyeOff, Star, Users, DollarSign, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { FloatingSupportButton } from "@/components/support/FloatingSupportButton";
+import { Field } from "@/components/ui/field";
 
 export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -57,20 +58,15 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-dvh bg-[#050505] flex items-center justify-center p-6 relative overflow-x-hidden">
+        <div className="app-bg min-h-dvh flex items-center justify-center p-6 relative overflow-x-hidden">
             <FloatingSupportButton />
-            {/* Background Accents */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#D4AF37]/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D4AF37]/5 rounded-full blur-[120px]" />
-            </div>
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md relative z-10"
             >
-                <div className="glass-card p-10 flex flex-col gap-8 border-[#141414] shadow-2xl">
+                <div className="card-base flex flex-col gap-8 p-10">
                     <div className="flex flex-col items-center gap-4 text-center">
                         <Image
                             src="/logo.png"
@@ -96,9 +92,9 @@ export default function LoginPage() {
                         )}
 
                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-[#475569] ml-1">Email</label>
+                            <label className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted ml-1">Email</label>
                             <div className="relative group">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#475569] group-focus-within:text-[#D4AF37] transition-colors" size={18} />
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent transition-colors" size={18} />
                                 <input
                                     type="email"
                                     required
@@ -110,27 +106,24 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-[#475569] ml-1">Password</label>
-                            <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#475569] group-focus-within:text-[#D4AF37] transition-colors" size={18} />
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••••••"
-                                    className="input-base w-full pl-12 pr-12"
-                                />
+                        <Field
+                            label="Password"
+                            type={showPassword ? "text" : "password"}
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••••••"
+                            className="[&_input]:pl-12"
+                            trailing={
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#D4AF37] transition-colors"
+                                    className="text-text-muted hover:text-accent transition-colors"
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
-                            </div>
-                        </div>
+                            }
+                        />
 
                         <div className="flex justify-end -mt-1">
                             <Link
@@ -157,22 +150,22 @@ export default function LoginPage() {
                         </button>
                     </form>
 
-                    <div className="flex flex-col items-center gap-4 border-t border-[#141414] pt-8">
-                        <p className="text-[#475569] text-xs">New here?</p>
+                    <div className="flex flex-col items-center gap-4 border-t border-[var(--border-subtle)] pt-8">
+                        <p className="text-text-muted text-xs">New here?</p>
                         <Link
                             href="/signup"
-                            className="brand-font text-accent text-xs font-bold tracking-wide hover:text-white transition-colors"
+                            className="brand-font text-accent text-xs font-bold tracking-wide hover:text-text-primary transition-colors"
                         >
                             Sign Up
                         </Link>
                     </div>
 
                     {/* Social Proof on Login */}
-                    <div className="flex flex-col gap-3 border-t border-[#141414] pt-6 mt-2">
+                    <div className="flex flex-col gap-3 border-t border-[var(--border-subtle)] pt-6 mt-2">
                         <div className="flex items-center gap-2 justify-center">
                             <div className="flex -space-x-2">
                                 {["bg-pink-500", "bg-blue-500", "bg-purple-500", "bg-green-500", "bg-orange-500"].map((c, i) => (
-                                    <div key={i} className={`w-7 h-7 ${c} rounded-full border-2 border-[#161618] flex items-center justify-center text-[8px] font-black text-white`}>
+                                    <div key={i} className={`w-7 h-7 ${c} rounded-full border-2 border-[var(--surface-1)] flex items-center justify-center text-[8px] font-black text-white`}>
                                         {["SM", "JR", "ML", "DR", "AK"][i]}
                                     </div>
                                 ))}

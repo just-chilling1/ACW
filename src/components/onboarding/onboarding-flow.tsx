@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
     onboardingContent,
@@ -73,20 +74,18 @@ export function OnboardingFlow() {
     };
 
     return (
-        <div className="fixed inset-0 z-[300] flex h-dvh overflow-hidden bg-gradient-to-br from-slate-50 via-white to-amber-50">
-            <aside className="hidden w-72 shrink-0 flex-col border-r border-slate-200 bg-white p-8 lg:flex">
+        <div className="fixed inset-0 z-[300] flex h-dvh overflow-hidden app-bg">
+            <aside className="hidden w-72 shrink-0 flex-col border-r border-[var(--border-subtle)] bg-[var(--surface-1)] p-8 lg:flex">
                 <div className="flex flex-col gap-2">
-                    <div className="inline-flex w-fit rounded-xl bg-[#0A0A0B] px-3 py-2.5">
-                        <Image
-                            src="/logo.png"
-                            alt={ONBOARDING_PRODUCT_NAME}
-                            width={200}
-                            height={44}
-                            className="h-8 w-auto object-contain"
-                            priority
-                        />
-                    </div>
-                    <p className="text-sm text-slate-500">{onboardingContent.productTagline}</p>
+                    <Image
+                        src="/logo.png"
+                        alt={ONBOARDING_PRODUCT_NAME}
+                        width={200}
+                        height={44}
+                        className="h-8 w-auto object-contain"
+                        priority
+                    />
+                    <p className="text-sm text-text-secondary">{onboardingContent.productTagline}</p>
                 </div>
 
                 <ul className="mt-10 space-y-3">
@@ -95,12 +94,12 @@ export function OnboardingFlow() {
                             key={item.label}
                             className={`rounded-xl border p-4 transition-all duration-500 ${
                                 activationStep > i
-                                    ? "translate-x-0 border-emerald-200 bg-emerald-50 opacity-100"
-                                    : "border-slate-100 bg-slate-50 opacity-60"
+                                    ? "translate-x-0 border-accent/30 bg-accent/10 opacity-100"
+                                    : "border-[var(--border-subtle)] bg-[var(--surface-2)] opacity-60"
                             }`}
                         >
-                            <p className="text-xs font-medium text-slate-500">{item.label}</p>
-                            <p className="text-sm font-bold text-emerald-600">{item.status}</p>
+                            <p className="text-xs font-medium text-text-muted">{item.label}</p>
+                            <p className="text-sm font-bold text-accent">{item.status}</p>
                         </li>
                     ))}
                 </ul>
@@ -109,24 +108,22 @@ export function OnboardingFlow() {
             <main className="flex flex-1 min-h-0 flex-col overflow-y-auto">
                 <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-6 py-12 sm:px-10">
                     <div className="mb-8 flex items-center gap-3 lg:hidden">
-                        <div className="rounded-xl bg-[#0A0A0B] px-2.5 py-2">
-                            <Image
-                                src="/logo-mark.png"
-                                alt={ONBOARDING_PRODUCT_NAME}
-                                width={40}
-                                height={40}
-                                className="h-9 w-9 object-contain"
-                                priority
-                            />
-                        </div>
+                        <Image
+                            src="/logo-mark.png"
+                            alt={ONBOARDING_PRODUCT_NAME}
+                            width={40}
+                            height={40}
+                            className="h-9 w-9 object-contain"
+                            priority
+                        />
                         <div>
-                            <p className="text-base font-black text-slate-900">{ONBOARDING_PRODUCT_NAME}</p>
-                            <p className="text-xs text-slate-500">{onboardingContent.productTagline}</p>
+                            <p className="text-base font-black text-text-primary">{ONBOARDING_PRODUCT_NAME}</p>
+                            <p className="text-xs text-text-secondary">{onboardingContent.productTagline}</p>
                         </div>
                     </div>
 
-                    <h1 className="text-3xl font-black text-slate-900 sm:text-4xl">{cfg.headline}</h1>
-                    <p className="mt-3 text-lg text-slate-600">{cfg.subheadline}</p>
+                    <h1 className="ds-h1 text-[clamp(1.75rem,4vw,2.5rem)]">{cfg.headline}</h1>
+                    <p className="mt-3 ds-subtitle text-lg">{cfg.subheadline}</p>
 
                     <input
                         value={firstName}
@@ -139,25 +136,27 @@ export function OnboardingFlow() {
                                 void handleActivate();
                             }
                         }}
-                        className="mt-8 h-16 w-full rounded-2xl border-2 border-slate-200 bg-white px-5 text-xl text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15"
+                        className="input-base mt-8 h-16 px-5 text-xl"
                     />
 
-                    <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <p className="mb-4 text-sm font-bold text-slate-900">{cfg.infoTitle}</p>
+                    <div className="card-base mt-8">
+                        <p className="mb-4 text-sm font-bold text-text-primary">{cfg.infoTitle}</p>
                         <ol className="space-y-3">
                             {cfg.infoSteps.map((step, i) => (
                                 <li
                                     key={step}
                                     className={`flex items-start gap-3 text-sm transition-all duration-500 ${
-                                        activationStep > i ? "text-slate-700 opacity-100" : "text-slate-300 opacity-50"
+                                        activationStep > i ? "text-text-secondary opacity-100" : "text-text-muted opacity-50"
                                     }`}
                                 >
                                     <span
                                         className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                                            activationStep > i ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-400"
+                                            activationStep > i
+                                                ? "bg-accent text-[#0A0A0B]"
+                                                : "bg-[var(--surface-3)] text-text-muted"
                                         }`}
                                     >
-                                        {activationStep > i ? "✓" : i + 1}
+                                        {activationStep > i ? <Check size={14} strokeWidth={3} /> : i + 1}
                                     </span>
                                     {step}
                                 </li>
@@ -165,13 +164,13 @@ export function OnboardingFlow() {
                         </ol>
                     </div>
 
-                    <p className="mt-5 text-sm font-medium text-amber-700">{cfg.note}</p>
+                    <p className="mt-5 text-sm font-medium text-accent">{cfg.note}</p>
 
                     <button
                         type="button"
                         onClick={() => void handleActivate()}
                         disabled={!firstName.trim() || submitting}
-                        className="mt-8 h-16 w-full rounded-2xl bg-gradient-to-r from-amber-500 to-amber-400 text-xl font-extrabold text-white shadow-lg shadow-amber-200 transition-all hover:-translate-y-0.5 hover:from-amber-600 hover:to-amber-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                        className="btn-primary mt-8 h-16 w-full text-xl font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {submitting ? "Activating…" : cfg.ctaLabel}
                     </button>

@@ -111,7 +111,7 @@ export function InfoHint({
                         width: TIP_WIDTH,
                         transform: coords.placement === "top" ? "translateY(-100%)" : "none",
                     }}
-                    className="z-[100] px-3 py-2 bg-[#0A0A0B] border border-accent/25 rounded-lg text-[12px] leading-snug text-text-secondary shadow-xl pointer-events-none normal-case tracking-normal font-normal"
+                    className="z-[100] rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-1)] px-3 py-2 text-[12px] font-normal leading-snug tracking-normal text-text-secondary shadow-[var(--elevation-2)] pointer-events-none normal-case"
                 >
                     {text}
                 </div>,

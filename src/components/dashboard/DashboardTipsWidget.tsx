@@ -35,10 +35,10 @@ export function DashboardTipsWidget() {
   const tip = TIPS[tipIndex]
 
   return (
-    <div className="card-base border-border-dim/40 p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <Lightbulb size={16} className="text-accent shrink-0" />
-        <p className="ds-h4">{tip.title}</p>
+    <div className="card-base p-5!">
+      <div className="mb-3 flex items-center gap-2">
+        <Lightbulb size={16} className="shrink-0 text-[var(--gold)]" />
+        <p className="page-eyebrow text-[11px]!">{tip.title}</p>
       </div>
       <p className="text-sm leading-relaxed text-text-muted">{tip.body}</p>
       <p className="mt-3 text-xs text-text-muted italic">Individual results vary.</p>

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { InfoHint } from "@/components/ui/InfoHint";
+import { Field } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
 import { GenerationProgress } from "@/components/ui/generation-progress";
 import { VideoThumbnail } from "@/components/ui/video-thumbnail";
@@ -182,7 +183,7 @@ export default function DfyPage() {
                 subtitle="5 proven search angles and keywords — pick one, add your link, get ready-made replies."
             />
 
-            <section className="glass-card p-0 overflow-hidden">
+            <section className="card-base overflow-hidden p-0!">
                 <div className="flex flex-col md:flex-row">
                     <div className="md:w-1/2">
                         <VideoThumbnail
@@ -194,8 +195,8 @@ export default function DfyPage() {
                     </div>
                     <div className="md:w-1/2 p-8 md:p-10 flex flex-col justify-center gap-4">
                         <div className="flex items-center gap-2">
-                            <Sparkles size={14} className="text-accent" />
-                            <span className="text-[11px] font-bold text-accent uppercase tracking-[0.2em]">Watch First</span>
+                            <Sparkles size={14} className="text-[var(--gold)]" />
+                            <span className="page-eyebrow text-[11px]!">Watch First</span>
                         </div>
                         <h2 className="ds-h2">How to Use Done-For-You</h2>
                         <p className="text-text-secondary leading-relaxed">
@@ -225,12 +226,12 @@ export default function DfyPage() {
                         <div className={clsx(
                             "flex items-center gap-2.5 px-4 py-2 rounded-full border transition-all",
                             step >= s.num
-                                ? "bg-accent/10 border-accent/30 text-accent"
-                                : "bg-surface border-border-dim text-text-muted"
+                                ? "border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)] text-[var(--gold)]"
+                                : "border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted"
                         )}>
                             <span className={clsx(
-                                "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black",
-                                step >= s.num ? "bg-accent text-white" : "bg-white/5 text-text-muted"
+                                "flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold",
+                                step >= s.num ? "bg-[var(--gold)] text-[#0A0A0B]" : "border border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted"
                             )}>
                                 {step > s.num ? <Check size={12} /> : s.num}
                             </span>
@@ -274,29 +275,27 @@ export default function DfyPage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: idx * 0.06 }}
                                     onClick={() => handleSelectKeyword(kw)}
-                                    className="glass-card p-6 flex flex-col gap-4 text-left group hover:border-accent/40 transition-all relative overflow-hidden"
+                                    className="card-base group relative flex flex-col gap-4 overflow-hidden p-6! text-left transition-all hover:border-[rgba(234,179,8,0.3)]"
                                 >
-                                    <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 blur-3xl -mr-10 -mt-10 group-hover:bg-accent/10 transition-colors" />
-
                                     <div className="flex items-center justify-between">
-                                        <span className="bg-surface border border-border-dim px-2.5 py-1 rounded-md text-[10px] font-bold text-text-muted uppercase tracking-widest">
+                                        <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
                                             {kw.niche}
                                         </span>
-                                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-accent/10 border border-accent/20 text-[10px] font-black text-accent uppercase tracking-widest">
+                                        <div className="flex items-center gap-1.5 rounded-md bg-[rgba(16,185,129,0.12)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-[var(--success)]">
                                             <Flame size={10} />
                                             <span>High Intent</span>
                                         </div>
                                     </div>
 
-                                    <h3 className="text-[16px] font-bold text-white group-hover:text-accent transition-colors leading-snug">
+                                    <h3 className="text-[16px] font-bold leading-snug text-text-primary transition-colors group-hover:text-[var(--gold)]">
                                         &ldquo;{kw.label}&rdquo;
                                     </h3>
 
-                                    <p className="text-[12px] text-text-secondary leading-relaxed">
+                                    <p className="text-[12px] leading-relaxed text-text-secondary">
                                         {kw.description}
                                     </p>
 
-                                    <div className="flex items-center gap-2 text-[11px] font-black text-accent uppercase tracking-widest mt-auto pt-3 border-t border-[var(--border-subtle)] group-hover:gap-3 transition-all">
+                                    <div className="mt-auto flex items-center gap-2 border-t border-[var(--border-subtle)] pt-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--gold)] transition-all group-hover:gap-3">
                                         <span>Select This Keyword</span>
                                         <ChevronRight size={13} />
                                     </div>
@@ -315,10 +314,10 @@ export default function DfyPage() {
                         exit={{ opacity: 0, y: -20 }}
                         className="flex flex-col gap-6 max-w-2xl mx-auto w-full"
                     >
-                        <div className="glass-card p-5 flex items-center justify-between">
+                        <div className="card-base flex items-center justify-between p-5!">
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
-                                    <Check size={16} className="text-accent" />
+                                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)]">
+                                    <Check size={16} className="text-[var(--gold)]" />
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Selected Keyword</p>
@@ -334,10 +333,10 @@ export default function DfyPage() {
                             </button>
                         </div>
 
-                        <div className="glass-card p-8 flex flex-col gap-6">
+                        <div className="card-base flex flex-col gap-6 p-8!">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                                    <LinkIcon size={18} className="text-accent" />
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)]">
+                                    <LinkIcon size={18} className="text-[var(--gold)]" />
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-bold text-white inline-flex items-center gap-2">
@@ -351,22 +350,17 @@ export default function DfyPage() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-2">
-                                <input
-                                    type="url"
-                                    placeholder="https://www.digistore24.com/redir/XXXXX/your-id/"
-                                    className="w-full bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-[var(--radius-lg)] px-4 py-4 text-sm text-text-primary placeholder:text-text-muted/40 outline-none focus:border-accent/40 transition-colors"
-                                    value={affiliateLink}
-                                    onChange={(e) => {
-                                        setAffiliateLink(e.target.value);
-                                        if (error) setError("");
-                                    }}
-                                    onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-                                />
-                                {error && (
-                                    <p className="text-[12px] text-red-400 font-medium px-1">{error}</p>
-                                )}
-                            </div>
+                            <Field
+                                type="url"
+                                placeholder="https://www.digistore24.com/redir/XXXXX/your-id/"
+                                value={affiliateLink}
+                                onChange={(e) => {
+                                    setAffiliateLink(e.target.value);
+                                    if (error) setError("");
+                                }}
+                                onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
+                                error={error || undefined}
+                            />
 
                             <button
                                 onClick={handleGenerate}
@@ -391,11 +385,11 @@ export default function DfyPage() {
                         className="flex flex-col gap-6 scroll-mt-24"
                     >
                         {/* Recap bar */}
-                        <div className="glass-card p-4 flex flex-wrap items-center justify-between gap-3">
+                        <div className="card-base flex flex-wrap items-center justify-between gap-3 p-4!">
                             <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 border border-accent/20 rounded-lg">
-                                    <Flame size={12} className="text-accent" />
-                                    <span className="text-[11px] font-bold text-accent">{selectedKeyword?.niche}</span>
+                                <div className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 py-1.5">
+                                    <Flame size={12} className="text-[var(--gold)]" />
+                                    <span className="text-[11px] font-bold text-[var(--gold)]">{selectedKeyword?.niche}</span>
                                 </div>
                                 <span className="text-[13px] font-medium text-text-primary">&ldquo;{selectedKeyword?.label}&rdquo;</span>
                             </div>
@@ -415,7 +409,7 @@ export default function DfyPage() {
                                     <h2 className="text-lg font-bold text-white">
                                         {results.length} Posts Found — Replies Ready
                                     </h2>
-                                    <span className="text-[11px] font-bold text-accent bg-accent/10 border border-accent/20 px-3 py-1 rounded-full">
+                                    <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 py-1 text-[11px] font-semibold text-[var(--gold)]">
                                         Copy Reply → Paste Under Post → Earn
                                     </span>
                                 </div>
@@ -474,16 +468,16 @@ export default function DfyPage() {
                                                             return (
                                                                 <div key={rIdx} className="flex flex-col bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-4 hover:border-accent/20 transition-all group">
                                                                     <div className="flex items-center justify-between mb-2.5">
-                                                                        <span className="text-[9px] font-black text-accent uppercase tracking-widest">
+                                                                        <span className="page-eyebrow text-[9px]! tracking-[0.12em]!">
                                                                             {labels[rIdx] || `Reply #${rIdx + 1}`}
                                                                         </span>
                                                                         <button
                                                                             onClick={() => handleCopy(reply, uniqueId)}
                                                                             className={clsx(
-                                                                                "flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-all",
+                                                                                "flex items-center gap-1 rounded px-2 py-1 text-[10px] font-semibold transition-all",
                                                                                 isCopied
-                                                                                    ? "bg-green-500 text-black"
-                                                                                    : "bg-page border border-border-dim text-text-muted hover:bg-accent hover:text-black hover:border-accent"
+                                                                                    ? "border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.12)] text-[var(--success)]"
+                                                                                    : "btn-secondary px-2 py-1 text-[10px]"
                                                                             )}
                                                                         >
                                                                             {isCopied ? <Check size={10} /> : <Copy size={10} />}
@@ -520,11 +514,11 @@ export default function DfyPage() {
             </AnimatePresence>
 
             {/* Footer */}
-            <footer className="mt-10 pt-8 border-t border-white/5 flex flex-col items-center gap-4 pb-10">
+            <footer className="mt-10 flex flex-col items-center gap-4 border-t border-[var(--border-subtle)] pt-8 pb-10">
                 <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
                     {["5 Hot Keywords", "Real Posts Found", "AI Replies + Your Link", "Copy & Earn"].map((b, i) => (
-                        <div key={i} className="flex items-center gap-2 text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">
-                            <div className="w-1 h-1 rounded-full bg-accent" />
+                        <div key={i} className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-text-muted">
+                            <div className="h-1 w-1 rounded-full bg-[var(--gold)]" />
                             {b}
                         </div>
                     ))}

@@ -29,19 +29,19 @@ export function HowItWorks({ steps }: HowItWorksProps) {
                     return (
                         <div
                             key={step.number}
-                            className="card-base flex flex-col gap-4 h-full border-border-dim/40"
+                            className="card-base flex h-full flex-col gap-4"
                         >
                             <div className="flex items-center justify-between gap-3">
-                                <div className="w-10 h-10 rounded-full bg-accent/10 border border-accent/25 flex items-center justify-center text-accent font-black">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)] text-sm font-semibold text-[var(--gold)]">
                                     {step.number}
                                 </div>
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#fbbf24] bg-[#fbbf24]/10 border border-[#fbbf24]/20 px-2 py-1 rounded-full">
+                                <span className="rounded-full border border-[rgba(234,179,8,0.2)] bg-[rgba(234,179,8,0.08)] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
                                     {step.minutes}
                                 </span>
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <Icon size={18} className="text-accent" />
+                                <Icon size={18} className="text-[var(--gold)]" />
                                 <h3 className="ds-h3">{step.title}</h3>
                             </div>
 
@@ -58,7 +58,7 @@ export function HowItWorks({ steps }: HowItWorksProps) {
                 })}
             </div>
 
-            <div className="rounded-2xl border border-border-dim/40 bg-surface/50 p-4 sm:p-5">
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4 sm:p-5">
                 <p className="text-sm text-text-secondary leading-relaxed">
                     That&apos;s it — follow the steps above and paste your replies where people are already talking.
                     If you get stuck, use the Support card below.{" "}

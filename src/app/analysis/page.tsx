@@ -22,7 +22,7 @@ function LevelBadge({ level }: { level: string }) {
 
     return (
         <div className={clsx(
-            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider",
+            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider",
             isHigh ? "text-green-400 bg-green-500/10 border border-green-500/20" :
             isActive ? "text-accent bg-accent/10 border border-accent/20" :
             "text-text-muted bg-surface border border-border-dim"
@@ -150,7 +150,7 @@ export default function AnalysisPage() {
             onClick={() => handleSort(sKey)}
             className="flex items-center gap-1.5 text-left group/sort"
         >
-            <span className="text-[10px] font-black uppercase tracking-widest text-text-muted group-hover/sort:text-text-primary transition-colors">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-text-muted group-hover/sort:text-text-primary transition-colors">
                 {label}
             </span>
             <InfoHint text={tooltip} label={`What does ${label} mean?`} />

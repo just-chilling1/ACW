@@ -22,9 +22,9 @@ export function FloatingSupportButton() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Need help? Contact support"
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-accent px-4 py-3 text-xs font-black uppercase tracking-wide text-black shadow-gold transition-all hover:brightness-110 active:scale-[0.97]"
+        className="btn-primary fixed bottom-5 right-5 z-40 min-h-[44px] rounded-full px-4 py-3 text-xs shadow-[var(--elevation-2)]"
       >
-        <HelpCircle size={16} />
+        <HelpCircle size={16} strokeWidth={2} />
         Need help?
       </button>
 
@@ -40,12 +40,12 @@ export function FloatingSupportButton() {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close support panel"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-border-dim bg-surface text-text-secondary transition-colors hover:border-accent/40 hover:text-accent"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-1)] text-text-secondary transition-colors hover:border-[var(--border-strong)] hover:text-text-primary"
               >
-                <X size={16} />
+                <X size={16} strokeWidth={1.75} />
               </button>
             </div>
-            <div className="max-h-[min(75dvh,600px)] overflow-y-auto rounded-2xl">
+            <div className="max-h-[min(75dvh,600px)] overflow-y-auto rounded-[var(--radius-lg)]">
               <ContactSupportWidget />
             </div>
           </div>
