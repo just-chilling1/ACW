@@ -110,6 +110,7 @@ export default function RadarPage() {
   const [loadingChip, setLoadingChip] = useState<string | null>(null);
   const [showOfferBanner, setShowOfferBanner] = useState(false);
   const [requestedChips, setRequestedChips] = useState<Set<string>>(new Set());
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const router = useRouter();
 
   const currentPosts = postsByVariation[activeChip] || [];
@@ -117,7 +118,9 @@ export default function RadarPage() {
 
   // Resume chips that already have results in this session — never auto-fetch on mount.
   useEffect(() => {
-    const loaded = Object.keys(postsByVariation);
+    const loaded = Object.keys(postsByVariation).filter(
+      (k) => (postsByVariation[k]?.length ?? 0) > 0
+    );
     if (loaded.length === 0) return;
     setRequestedChips((prev) => {
       const next = new Set(prev);
@@ -135,6 +138,7 @@ export default function RadarPage() {
   const fetchPostsForChip = async (chip: string) => {
     if (!chip || loadingChip) return;
     setShowOfferBanner(true);
+    setFetchError(null);
     setRequestedChips((prev) => new Set(prev).add(chip));
     setLoadingChip(chip);
     try {
@@ -143,15 +147,40 @@ export default function RadarPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ keyword: chip.trim() }),
       });
-      if (resp.ok) {
-        const data = await resp.json();
-        setPostsByVariation({ ...postsByVariation, [chip]: data.results || [] });
-      } else {
-        setPostsByVariation({ ...postsByVariation, [chip]: [] });
+      const data = await resp.json().catch(() => ({}));
+      const results = Array.isArray(data.results) ? data.results : [];
+
+      if (results.length > 0) {
+        setPostsByVariation((prev) => ({ ...prev, [chip]: results }));
+        return;
       }
+
+      // Retry once with a shorter keyword if the long-tail query returned nothing
+      const simplified = chip.trim().split(/\s+/).slice(0, 3).join(" ");
+      if (simplified && simplified !== chip.trim()) {
+        const retry = await fetch("/api/jackpots", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keyword: simplified }),
+        });
+        const retryData = await retry.json().catch(() => ({}));
+        const retryResults = Array.isArray(retryData.results) ? retryData.results : [];
+        if (retryResults.length > 0) {
+          setPostsByVariation((prev) => ({ ...prev, [chip]: retryResults }));
+          return;
+        }
+      }
+
+      setPostsByVariation((prev) => ({ ...prev, [chip]: [] }));
+      setFetchError(
+        !resp.ok
+          ? "We couldn't load ads right now. Tap Search again in a moment."
+          : "No ads matched this keyword. Try a shorter topic like \"side hustle\" or \"make money\"."
+      );
     } catch (e) {
       console.error("Fetch ads failed:", e);
-      setPostsByVariation({ ...postsByVariation, [chip]: [] });
+      setPostsByVariation((prev) => ({ ...prev, [chip]: [] }));
+      setFetchError("We couldn't connect. Check your internet and try Search again.");
     } finally {
       setLoadingChip(null);
     }
@@ -227,7 +256,10 @@ export default function RadarPage() {
             key={v}
             label={v}
             selected={activeChip === v}
-            onClick={() => setActiveChip(v)}
+            onClick={() => {
+              setActiveChip(v);
+              setFetchError(null);
+            }}
           />
         ))}
       </div>
@@ -282,7 +314,10 @@ export default function RadarPage() {
               <p className="text-sm font-medium text-text-muted">
                 No ads found for &ldquo;{activeChip}&rdquo;
               </p>
-              <p className="text-[11px] text-text-muted">Try a different keyword, then click Find Ads again.</p>
+              <p className="max-w-md text-center text-[12px] text-text-muted">
+                {fetchError ||
+                  "Try a shorter keyword (e.g. \"side hustle\" or \"make money\"), then click Find Ads again."}
+              </p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
                 <button
                   type="button"

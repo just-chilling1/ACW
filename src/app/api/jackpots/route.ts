@@ -40,25 +40,52 @@ const FALLBACK_POSTS: Record<string, any[]> = {
     ],
 };
 
+const STOP = new Set([
+    "a", "an", "the", "to", "for", "of", "in", "on", "with", "and", "or", "best", "how", "any", "from", "your",
+]);
+
+/** Theme buckets so long-tail keywords still get curated ads when live search is empty. */
+const THEME_FALLBACKS: { match: RegExp; key: keyof typeof FALLBACK_POSTS }[] = [
+    { match: /side\s*hustle|make\s*money|passive\s*income|earn\s*online|extra\s*income|ai\s*tool/i, key: "how to make money with ai tools reddit" },
+    { match: /vpn|netflix|streaming|proxy/i, key: "best vpn for netflix 2024 reddit" },
+    { match: /appetite|weight\s*loss|suppress|diet|keto|fat/i, key: "best natural appetite suppressant reddit 2024" },
+    { match: /chair|ergonomic|back\s*pain|office\s*chair|lumbar/i, key: "best ergonomic chair back pain under 300 reddit" },
+    { match: /email\s*marketing|convertkit|mailchimp|newsletter|beehiiv/i, key: "best email marketing platform for creators reddit" },
+];
+
 function getFallbackPosts(keyword: string): any[] {
+    const kLower = keyword.toLowerCase().trim();
+
+    for (const theme of THEME_FALLBACKS) {
+        if (theme.match.test(kLower)) return FALLBACK_POSTS[theme.key];
+    }
+
     const key = Object.keys(FALLBACK_POSTS).find(k =>
-        keyword.toLowerCase().includes(k) || k.includes(keyword.toLowerCase())
+        kLower.includes(k) || k.includes(kLower)
     );
     if (key) return FALLBACK_POSTS[key];
 
-    const kLower = keyword.toLowerCase();
+    let bestKey: string | null = null;
+    let bestScore = 0;
     for (const [k, posts] of Object.entries(FALLBACK_POSTS)) {
-        const words = k.split(/\s+/);
-        const matchCount = words.filter(w => kLower.includes(w)).length;
-        if (matchCount >= 3) return posts;
+        const words = k.split(/\s+/).filter((w) => w.length > 2 && !STOP.has(w));
+        const matchCount = words.filter((w) => kLower.includes(w)).length;
+        if (matchCount > bestScore) {
+            bestScore = matchCount;
+            bestKey = k;
+        }
     }
-    return [];
+    if (bestKey && bestScore >= 2) return FALLBACK_POSTS[bestKey];
+
+    // Last resort: money / hustle content is the most common CashTap niche
+    return FALLBACK_POSTS["how to make money with ai tools reddit"];
 }
 
 export async function POST(req: Request) {
+    let keyword = "";
     try {
         const body = await req.json();
-        const keyword = body.keyword;
+        keyword = typeof body.keyword === "string" ? body.keyword.trim() : "";
 
         if (!keyword) return NextResponse.json({ error: "Keyword required" }, { status: 400 });
 
@@ -129,14 +156,16 @@ export async function POST(req: Request) {
         // 3. Fallback to curated posts when live search returns nothing
         console.log(">>> [API/JACKPOTS] Live search empty — using fallback posts");
         const fallback = getFallbackPosts(keyword);
-        if (fallback.length > 0) {
-            console.log(`>>> [API/JACKPOTS] Fallback returned ${fallback.length} posts`);
-            return NextResponse.json({ results: fallback });
-        }
-
-        return NextResponse.json({ results: cleanResults });
+        console.log(`>>> [API/JACKPOTS] Fallback returned ${fallback.length} posts`);
+        return NextResponse.json({ results: fallback, source: "fallback" });
     } catch (error: any) {
         console.error("Jackpots Error:", error);
+        const fallback = keyword
+            ? getFallbackPosts(keyword)
+            : FALLBACK_POSTS["how to make money with ai tools reddit"];
+        if (fallback.length > 0) {
+            return NextResponse.json({ results: fallback, source: "fallback", error: error.message });
+        }
         return NextResponse.json({ results: [], error: error.message }, { status: 500 });
     }
 }
