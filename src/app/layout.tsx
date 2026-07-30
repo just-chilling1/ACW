@@ -8,10 +8,10 @@ export const metadata: Metadata = {
   description: "Find high-intent conversations and generate replies that convert — the AI system built to maximize every click.",
   icons: {
     icon: [
-      { url: "/favicon.png", sizes: "48x48", type: "image/png" },
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.png?v=2", sizes: "48x48", type: "image/png" },
+      { url: "/favicon-32.png?v=2", sizes: "32x32", type: "image/png" },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png?v=2", sizes: "180x180", type: "image/png" }],
   },
   appleWebApp: {
     capable: true,
