@@ -249,7 +249,7 @@ export function Sidebar({
               ))}
             </div>
 
-            <div className="mx-1 mt-3">
+            <div className="mx-0.5 mt-3 mb-1 p-1.5">
               <div className="premium-nav-section p-2">
                 <div className="flex items-center gap-2 px-2.5 pb-2 pt-1.5">
                   <Sparkles className="text-[var(--gold)]" size={14} strokeWidth={1.75} />
