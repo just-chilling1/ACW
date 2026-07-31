@@ -14,7 +14,7 @@ import { GenerationProgress } from "@/components/ui/generation-progress";
 import { VideoThumbnail } from "@/components/ui/video-thumbnail";
 import { VideoOverlay } from "@/components/ui/video-overlay";
 
-const DFY_VIDEO_ID = "1171728175";
+const DFY_VIDEO_ID = "1214651948";
 
 interface Post {
     id: string;

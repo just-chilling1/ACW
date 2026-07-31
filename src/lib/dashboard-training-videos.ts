@@ -1,4 +1,4 @@
-/** Dashboard Track A videos (1–3). Video 3 stays hidden until Vimeo id is provided. */
+/** Dashboard Track A videos (1–3). */
 export type DashboardTrainingVideo = {
   id: string;
   title: string;
@@ -9,7 +9,7 @@ export type DashboardTrainingVideo = {
   visible?: boolean;
 };
 
-const THUMB_V = "20260730a";
+const THUMB_V = "20260731a";
 
 export const DASHBOARD_TRAINING_VIDEOS: readonly DashboardTrainingVideo[] = [
   {
@@ -32,13 +32,13 @@ export const DASHBOARD_TRAINING_VIDEOS: readonly DashboardTrainingVideo[] = [
     visible: true,
   },
   {
-    id: "",
+    id: "1214179729",
     title: "Your 5-Minute Tour",
     description:
       "A quick walkthrough of where everything lives in the app — so you never feel lost when you start working.",
     duration: "3–5 min",
     thumbnail: `/thumbnails/thumb-d03-your-5-minute-tour.webp?v=${THUMB_V}`,
-    visible: false,
+    visible: true,
   },
 ];
 

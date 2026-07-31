@@ -24,12 +24,12 @@ const TABS: { id: TrainingTab; label: string; icon: typeof Play }[] = [
 
 const VIDEOS = [
     {
-        id: "1171473195",
+        id: "1214645007",
         title: "Getting Started with CashTap AI",
         description: "Watch this first. Learn the basics — how to search for a topic, check demand, find ads, and create replies that earn commissions.",
     },
     {
-        id: "1171474608",
+        id: "1214645006",
         title: "Advanced Strategies & Tips",
         description: "Go deeper. Learn how to pick the best keywords, find high-value ads, and write replies that get more clicks on your affiliate link.",
     },
@@ -298,9 +298,9 @@ const FAQ_SECTIONS = [
 
 
 const PREMIUM_VIDEOS = [
-    { id: "1171728175", badge: "Premium Feature 1", title: "Done For You", desc: "Learn how to use the Done-For-You feature to pick a keyword, add your link, and get ready-made replies to post and earn." },
-    { id: "1171734563", badge: "Premium Feature 2", title: "Automated Profits", desc: "Learn how to use the Automated Profits feature to submit your link to 100+ traffic sources and get automated traffic forever." },
-    { id: "1171721099", badge: "Premium Feature 3", title: "Instant Income", desc: "Learn how to use the Instant Income feature to copy proven Facebook posts and start earning commissions right away." },
+    { id: "1214651948", badge: "Premium Feature 1", title: "Done For You", desc: "Learn how to use the Done-For-You feature to pick a keyword, add your link, and get ready-made replies to post and earn." },
+    { id: "1214661265", badge: "Premium Feature 2", title: "Automated Profits", desc: "Learn how to use the Automated Profits feature to submit your link to 100+ traffic sources and get automated traffic forever." },
+    { id: "1214657449", badge: "Premium Feature 3", title: "Instant Income", desc: "Learn how to use the Instant Income feature to copy proven Facebook posts and start earning commissions right away." },
 ];
 
 const PRO_TIPS = [

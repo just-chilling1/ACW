@@ -16,7 +16,7 @@ import { GenerationProgress } from "@/components/ui/generation-progress";
 import { VideoThumbnail } from "@/components/ui/video-thumbnail";
 import { VideoOverlay } from "@/components/ui/video-overlay";
 
-const AUTOPILOT_VIDEO_ID = "1171734563";
+const AUTOPILOT_VIDEO_ID = "1214661265";
 
 function randomDelay(minMs: number, maxMs: number) {
     return minMs + Math.floor(Math.random() * (maxMs - minMs + 1));

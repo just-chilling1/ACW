@@ -1,19 +1,21 @@
 import { getVimeoEmbedUrl } from "@/lib/vimeo";
 
-const THUMB_V = "20260730a";
+const THUMB_V = "20260731a";
 
 export const VIDEO_THUMBNAILS: Record<string, string> = {
-  // Dashboard Track A (1–2 live; 3 pending)
+  // Dashboard Track A
   "1213002067": `/thumbnails/thumb-d01-watch-this-first.webp?v=${THUMB_V}`,
   "1213002066": `/thumbnails/thumb-d02-how-the-money-flows.webp?v=${THUMB_V}`,
+  "1214179729": `/thumbnails/thumb-d03-your-5-minute-tour.webp?v=${THUMB_V}`,
 
-  // Legacy training / premium (keep until full roster is wired)
-  "1171466801": "/thumbnails/thumb-01-dashboard.webp",
-  "1171473195": "/thumbnails/thumb-02-getting-started.webp",
-  "1171474608": "/thumbnails/thumb-03-advanced.webp",
-  "1171728175": "/thumbnails/thumb-04-dfy.webp",
-  "1171734563": "/thumbnails/thumb-05-autopilot.webp",
-  "1171721099": "/thumbnails/thumb-06-instant.webp",
+  // Academy Track B (4–5)
+  "1214645007": `/thumbnails/thumb-a04-check-demand.webp?v=${THUMB_V}`,
+  "1214645006": `/thumbnails/thumb-a05-find-ads-reply.webp?v=${THUMB_V}`,
+
+  // Premium (6–8)
+  "1214651948": `/thumbnails/thumb-a06-done-for-you.webp?v=${THUMB_V}`,
+  "1214657449": `/thumbnails/thumb-a07-instant-income.webp?v=${THUMB_V}`,
+  "1214661265": `/thumbnails/thumb-a08-automated-profits.webp?v=${THUMB_V}`,
 };
 
 const VIMEO_ID_REGEX = /vimeo\.com\/(?:video\/)?(\d+)/;
