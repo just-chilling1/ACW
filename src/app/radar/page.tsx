@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Check, ExternalLink, ArrowLeft, Search, ArrowRight
@@ -115,6 +115,19 @@ export default function RadarPage() {
 
   const currentPosts = postsByVariation[activeChip] || [];
   const hasFetchedActive = requestedChips.has(activeChip);
+  const loadingTopic = loadingChip || activeChip;
+
+  const findAdsStatusMessages = useMemo(() => {
+    const topic = loadingTopic?.trim() || "your topic";
+    return [
+      `AI is looking for ads about "${topic}"...`,
+      "Scanning Reddit & YouTube conversations...",
+      "Analyzing engagement and buying intent...",
+      "Filtering the highest-converting ads...",
+      "Ranking the best matches for you...",
+      "Almost done — preparing your results...",
+    ];
+  }, [loadingTopic]);
 
   // Resume chips that already have results in this session — never auto-fetch on mount.
   useEffect(() => {
@@ -287,7 +300,8 @@ export default function RadarPage() {
           <GenerationProgress
             active={loadingChip !== null}
             showBanner={showOfferBanner}
-            label={`Finding ads for "${loadingChip || activeChip}"...`}
+            label={`Finding ads for "${loadingTopic}"`}
+            statusMessages={findAdsStatusMessages}
             offer="earnings"
           />
         </div>
