@@ -175,7 +175,7 @@ export function BottomNav() {
                                             <div
                                                 key={item.path}
                                                 title="Complete the previous step first"
-                                                className={clsx(MORE_ROW, "nav-locked")}
+                                                className={clsx(MORE_ROW, "nav-locked nav-locked-faded")}
                                             >
                                                 <Lock size={16} className="shrink-0" />
                                                 <span className={MORE_ITEM_TEXT}>{item.label}</span>

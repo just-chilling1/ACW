@@ -1,16 +1,16 @@
 /** Product display name — used in UI, metadata, and support copy. */
 export const APP_NAME = "AI CashWave";
 
-/** Full wordmark SVG (880×192 viewBox). */
+/** Trimmed wordmark — no excess canvas padding (728×133). */
 export const LOGO_WORDMARK = {
-  src: "/logo.svg",
-  width: 880,
-  height: 192,
+  src: "/logo-wordmark.png",
+  width: 728,
+  height: 133,
 } as const;
 
-/** Square A-mark icon SVG (512×512 viewBox). */
+/** A-mark icon cropped from the wordmark (197×133). */
 export const LOGO_MARK = {
-  src: "/logo-mark.svg",
-  width: 512,
-  height: 512,
+  src: "/logo-icon.png",
+  width: 197,
+  height: 133,
 } as const;

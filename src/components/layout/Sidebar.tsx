@@ -84,7 +84,7 @@ export function Sidebar({
         isWorkflowStepCompleted(step.stepIndex, workflowProgress) && !isActive && !locked;
 
       if (locked) {
-        const fadedLocked = step.stepIndex === 3 || step.stepIndex === 4;
+        const fadedLocked = step.requiresWorkflowStep != null;
         return (
           <div
             key={step.path}

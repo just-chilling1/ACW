@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { clsx } from "clsx";
 import { APP_NAME, LOGO_MARK, LOGO_WORDMARK } from "@/lib/brand";
 
@@ -39,14 +40,12 @@ export function BrandLogo({
   const asset = variant === "mark" ? LOGO_MARK : LOGO_WORDMARK;
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- SVG wordmark from /public
-    <img
+    <Image
       src={asset.src}
       alt={APP_NAME}
       width={asset.width}
       height={asset.height}
-      decoding="async"
-      fetchPriority={priority ? "high" : undefined}
+      priority={priority}
       className={clsx(
         "shrink-0 object-contain object-left",
         SIZE_CLASSES[size][variant],
