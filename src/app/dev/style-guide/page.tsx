@@ -16,22 +16,22 @@ import { EarningsBanner } from "@/components/ui/earnings-banner";
 import { useState } from "react";
 
 const CANVAS_SWATCHES = [
-  { name: "bg-app", token: "--bg-app", value: "#140F0A" },
-  { name: "bg-app-2", token: "--bg-app-2", value: "#1A1410" },
-  { name: "surface-1", token: "--surface-1", value: "#241C14" },
-  { name: "surface-2", token: "--surface-2", value: "rgba(255,220,180,0.06)" },
-  { name: "surface-3", token: "--surface-3", value: "rgba(255,220,180,0.09)" },
+  { name: "bg-app", token: "--bg-app", value: "#0B0B0B" },
+  { name: "bg-app-2", token: "--bg-app-2", value: "#1A120B" },
+  { name: "surface-1", token: "--surface-1", value: "#171717" },
+  { name: "surface-2", token: "--surface-2", value: "rgba(248,250,252,0.04)" },
+  { name: "surface-3", token: "--surface-3", value: "#24180F" },
 ];
 
 const BORDER_SWATCHES = [
-  { name: "border-subtle", token: "--border-subtle", value: "rgba(212,175,120,0.14)" },
-  { name: "border-strong", token: "--border-strong", value: "rgba(212,175,120,0.24)" },
+  { name: "border-subtle", token: "--border-subtle", value: "#3A2A1B" },
+  { name: "border-strong", token: "--border-strong", value: "#4D3824" },
 ];
 
 const BRAND_SWATCHES = [
-  { name: "gold", token: "--gold", value: "#D4AF37" },
-  { name: "gold-dim", token: "--gold-dim", value: "#B8942E" },
-  { name: "copper", token: "--copper", value: "#C17F3A" },
+  { name: "gold", token: "--gold", value: "#EEB310" },
+  { name: "gold-dim", token: "--gold-dim", value: "#F4C542" },
+  { name: "copper", token: "--copper", value: "#C9952A" },
 ];
 
 const SEMANTIC_SWATCHES = [
@@ -42,10 +42,10 @@ const SEMANTIC_SWATCHES = [
 ];
 
 const TEXT_SWATCHES = [
-  { name: "text-primary", token: "--text-primary", value: "#F5EDE4" },
-  { name: "text-secondary", token: "--text-secondary", value: "#C4B5A5" },
-  { name: "text-tertiary", token: "--text-tertiary", value: "#A89680" },
-  { name: "text-on-accent", token: "--text-on-accent", value: "#1A1208" },
+  { name: "text-primary", token: "--text-primary", value: "#F8FAFC" },
+  { name: "text-secondary", token: "--text-secondary", value: "#B8B3AA" },
+  { name: "text-tertiary", token: "--text-tertiary", value: "#8A857D" },
+  { name: "text-on-accent", token: "--text-on-accent", value: "#0B0B0B" },
 ];
 
 const RADIUS_SAMPLES = [

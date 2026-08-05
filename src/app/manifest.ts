@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "The AI system for finding high-intent ads and writing replies that convert.",
         start_url: "/dashboard",
         display: "standalone",
-        background_color: "#140F0A",
-        theme_color: "#140F0A",
+        background_color: "#0B0B0B",
+        theme_color: "#0B0B0B",
         icons: [
             {
                 src: "/icons/icon-192.png",
