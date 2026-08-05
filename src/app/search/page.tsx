@@ -15,7 +15,6 @@ import { isValidTopicKeyword, sanitizeTopicKeyword } from "@/lib/keyword";
 
 export default function SearchPage() {
   const {
-    keyword,
     setKeyword,
     setVariations,
     setPostsByVariation,
@@ -26,13 +25,14 @@ export default function SearchPage() {
     history,
     addToHistory,
   } = useSearch();
+  const [topicInput, setTopicInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [showOfferBanner, setShowOfferBanner] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSearch = async (val?: string) => {
-    const searchVal = sanitizeTopicKeyword(val || keyword);
+    const searchVal = sanitizeTopicKeyword(val || topicInput);
     if (!searchVal) {
       setError("Enter a short topic to search for.");
       return;
@@ -105,8 +105,8 @@ export default function SearchPage() {
         <Field
           label="Topic"
           placeholder='e.g. "weight loss", "dog food", "acne"'
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          value={topicInput}
+          onChange={(e) => setTopicInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           autoFocus
           trailing={<Search size={18} strokeWidth={1.75} className="text-text-muted" />}
@@ -114,7 +114,7 @@ export default function SearchPage() {
 
         <button
           onClick={() => handleSearch()}
-          disabled={loading || !keyword}
+          disabled={loading || !topicInput.trim()}
           className="btn-primary h-14 w-full text-base"
         >
           {loading ? (
@@ -137,7 +137,7 @@ export default function SearchPage() {
           topics={history}
           disabled={loading}
           onSelect={(topic) => {
-            setKeyword(topic);
+            setTopicInput(topic);
             handleSearch(topic);
           }}
         />

@@ -108,7 +108,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         if (saved.history) setHistory(cleanHistoryItems(saved.history));
     }, []);
 
-    const fetchHistoryFromDb = useCallback(async (uid: string, savedKeyword?: string) => {
+    const fetchHistoryFromDb = useCallback(async (uid: string) => {
         try {
             const { data, error } = await supabase
                 .from("search_history")
@@ -121,30 +121,6 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
                 const uniqueKeywords = cleanHistoryItems(data.map((item) => item.keyword));
                 setHistory(uniqueKeywords);
                 writeSession(uid, { history: uniqueKeywords });
-
-                if (!savedKeyword && uniqueKeywords[0]) {
-                    const lastKeyword = sanitizeTopicKeyword(uniqueKeywords[0]);
-                    if (!isValidTopicKeyword(lastKeyword)) return;
-
-                    setKeyword(lastKeyword);
-                    writeSession(uid, { keyword: lastKeyword });
-
-                    const { data: vData } = await supabase
-                        .from("keyword_variations")
-                        .select("variations")
-                        .eq("parent_keyword", lastKeyword)
-                        .single();
-
-                    if (vData?.variations) {
-                        setVariations(vData.variations);
-                        setActiveChip(vData.variations[0]);
-                        writeSession(uid, {
-                            keyword: lastKeyword,
-                            variations: vData.variations,
-                            activeChip: vData.variations[0],
-                        });
-                    }
-                }
             }
         } catch (e) {
             console.error("Error fetching search history:", e);
@@ -161,13 +137,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
 
             if (uid) {
                 hydrateFromStorage(uid);
-                const saved = readSession(uid);
-                const savedKeyword = saved.keyword
-                    ? sanitizeTopicKeyword(saved.keyword)
-                    : undefined;
-                const validSavedKeyword =
-                    savedKeyword && isValidTopicKeyword(savedKeyword) ? savedKeyword : undefined;
-                await fetchHistoryFromDb(uid, validSavedKeyword);
+                await fetchHistoryFromDb(uid);
             } else {
                 clearLegacySession();
             }
@@ -185,13 +155,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
 
             if (newUid) {
                 hydrateFromStorage(newUid);
-                const saved = readSession(newUid);
-                const savedKeyword = saved.keyword
-                    ? sanitizeTopicKeyword(saved.keyword)
-                    : undefined;
-                const validSavedKeyword =
-                    savedKeyword && isValidTopicKeyword(savedKeyword) ? savedKeyword : undefined;
-                void fetchHistoryFromDb(newUid, validSavedKeyword);
+                void fetchHistoryFromDb(newUid);
             }
         });
 

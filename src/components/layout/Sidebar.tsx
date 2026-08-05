@@ -228,11 +228,18 @@ export function Sidebar({
                         key={step.path}
                         href={step.path}
                         className={clsx(
-                          "premium-sidebar-item flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-[13px] font-medium tracking-wide",
+                          "premium-sidebar-item group flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-[13px] font-medium tracking-wide",
                           isActive ? "is-active" : "text-text-secondary"
                         )}
                       >
-                        <Icon size={16} strokeWidth={1.5} className={isActive ? "text-[var(--gold)]" : "text-[var(--gold)]/70"} />
+                        <Icon
+                          size={16}
+                          strokeWidth={1.5}
+                          className={clsx(
+                            "transition-colors duration-180",
+                            isActive ? "text-[var(--gold)]" : "text-[var(--gold)]/65 group-hover:text-[var(--gold)]"
+                          )}
+                        />
                         <span>{step.label}</span>
                       </Link>
                     );
@@ -242,27 +249,24 @@ export function Sidebar({
             </div>
 
             <div className="mx-0.5 mb-1 p-1.5">
-              <div className="flex flex-col gap-2 rounded-[var(--radius-md)] border border-[var(--success-border)] bg-[var(--success-bg-faint)] p-2">
-                <span className="px-2.5 pt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--success)]">
-                  Exclusive Offers
-                </span>
-                {EXCLUSIVE_OFFERS.map((promo) => (
-                  <a
-                    key={promo.url}
-                    href={promo.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--success-border)] bg-[var(--success-bg-subtle)] p-3 transition-colors hover:border-[var(--success-border-strong)] hover:bg-[var(--success-bg-medium)]"
-                  >
-                    <div className="flex min-w-0 flex-col gap-0.5">
-                      <span className="text-[12px] font-semibold leading-tight text-[var(--success)]">
-                        {promo.title}
-                      </span>
-                      <span className="text-[10px] font-medium text-text-muted">Opens in new tab</span>
-                    </div>
-                    <ExternalLink size={14} strokeWidth={1.75} className="shrink-0 text-[var(--success)]" />
-                  </a>
-                ))}
+              <div className="exclusive-offers-section">
+                <span className="exclusive-offers-section__header">Exclusive Offers</span>
+                <div className="exclusive-offers-section__list">
+                  {EXCLUSIVE_OFFERS.map((promo) => (
+                    <a
+                      key={promo.url}
+                      href={promo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="exclusive-offer-link"
+                      title={`${promo.title} (opens in new tab)`}
+                    >
+                      <span className="min-w-0 truncate">{promo.title}</span>
+                      <ExternalLink size={14} strokeWidth={1.75} />
+                    </a>
+                  ))}
+                </div>
+                <p className="exclusive-offers-section__note">All links open in a new tab</p>
               </div>
             </div>
           </>
@@ -279,8 +283,8 @@ export function Sidebar({
                   href={step.path}
                   title={step.label}
                   className={clsx(
-                    "premium-sidebar-item flex items-center justify-center rounded-[var(--radius-md)] py-3",
-                    isActive ? "is-active text-[var(--gold)]" : "text-[var(--gold)]/70"
+                    "premium-sidebar-item group flex items-center justify-center rounded-[var(--radius-md)] py-3",
+                    isActive ? "is-active text-[var(--gold)]" : "text-[var(--gold)]/65"
                   )}
                 >
                   <Icon size={18} strokeWidth={1.75} />

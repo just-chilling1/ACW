@@ -28,11 +28,6 @@ const VIDEOS = [
         title: "Getting Started with AI CashWave",
         description: "Watch this first. Learn the basics — how to search for a topic, check demand, find ads, and create replies that earn commissions.",
     },
-    {
-        id: "1214645006",
-        title: "Advanced Strategies & Tips",
-        description: "Go deeper. Learn how to pick the best keywords, find high-value ads, and write replies that get more clicks on your affiliate link.",
-    },
 ];
 
 const STEPS_GUIDE = [
@@ -107,7 +102,7 @@ const FAQ_SECTIONS = [
             },
             {
                 q: "What should I do first after logging in?",
-                a: "Start by watching the two training videos at the top of this page. Then watch the Premium Feature videos for Done-For-You, Automated Profits, and Instant Access. After that, follow the Quick Start Checklist: search for your first topic, check demand, find ads, and create your first replies. You can also jump straight into the Done-For-You vault or Instant Income if you want results faster.",
+                a: "Start by watching the training video at the top of this page. Then watch the Premium Feature videos for Done-For-You, Automated Profits, and Instant Access. After that, follow the Quick Start Checklist: search for your first topic, check demand, find ads, and create your first replies. You can also jump straight into the Done-For-You vault or Instant Income if you want results faster.",
             },
             {
                 q: "Can I use this on my phone or tablet?",
@@ -392,7 +387,7 @@ export default function TrainingPage() {
                                     Watch these first
                                 </span>
                             </div>
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-6 md:max-w-xl">
                                 {VIDEOS.map((video, i) => (
                                     <div
                                         key={video.id}

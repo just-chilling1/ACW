@@ -215,37 +215,38 @@ export function BottomNav() {
                                             href={item.path}
                                             onClick={() => setMoreOpen(false)}
                                             className={clsx(
-                                                "premium-sidebar-item",
+                                                "premium-sidebar-item group",
                                                 MORE_ROW,
                                                 active ? "is-active" : "text-text-secondary"
                                             )}
                                         >
-                                            <Icon size={16} className={clsx("shrink-0", active ? "text-accent" : "text-accent/80")} />
+                                            <Icon size={16} className={clsx("shrink-0 transition-colors duration-180", active ? "text-accent" : "text-accent/65 group-hover:text-accent")} />
                                             <span className={MORE_ITEM_TEXT}>{item.label}</span>
                                         </Link>
                                     );
                                 })}
                             </div>
 
-                            <div className="flex flex-col gap-1.5 rounded-[var(--radius-md)] border border-[var(--success-border)] bg-[var(--success-bg-faint)] p-2">
-                                <span className={clsx(MORE_SECTION_LABEL, "text-[var(--success)]")}>
+                            <div className="exclusive-offers-section">
+                                <span className={clsx("exclusive-offers-section__header", "[@media(max-height:740px)]:text-[10px]")}>
                                     Exclusive Offers
                                 </span>
-                                {EXCLUSIVE_OFFERS.map((promo) => (
-                                    <a
-                                        key={promo.url}
-                                        href={promo.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex min-h-[44px] items-center justify-between gap-2.5 rounded-[var(--radius-md)] border border-[var(--success-border)] bg-[var(--success-bg-subtle)] px-2.5 py-2 transition-colors hover:border-[var(--success-border-strong)] hover:bg-[var(--success-bg-medium)] [@media(max-height:740px)]:min-h-[40px] [@media(max-height:740px)]:py-1.5"
-                                    >
-                                        <div className="flex min-w-0 flex-col gap-0.5">
-                                            <span className="text-[12px] font-semibold leading-tight text-[var(--success)] [@media(max-height:740px)]:text-[11px]">{promo.title}</span>
-                                            <span className="text-[9px] font-medium text-text-muted">Claim Now</span>
-                                        </div>
-                                        <ExternalLink size={13} className="shrink-0 text-[var(--success)]" />
-                                    </a>
-                                ))}
+                                <div className="exclusive-offers-section__list">
+                                    {EXCLUSIVE_OFFERS.map((promo) => (
+                                        <a
+                                            key={promo.url}
+                                            href={promo.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="exclusive-offer-link [@media(max-height:740px)]:py-2 [@media(max-height:740px)]:text-[11px]"
+                                            title={`${promo.title} (opens in new tab)`}
+                                        >
+                                            <span className="min-w-0 truncate">{promo.title}</span>
+                                            <ExternalLink size={13} strokeWidth={1.75} />
+                                        </a>
+                                    ))}
+                                </div>
+                                <p className="exclusive-offers-section__note">All links open in a new tab</p>
                             </div>
 
                             <div className="flex flex-col gap-0.5 border-t border-[var(--border-subtle)] pt-3 [@media(max-height:740px)]:pt-2">
