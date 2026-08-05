@@ -36,17 +36,17 @@ const MORE_ITEM_TEXT =
 
 export function BottomNav() {
     const pathname = usePathname();
-    const { resetSession, variations, analysisByVariation, selectedAds } = useSearch();
+    const { resetSession, step1Completed, analysisByVariation, selectedAds } = useSearch();
     const [moreOpen, setMoreOpen] = useState(false);
 
     const workflowProgress = useMemo(
         () =>
             getWorkflowProgress(
-                variations.length > 0,
+                step1Completed,
                 Object.keys(analysisByVariation).length > 0,
                 selectedAds.length > 0
             ),
-        [variations.length, analysisByVariation, selectedAds.length]
+        [step1Completed, analysisByVariation, selectedAds.length]
     );
 
     useEffect(() => {

@@ -9,7 +9,7 @@ const LEGACY_KEYS = [
     "cashtap_history",
 ] as const;
 
-type SessionField = "keyword" | "variations" | "chip" | "affiliate" | "selected_posts" | "history";
+type SessionField = "keyword" | "variations" | "chip" | "affiliate" | "selected_posts" | "history" | "step1_completed";
 
 function key(userId: string, field: SessionField): string {
     return `cashtap_${userId}_${field}`;
@@ -21,6 +21,7 @@ export type SessionSnapshot = {
     activeChip: string;
     affiliateLink: string;
     history: string[];
+    step1Completed: boolean;
 };
 
 export function readSession(userId: string): Partial<SessionSnapshot> {
@@ -29,6 +30,7 @@ export function readSession(userId: string): Partial<SessionSnapshot> {
     const activeChip = localStorage.getItem(key(userId, "chip"));
     const affiliateLink = localStorage.getItem(key(userId, "affiliate"));
     const historyRaw = localStorage.getItem(key(userId, "history"));
+    const step1Completed = localStorage.getItem(key(userId, "step1_completed")) === "1";
 
     return {
         ...(keyword ? { keyword } : {}),
@@ -36,6 +38,7 @@ export function readSession(userId: string): Partial<SessionSnapshot> {
         ...(activeChip ? { activeChip } : {}),
         ...(affiliateLink ? { affiliateLink } : {}),
         ...(historyRaw ? { history: JSON.parse(historyRaw) as string[] } : {}),
+        ...(step1Completed ? { step1Completed: true } : {}),
     };
 }
 
@@ -43,20 +46,35 @@ export function writeSession(
     userId: string,
     data: Partial<SessionSnapshot> & { selectedAds?: unknown[] }
 ): void {
-    if (data.keyword) localStorage.setItem(key(userId, "keyword"), data.keyword);
-    if (data.variations && data.variations.length > 0) {
-        localStorage.setItem(key(userId, "variations"), JSON.stringify(data.variations));
+    if (data.keyword !== undefined) {
+        if (data.keyword) localStorage.setItem(key(userId, "keyword"), data.keyword);
+        else localStorage.removeItem(key(userId, "keyword"));
     }
-    if (data.activeChip) localStorage.setItem(key(userId, "chip"), data.activeChip);
+    if (data.variations !== undefined) {
+        if (data.variations.length > 0) {
+            localStorage.setItem(key(userId, "variations"), JSON.stringify(data.variations));
+        } else {
+            localStorage.removeItem(key(userId, "variations"));
+        }
+    }
+    if (data.activeChip !== undefined) {
+        if (data.activeChip) localStorage.setItem(key(userId, "chip"), data.activeChip);
+        else localStorage.removeItem(key(userId, "chip"));
+    }
     if (data.affiliateLink) localStorage.setItem(key(userId, "affiliate"), data.affiliateLink);
     if (data.history) localStorage.setItem(key(userId, "history"), JSON.stringify(data.history));
     if (data.selectedAds !== undefined) {
         localStorage.setItem(key(userId, "selected_posts"), JSON.stringify(data.selectedAds));
     }
+    if (data.step1Completed === true) {
+        localStorage.setItem(key(userId, "step1_completed"), "1");
+    } else if (data.step1Completed === false) {
+        localStorage.removeItem(key(userId, "step1_completed"));
+    }
 }
 
 export function clearSession(userId: string): void {
-    const fields: SessionField[] = ["keyword", "variations", "chip", "affiliate", "selected_posts", "history"];
+    const fields: SessionField[] = ["keyword", "variations", "chip", "affiliate", "selected_posts", "history", "step1_completed"];
     fields.forEach((field) => localStorage.removeItem(key(userId, field)));
 }
 

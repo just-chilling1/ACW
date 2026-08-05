@@ -39,7 +39,7 @@ export function Sidebar({
   const pathname = usePathname();
   const {
     resetSession,
-    variations,
+    step1Completed,
     analysisByVariation,
     selectedAds,
   } = useSearch();
@@ -48,11 +48,11 @@ export function Sidebar({
   const workflowProgress = useMemo(
     () =>
       getWorkflowProgress(
-        variations.length > 0,
+        step1Completed,
         Object.keys(analysisByVariation).length > 0,
         selectedAds.length > 0
       ),
-    [variations.length, analysisByVariation, selectedAds.length]
+    [step1Completed, analysisByVariation, selectedAds.length]
   );
 
   const progress = (Math.min(workflowProgress, 4) / 4) * 100;

@@ -53,6 +53,8 @@ interface SearchContextType {
     setSelectedAds: (p: Ad[]) => void;
     history: string[];
     addToHistory: (k: string) => void;
+    step1Completed: boolean;
+    setStep1Completed: (completed: boolean) => void;
     resetSession: () => void;
 }
 
@@ -80,6 +82,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     const [repliesByPostId, setRepliesByPostId] = useState<Record<string, string[]>>({});
     const [selectedAds, setSelectedAds] = useState<Ad[]>([]);
     const [history, setHistory] = useState<string[]>([]);
+    const [step1Completed, setStep1Completed] = useState(false);
 
     const clearInMemoryState = useCallback(() => {
         setKeyword(EMPTY_STATE.keyword);
@@ -87,6 +90,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         setActiveChip(EMPTY_STATE.activeChip);
         setAffiliateLink(EMPTY_STATE.affiliateLink);
         setHistory(EMPTY_STATE.history);
+        setStep1Completed(false);
         setPostsByVariation({});
         setActivityByVariation({});
         setAnalysisByVariation({});
@@ -98,12 +102,15 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     const hydrateFromStorage = useCallback((uid: string) => {
         migrateLegacySession(uid);
         const saved = readSession(uid);
-        if (saved.keyword) {
-            const cleanedKeyword = sanitizeTopicKeyword(saved.keyword);
-            setKeyword(isValidTopicKeyword(cleanedKeyword) ? cleanedKeyword : "");
+        if (saved.step1Completed) {
+            setStep1Completed(true);
+            if (saved.keyword) {
+                const cleanedKeyword = sanitizeTopicKeyword(saved.keyword);
+                setKeyword(isValidTopicKeyword(cleanedKeyword) ? cleanedKeyword : "");
+            }
+            if (saved.variations) setVariations(saved.variations);
+            if (saved.activeChip) setActiveChip(saved.activeChip);
         }
-        if (saved.variations) setVariations(saved.variations);
-        if (saved.activeChip) setActiveChip(saved.activeChip);
         if (saved.affiliateLink) setAffiliateLink(saved.affiliateLink);
         if (saved.history) setHistory(cleanHistoryItems(saved.history));
     }, []);
@@ -197,8 +204,9 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
             affiliateLink,
             history: cleanedHistory,
             selectedAds,
+            step1Completed,
         });
-    }, [userId, keyword, variations, activeChip, affiliateLink, history, selectedAds]);
+    }, [userId, keyword, variations, activeChip, affiliateLink, history, selectedAds, step1Completed]);
 
     const addToHistory = async (k: string) => {
         const cleaned = sanitizeTopicKeyword(k);
@@ -229,6 +237,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
             repliesByPostId, setRepliesByPostId,
             selectedAds, setSelectedAds,
             history, addToHistory,
+            step1Completed, setStep1Completed,
             resetSession
         }}>
             {children}

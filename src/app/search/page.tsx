@@ -22,6 +22,7 @@ export default function SearchPage() {
     setAnalysisByVariation,
     setSelectedAds,
     setActiveChip,
+    setStep1Completed,
     history,
     addToHistory,
   } = useSearch();
@@ -45,8 +46,11 @@ export default function SearchPage() {
     setLoading(true);
     setShowOfferBanner(true);
     setError("");
+    setStep1Completed(false);
     setKeyword(searchVal);
     addToHistory(searchVal);
+    setVariations([]);
+    setActiveChip("");
     setPostsByVariation({});
     setActivityByVariation({});
     setAnalysisByVariation({});
@@ -67,6 +71,7 @@ export default function SearchPage() {
 
       setVariations(data.variations || []);
       setActiveChip(data.variations?.[0] || "");
+      setStep1Completed(true);
       await new Promise((r) => setTimeout(r, 900));
       router.push("/analysis");
     } catch (e) {
