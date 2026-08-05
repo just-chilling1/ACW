@@ -14,6 +14,7 @@ import { ReplyCard } from "@/components/ui/reply-card";
 import { SupportFooter } from "@/components/ui/support-footer";
 import { EarningsBanner } from "@/components/ui/earnings-banner";
 import { useState } from "react";
+import { CheckCircle2, AlertTriangle, AlertCircle, Info } from "lucide-react";
 
 const CANVAS_SWATCHES = [
   { name: "bg-app", token: "--bg-app", value: "#0B0B0B" },
@@ -24,15 +25,15 @@ const CANVAS_SWATCHES = [
 ];
 
 const BORDER_SWATCHES = [
-  { name: "border-subtle", token: "--border-subtle", value: "#3A2A1B" },
-  { name: "border-strong", token: "--border-strong", value: "#4D3824" },
+  { name: "border-subtle", token: "--border-subtle", value: "rgba(226,196,150,0.30)" },
+  { name: "border-strong", token: "--border-strong", value: "rgba(226,196,150,0.48)" },
 ];
 
 const BRAND_SWATCHES = [
-  { name: "gold", token: "--gold", value: "#EEB310" },
-  { name: "gold-hover", token: "--gold-hover", value: "#D99A00" },
-  { name: "gold-light", token: "--gold-light", value: "#F2C75C" },
-  { name: "copper", token: "--copper", value: "#C9952A" },
+  { name: "gold", token: "--gold", value: "#D4AF37" },
+  { name: "gold-text", token: "--gold-text", value: "#E8C55A" },
+  { name: "gold-dim", token: "--gold-dim", value: "#B8942E" },
+  { name: "copper", token: "--copper", value: "#C17F3A" },
 ];
 
 const CARD_SWATCHES = [
@@ -43,24 +44,24 @@ const CARD_SWATCHES = [
 ];
 
 const SEMANTIC_SWATCHES = [
-  { name: "success", token: "--success", value: "#0E9F6E" },
-  { name: "warning", token: "--warning", value: "#F5B301" },
-  { name: "danger", token: "--danger", value: "#DC2626" },
-  { name: "info", token: "--info", value: "#38BDF8" },
+  { name: "success", token: "--success", value: "#7DD98A" },
+  { name: "warning", token: "--warning", value: "#FF8C42" },
+  { name: "danger", token: "--danger", value: "#FF8A7A" },
+  { name: "info", token: "--info", value: "#F5EDE4" },
 ];
 
 const TEXT_SWATCHES = [
-  { name: "text-primary", token: "--text-primary", value: "#F8FAFC" },
-  { name: "text-secondary", token: "--text-secondary", value: "#B8B3AA" },
-  { name: "text-tertiary", token: "--text-tertiary", value: "#8A857D" },
-  { name: "text-on-accent", token: "--text-on-accent", value: "#0B0B0B" },
+  { name: "text-primary", token: "--text-primary", value: "#F5EDE4" },
+  { name: "text-secondary", token: "--text-secondary", value: "#C4B5A5" },
+  { name: "text-tertiary", token: "--text-tertiary", value: "#BFAE97" },
+  { name: "text-on-accent", token: "--text-on-accent", value: "#1A1208" },
 ];
 
 const RADIUS_SAMPLES = [
-  { name: "sm", token: "--radius-sm", value: "8px" },
-  { name: "md", token: "--radius-md", value: "12px" },
-  { name: "lg", token: "--radius-lg", value: "16px" },
-  { name: "xl", token: "--radius-xl", value: "20px" },
+  { name: "sm", token: "--radius-sm", value: "3px" },
+  { name: "md", token: "--radius-md", value: "5px" },
+  { name: "lg", token: "--radius-lg", value: "8px" },
+  { name: "xl", token: "--radius-xl", value: "10px" },
 ];
 
 function SwatchGrid({
@@ -133,20 +134,20 @@ export default function StyleGuidePage() {
           <div className="flex flex-col gap-3">
             <h3 className="ds-h4">Semantic badges</h3>
             <div className="flex flex-wrap gap-2">
-              <span className="badge-success">Success</span>
-              <span className="badge-warning">Warning</span>
-              <span className="badge-danger">Danger</span>
-              <span className="badge-info">Info</span>
+              <span className="badge-success inline-flex items-center gap-1"><CheckCircle2 size={12} /> Success</span>
+              <span className="badge-warning inline-flex items-center gap-1"><AlertTriangle size={12} /> Warning</span>
+              <span className="badge-danger inline-flex items-center gap-1"><AlertCircle size={12} /> Danger</span>
+              <span className="badge-info inline-flex items-center gap-1"><Info size={12} /> Info</span>
             </div>
           </div>
 
           <div className="flex flex-col gap-3">
             <h3 className="ds-h4">Status blocks</h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="status-success rounded-[var(--radius-md)] px-4 py-3 text-sm">Success status message</div>
-              <div className="status-warning rounded-[var(--radius-md)] px-4 py-3 text-sm">Warning status message</div>
-              <div className="status-danger rounded-[var(--radius-md)] px-4 py-3 text-sm">Error status message</div>
-              <div className="status-info rounded-[var(--radius-md)] px-4 py-3 text-sm">Info status message</div>
+              <div className="status-success flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-3 text-sm"><CheckCircle2 size={16} /> Success status message</div>
+              <div className="status-warning flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-3 text-sm"><AlertTriangle size={16} /> Warning status message</div>
+              <div className="status-danger flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-3 text-sm"><AlertCircle size={16} /> Error status message</div>
+              <div className="status-info flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-3 text-sm"><Info size={16} /> Info status message</div>
             </div>
           </div>
         </section>
@@ -272,7 +273,7 @@ export default function StyleGuidePage() {
               Accent link — hover for lighter gold
             </a>
             <p className="ds-caption">
-              Normal <span className="text-text-primary">#EEB310</span> · Hover <span className="text-text-primary">#F2C75C</span>
+              Normal <span className="text-text-primary">#D4AF37</span> · Hover <span className="text-text-primary">#E8C55A</span>
             </p>
           </div>
         </section>

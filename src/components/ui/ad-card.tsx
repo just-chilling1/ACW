@@ -54,7 +54,7 @@ export function AdCard({
       tabIndex={onSelect ? 0 : undefined}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+        <span className="rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">
           {source}
         </span>
         {selected ? (

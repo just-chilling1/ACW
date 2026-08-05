@@ -6,7 +6,7 @@ export function PlatformBadge({ platform }: { platform: string }) {
   return (
     <span
       className={clsx(
-        "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest",
+        "inline-flex items-center gap-1 rounded-[var(--radius-sm)] border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest",
         isReddit ? "badge-platform-reddit" : "status-danger",
       )}
     >

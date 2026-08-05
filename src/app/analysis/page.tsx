@@ -22,7 +22,7 @@ function LevelBadge({ level }: { level: string }) {
 
     return (
         <div className={clsx(
-            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider",
+            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius-sm)] text-[10px] font-semibold uppercase tracking-wider",
             isHigh ? "badge-level-high" :
             isActive ? "badge-level-active" :
             "badge-level-low"
@@ -469,7 +469,7 @@ export default function AnalysisPage() {
                 <button
                     onClick={() => router.push("/radar")}
                     disabled={analyzedCount === 0}
-                    className="btn-primary h-11 px-6 text-sm rounded-lg group"
+                    className="btn-primary h-11 px-6 text-sm rounded-[var(--radius-md)] group"
                 >
                     <span>Go to Step 3: Find Ads</span>
                     <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />

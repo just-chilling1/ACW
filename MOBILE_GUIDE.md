@@ -4,7 +4,7 @@ Mobile behavior spec for AI CashWave member area.
 
 ## Viewport & PWA
 
-- `viewportFit: cover`, `themeColor: #0A0A0B`
+- `viewportFit: cover`, `themeColor: #140F0A` (was `#0A0A0B` — off-palette cold black; must match `--bg-app` or the PWA chrome seams against the canvas)
 - `appleWebApp.capable: true`, `statusBarStyle: black-translucent`
 - Manifest: `src/app/manifest.ts` (`display: standalone`)
 - Icons: `public/icons/icon-192.png`, `public/icons/icon-512.png` (add branded assets)
@@ -62,6 +62,7 @@ Tab bar: 64px + safe area, active accent + 3px top gradient bar.
 
 ## Testing checklist
 
+- **Contrast pass before every merge.** Audience is 50–60. All text ≥ 7:1, all meaningful borders and icons ≥ 3:1, measured against `#241C14`. No state signalled by hue alone — every semantic surface carries an icon and a label.
 - iPhone SE (375px), Pro Max (430px), ~412px Android width
 - Last CTA not hidden behind tab bar
 - No input zoom on focus

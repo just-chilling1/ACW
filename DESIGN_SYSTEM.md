@@ -2,6 +2,8 @@
 
 Warm **dark brown** canvas, **logo gold** primary accent, **copper** secondary. Built to match the new branding and logo.
 
+**Audience is 50–60.** Every text token clears AAA (7:1) and every border or icon that carries meaning clears 3:1, measured against the card surface `#241C14` — the harder of the two backgrounds. Ratios are printed in the tables below; if you add a token, add its ratio.
+
 **Live preview:** `/dev/style-guide`  
 **Token source:** `src/app/globals.css`
 
@@ -15,6 +17,8 @@ Warm **dark brown** canvas, **logo gold** primary accent, **copper** secondary. 
 | Warm contrast | Ivory text on brown surfaces, gold for action |
 | Token-first | CSS variables only — no hardcoded hex/rgba in components |
 | Mobile-first | 44px touch targets, 16px inputs (no iOS zoom) |
+| Legible at 60 | AAA text, 3:1 meaningful borders, 17px body, no hue-only signals |
+| Tight corners | 3–10px radius — a tool, not a consumer app |
 | Accessible motion | All animations honor `prefers-reduced-motion` |
 
 ---
@@ -37,7 +41,8 @@ Warm **dark brown** canvas, **logo gold** primary accent, **copper** secondary. 
 
 | Token | Value | Role |
 |---|---|---|
-| `--gold` / `--brand-primary` | `#D4AF37` | CTAs, active nav, eyebrows |
+| `--gold` / `--brand-primary` | `#D4AF37` | 8.0:1 — CTAs, icons, headings ≥16px |
+| `--gold-text` | `#E8C55A` | 10.0:1 — gold type under 16px, active nav |
 | `--gold-dim` | `#B8942E` | Gradient end |
 | `--copper` / `--brand-secondary` | `#C17F3A` | Secondary highlights |
 | `--grad-brand` | gold → gold-dim | Primary buttons, text gradients |
@@ -45,28 +50,40 @@ Warm **dark brown** canvas, **logo gold** primary accent, **copper** secondary. 
 
 ### Text
 
-| Token | Value | Role |
-|---|---|---|
-| `--text-primary` | `#F5EDE4` | Headings, body |
-| `--text-secondary` | `#C4B5A5` | Subtitles, labels |
-| `--text-tertiary` / muted | `#A89680` | Hints, disabled |
-| `--text-on-accent` | `#1A1208` | Text on gold buttons |
+| Token | Value | Contrast on card | Role |
+|---|---|---|---|
+| `--text-primary` | `#F5EDE4` | 11.9:1 | Headings, body |
+| `--text-secondary` | `#C4B5A5` | 8.4:1 | Subtitles, labels |
+| `--text-tertiary` / muted | `#BFAE97` | 7.8:1 | Hints, disabled |
+| `--text-on-accent` | `#1A1208` | — | Text on gold buttons |
+
+`--text-tertiary` was `#A89680` (5.9:1, under AAA). `--text-muted` is now an alias of it — there is no dimmer tier.
 
 ### Borders
 
-| Token | Value |
-|---|---|
-| `--border-subtle` | `rgba(212,175,120,0.14)` |
-| `--border-strong` | `rgba(212,175,120,0.24)` |
+| Token | Value | Contrast | Use |
+|---|---|---|---|
+| `--border-subtle` | `rgba(226,196,150,0.30)` | 1.9:1 | Dividers only |
+| `--border-strong` | `rgba(226,196,150,0.48)` | 3.0–3.4:1 | Any border that carries meaning |
+
+The base RGB moved from `(212,175,120)` to `(226,196,150)` so the same alpha buys more separation. The old `--border-subtle` at 14% measured 1.25:1 — it was not visible to anyone. **Rule:** card edges, inputs, selected states and focus all use `--border-strong`. `--border-subtle` is for rules between rows, nothing else.
 
 ### Semantic colors
 
-| State | Base | Surface faint | Surface subtle | Border |
-|---|---|---|---|---|
-| Success | `#10B981` | `--success-bg-faint` | `--success-bg-subtle` | `--success-border` |
-| Warning | `#F5B301` | `--warning-bg-faint` | `--warning-bg-subtle` | `--warning-border` |
-| Error / Danger | `#EF4444` | `--danger-bg-faint` | `--danger-bg-subtle` | `--danger-border` |
-| Info | `#38BDF8` | `--info-bg-faint` | `--info-bg-subtle` | `--info-border` |
+| State | Base | Contrast | Fill | Border | Was |
+|---|---|---|---|---|---|
+| Success | `#7DD98A` | 9.7:1 | 12% / 16% | 45% | `#10B981` (6.6:1) |
+| Warning | `#FF8C42` | 7.3:1 | 12% / 16% | 45% | `#F5B301` (collided with brand gold) |
+| Error / Danger | `#FF8A7A` | 7.3:1 | 12% / 16% | 45% | `#EF4444` (4.5:1 — failed AAA) |
+| Info | `#F5EDE4` | 11.9:1 | 8% / 12% warm neutral | 42% | `#38BDF8` (cyan, retired) |
+
+**Why these moved:**
+
+- **Warning is no longer amber.** The brand accent is gold, so an amber warning is indistinguishable from a call to action. Orange is the nearest hue that stays legible and stops reading as "click me."
+- **Info has no hue.** Short wavelengths are the first thing an aging lens loses, and cyan was the only cool colour in a warm system. Info now reads as ivory + `ti-info-circle`. The token names survive so `.badge-info` and `.status-info` still resolve.
+- **Never signal with hue alone.** Every semantic surface pairs its colour with an icon and a text label. Assume a portion of the audience will not resolve the hue difference.
+
+Fill tiers went from 6%/8% to 12%/16%. Below roughly 10% a tint does not exist on brown.
 
 **CSS classes:** `.badge-success`, `.badge-warning`, `.badge-danger`, `.badge-info`  
 **Status blocks:** `.status-success`, `.status-warning`, `.status-danger`, `.status-info`
@@ -75,18 +92,17 @@ Warm **dark brown** canvas, **logo gold** primary accent, **copper** secondary. 
 
 Use instead of inline gold rgba:
 
+Five real tiers, down from ten. The old ladder had five steps sitting within 3% of a neighbour, which is below what anyone can distinguish on brown. The retired names are kept as aliases so no component changed.
+
 | Token | Opacity | Use |
 |---|---|---|
-| `--accent-bg-faint` | 6% | Callouts, info bars |
-| `--accent-bg-subtle` | 8% | Icon wells, chips |
-| `--accent-bg-medium` | 12% | Active fills |
-| `--accent-bg-hover` | 15% | Soft button hover |
-| `--accent-border-soft` | 22% | Light borders |
-| `--accent-border` | 28% | Standard gold border |
-| `--accent-border-strong` | 35% | Hover borders |
-| `--accent-border-emphasis` | 45% | Selected cards |
-| `--accent-focus-ring` | 14% | Input focus ring |
-| `--accent-glow` | 20% | Shadows, glows |
+| `--accent-bg-faint` | 12% | Callouts, info bars |
+| `--accent-bg-subtle` | 16% | Icon wells, chips, active nav fill |
+| `--accent-bg-medium` | 22% | Active fills, soft button hover |
+| `--accent-border` | 48% | Standard gold border |
+| `--accent-border-strong` | 62% | Hover, selected |
+
+Aliases: `--accent-bg-hover` → medium · `--accent-border-soft` → border · `--accent-border-emphasis` → border-strong · `--accent-focus-ring` 24% · `--accent-glow` 28%.
 
 ### Promo surfaces
 
@@ -109,21 +125,23 @@ Use instead of inline gold rgba:
 
 | Class | Size | Weight | Leading | Tracking | Use |
 |---|---|---|---|---|---|
-| `.page-eyebrow` | 12px (0.75rem) | 600 | 1.3 | 0.14em, uppercase | Route label above titles |
+| `.page-eyebrow` | 13px (0.8125rem) | 600 | 1.3 | 0.08em, uppercase | Route label above titles |
 | `.ds-h1` | clamp 1.75–2.25rem | 700 | 1.1 | -0.02em | One page title per screen (Outfit) |
 | `.ds-h2` | 24px (1.5rem) | 600 | 1.2 | -0.011em | Section headings |
-| `.ds-h3` | 18px (1.125rem) | 600 | 1.35 | default | Card titles |
-| `.ds-h4` | 12px (0.75rem) | 600 | 1.3 | 0.14em, uppercase | Micro labels (muted) |
-| `.ds-h5` | 16px (1rem) | 600 | 1.35 | -0.011em | Sub-section titles |
-| `.ds-h6` | 14px (0.875rem) | 600 | 1.4 | -0.006em | Compact titles |
-| `.ds-body` | 16px (1rem) | 400 | 1.6 | -0.011em | Default body copy |
-| `.ds-body-sm` | 14px (0.875rem) | 400 | 1.55 | -0.006em | Compact body |
-| `.ds-subtitle` | 15px (0.9375rem) | 400 | 1.55 | default | Supporting copy under titles |
-| `.ds-label` | 14px (0.875rem) | 500 | 1.4 | default | Form labels |
-| `.ds-caption` | 12px (0.75rem) | 400 | 1.45 | 0.01em | Helper text, captions |
-| `.ds-annotation` | 11px (0.6875rem) | 600 | 1.3 | 0.12em, uppercase | Tags, metadata, timestamps |
+| `.ds-h3` | 19px (1.1875rem) | 600 | 1.35 | default | Card titles |
+| `.ds-h4` | 13px (0.8125rem) | 600 | 1.3 | 0.08em, uppercase | Micro labels (muted) |
+| `.ds-h5` | 17px (1.0625rem) | 600 | 1.35 | -0.011em | Sub-section titles |
+| `.ds-h6` | 15px (0.9375rem) | 600 | 1.4 | -0.006em | Compact titles |
+| `.ds-body` | 17px (1.0625rem) | 400 | 1.6 | -0.011em | Default body copy |
+| `.ds-body-sm` | 15px (0.9375rem) | 400 | 1.55 | -0.006em | Compact body |
+| `.ds-subtitle` | 16px (1rem) | 400 | 1.55 | default | Supporting copy under titles |
+| `.ds-label` | 15px (0.9375rem) | 500 | 1.4 | default | Form labels |
+| `.ds-caption` | 13px (0.8125rem) | 400 | 1.45 | 0.01em | Helper text, captions |
+| `.ds-annotation` | 12px (0.75rem) | 600 | 1.3 | 0.08em, uppercase | Tags, metadata, timestamps |
 | `.text-gradient` | — | — | — | — | Gold gradient text clip |
 | `.text-gradient-alt` | — | — | — | — | Gold → copper gradient text |
+
+Every size moved up one step from the previous scale. Uppercase tracking halved from 0.14em/0.12em to 0.08em — wide-tracked caps at small sizes are the hardest thing on the page to parse at 60. Gold type below 16px uses `--gold-text`, not `--gold`.
 
 ---
 
@@ -149,18 +167,22 @@ Use instead of inline gold rgba:
 
 ## Radius
 
-| Token | Value | Use |
-|---|---|---|
-| `--radius-sm` | 8px | Badges, small wells |
-| `--radius-md` | 12px | Buttons, inputs, chips |
-| `--radius-lg` | 16px | Cards, callouts |
-| `--radius-xl` | 20px | Modals, promo cards |
+| Token | Value | Was | Use |
+|---|---|---|---|
+| `--radius-sm` | 3px | 8px | Badges, small wells |
+| `--radius-md` | 5px | 12px | Buttons, inputs, chips |
+| `--radius-lg` | 8px | 16px | Cards, callouts |
+| `--radius-xl` | 10px | 20px | Modals, promo cards |
+
+**No pills.** `.btn-chip` uses `--radius-md` like every other control; `--radius-pill` is aliased to 5px so any remaining full-round usage collapses with the rest. Avatars and status dots stay circular — those are the only exceptions.
 
 ---
 
 ## Buttons
 
 **Rule:** filled gold CTAs use `--text-on-accent` (dark brown), not white.
+
+**Rule:** `.btn-primary` is a flat `--gold` fill, not a gradient. The gold → gold-dim ramp was a ~4% luminance drop across 44px that nobody perceives, and it softened the button's edge. `--grad-brand` stays for text clips and promo surfaces, where it does real work.
 
 All buttons: `min-height: 44px`, `touch-action: manipulation`.
 
@@ -192,7 +214,7 @@ All buttons: `min-height: 44px`, `touch-action: manipulation`.
 
 | Class | Description |
 |---|---|
-| `.card-base` | Brown panel, subtle border, `--elevation-1` |
+| `.card-base` | Brown panel, **1px `--border-strong`**, `--elevation-1` |
 | `.glass-card` | Frosted, blurred surface |
 | `.card-interactive` | Clickable card; gold border on hover |
 | `.promo-card` | Offer/training banner gradient surface |
@@ -210,7 +232,7 @@ All buttons: `min-height: 44px`, `touch-action: manipulation`.
 | Class | Style |
 |---|---|
 | `.nav-link` | Sidebar links, secondary → primary on hover |
-| `.nav-link-active` | Gold text + surface fill |
+| `.nav-link-active` | `--gold-text` + 3px gold left bar + `--accent-bg-subtle` fill, `border-radius: 0` |
 | `.command-nav-link` | Command-style nav with gold left bar when active |
 | `.premium-nav-section` | Gold glow + animated conic border (premium upsells) |
 | `.premium-sidebar-item` | Gold left bar on hover/active |
@@ -302,7 +324,7 @@ Mobile: all inputs forced to 16px to prevent iOS zoom.
 
 | Token | Use |
 |---|---|
-| `--elevation-1` | Cards — inset highlight + soft drop shadow |
+| `--elevation-1` | Cards — inset highlight + soft drop shadow (supplementary only; the border is what makes the edge findable) |
 | `--elevation-3` | Modals, popups |
 | `--overlay-scrim` | Modal/sheet backdrop (warm brown tint) |
 | `--chrome-shadow-up` | Mobile bottom sheet shadow |
@@ -343,8 +365,11 @@ Mobile: all inputs forced to 16px to prevent iOS zoom.
 <button className="btn-primary">Get Started</button>
 <button className="btn-secondary">Learn More</button>
 
-{/* Success badge */}
-<span className="badge-success">Verified</span>
+{/* Success badge — always icon + label, never hue alone */}
+<span className="badge-success">
+  <CheckCircle className="h-[18px] w-[18px]" aria-hidden />
+  Step complete
+</span>
 
 {/* Gold icon well */}
 <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)]">

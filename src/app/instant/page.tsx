@@ -485,7 +485,7 @@ export default function InstantIncomePage() {
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                                                <span className="rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
                                                     {post.niche}
                                                 </span>
                                                 <span className="text-[10px] text-text-muted">Post #{idx + 1}</span>
@@ -493,7 +493,7 @@ export default function InstantIncomePage() {
                                             <button
                                                 onClick={() => handleCopy(post.text, post.id)}
                                                 className={clsx(
-                                                    "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+                                                    "flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-semibold transition-all",
                                                     isCopied
                                                         ? "status-success"
                                                         : "btn-secondary px-3 py-1.5 text-xs"

@@ -361,7 +361,7 @@ export default function TrainingPage() {
                             {item.id === "faq" && (
                                 <span
                                     className={clsx(
-                                        "rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
+                                        "rounded-[var(--radius-sm)] px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
                                         active ? "surface-tab-active" : "surface-tab-idle"
                                     )}
                                 >
@@ -459,7 +459,7 @@ export default function TrainingPage() {
                                             className="surface-nested flex flex-col gap-3"
                                         >
                                             <div className="flex items-start gap-3">
-                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/20 bg-accent/10">
+                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-accent/20 bg-accent/10">
                                                     <Icon size={16} className="text-accent" />
                                                 </div>
                                                 <div className="flex flex-col gap-1">
@@ -483,7 +483,7 @@ export default function TrainingPage() {
                                                         {s.examples.map((ex) => (
                                                             <span
                                                                 key={ex}
-                                                                className="rounded-md border border-accent/15 bg-accent/5 px-2.5 py-1 text-[11px] font-medium text-accent"
+                                                                className="rounded-[var(--radius-sm)] border border-accent/15 bg-accent/5 px-2.5 py-1 text-[11px] font-medium text-accent"
                                                             >
                                                                 {ex}
                                                             </span>
@@ -513,7 +513,7 @@ export default function TrainingPage() {
                                             className="surface-nested flex flex-col gap-2.5"
                                         >
                                             <div className="flex items-center gap-2.5">
-                                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10">
+                                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-accent/10">
                                                     <Icon size={15} className="text-accent" />
                                                 </div>
                                                 <h3 className="ds-h6">{tip.title}</h3>
@@ -559,7 +559,7 @@ export default function TrainingPage() {
                             </div>
                             <Link
                                 href="/search"
-                                className="btn-primary flex h-11 shrink-0 items-center gap-2 rounded-lg px-6 text-sm"
+                                className="btn-primary flex h-11 shrink-0 items-center gap-2 rounded-[var(--radius-md)] px-6 text-sm"
                             >
                                 <Search size={16} />
                                 <span>Go to Step 1</span>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     LayoutGrid, Search, Radar, MessageSquare, MoreHorizontal,
-    Brain, GraduationCap, TrendingUp, Sparkles,
+    Brain, GraduationCap, Sparkles,
     LogOut, ExternalLink, X, Headphones, ChevronRight, Lock
 } from "lucide-react";
 import { clsx } from "clsx";
@@ -23,7 +23,6 @@ const MAIN_TABS = [
 const MORE_NAV = [
     { path: "/analysis", label: "Step 2: Check Demand", icon: Brain, requiresWorkflowStep: 1 },
     { path: "/training", label: "Training", icon: GraduationCap },
-    { path: "/scale-training", label: "Scale to $1k–$5k/day", icon: TrendingUp },
     { path: "/support", label: "Support", icon: Headphones },
 ];
 
@@ -34,7 +33,7 @@ const EXCLUSIVE_OFFERS = [
 ];
 
 const MORE_ROW =
-    "flex items-center gap-2.5 min-h-[44px] py-2 px-2.5 rounded-xl transition-colors [@media(max-height:740px)]:min-h-[40px] [@media(max-height:740px)]:py-1.5";
+    "flex items-center gap-2.5 min-h-[44px] py-2 px-2.5 rounded-[var(--radius-lg)] transition-colors [@media(max-height:740px)]:min-h-[40px] [@media(max-height:740px)]:py-1.5";
 const MORE_SECTION_LABEL =
     "text-[10px] font-semibold tracking-[0.12em] text-text-muted uppercase px-1.5 mb-0.5 [@media(max-height:740px)]:text-[9px]";
 const MORE_ITEM_TEXT =

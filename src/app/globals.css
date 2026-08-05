@@ -15,13 +15,13 @@
   --color-accent-muted: var(--copper);
   --color-brand-tint: var(--brand-tint);
 
-  --shadow-gold: 0 8px 24px rgba(238, 179, 16, 0.18);
+  --shadow-gold: 0 8px 24px rgba(212, 175, 55, 0.18);
 
-  --color-success: #0E9F6E;
+  --color-success: var(--success);
   --color-error: var(--danger);
   --color-accent-hover: var(--gold-light);
-  --color-warning: #F5B301;
-  --color-info: #38BDF8;
+  --color-warning: var(--warning);
+  --color-info: var(--info);
 
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
@@ -55,8 +55,8 @@
   --chrome-bg: rgba(26, 18, 11, 0.92);
 
   /* Borders — soft bronze */
-  --border-subtle: #3A2A1B;
-  --border-strong: #4D3824;
+  --border-subtle: rgba(226, 196, 150, 0.30);
+  --border-strong: rgba(226, 196, 150, 0.48);
   --border-secondary-hover: #5A422A;
   --bg-border: #3A2A1B;
 
@@ -66,34 +66,36 @@
   --card-bg-hover: #1C1A18;
 
   /* Text */
-  --text-primary: #F8FAFC;
-  --text-secondary: #B8B3AA;
-  --text-tertiary: #8A857D;
-  --text-on-accent: #0B0B0B;
+  --text-primary: #F5EDE4;
+  --text-secondary: #C4B5A5;
+  --text-tertiary: #BFAE97;
+  --text-muted: #BFAE97;
+  --text-on-accent: #1A1208;
 
   /* Brand — premium gold */
-  --gold: #EEB310;
-  --gold-hover: #D99A00;
-  --gold-light: #F2C75C;
-  --gold-dim: #F2C75C;
-  --copper: #C9952A;
-  --brand-primary: #EEB310;
-  --brand-secondary: #F2C75C;
-  --brand-tint: rgba(238, 179, 16, 0.12);
-  --grad-brand: linear-gradient(90deg, #EEB310 0%, #F4C542 100%);
-  --grad-brand-alt: linear-gradient(90deg, #EEB310 0%, #C9952A 100%);
+  --gold: #D4AF37;
+  --gold-text: #E8C55A;
+  --gold-hover: #B8942E;
+  --gold-light: #E8C55A;
+  --gold-dim: #B8942E;
+  --copper: #C17F3A;
+  --brand-primary: #D4AF37;
+  --brand-secondary: #C17F3A;
+  --brand-tint: rgba(212, 175, 55, 0.12);
+  --grad-brand: linear-gradient(90deg, #D4AF37 0%, #B8942E 100%);
+  --grad-brand-alt: linear-gradient(90deg, #D4AF37 0%, #C17F3A 100%);
 
   /* Accent surfaces — single source for gold-tinted UI */
-  --accent-bg-faint: rgba(238, 179, 16, 0.06);
-  --accent-bg-subtle: rgba(238, 179, 16, 0.08);
-  --accent-bg-medium: rgba(238, 179, 16, 0.12);
-  --accent-bg-hover: rgba(238, 179, 16, 0.15);
-  --accent-border-soft: rgba(238, 179, 16, 0.22);
-  --accent-border: rgba(238, 179, 16, 0.28);
-  --accent-border-strong: rgba(238, 179, 16, 0.35);
-  --accent-border-emphasis: rgba(238, 179, 16, 0.45);
-  --accent-focus-ring: rgba(238, 179, 16, 0.14);
-  --accent-glow: rgba(238, 179, 16, 0.20);
+  --accent-bg-faint: rgba(212, 175, 55, 0.12);
+  --accent-bg-subtle: rgba(212, 175, 55, 0.16);
+  --accent-bg-medium: rgba(212, 175, 55, 0.22);
+  --accent-bg-hover: rgba(212, 175, 55, 0.22);
+  --accent-border-soft: rgba(226, 196, 150, 0.48);
+  --accent-border: rgba(226, 196, 150, 0.48);
+  --accent-border-strong: rgba(226, 196, 150, 0.62);
+  --accent-border-emphasis: rgba(226, 196, 150, 0.62);
+  --accent-focus-ring: rgba(212, 175, 55, 0.24);
+  --accent-glow: rgba(212, 175, 55, 0.28);
 
   /* App background — base canvas + animated accent layers (.app-bg::before/::after) */
   --app-bg-base: linear-gradient(180deg, #1A120B 0%, #0B0B0B 45%, #070707 100%);
@@ -102,39 +104,40 @@
   --duration-bg-drift: 26s;
 
   /* Semantic — base colors */
-  --success: #0E9F6E;
-  --success-dim: #0B8159;
-  --warning: #F5B301;
-  --warning-dim: #D97706;
-  --danger: #DC2626;
-  --danger-dim: #B91C1C;
-  --info: #38BDF8;
-  --info-dim: #0EA5E9;
+  --success: #7DD98A;
+  --success-dim: #5FC46E;
+  --warning: #FF8C42;
+  --warning-dim: #E67A35;
+  --danger: #FF8A7A;
+  --danger-dim: #E87465;
+  --info: #F5EDE4;
+  --info-dim: #C4B5A5;
+  --error: var(--danger);
 
   /* Semantic — surface tokens */
-  --success-bg-faint: rgba(14, 159, 110, 0.08);
-  --success-bg-subtle: rgba(14, 159, 110, 0.12);
-  --success-bg-medium: rgba(14, 159, 110, 0.18);
-  --success-border: rgba(14, 159, 110, 0.25);
-  --success-border-strong: rgba(14, 159, 110, 0.35);
+  --success-bg-faint: rgba(125, 217, 138, 0.12);
+  --success-bg-subtle: rgba(125, 217, 138, 0.16);
+  --success-bg-medium: rgba(125, 217, 138, 0.22);
+  --success-border: rgba(125, 217, 138, 0.45);
+  --success-border-strong: rgba(125, 217, 138, 0.55);
 
-  --warning-bg-faint: rgba(245, 179, 1, 0.08);
-  --warning-bg-subtle: rgba(245, 179, 1, 0.12);
-  --warning-bg-medium: rgba(245, 179, 1, 0.18);
-  --warning-border: rgba(245, 179, 1, 0.25);
-  --warning-border-strong: rgba(245, 179, 1, 0.35);
+  --warning-bg-faint: rgba(255, 140, 66, 0.12);
+  --warning-bg-subtle: rgba(255, 140, 66, 0.16);
+  --warning-bg-medium: rgba(255, 140, 66, 0.22);
+  --warning-border: rgba(255, 140, 66, 0.45);
+  --warning-border-strong: rgba(255, 140, 66, 0.55);
 
-  --danger-bg-faint: rgba(220, 38, 38, 0.08);
-  --danger-bg-subtle: rgba(220, 38, 38, 0.12);
-  --danger-bg-medium: rgba(220, 38, 38, 0.18);
-  --danger-border: rgba(220, 38, 38, 0.25);
-  --danger-border-strong: rgba(220, 38, 38, 0.35);
+  --danger-bg-faint: rgba(255, 138, 122, 0.12);
+  --danger-bg-subtle: rgba(255, 138, 122, 0.16);
+  --danger-bg-medium: rgba(255, 138, 122, 0.22);
+  --danger-border: rgba(255, 138, 122, 0.45);
+  --danger-border-strong: rgba(255, 138, 122, 0.55);
 
-  --info-bg-faint: rgba(56, 189, 248, 0.08);
-  --info-bg-subtle: rgba(56, 189, 248, 0.12);
-  --info-bg-medium: rgba(56, 189, 248, 0.18);
-  --info-border: rgba(56, 189, 248, 0.25);
-  --info-border-strong: rgba(56, 189, 248, 0.35);
+  --info-bg-faint: rgba(255, 220, 180, 0.08);
+  --info-bg-subtle: rgba(255, 220, 180, 0.12);
+  --info-bg-medium: rgba(255, 220, 180, 0.16);
+  --info-border: rgba(226, 196, 150, 0.42);
+  --info-border-strong: rgba(226, 196, 150, 0.52);
 
   /* Promo / offer surfaces */
   --promo-surface-from: #24180F;
@@ -167,10 +170,26 @@
   /* Layout */
   --sidebar-w: 240px;
   --sidebar-w-collapsed: 72px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-pill: 5px;
+
+  /* Type scale */
+  --fs-h1: clamp(1.75rem, 4vw, 2.25rem);
+  --fs-h2: 1.5rem;
+  --fs-h3: 1.1875rem;
+  --fs-h4: 0.8125rem;
+  --fs-h5: 1.0625rem;
+  --fs-h6: 0.9375rem;
+  --fs-body: 1.0625rem;
+  --fs-body-sm: 0.9375rem;
+  --fs-subtitle: 1rem;
+  --fs-label: 0.9375rem;
+  --fs-caption: 0.8125rem;
+  --fs-annotation: 0.75rem;
+  --tracking-caps: 0.08em;
 
   /* Fonts */
   --font-brand: 'Outfit', sans-serif;
@@ -252,7 +271,7 @@ html[data-sidebar="collapsed"] {
   /* Elevation cards */
   .card-base {
     background: var(--surface-1);
-    border: 1px solid var(--card-border);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     box-shadow: var(--elevation-1);
@@ -271,7 +290,7 @@ html[data-sidebar="collapsed"] {
 
   .glass-card {
     background: color-mix(in srgb, var(--surface-1) 72%, var(--surface-2));
-    border: 1px solid var(--card-border);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-lg);
     backdrop-filter: blur(12px);
     box-shadow: var(--elevation-1);
@@ -287,7 +306,7 @@ html[data-sidebar="collapsed"] {
 
   .card-interactive {
     background: var(--surface-1);
-    border: 1px solid var(--card-border);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     box-shadow: var(--elevation-1);
@@ -308,16 +327,16 @@ html[data-sidebar="collapsed"] {
   /* Typography */
   .page-eyebrow {
     font-family: var(--font-ui);
-    font-size: 0.75rem;
+    font-size: var(--fs-caption);
     font-weight: 600;
-    letter-spacing: 0.14em;
+    letter-spacing: var(--tracking-caps);
     text-transform: uppercase;
-    color: var(--gold);
+    color: var(--gold-text);
   }
 
   .ds-h1 {
     font-family: var(--font-brand);
-    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-size: var(--fs-h1);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.1;
@@ -326,7 +345,7 @@ html[data-sidebar="collapsed"] {
 
   .ds-h2 {
     font-family: var(--font-ui);
-    font-size: 1.5rem;
+    font-size: var(--fs-h2);
     font-weight: 600;
     letter-spacing: -0.011em;
     line-height: 1.2;
@@ -335,23 +354,23 @@ html[data-sidebar="collapsed"] {
 
   .ds-h3 {
     font-family: var(--font-ui);
-    font-size: 1.125rem;
+    font-size: var(--fs-h3);
     font-weight: 600;
     color: var(--text-primary);
   }
 
   .ds-h4 {
     font-family: var(--font-ui);
-    font-size: 0.75rem;
+    font-size: var(--fs-h4);
     font-weight: 600;
-    letter-spacing: 0.14em;
+    letter-spacing: var(--tracking-caps);
     text-transform: uppercase;
     color: var(--text-tertiary);
   }
 
   .ds-h5 {
     font-family: var(--font-ui);
-    font-size: 1rem;
+    font-size: var(--fs-h5);
     font-weight: 600;
     letter-spacing: -0.011em;
     line-height: 1.35;
@@ -360,7 +379,7 @@ html[data-sidebar="collapsed"] {
 
   .ds-h6 {
     font-family: var(--font-ui);
-    font-size: 0.875rem;
+    font-size: var(--fs-h6);
     font-weight: 600;
     letter-spacing: -0.006em;
     line-height: 1.4;
@@ -369,7 +388,7 @@ html[data-sidebar="collapsed"] {
 
   .ds-body {
     font-family: var(--font-ui);
-    font-size: 1rem;
+    font-size: var(--fs-body);
     font-weight: 400;
     letter-spacing: -0.011em;
     line-height: 1.6;
@@ -378,7 +397,7 @@ html[data-sidebar="collapsed"] {
 
   .ds-body-sm {
     font-family: var(--font-ui);
-    font-size: 0.875rem;
+    font-size: var(--fs-body-sm);
     font-weight: 400;
     letter-spacing: -0.006em;
     line-height: 1.55;
@@ -387,7 +406,7 @@ html[data-sidebar="collapsed"] {
 
   .ds-caption {
     font-family: var(--font-ui);
-    font-size: 0.75rem;
+    font-size: var(--fs-caption);
     font-weight: 400;
     letter-spacing: 0.01em;
     line-height: 1.45;
@@ -396,22 +415,22 @@ html[data-sidebar="collapsed"] {
 
   .ds-annotation {
     font-family: var(--font-ui);
-    font-size: 0.6875rem;
+    font-size: var(--fs-annotation);
     font-weight: 600;
-    letter-spacing: 0.12em;
+    letter-spacing: var(--tracking-caps);
     line-height: 1.3;
     text-transform: uppercase;
     color: var(--text-tertiary);
   }
 
   .ds-label {
-    font-size: 0.875rem;
+    font-size: var(--fs-label);
     font-weight: 500;
     color: var(--text-secondary);
   }
 
   .ds-subtitle {
-    font-size: 0.9375rem;
+    font-size: var(--fs-subtitle);
     line-height: 1.55;
     color: var(--text-secondary);
   }
@@ -611,7 +630,8 @@ html[data-sidebar="collapsed"] {
   }
 
   .btn-chip {
-    @apply px-3 py-1.5 rounded-full text-xs font-semibold border text-text-muted transition-colors;
+    @apply px-3 py-1.5 text-xs font-semibold border text-text-muted transition-colors;
+    border-radius: var(--radius-md);
     border-color: var(--border-subtle);
     background: var(--surface-2);
   }
@@ -697,8 +717,10 @@ html[data-sidebar="collapsed"] {
   }
 
   .nav-link-active {
-    color: var(--gold);
-    background: var(--surface-3);
+    border-radius: 0;
+    border-left: 3px solid var(--gold);
+    background: var(--accent-bg-subtle);
+    color: var(--gold-text);
   }
 
   .command-nav-link {
@@ -868,7 +890,7 @@ html[data-sidebar="collapsed"] {
     position: relative;
     width: 100%;
     border-radius: var(--radius-lg);
-    border: 1px solid var(--accent-border-emphasis);
+    border: 1px solid var(--border-strong);
     background: var(--promo-bg-gradient);
     text-align: center;
   }
@@ -1102,7 +1124,7 @@ html[data-sidebar="collapsed"] {
 
   .surface-panel {
     border-radius: var(--radius-lg);
-    border: 1px solid var(--card-border);
+    border: 1px solid var(--border-strong);
     background: var(--surface-1);
     transition:
       border-color var(--duration-normal) var(--ease-out),
@@ -1116,7 +1138,7 @@ html[data-sidebar="collapsed"] {
 
   .surface-panel-elevated {
     border-radius: var(--radius-lg);
-    border: 1px solid var(--card-border);
+    border: 1px solid var(--border-strong);
     background: var(--surface-1);
     box-shadow: var(--elevation-1);
     transition:
@@ -1168,6 +1190,13 @@ html[data-sidebar="collapsed"] {
     border: 1px solid var(--border-subtle);
     background: var(--surface-2);
     padding: 1.5rem;
+  }
+
+  .ds-body-sm,
+  .ds-caption,
+  .ds-annotation,
+  .page-eyebrow {
+    --gold: var(--gold-text);
   }
 }
 

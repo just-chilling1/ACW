@@ -27,7 +27,7 @@ export function PostCard({ niche, text, className, onCopy }: PostCardProps) {
 
   return (
     <article className={clsx("card-base flex h-full flex-col gap-3 p-4!", className)}>
-      <span className="w-fit rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+      <span className="w-fit rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">
         {niche}
       </span>
       <p className="flex-1 text-sm leading-relaxed text-text-secondary whitespace-pre-wrap">{text}</p>

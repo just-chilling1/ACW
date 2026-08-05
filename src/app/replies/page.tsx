@@ -91,7 +91,7 @@ export default function RepliesPage() {
     if (currentAds.length === 0) {
         return (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-                <div className="w-14 h-14 rounded-xl bg-surface flex items-center justify-center border border-border-dim">
+                <div className="w-14 h-14 rounded-[var(--radius-lg)] bg-surface flex items-center justify-center border border-border-dim">
                     <Radar size={24} className="text-text-muted" />
                 </div>
                 <div className="text-center flex flex-col gap-2">
@@ -177,7 +177,7 @@ export default function RepliesPage() {
                                 <div className="flex items-center gap-1.5 shrink-0">
                                     <button
                                         onClick={() => removePost(post.id)}
-                                        className="btn-icon h-10 w-10 min-h-0 min-w-0 rounded-lg sm:h-7 sm:w-7 hover:text-[var(--danger)] hover:bg-[var(--danger-bg-faint)]"
+                                        className="btn-icon h-10 w-10 min-h-0 min-w-0 rounded-[var(--radius-md)] sm:h-7 sm:w-7 hover:text-[var(--danger)] hover:bg-[var(--danger-bg-faint)]"
                                         title="Remove ad"
                                     >
                                         <Trash2 size={13} />
@@ -186,7 +186,7 @@ export default function RepliesPage() {
                                         href={post.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-[10px] font-bold text-accent hover:bg-accent/20 transition-all"
+                                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] bg-accent/10 border border-accent/20 text-[10px] font-bold text-accent hover:bg-accent/20 transition-all"
                                     >
                                         <ExternalLink size={11} />
                                         <span>Go to Post</span>
@@ -203,7 +203,7 @@ export default function RepliesPage() {
                                     }}
                                     disabled={isLoading}
                                     className={clsx(
-                                        "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all",
+                                        "flex items-center gap-2 px-3.5 py-1.5 rounded-[var(--radius-md)] text-[12px] font-semibold transition-all",
                                         isLoading ? "text-text-muted" :
                                         isExpanded ? "bg-accent/10 text-accent border border-accent/20" :
                                         replies.length > 0 ? "bg-accent/5 text-accent hover:bg-accent/10" :

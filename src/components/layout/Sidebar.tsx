@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   LayoutGrid, Radar, LogOut, ChevronRight, GraduationCap, Sparkles,
-  Search, MessageSquare, Brain, TrendingUp, ExternalLink,
+  Search, MessageSquare, Brain, ExternalLink,
   PanelLeftClose, PanelLeftOpen, Lock, Check, HelpCircle
 } from "lucide-react";
 import { useSearch } from "@/context/SearchContext";
@@ -25,7 +25,6 @@ const STEPS = [
   { path: "/radar", label: "Step 3: Find Ads", icon: Radar, requiresWorkflowStep: 2, stepIndex: 3 },
   { path: "/replies", label: "Step 4: Create Replies", icon: MessageSquare, requiresWorkflowStep: 3, stepIndex: 4 },
   { path: "/training", label: "Training", icon: GraduationCap },
-  { path: "/scale-training", label: "Scale to $1k–$5k/day", icon: TrendingUp },
   { path: "/support", label: "Support", icon: HelpCircle },
 ];
 

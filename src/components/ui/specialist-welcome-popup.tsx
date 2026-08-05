@@ -254,7 +254,7 @@ export function SpecialistWelcomePopup({
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby={titleId}
-                        className="relative z-10 w-full max-w-[24.5rem] sm:max-w-[52rem] max-sm:rounded-t-3xl sm:rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-1)] shadow-[var(--elevation-3)]"
+                        className="relative z-10 w-full max-w-[24.5rem] sm:max-w-[52rem] max-sm:rounded-t-[var(--radius-xl)] sm:rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-1)] shadow-[var(--elevation-3)]"
                         onClick={(e) => e.stopPropagation()}
                         initial={
                             reduceMotion ? false : { opacity: 0, y: 36, scale: 0.97 }
@@ -265,7 +265,7 @@ export function SpecialistWelcomePopup({
                         }
                         transition={{ type: "spring", stiffness: 340, damping: 30 }}
                     >
-                        <div className="relative flex max-h-[min(96dvh,46rem)] flex-col overflow-hidden max-sm:rounded-t-3xl sm:rounded-3xl">
+                        <div className="relative flex max-h-[min(96dvh,46rem)] flex-col overflow-hidden max-sm:rounded-t-[var(--radius-xl)] sm:rounded-[var(--radius-xl)]">
                             {/* Gold/copper ambient wash behind the hero */}
                             <div
                                 aria-hidden
@@ -274,7 +274,7 @@ export function SpecialistWelcomePopup({
 
                             {/* Header: icon tile + close (headline carries the brand) */}
                             <div className="relative z-10 flex shrink-0 items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5 sm:pt-4">
-                                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent text-[var(--text-on-accent)] shadow-[0_4px_12px_var(--accent-border)]">
+                                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-lg)] bg-accent text-[var(--text-on-accent)] shadow-[0_4px_12px_var(--accent-border)]">
                                     <Wallet size={16} strokeWidth={2.4} />
                                 </span>
                                 <button
@@ -336,7 +336,7 @@ export function SpecialistWelcomePopup({
                                                     key={text}
                                                     className="flex items-center gap-3"
                                                 >
-                                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent sm:h-10 sm:w-10 sm:rounded-xl">
+                                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-accent/10 text-accent sm:h-10 sm:w-10 sm:rounded-[var(--radius-lg)]">
                                                         <Icon
                                                             size={16}
                                                             strokeWidth={2.2}
@@ -356,8 +356,8 @@ export function SpecialistWelcomePopup({
                                         </ul>
                                     </div>
 
-                                    <div className="mx-auto mt-2.5 flex max-w-[22rem] items-center gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3.5 py-2.5 sm:mx-0 sm:mt-4 sm:max-w-none sm:px-4 sm:py-3.5">
-                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--surface-1)] shadow-[var(--elevation-1)] sm:h-12 sm:w-12">
+                                    <div className="mx-auto mt-2.5 flex max-w-[22rem] items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3.5 py-2.5 sm:mx-0 sm:mt-4 sm:max-w-none sm:px-4 sm:py-3.5">
+                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--surface-1)] shadow-[var(--elevation-1)] sm:h-12 sm:w-12">
                                             <Vault
                                                 size={22}
                                                 strokeWidth={1.8}
@@ -398,7 +398,7 @@ export function SpecialistWelcomePopup({
                                             <span className="text-[11.5px] font-bold uppercase tracking-[0.16em] text-text-secondary sm:text-[12px]">
                                                 Your code expires in
                                             </span>
-                                            <span className="brand-font rounded-lg bg-[var(--danger-bg-subtle)] px-2 py-1 text-[1.25rem] font-black leading-none tabular-nums text-[var(--danger)] sm:text-[1.5rem]">
+                                            <span className="brand-font rounded-[var(--radius-md)] bg-[var(--danger-bg-subtle)] px-2 py-1 text-[1.25rem] font-black leading-none tabular-nums text-[var(--danger)] sm:text-[1.5rem]">
                                                 {mm}:{ss}
                                             </span>
                                         </div>

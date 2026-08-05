@@ -279,7 +279,7 @@ export default function DfyPage() {
                                     className="card-base group relative flex flex-col gap-4 overflow-hidden p-6! text-left transition-all hover:border-[var(--accent-border-strong)]"
                                 >
                                     <div className="flex items-center justify-between">
-                                        <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                                        <span className="rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
                                             {kw.niche}
                                         </span>
                                         <div className="badge-success flex items-center gap-1.5 px-2 py-1">
@@ -317,7 +317,7 @@ export default function DfyPage() {
                     >
                         <div className="card-base flex items-center justify-between p-5!">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)]">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)]">
                                     <Check size={16} className="text-[var(--gold)]" />
                                 </div>
                                 <div>
@@ -336,7 +336,7 @@ export default function DfyPage() {
 
                         <div className="card-base flex flex-col gap-6 p-8!">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)]">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)]">
                                     <LinkIcon size={18} className="text-[var(--gold)]" />
                                 </div>
                                 <div>
@@ -388,7 +388,7 @@ export default function DfyPage() {
                         {/* Recap bar */}
                         <div className="card-base flex flex-wrap items-center justify-between gap-3 p-4!">
                             <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 py-1.5">
+                                <div className="flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 py-1.5">
                                     <Flame size={12} className="text-[var(--gold)]" />
                                     <span className="text-[11px] font-bold text-[var(--gold)]">{selectedKeyword?.niche}</span>
                                 </div>
@@ -445,7 +445,7 @@ export default function DfyPage() {
                                                         href={item.post.url}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-[10px] font-bold text-accent hover:bg-accent/20 transition-all"
+                                                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] bg-accent/10 border border-accent/20 text-[10px] font-bold text-accent hover:bg-accent/20 transition-all"
                                                     >
                                                         <ExternalLink size={11} />
                                                         <span>Go to Post</span>
@@ -460,7 +460,7 @@ export default function DfyPage() {
                                                             const isCopied = copiedId === uniqueId;
 
                                                             return (
-                                                                <div key={rIdx} className="flex flex-col bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-lg p-4 hover:border-accent/20 transition-all group">
+                                                                <div key={rIdx} className="flex flex-col bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] p-4 hover:border-accent/20 transition-all group">
                                                                     <div className="flex items-center justify-between mb-2.5">
                                                                         <span className="page-eyebrow text-[9px]! tracking-[0.12em]!">
                                                                             {labels[rIdx] || `Reply #${rIdx + 1}`}

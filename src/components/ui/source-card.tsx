@@ -39,12 +39,12 @@ export function SourceCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-wrap gap-1.5">
-          <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+          <span className="rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">
             {type}
           </span>
           <span
             className={clsx(
-              "rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+              "rounded-[var(--radius-sm)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
               isEasy
                 ? "badge-success"
                 : "badge-warning"
@@ -59,7 +59,7 @@ export function SourceCard({
             aria-label={completed ? "Mark incomplete" : "Mark complete"}
             onClick={onToggleComplete}
             className={clsx(
-              "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors",
+              "flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border transition-colors",
               completed
                 ? "border-[var(--success)] bg-[var(--success)] text-[var(--text-on-accent)]"
                 : "border-[var(--border-strong)] text-transparent hover:border-[var(--gold)]"

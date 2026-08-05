@@ -377,11 +377,11 @@ export default function AutomatedProfitsPage() {
                             >
                                 <div className="flex flex-col gap-3 p-5">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <span className={clsx("rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", typeBadgeColor[source.type])}>
+                                        <span className={clsx("rounded-[var(--radius-sm)] border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", typeBadgeColor[source.type])}>
                                             {source.type}
                                         </span>
                                         <span className={clsx(
-                                            "rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                                            "rounded-[var(--radius-sm)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
                                             source.difficulty === "Easy"
                                                 ? "badge-success"
                                                 : "badge-warning"
@@ -440,7 +440,7 @@ export default function AutomatedProfitsPage() {
                                                         <Clipboard size={14} />
                                                         <span>Use This Description When Submitting:</span>
                                                     </div>
-                                                    <div className="flex items-center justify-between gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3">
+                                                    <div className="flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3">
                                                         <p className="flex-1 break-all text-sm text-text-secondary">
                                                             {source.description.replace("{LINK}", pageUrl || "[YOUR_LINK]")}
                                                         </p>
@@ -451,7 +451,7 @@ export default function AutomatedProfitsPage() {
                                                                 setTimeout(() => setCopiedDescId(null), 2000);
                                                             }}
                                                             className={clsx(
-                                                                "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+                                                                "flex shrink-0 items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-semibold transition-all",
                                                                 copiedDescId === source.id
                                                                     ? "status-success"
                                                                     : "btn-secondary px-3 py-1.5 text-xs"
@@ -476,7 +476,7 @@ export default function AutomatedProfitsPage() {
                                                     <button
                                                         onClick={() => toggleCompleted(source.id)}
                                                         className={clsx(
-                                                            "flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold transition-all",
+                                                            "flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-2.5 text-xs font-semibold transition-all",
                                                             isDone
                                                                     ? "status-success"
                                                                 : "btn-secondary px-4 py-2.5 text-xs"

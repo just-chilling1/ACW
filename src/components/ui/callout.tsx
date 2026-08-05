@@ -33,7 +33,7 @@ export function Callout({
         "relative overflow-hidden rounded-[var(--radius-lg)] border p-5 md:p-6",
         variant === "promo"
           ? "border-[var(--accent-border)] bg-[var(--accent-bg-faint)]"
-          : "border-[var(--border-subtle)] bg-[var(--surface-2)]",
+          : "border-[var(--info-border)] bg-[var(--info-bg-subtle)] text-[var(--info)]",
         className
       )}
     >
@@ -54,7 +54,7 @@ export function Callout({
         <div
           className={clsx(
             "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)]",
-            variant === "promo" ? "bg-[var(--accent-bg-hover)] text-[var(--gold)]" : "bg-[var(--surface-3)] text-text-secondary"
+            variant === "promo" ? "bg-[var(--accent-bg-hover)] text-[var(--gold)]" : "bg-[var(--info-bg-subtle)] text-[var(--info)]"
           )}
         >
           <Icon size={16} strokeWidth={1.75} />

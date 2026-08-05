@@ -27,7 +27,7 @@ export function MilestoneTracker({ totalSearches }: MilestoneTrackerProps) {
         <div className="card-base flex flex-col gap-5 p-6!">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)]">
                         <Trophy size={18} className="text-[var(--gold)]" />
                     </div>
                     <div className="flex flex-col">
@@ -46,7 +46,7 @@ export function MilestoneTracker({ totalSearches }: MilestoneTrackerProps) {
             </div>
 
             {currentMilestone && (
-                <p className="status-success rounded-lg px-3 py-2 text-xs font-medium">
+                <p className="status-success rounded-[var(--radius-md)] px-3 py-2 text-xs font-medium">
                     {currentMilestone.reward}
                 </p>
             )}

@@ -85,7 +85,7 @@ export function OnboardingFlow() {
                     {cfg.sidebarStatus.map((item, i) => (
                         <li
                             key={item.label}
-                            className={`rounded-xl border p-4 transition-all duration-500 ${
+                            className={`rounded-[var(--radius-lg)] border p-4 transition-all duration-500 ${
                                 activationStep > i
                                     ? "translate-x-0 border-accent/30 bg-accent/10 opacity-100"
                                     : "border-[var(--border-subtle)] bg-[var(--surface-2)]"
