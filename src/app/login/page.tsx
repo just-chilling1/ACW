@@ -6,8 +6,8 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, LogIn, ShieldAlert, Eye, EyeOff, Star, Users, DollarSign, ShieldCheck } from "lucide-react";
-import Image from "next/image";
-import { FloatingSupportButton } from "@/components/support/FloatingSupportButton";
+import { AuthPageLayout } from "@/components/layout/AuthPageLayout";
+import { BrandLogo } from "@/components/ui/brand-logo";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 
@@ -59,24 +59,15 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-dvh flex items-center justify-center p-6 relative overflow-x-hidden">
-            <FloatingSupportButton />
-
+        <AuthPageLayout>
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md relative z-10"
+                className="w-full max-w-md"
             >
                 <Card padding="none" className="flex flex-col gap-8 p-10!">
                     <div className="flex flex-col items-center gap-4 text-center">
-                        <Image
-                            src="/logo.png"
-                            alt="AI CashWave"
-                            width={240}
-                            height={52}
-                            className="h-12 w-auto object-contain"
-                            priority
-                        />
+                        <BrandLogo variant="wordmark" size="lg" priority className="mx-auto object-center" />
                         <p className="text-sm text-text-secondary">The AI system for high-converting ad replies</p>
                     </div>
 
@@ -155,7 +146,7 @@ export default function LoginPage() {
                         <p className="text-text-muted text-xs">New here?</p>
                         <Link
                             href="/signup"
-                            className="brand-font text-accent text-xs font-bold tracking-wide hover:text-text-primary transition-colors"
+                            className="brand-font link-accent text-xs font-bold tracking-wide"
                         >
                             Sign Up
                         </Link>
@@ -207,6 +198,6 @@ export default function LoginPage() {
                     </div>
                 </div>
             </motion.div>
-        </div>
+        </AuthPageLayout>
     );
 }

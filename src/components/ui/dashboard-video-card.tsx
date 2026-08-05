@@ -37,18 +37,18 @@ export function DashboardVideoCard({ video, chip, className }: Props) {
             }}
             aria-label={canPlay ? `Play ${video.title}` : `${video.title} thumbnail`}
             aria-disabled={!canPlay}
-            className="group relative block aspect-video w-full overflow-hidden rounded-[var(--radius-md)] bg-black ring-1 ring-white/[0.06]"
+            className="group relative block aspect-[3/2] w-full overflow-hidden rounded-[var(--radius-md)] bg-black ring-1 ring-white/[0.06]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={video.thumbnail}
               alt={`${video.title} thumbnail`}
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-contain"
               loading={video.priority ? "eager" : "lazy"}
               decoding="async"
               fetchPriority={video.priority ? "high" : "auto"}
-              width={1280}
-              height={720}
+              width={1536}
+              height={1024}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-black/25" />
             <span className="absolute inset-0 flex flex-col items-center justify-center gap-3">

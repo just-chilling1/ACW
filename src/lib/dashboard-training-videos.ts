@@ -9,7 +9,7 @@ export type DashboardTrainingVideo = {
   visible?: boolean;
 };
 
-const THUMB_V = "20260731a";
+const THUMB_V = "20260805a";
 
 export const DASHBOARD_TRAINING_VIDEOS: readonly DashboardTrainingVideo[] = [
   {

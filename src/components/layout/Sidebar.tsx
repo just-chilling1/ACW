@@ -8,9 +8,9 @@ import {
   Search, MessageSquare, Brain, TrendingUp, ExternalLink,
   PanelLeftClose, PanelLeftOpen, Lock, Check, HelpCircle
 } from "lucide-react";
-import Image from "next/image";
 import { useSearch } from "@/context/SearchContext";
 import { clsx } from "clsx";
+import { BrandLogo } from "@/components/ui/brand-logo";
 import { PREMIUM_FEATURES } from "@/lib/premium-features";
 import {
   getWorkflowProgress,
@@ -90,12 +90,14 @@ export function Sidebar({
         isWorkflowStepCompleted(step.stepIndex, workflowProgress) && !isActive && !locked;
 
       if (locked) {
+        const fadedLocked = step.stepIndex === 3 || step.stepIndex === 4;
         return (
           <div
             key={step.path}
             title="Complete the previous step first"
             className={clsx(
               "command-nav-link shrink-0 nav-locked",
+              fadedLocked && "nav-locked-faded",
               collapsedView ? "justify-center px-0" : "whitespace-nowrap"
             )}
           >
@@ -166,29 +168,15 @@ export function Sidebar({
             href="/dashboard"
             className={clsx(
               "group flex min-w-0 items-center",
-              collapsed ? "w-full justify-center" : "mx-auto w-[85%] pt-1"
+              collapsed ? "w-full justify-center" : "min-w-0 flex-1 pt-1"
             )}
             title="AI CashWave"
           >
-            {collapsed ? (
-              <Image
-                src="/logo-mark.png"
-                alt="AI CashWave"
-                width={40}
-                height={40}
-                className="h-9 w-9 object-contain"
-                priority
-              />
-            ) : (
-              <Image
-                src="/logo.png"
-                alt="AI CashWave"
-                width={220}
-                height={48}
-                className="h-auto w-full object-contain object-left"
-                priority
-              />
-            )}
+            <BrandLogo
+              variant={collapsed ? "mark" : "wordmark"}
+              size="sm"
+              priority
+            />
           </Link>
 
           {!collapsed && onToggleCollapse && (

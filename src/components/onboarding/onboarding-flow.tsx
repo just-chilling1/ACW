@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Check } from "lucide-react";
+import { BrandLogo } from "@/components/ui/brand-logo";
 import { supabase } from "@/lib/supabase";
 import {
     onboardingContent,
@@ -77,14 +77,7 @@ export function OnboardingFlow() {
         <div className="fixed inset-0 z-[300] flex h-dvh overflow-hidden">
             <aside className="hidden w-72 shrink-0 flex-col border-r border-[var(--border-subtle)] bg-[var(--surface-1)] p-8 lg:flex">
                 <div className="flex flex-col gap-2">
-                    <Image
-                        src="/logo.png"
-                        alt={ONBOARDING_PRODUCT_NAME}
-                        width={200}
-                        height={44}
-                        className="h-8 w-auto object-contain"
-                        priority
-                    />
+                    <BrandLogo variant="wordmark" size="sm" priority />
                     <p className="text-sm text-text-secondary">{onboardingContent.productTagline}</p>
                 </div>
 
@@ -108,14 +101,7 @@ export function OnboardingFlow() {
             <main className="flex flex-1 min-h-0 flex-col overflow-y-auto">
                 <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-6 py-12 sm:px-10">
                     <div className="mb-8 flex items-center gap-3 lg:hidden">
-                        <Image
-                            src="/logo-mark.png"
-                            alt={ONBOARDING_PRODUCT_NAME}
-                            width={40}
-                            height={40}
-                            className="h-9 w-9 object-contain"
-                            priority
-                        />
+                        <BrandLogo variant="mark" size="sm" priority />
                         <div>
                             <p className="text-base font-black text-text-primary">{ONBOARDING_PRODUCT_NAME}</p>
                             <p className="text-xs text-text-secondary">{onboardingContent.productTagline}</p>

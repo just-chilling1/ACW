@@ -47,7 +47,10 @@ export default function DashboardPage() {
         eyebrow="HOME"
         title={
           <>
-            Welcome to <span className="text-gradient">AI CashWave</span>
+            Welcome to{" "}
+            <span>
+              <span className="text-[var(--gold)]">AI</span> CashWave
+            </span>
           </>
         }
         subtitle="Watch the videos below in order — then enter a topic and start finding ads to reply to. The Training Academy is there whenever you want a deeper walkthrough."

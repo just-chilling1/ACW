@@ -30,14 +30,22 @@ const BORDER_SWATCHES = [
 
 const BRAND_SWATCHES = [
   { name: "gold", token: "--gold", value: "#EEB310" },
-  { name: "gold-dim", token: "--gold-dim", value: "#F4C542" },
+  { name: "gold-hover", token: "--gold-hover", value: "#D99A00" },
+  { name: "gold-light", token: "--gold-light", value: "#F2C75C" },
   { name: "copper", token: "--copper", value: "#C9952A" },
 ];
 
+const CARD_SWATCHES = [
+  { name: "card-border", token: "--card-border", value: "#2A2A2A" },
+  { name: "card-border-hover", token: "--card-border-hover", value: "#4A3724" },
+  { name: "card-bg-hover", token: "--card-bg-hover", value: "#1C1A18" },
+  { name: "border-secondary-hover", token: "--border-secondary-hover", value: "#5A422A" },
+];
+
 const SEMANTIC_SWATCHES = [
-  { name: "success", token: "--success", value: "#10B981" },
+  { name: "success", token: "--success", value: "#0E9F6E" },
   { name: "warning", token: "--warning", value: "#F5B301" },
-  { name: "danger", token: "--danger", value: "#EF4444" },
+  { name: "danger", token: "--danger", value: "#DC2626" },
   { name: "info", token: "--info", value: "#38BDF8" },
 ];
 
@@ -118,6 +126,7 @@ export default function StyleGuidePage() {
           <SwatchGrid title="Canvas & surfaces" swatches={CANVAS_SWATCHES} />
           <SwatchGrid title="Borders" swatches={BORDER_SWATCHES} />
           <SwatchGrid title="Brand" swatches={BRAND_SWATCHES} />
+          <SwatchGrid title="Cards & interactive borders" swatches={CARD_SWATCHES} />
           <SwatchGrid title="Semantic" swatches={SEMANTIC_SWATCHES} />
           <SwatchGrid title="Text" swatches={TEXT_SWATCHES} />
 
@@ -249,8 +258,21 @@ export default function StyleGuidePage() {
               <button type="button" className="btn-danger" disabled>Disabled</button>
             </ButtonStateRow>
             <p className="ds-caption">
-              Hover and active states: interact with buttons above. Focus: Tab to any button for gold focus ring.
-              All buttons min-height 44px (40px on short screens).
+              Primary hover: antique gold fill, 1.02 scale, gold border glow. Secondary hover: walnut fill, bronze border.
+              Focus: Tab to any button for gold focus ring. All buttons min-height 44px (40px on short screens).
+            </p>
+          </div>
+        </section>
+
+        {/* ── Links ── */}
+        <section className="flex flex-col gap-4">
+          <h2 className="ds-h2">Links</h2>
+          <div className="card-base flex flex-col gap-3">
+            <a href="#" className="link-accent text-sm font-semibold">
+              Accent link — hover for lighter gold
+            </a>
+            <p className="ds-caption">
+              Normal <span className="text-text-primary">#EEB310</span> · Hover <span className="text-text-primary">#F2C75C</span>
             </p>
           </div>
         </section>

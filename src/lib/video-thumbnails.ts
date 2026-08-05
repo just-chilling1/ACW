@@ -1,6 +1,6 @@
 import { getVimeoEmbedUrl } from "@/lib/vimeo";
 
-const THUMB_V = "20260731a";
+const THUMB_V = "20260805a";
 
 export const VIDEO_THUMBNAILS: Record<string, string> = {
   // Dashboard Track A

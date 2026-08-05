@@ -6,8 +6,8 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, Eye, EyeOff, CheckCircle2, ShieldCheck, AlertTriangle, Mail } from "lucide-react";
-import Image from "next/image";
-import { FloatingSupportButton } from "@/components/support/FloatingSupportButton";
+import { BrandLogo } from "@/components/ui/brand-logo";
+import { AuthPageLayout } from "@/components/layout/AuthPageLayout";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 
@@ -264,24 +264,15 @@ export default function ResetPasswordPage() {
     };
 
     return (
-        <div className="min-h-dvh flex items-center justify-center p-6 relative overflow-x-hidden">
-            <FloatingSupportButton />
-
+        <AuthPageLayout>
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md relative z-10"
+                className="w-full max-w-md"
             >
                 <Card padding="none" className="flex flex-col gap-8 p-10!">
                     <div className="flex flex-col items-center gap-4 text-center">
-                        <Image
-                            src="/logo.png"
-                            alt="AI CashWave"
-                            width={220}
-                            height={48}
-                            className="h-10 w-auto object-contain"
-                            priority
-                        />
+                        <BrandLogo variant="wordmark" size="md" priority className="mx-auto object-center" />
                         <div className="flex flex-col">
                             <h1 className="ds-h1">
                                 {success ? "Password Updated" : ready ? "New Password" : checking ? "Verifying..." : "Reset Password"}
@@ -311,6 +302,6 @@ export default function ResetPasswordPage() {
                     <span>256-bit Encrypted</span>
                 </div>
             </motion.div>
-        </div>
+        </AuthPageLayout>
     );
 }

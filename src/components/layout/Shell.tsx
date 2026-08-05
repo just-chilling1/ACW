@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./bottom-nav";
 import { SupportBanner } from "../dashboard/SupportBanner";
 import { SpecialistWelcomePopup } from "../ui/specialist-welcome-popup";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -33,7 +33,16 @@ export function Shell({ children }: { children: React.ReactNode }) {
   }, [sidebarCollapsed]);
 
   useEffect(() => {
-    document.body.style.overflow = "";
+    const authScrollManaged =
+      pathname === "/login" ||
+      pathname === "/signup" ||
+      pathname === "/forgot-password" ||
+      pathname === "/reset-password";
+
+    if (!authScrollManaged) {
+      document.body.classList.remove("auth-page");
+      document.body.style.overflow = "";
+    }
   }, [pathname]);
 
   if (isAuthPage) {
@@ -49,14 +58,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
       <main className="relative min-h-0 min-w-0 w-full flex-1 overflow-x-hidden overflow-y-auto scroll-smooth transition-[padding] duration-300 lg:pl-[var(--sidebar-w)]">
         <div className="sticky top-0 z-30 flex h-14 items-center justify-center border-b border-[var(--border-subtle)] bg-[var(--chrome-bg)] px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
-          <Image
-            src="/logo.png"
-            alt="AI CashWave"
-            width={160}
-            height={36}
-            className="h-7 w-auto object-contain"
-            priority
-          />
+          <BrandLogo variant="wordmark" size="xs" priority />
         </div>
 
         <div className="mx-auto flex min-h-full w-full min-w-0 max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-16 lg:pt-10">

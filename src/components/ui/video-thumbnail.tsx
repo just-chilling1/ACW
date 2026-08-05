@@ -27,7 +27,7 @@ export function VideoThumbnail({ videoId, title, onPlay, className, eager = fals
                 className
             )}
         >
-            <div className="relative w-full aspect-video">
+            <div className="relative w-full aspect-[3/2]">
                 {thumbPath && !imgError ? (
                     <img
                         src={thumbPath}
@@ -35,7 +35,7 @@ export function VideoThumbnail({ videoId, title, onPlay, className, eager = fals
                         loading={eager ? "eager" : "lazy"}
                         decoding="async"
                         onError={() => setImgError(true)}
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-contain bg-black"
                     />
                 ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-bg-medium)] via-[var(--surface-1)] to-[var(--accent-bg-subtle)]" />

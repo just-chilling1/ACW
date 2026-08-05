@@ -83,11 +83,15 @@ export function BottomNav() {
                         const locked = isWorkflowStepLocked(tab.requiresWorkflowStep, workflowProgress);
 
                         if (locked) {
+                            const fadedLocked = (tab.requiresWorkflowStep ?? 0) >= 2;
                             return (
                                 <div
                                     key={tab.path}
                                     title="Complete the previous step first"
-                                    className="relative flex flex-col items-center justify-center gap-1 nav-locked"
+                                    className={clsx(
+                                        "relative flex flex-col items-center justify-center gap-1 nav-locked",
+                                        fadedLocked && "nav-locked-faded"
+                                    )}
                                 >
                                     <Lock size={22} strokeWidth={1.8} />
                                     <span className="text-[11px] font-semibold leading-none">{tab.label}</span>

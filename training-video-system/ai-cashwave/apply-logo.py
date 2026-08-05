@@ -1,10 +1,11 @@
+"""Composite the AI CashWave wordmark (transparent background) onto thumbnails."""
 from PIL import Image
 from pathlib import Path
 
-thumb_dir = Path(__file__).resolve().parent / "thumbnails"
-logo_path = Path(__file__).resolve().parent / "logo-wordmark.png"
-
-logo = Image.open(logo_path).convert("RGBA")
+ROOT = Path(__file__).resolve().parent
+THUMB_DIR = ROOT / "thumbnails"
+LOGO_SRC = Path(__file__).resolve().parents[2] / "public" / "logo-wordmark.png"
+LOGO_CACHE = ROOT / "logo-transparent.png"
 
 
 def trim_logo(img: Image.Image, threshold: int = 30) -> Image.Image:
@@ -20,7 +21,7 @@ def trim_logo(img: Image.Image, threshold: int = 30) -> Image.Image:
                 max_x = max(max_x, x)
                 max_y = max(max_y, y)
     if max_x >= min_x and max_y >= min_y:
-        pad = 8
+        pad = 4
         return img.crop(
             (
                 max(0, min_x - pad),
@@ -32,7 +33,7 @@ def trim_logo(img: Image.Image, threshold: int = 30) -> Image.Image:
     return img
 
 
-def knock_out_black(img: Image.Image, threshold: int = 25) -> Image.Image:
+def knock_out_black(img: Image.Image, threshold: int = 28) -> Image.Image:
     pixels = img.load()
     w, h = img.size
     for y in range(h):
@@ -43,9 +44,17 @@ def knock_out_black(img: Image.Image, threshold: int = 25) -> Image.Image:
     return img
 
 
-logo = knock_out_black(trim_logo(logo))
+def load_transparent_logo() -> Image.Image:
+    if LOGO_CACHE.exists() and LOGO_CACHE.stat().st_mtime >= LOGO_SRC.stat().st_mtime:
+        return Image.open(LOGO_CACHE).convert("RGBA")
 
-for thumb_path in sorted(thumb_dir.glob("acw-thumb-*.png")):
+    logo = Image.open(LOGO_SRC).convert("RGBA")
+    logo = knock_out_black(trim_logo(logo))
+    logo.save(LOGO_CACHE, "PNG", optimize=True)
+    return logo
+
+
+def apply_logo(thumb_path: Path, logo: Image.Image) -> None:
     base = Image.open(thumb_path).convert("RGBA")
     tw, th = base.size
 
@@ -56,16 +65,19 @@ for thumb_path in sorted(thumb_dir.glob("acw-thumb-*.png")):
 
     margin_x = int(tw * 0.03)
     margin_y = int(th * 0.04)
-    cover_w = int(tw * 0.40)
-    cover_h = int(th * 0.19)
-
-    cover = Image.new("RGBA", (cover_w, cover_h), (20, 15, 10, 255))
-    base.paste(cover, (tw - cover_w, th - cover_h))
-
     x = tw - target_w - margin_x
     y = th - target_h - margin_y
-    base.alpha_composite(logo_resized, (x, y))
 
-    out = base.convert("RGB")
-    out.save(thumb_path, "PNG", optimize=True)
-    print(f"Updated {thumb_path.name} (logo {target_w}x{target_h})")
+    base.alpha_composite(logo_resized, (x, y))
+    base.convert("RGB").save(thumb_path, "PNG", optimize=True)
+    print(f"Updated {thumb_path.name} (logo {target_w}x{target_h}, transparent)")
+
+
+def main() -> None:
+    logo = load_transparent_logo()
+    for thumb_path in sorted(THUMB_DIR.glob("acw-thumb-*.png")):
+        apply_logo(thumb_path, logo)
+
+
+if __name__ == "__main__":
+    main()
