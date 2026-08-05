@@ -4,18 +4,31 @@ const nextConfig: NextConfig = {
   // Keep the MaxMind country DB on disk (not bundled into a broken webpack chunk).
   serverExternalPackages: ["geoip-country"],
   async headers() {
+    const securityHeaders = [
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      {
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=()",
+      },
+    ];
+
     return [
       {
-        source: "/:path*",
+        source: "/embed/:path*",
         headers: [
-          {
-            key: "Cache-Control",
-            value: "no-store, must-revalidate",
-          },
-          {
-            key: "X-Robots-Tag",
-            value: "noindex, nofollow, noarchive, nosnippet",
-          },
+          ...securityHeaders,
+          { key: "Cache-Control", value: "no-store, must-revalidate" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive, nosnippet" },
+        ],
+      },
+      {
+        source: "/((?!embed).*)",
+        headers: [
+          ...securityHeaders,
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Cache-Control", value: "no-store, must-revalidate" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive, nosnippet" },
         ],
       },
     ];

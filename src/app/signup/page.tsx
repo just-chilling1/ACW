@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, UserPlus, ShieldAlert, User, Eye, EyeOff } from "lucide-react";
 import { ONBOARDING_META_KEY } from "@/config/onboarding-content";
@@ -19,15 +18,19 @@ export default function SignupPage() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
+        if (password.length < 8) {
+            setError("Password must be at least 8 characters.");
+            setLoading(false);
+            return;
+        }
+
         try {
-            console.log("Attempting signup for:", email);
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
@@ -46,7 +49,7 @@ export default function SignupPage() {
                 setLoading(false);
             } else {
                 const firstName = name.trim().split(/\s+/)[0];
-                fetch("https://hook.eu2.make.com/cail6goi5iozkbp9y7vrqksvc58vec91", {
+                fetch("/api/signup/notify", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ firstName, email }),

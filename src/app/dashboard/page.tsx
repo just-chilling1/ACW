@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, BookOpen, Play, Headphones } from "lucide-react";
+import { Search, BookOpen, Play } from "lucide-react";
 import { ContactSupportWidget } from "@/components/dashboard/ContactSupportWidget";
 import { DashboardTipsWidget } from "@/components/dashboard/DashboardTipsWidget";
 import { PremiumUpgradesWidget } from "@/components/dashboard/PremiumUpgradesWidget";
@@ -96,26 +96,6 @@ export default function DashboardPage() {
               Know More from the Training Academy
             </Link>
           </div>
-
-          <section className="card-base border-[var(--accent-border)]">
-            <div className="flex flex-col items-center justify-between gap-5 sm:flex-row">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-[var(--accent-border-strong)] bg-[var(--accent-bg-subtle)]">
-                  <Headphones size={22} strokeWidth={1.5} className="text-[var(--gold)]" />
-                </div>
-                <div>
-                  <h3 className="mb-0.5 text-lg font-semibold text-text-primary">Need Help?</h3>
-                  <p className="text-sm text-text-muted">Priority support available 24/7</p>
-                </div>
-              </div>
-              <Link
-                href="/support"
-                className="btn-primary inline-flex min-h-12 items-center justify-center px-8"
-              >
-                Contact Support
-              </Link>
-            </div>
-          </section>
 
           <p className="text-center text-xs italic text-text-muted">Individual results vary.</p>
         </div>

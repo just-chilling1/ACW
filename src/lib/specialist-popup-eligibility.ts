@@ -93,10 +93,9 @@ export function countryFromIp(ip: string | null | undefined): string | null {
  */
 export function resolveRequestCountry(request: Request): string | null {
     const headerCandidates = [
-        request.headers.get("x-vercel-ip-country"),
         request.headers.get("cf-ipcountry"),
+        request.headers.get("x-vercel-ip-country"),
         request.headers.get("cloudfront-viewer-country"),
-        request.headers.get("x-country-code"),
     ];
 
     for (const raw of headerCandidates) {

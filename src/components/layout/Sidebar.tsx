@@ -17,6 +17,7 @@ import {
   isWorkflowStepCompleted,
   isWorkflowStepLocked,
 } from "@/lib/workflow-progress";
+import { EXCLUSIVE_OFFERS } from "@/lib/exclusive-offers";
 
 const STEPS = [
   { path: "/dashboard", label: "Home", icon: LayoutGrid },
@@ -26,12 +27,6 @@ const STEPS = [
   { path: "/replies", label: "Step 4: Create Replies", icon: MessageSquare, requiresWorkflowStep: 3, stepIndex: 4 },
   { path: "/training", label: "Training", icon: GraduationCap },
   { path: "/support", label: "Support", icon: HelpCircle },
-];
-
-const EXCLUSIVE_OFFERS = [
-  { title: "Earn $400/Day Testing New Apps", url: "https://jvz4.com/c/3547097/442443/" },
-  { title: "Get Paid To Copy & Paste", url: "https://jvz1.com/c/3547097/442055/" },
-  { title: "Fast Cash Training", url: "https://www.breakoutai.net/5k-passive-9" },
 ];
 
 export function Sidebar({
@@ -216,26 +211,6 @@ export function Sidebar({
 
         {!collapsed && (
           <>
-            <div className="mx-1 mt-3 flex flex-col gap-2">
-              {EXCLUSIVE_OFFERS.map((promo) => (
-                <a
-                  key={promo.url}
-                  href={promo.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--accent-border-soft)] bg-[var(--surface-2)] p-3 transition-colors hover:border-[var(--accent-border-emphasis)]"
-                >
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="text-[12px] font-semibold leading-tight text-[var(--gold)]">
-                      {promo.title}
-                    </span>
-                    <span className="text-[10px] font-medium text-text-muted">Opens in new tab</span>
-                  </div>
-                  <ExternalLink size={14} strokeWidth={1.75} className="shrink-0 text-[var(--gold)]" />
-                </a>
-              ))}
-            </div>
-
             <div className="mx-0.5 mt-3 mb-1 p-1.5">
               <div className="premium-nav-section p-2">
                 <div className="flex items-center gap-2 px-2.5 pb-2 pt-1.5">
@@ -263,6 +238,31 @@ export function Sidebar({
                     );
                   })}
                 </div>
+              </div>
+            </div>
+
+            <div className="mx-0.5 mb-1 p-1.5">
+              <div className="flex flex-col gap-2 rounded-[var(--radius-md)] border border-[var(--success-border)] bg-[var(--success-bg-faint)] p-2">
+                <span className="px-2.5 pt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--success)]">
+                  Exclusive Offers
+                </span>
+                {EXCLUSIVE_OFFERS.map((promo) => (
+                  <a
+                    key={promo.url}
+                    href={promo.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--success-border)] bg-[var(--success-bg-subtle)] p-3 transition-colors hover:border-[var(--success-border-strong)] hover:bg-[var(--success-bg-medium)]"
+                  >
+                    <div className="flex min-w-0 flex-col gap-0.5">
+                      <span className="text-[12px] font-semibold leading-tight text-[var(--success)]">
+                        {promo.title}
+                      </span>
+                      <span className="text-[10px] font-medium text-text-muted">Opens in new tab</span>
+                    </div>
+                    <ExternalLink size={14} strokeWidth={1.75} className="shrink-0 text-[var(--success)]" />
+                  </a>
+                ))}
               </div>
             </div>
           </>

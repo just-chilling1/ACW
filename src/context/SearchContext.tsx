@@ -109,6 +109,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
             const { data, error } = await supabase
                 .from("search_history")
                 .select("keyword")
+                .eq("user_id", uid)
                 .order("created_at", { ascending: false })
                 .limit(20);
 

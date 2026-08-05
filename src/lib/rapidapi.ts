@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import { sanitizeExternalUrl } from '@/lib/safe-url';
 
 /**
  * Generates a stable ID from a string (usually a URL).
@@ -55,7 +56,9 @@ export function sanitizePosts(posts: any[]): any[] {
             text = post.title;
         }
 
-        return { ...post, text };
+        const url = sanitizeExternalUrl(post.url);
+
+        return { ...post, text, url };
     });
 }
 
@@ -238,13 +241,4 @@ export async function searchSocialData(keyword: string) {
 
     const sanitized = sanitizePosts(combined);
     return sanitized.sort((a, b) => b.engagement - a.engagement);
-}
-
-// Compatibility wrappers
-export async function searchReddit(keyword: string) {
-    return searchSocialData(keyword);
-}
-
-export async function searchYouTube(keyword: string) {
-    return searchSocialData(keyword);
 }

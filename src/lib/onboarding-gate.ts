@@ -17,10 +17,6 @@ export async function resolveOnboardingGate(
 ): Promise<OnboardingGateResult> {
     const metaFlag = authMeta?.[ONBOARDING_META_KEY];
 
-    if (metaFlag === true) {
-        return { ok: true, isComplete: true };
-    }
-
     let timestampQueryFailed = false;
 
     try {

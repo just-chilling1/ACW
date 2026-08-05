@@ -12,6 +12,7 @@ import { clsx } from "clsx";
 import { useSearch } from "@/context/SearchContext";
 import { PREMIUM_FEATURES } from "@/lib/premium-features";
 import { getWorkflowProgress, isWorkflowStepLocked } from "@/lib/workflow-progress";
+import { EXCLUSIVE_OFFERS } from "@/lib/exclusive-offers";
 
 const MAIN_TABS = [
     { path: "/dashboard", label: "Home", icon: LayoutGrid },
@@ -24,12 +25,6 @@ const MORE_NAV = [
     { path: "/analysis", label: "Step 2: Check Demand", icon: Brain, requiresWorkflowStep: 1 },
     { path: "/training", label: "Training", icon: GraduationCap },
     { path: "/support", label: "Support", icon: Headphones },
-];
-
-const EXCLUSIVE_OFFERS = [
-    { title: "Earn $400/Day Testing New Apps", url: "https://jvz4.com/c/3547097/442443/" },
-    { title: "Get Paid To Copy & Paste", url: "https://jvz1.com/c/3547097/442055/" },
-    { title: "Fast Cash Training", url: "https://www.breakoutai.net/5k-passive-9" },
 ];
 
 const MORE_ROW =
@@ -232,8 +227,8 @@ export function BottomNav() {
                                 })}
                             </div>
 
-                            <div className="flex flex-col gap-1.5">
-                                <span className={MORE_SECTION_LABEL}>
+                            <div className="flex flex-col gap-1.5 rounded-[var(--radius-md)] border border-[var(--success-border)] bg-[var(--success-bg-faint)] p-2">
+                                <span className={clsx(MORE_SECTION_LABEL, "text-[var(--success)]")}>
                                     Exclusive Offers
                                 </span>
                                 {EXCLUSIVE_OFFERS.map((promo) => (
@@ -242,13 +237,13 @@ export function BottomNav() {
                                         href={promo.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex min-h-[44px] items-center justify-between gap-2.5 rounded-[var(--radius-md)] border border-[var(--accent-border-soft)] bg-[var(--surface-2)] px-2.5 py-2 transition-colors hover:border-[var(--accent-border-emphasis)] [@media(max-height:740px)]:min-h-[40px] [@media(max-height:740px)]:py-1.5"
+                                        className="flex min-h-[44px] items-center justify-between gap-2.5 rounded-[var(--radius-md)] border border-[var(--success-border)] bg-[var(--success-bg-subtle)] px-2.5 py-2 transition-colors hover:border-[var(--success-border-strong)] hover:bg-[var(--success-bg-medium)] [@media(max-height:740px)]:min-h-[40px] [@media(max-height:740px)]:py-1.5"
                                     >
                                         <div className="flex min-w-0 flex-col gap-0.5">
-                                            <span className="text-[12px] font-semibold leading-tight text-[var(--gold)] [@media(max-height:740px)]:text-[11px]">{promo.title}</span>
+                                            <span className="text-[12px] font-semibold leading-tight text-[var(--success)] [@media(max-height:740px)]:text-[11px]">{promo.title}</span>
                                             <span className="text-[9px] font-medium text-text-muted">Claim Now</span>
                                         </div>
-                                        <ExternalLink size={13} className="shrink-0 text-[var(--gold)]" />
+                                        <ExternalLink size={13} className="shrink-0 text-[var(--success)]" />
                                     </a>
                                 ))}
                             </div>

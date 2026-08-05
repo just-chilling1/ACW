@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { requireApiUser, clampString } from "@/lib/api-auth";
 import { searchSocialData, sanitizePosts } from "@/lib/rapidapi";
-import { supabase } from "@/lib/supabase";
+
+const MAX_KEYWORD_LENGTH = 200;
 
 const FALLBACK_POSTS: Record<string, any[]> = {
     "best natural appetite suppressant reddit 2024": [
@@ -82,10 +84,15 @@ function getFallbackPosts(keyword: string): any[] {
 }
 
 export async function POST(req: Request) {
+    const auth = await requireApiUser();
+    if (auth.unauthorized) return auth.unauthorized;
+
+    const { supabase } = auth;
+
     let keyword = "";
     try {
         const body = await req.json();
-        keyword = typeof body.keyword === "string" ? body.keyword.trim() : "";
+        keyword = clampString(body.keyword, MAX_KEYWORD_LENGTH);
 
         if (!keyword) return NextResponse.json({ error: "Keyword required" }, { status: 400 });
 
@@ -164,8 +171,8 @@ export async function POST(req: Request) {
             ? getFallbackPosts(keyword)
             : FALLBACK_POSTS["how to make money with ai tools reddit"];
         if (fallback.length > 0) {
-            return NextResponse.json({ results: fallback, source: "fallback", error: error.message });
+            return NextResponse.json({ results: fallback, source: "fallback" });
         }
-        return NextResponse.json({ results: [], error: error.message }, { status: 500 });
+        return NextResponse.json({ results: [], error: "Search failed" }, { status: 500 });
     }
 }

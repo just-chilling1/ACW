@@ -62,6 +62,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'A valid email is required' }, { status: 400 })
     }
     if (message.length < 10) return NextResponse.json({ error: 'Message is too short' }, { status: 400 })
+    if (message.length > 5000) return NextResponse.json({ error: 'Message is too long' }, { status: 400 })
 
     const sent = (await sendViaFreshdesk(email, message, userId)) || (await sendViaResend(email, message, userId))
     if (!sent) {
