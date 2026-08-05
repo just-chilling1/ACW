@@ -1459,25 +1459,6 @@ html[data-sidebar="collapsed"] {
   color: var(--text-muted);
 }
 
-.exclusive-offers-section--collapsed {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.exclusive-offer-link--collapsed {
-  justify-content: center;
-  padding: 0.75rem 0.5rem;
-}
-
-.exclusive-offer-link--collapsed:hover {
-  transform: none;
-}
-
-.exclusive-offer-link--collapsed:hover svg {
-  transform: scale(1.08);
-}
-
 .premium-upgrade-card {
   position: relative;
   display: flex;

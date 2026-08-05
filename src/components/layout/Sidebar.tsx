@@ -273,43 +273,25 @@ export function Sidebar({
         )}
 
         {collapsed && (
-          <>
-            <div className="premium-nav-section mt-2 flex shrink-0 flex-col gap-1 p-1">
-              {PREMIUM_FEATURES.map((step) => {
-                const isActive = pathname === step.path;
-                const Icon = step.icon;
-                return (
-                  <Link
-                    key={step.path}
-                    href={step.path}
-                    title={step.label}
-                    className={clsx(
-                      "premium-sidebar-item group flex items-center justify-center rounded-[var(--radius-md)] py-3",
-                      isActive ? "is-active text-[var(--gold)]" : "text-[var(--gold)]/65"
-                    )}
-                  >
-                    <Icon size={18} strokeWidth={1.75} />
-                  </Link>
-                );
-              })}
-            </div>
-
-            <div className="exclusive-offers-section exclusive-offers-section--collapsed mt-2 shrink-0 p-1">
-              {EXCLUSIVE_OFFERS.map((promo) => (
-                <a
-                  key={promo.url}
-                  href={promo.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="exclusive-offer-link exclusive-offer-link--collapsed"
-                  title={`${promo.title} (opens in new tab)`}
-                  aria-label={promo.title}
+          <div className="premium-nav-section mt-2 flex shrink-0 flex-col gap-1 p-1">
+            {PREMIUM_FEATURES.map((step) => {
+              const isActive = pathname === step.path;
+              const Icon = step.icon;
+              return (
+                <Link
+                  key={step.path}
+                  href={step.path}
+                  title={step.label}
+                  className={clsx(
+                    "premium-sidebar-item group flex items-center justify-center rounded-[var(--radius-md)] py-3",
+                    isActive ? "is-active text-[var(--gold)]" : "text-[var(--gold)]/65"
+                  )}
                 >
-                  <ExternalLink size={18} strokeWidth={1.75} />
-                </a>
-              ))}
-            </div>
-          </>
+                  <Icon size={18} strokeWidth={1.75} />
+                </Link>
+              );
+            })}
+          </div>
         )}
       </nav>
 
