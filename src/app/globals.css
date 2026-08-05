@@ -49,8 +49,8 @@
   --surface-2: rgba(248, 250, 252, 0.04);
   --surface-3: #24180F;
   --bg-panel: #171717;
-  --sidebar-bg: #171717;
-  --bg-sidebar: #171717;
+  --sidebar-bg: rgba(26, 18, 11, 0.95);
+  --bg-sidebar: rgba(26, 18, 11, 0.95);
   --bg-glass: rgba(23, 23, 23, 0.82);
   --chrome-bg: rgba(26, 18, 11, 0.92);
 
@@ -268,11 +268,6 @@ html[data-sidebar="collapsed"] {
 }
 
 @layer components {
-  .app-sidebar {
-    background-color: var(--sidebar-bg);
-    border-right: 1px solid var(--border-subtle);
-  }
-
   /* Elevation cards */
   .card-base {
     background: var(--surface-1);

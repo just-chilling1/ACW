@@ -55,7 +55,7 @@ export function OnboardingFlow() {
 
     return (
         <div className="fixed inset-0 z-[300] flex h-dvh overflow-hidden">
-            <aside className="app-sidebar hidden w-72 shrink-0 flex-col p-8 lg:flex">
+            <aside className="hidden w-72 shrink-0 flex-col border-r border-[var(--border-subtle)] bg-[var(--surface-1)] p-8 lg:flex">
                 <div className="flex flex-col gap-2">
                     <BrandLogo variant="wordmark" size="sm" priority />
                     <p className="text-sm text-text-secondary">{onboardingContent.productTagline}</p>
