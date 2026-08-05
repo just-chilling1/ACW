@@ -32,10 +32,10 @@ export function HowItWorks({ steps }: HowItWorksProps) {
                             className="card-base flex h-full flex-col gap-4"
                         >
                             <div className="flex items-center justify-between gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)] text-sm font-semibold text-[var(--gold)]">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)] text-sm font-semibold text-[var(--gold)]">
                                     {step.number}
                                 </div>
-                                <span className="rounded-full border border-[rgba(234,179,8,0.2)] bg-[rgba(234,179,8,0.08)] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
+                                <span className="rounded-full border border-[var(--accent-border-soft)] bg-[var(--accent-bg-subtle)] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
                                     {step.minutes}
                                 </span>
                             </div>
@@ -58,7 +58,7 @@ export function HowItWorks({ steps }: HowItWorksProps) {
                 })}
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4 sm:p-5">
+            <div className="surface-well-lg">
                 <p className="text-sm text-text-secondary leading-relaxed">
                     That&apos;s it — follow the steps above and paste your replies where people are already talking.
                     If you get stuck, use the Support card below.{" "}

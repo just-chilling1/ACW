@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="192" viewBox="0 0 880 192" fill="none">
+  <defs>
+    <linearGradient id="wm-gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="50%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#CA8A04"/>
+    </linearGradient>
+    <linearGradient id="wm-wave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C17F3A"/>
+      <stop offset="100%" stop-color="#EAB308"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(26.880000000000003, 26.879999999999995) scale(0.27)">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="45%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#CA8A04"/>
+    </linearGradient>
+    <linearGradient id="copper" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#C17F3A"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1C1C1F"/>
+      <stop offset="100%" stop-color="#161618"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.45" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Tile -->
+  <rect x="5.795999999999999" y="5.795999999999999" width="126.408" height="126.408" rx="24.84" fill="url(#panel)" stroke="#242427" stroke-width="1.104"/>
+
+  <!-- Back wave (copper) -->
+  <path d="M 16.56 80.03999999999999
+           C 38.64 57.96, 57.96 99.36, 75.9 80.03999999999999
+           S 113.16 52.44, 121.44 71.76"
+        stroke="url(#copper)" stroke-width="6.21" stroke-linecap="round" fill="none" opacity="0.95"/>
+
+  <!-- Front wave (gold) -->
+  <path d="M 16.56 91.08
+           C 44.160000000000004 69, 66.24 107.64, 85.56 88.32000000000001
+           S 118.67999999999999 63.480000000000004, 121.44 82.8"
+        stroke="url(#gold)" stroke-width="7.59" stroke-linecap="round" fill="none" filter="url(#glow)"/>
+
+  <!-- Coin / cash node -->
+  <circle cx="69" cy="52.44" r="15.18" fill="url(#gold)" filter="url(#glow)"/>
+  <text x="69" y="55.89" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="15.18" font-weight="800" fill="#0A0A0B">$</text>
+
+  <!-- AI sparkles -->
+  <g fill="#C17F3A" opacity="0.95">
+    <circle cx="99.36" cy="38.64" r="2.484"/>
+    <circle cx="107.64" cy="46.92" r="1.6560000000000001"/>
+    <circle cx="93.84" cy="49.68" r="1.242"/>
+  </g>
+  <path d="M 102.12 30.36 l 1.6560000000000001 4.968 l 5.244 0.552 l -4.14 3.3120000000000003 l 1.3800000000000001 4.968 l -4.416 -3.036 l -4.416 3.036 l 1.3800000000000001 -4.968 l -4.14 -3.3120000000000003 l 5.244 -0.552 z"
+        fill="#FDE047" transform="translate(2.7600000000000002, 0)"/>
+</g>
+
+  <text x="188.16" y="107.52000000000001" font-family="system-ui, Segoe UI, Helvetica, Arial, sans-serif" font-size="65.28" font-weight="700" letter-spacing="-0.02em">
+    <tspan fill="#C17F3A">AI </tspan><tspan fill="url(#wm-gold)">Cash</tspan><tspan fill="#F5EDE4">Wave</tspan>
+  </text>
+
+  <path d="M 188.16 138.24
+           C 258.56 126.72, 311.36 149.76, 381.76 138.24
+           S 487.36 126.72, 557.76 138.24"
+        stroke="url(#wm-wave)" stroke-width="5.376" stroke-linecap="round" fill="none" opacity="0.85"/>
+</svg>

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Mail, LogIn, ShieldAlert, Eye, EyeOff, Star, Users, DollarSign, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { FloatingSupportButton } from "@/components/support/FloatingSupportButton";
+import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 
 export default function LoginPage() {
@@ -58,7 +59,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="app-bg min-h-dvh flex items-center justify-center p-6 relative overflow-x-hidden">
+        <div className="min-h-dvh flex items-center justify-center p-6 relative overflow-x-hidden">
             <FloatingSupportButton />
 
             <motion.div
@@ -66,11 +67,11 @@ export default function LoginPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md relative z-10"
             >
-                <div className="card-base flex flex-col gap-8 p-10">
+                <Card padding="none" className="flex flex-col gap-8 p-10!">
                     <div className="flex flex-col items-center gap-4 text-center">
                         <Image
                             src="/logo.png"
-                            alt="CashTap AI"
+                            alt="AI CashWave"
                             width={240}
                             height={52}
                             className="h-12 w-auto object-contain"
@@ -84,7 +85,7 @@ export default function LoginPage() {
                             <motion.div
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                className="bg-red-500/10 border border-red-500/20 p-4 rounded-sm flex items-center gap-3 text-red-400 text-sm"
+                                className="error-banner"
                             >
                                 <ShieldAlert size={18} />
                                 <span>{error}</span>
@@ -164,19 +165,25 @@ export default function LoginPage() {
                     <div className="flex flex-col gap-3 border-t border-[var(--border-subtle)] pt-6 mt-2">
                         <div className="flex items-center gap-2 justify-center">
                             <div className="flex -space-x-2">
-                                {["bg-pink-500", "bg-blue-500", "bg-purple-500", "bg-green-500", "bg-orange-500"].map((c, i) => (
-                                    <div key={i} className={`w-7 h-7 ${c} rounded-full border-2 border-[var(--surface-1)] flex items-center justify-center text-[8px] font-black text-white`}>
+                                {[
+                                    "bg-[var(--accent-bg-medium)]",
+                                    "bg-[var(--info-bg-medium)]",
+                                    "bg-[var(--warning-bg-medium)]",
+                                    "bg-[var(--success-bg-medium)]",
+                                    "bg-[var(--danger-bg-medium)]",
+                                ].map((c, i) => (
+                                    <div key={i} className={`w-7 h-7 ${c} rounded-full border-2 border-[var(--surface-1)] flex items-center justify-center text-[8px] font-black text-text-primary`}>
                                         {["SM", "JR", "ML", "DR", "AK"][i]}
                                     </div>
                                 ))}
                             </div>
                             <span className="text-[11px] text-text-secondary font-medium ml-1">
-                                <strong className="text-green-400">2,847</strong> members active now
+                                <strong className="text-success">2,847</strong> members active now
                             </span>
                         </div>
-                        <div className="flex items-center gap-4 justify-center text-[10px] text-text-muted">
+                        <div className="flex items-center gap-4 justify-center text-xs text-text-secondary">
                             <div className="flex items-center gap-1">
-                                <DollarSign size={10} className="text-green-400" />
+                                <DollarSign size={10} className="icon-trust-success" />
                                 <span>$47K+ earned this month</span>
                             </div>
                             <div className="flex items-center gap-1">
@@ -185,16 +192,16 @@ export default function LoginPage() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </Card>
 
                 <div className="mt-6 flex flex-col items-center gap-3">
-                    <div className="flex items-center gap-4 text-[10px] text-text-muted">
+                    <div className="flex items-center gap-4 text-xs text-text-secondary">
                         <div className="flex items-center gap-1">
-                            <ShieldCheck size={10} className="text-green-400" />
+                            <ShieldCheck size={10} className="icon-trust-success" />
                             <span>256-bit Encrypted</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <Users size={10} className="text-blue-400" />
+                            <Users size={10} className="icon-trust-info" />
                             <span>10,000+ users</span>
                         </div>
                     </div>

@@ -14,7 +14,7 @@ export function TipList({ items, className, title }: TipListProps) {
       <ul className="flex flex-col gap-3">
         {items.map((item) => (
           <li key={item} className="flex gap-3 text-sm leading-relaxed text-text-secondary">
-            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[rgba(16,185,129,0.12)] text-[var(--success)]">
+            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--success-bg-subtle)] text-[var(--success)]">
               <Check size={12} strokeWidth={2.5} />
             </span>
             <span>{item}</span>

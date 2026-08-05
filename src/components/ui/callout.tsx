@@ -32,7 +32,7 @@ export function Callout({
       className={clsx(
         "relative overflow-hidden rounded-[var(--radius-lg)] border p-5 md:p-6",
         variant === "promo"
-          ? "border-[rgba(234,179,8,0.28)] bg-[rgba(234,179,8,0.06)]"
+          ? "border-[var(--accent-border)] bg-[var(--accent-bg-faint)]"
           : "border-[var(--border-subtle)] bg-[var(--surface-2)]",
         className
       )}
@@ -45,7 +45,7 @@ export function Callout({
             setVisible(false);
             onDismiss?.();
           }}
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-text-muted hover:bg-white/5 hover:text-white"
+          className="btn-icon absolute right-3 top-3 h-8 w-8 min-h-0 min-w-0 rounded-full"
         >
           <X size={14} strokeWidth={1.75} />
         </button>
@@ -54,7 +54,7 @@ export function Callout({
         <div
           className={clsx(
             "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)]",
-            variant === "promo" ? "bg-[rgba(234,179,8,0.15)] text-[var(--gold)]" : "bg-white/5 text-text-secondary"
+            variant === "promo" ? "bg-[var(--accent-bg-hover)] text-[var(--gold)]" : "bg-[var(--surface-3)] text-text-secondary"
           )}
         >
           <Icon size={16} strokeWidth={1.75} />

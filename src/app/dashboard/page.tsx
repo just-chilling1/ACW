@@ -47,7 +47,7 @@ export default function DashboardPage() {
         eyebrow="HOME"
         title={
           <>
-            Welcome to <span className="text-gradient">CashTap AI</span>
+            Welcome to <span className="text-gradient">AI CashWave</span>
           </>
         }
         subtitle="Watch the videos below in order — then enter a topic and start finding ads to reply to. The Training Academy is there whenever you want a deeper walkthrough."
@@ -94,10 +94,10 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          <section className="card-base border-[rgba(234,179,8,0.25)]">
+          <section className="card-base border-[var(--accent-border)]">
             <div className="flex flex-col items-center justify-between gap-5 sm:flex-row">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-[rgba(234,179,8,0.3)] bg-[rgba(234,179,8,0.08)]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-[var(--accent-border-strong)] bg-[var(--accent-bg-subtle)]">
                   <Headphones size={22} strokeWidth={1.5} className="text-[var(--gold)]" />
                 </div>
                 <div>

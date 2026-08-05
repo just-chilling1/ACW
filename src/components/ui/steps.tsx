@@ -32,7 +32,7 @@ export function Steps({ items, className, compact }: StepsProps) {
           ) : null}
           <div
             className={clsx(
-              "relative z-10 flex shrink-0 items-center justify-center rounded-full border border-[rgba(234,179,8,0.35)] bg-[rgba(234,179,8,0.08)] font-semibold text-[var(--gold)] tabular-nums",
+              "relative z-10 flex shrink-0 items-center justify-center rounded-full border border-[var(--accent-border-strong)] bg-[var(--accent-bg-subtle)] font-semibold text-[var(--gold)] tabular-nums",
               compact ? "h-7 w-7 text-[11px]" : "h-8 w-8 text-xs"
             )}
           >

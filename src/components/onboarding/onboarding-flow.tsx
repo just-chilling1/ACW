@@ -74,7 +74,7 @@ export function OnboardingFlow() {
     };
 
     return (
-        <div className="fixed inset-0 z-[300] flex h-dvh overflow-hidden app-bg">
+        <div className="fixed inset-0 z-[300] flex h-dvh overflow-hidden">
             <aside className="hidden w-72 shrink-0 flex-col border-r border-[var(--border-subtle)] bg-[var(--surface-1)] p-8 lg:flex">
                 <div className="flex flex-col gap-2">
                     <Image
@@ -95,7 +95,7 @@ export function OnboardingFlow() {
                             className={`rounded-xl border p-4 transition-all duration-500 ${
                                 activationStep > i
                                     ? "translate-x-0 border-accent/30 bg-accent/10 opacity-100"
-                                    : "border-[var(--border-subtle)] bg-[var(--surface-2)] opacity-60"
+                                    : "border-[var(--border-subtle)] bg-[var(--surface-2)]"
                             }`}
                         >
                             <p className="text-xs font-medium text-text-muted">{item.label}</p>
@@ -140,19 +140,19 @@ export function OnboardingFlow() {
                     />
 
                     <div className="card-base mt-8">
-                        <p className="mb-4 text-sm font-bold text-text-primary">{cfg.infoTitle}</p>
+                        <p className="mb-4 ds-h6">{cfg.infoTitle}</p>
                         <ol className="space-y-3">
                             {cfg.infoSteps.map((step, i) => (
                                 <li
                                     key={step}
                                     className={`flex items-start gap-3 text-sm transition-all duration-500 ${
-                                        activationStep > i ? "text-text-secondary opacity-100" : "text-text-muted opacity-50"
+                                        activationStep > i ? "text-text-secondary" : "text-text-muted"
                                     }`}
                                 >
                                     <span
                                         className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                                             activationStep > i
-                                                ? "bg-accent text-[#0A0A0B]"
+                                                ? "bg-accent text-[var(--text-on-accent)]"
                                                 : "bg-[var(--surface-3)] text-text-muted"
                                         }`}
                                     >

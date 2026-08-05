@@ -25,7 +25,7 @@ const TABS: { id: TrainingTab; label: string; icon: typeof Play }[] = [
 const VIDEOS = [
     {
         id: "1214645007",
-        title: "Getting Started with CashTap AI",
+        title: "Getting Started with AI CashWave",
         description: "Watch this first. Learn the basics — how to search for a topic, check demand, find ads, and create replies that earn commissions.",
     },
     {
@@ -99,11 +99,11 @@ const FAQ_SECTIONS = [
         items: [
             {
                 q: "How do I actually earn money with this?",
-                a: "CashTap AI gives you multiple ways to earn. The core 4-step system finds real conversations online, then our AI writes replies that include your affiliate link. When someone clicks and buys, you earn a commission. You also get Done-For-You keywords with pre-made replies, 200+ ready-to-post Facebook posts via Instant Income, and 100+ traffic sources through Automated Profits. Just copy, paste, and earn.",
+                a: "AI CashWave gives you multiple ways to earn. The core 4-step system finds real conversations online, then our AI writes replies that include your affiliate link. When someone clicks and buys, you earn a commission. You also get Done-For-You keywords with pre-made replies, 200+ ready-to-post Facebook posts via Instant Income, and 100+ traffic sources through Automated Profits. Just copy, paste, and earn.",
             },
             {
                 q: "Do I need any experience or technical skills?",
-                a: "None at all. Every feature is designed for complete beginners. The app finds the ads, analyzes demand, writes the replies, and gives you ready-made posts. You just need to copy and paste. If you can use a web browser, you can use CashTap AI.",
+                a: "None at all. Every feature is designed for complete beginners. The app finds the ads, analyzes demand, writes the replies, and gives you ready-made posts. You just need to copy and paste. If you can use a web browser, you can use AI CashWave.",
             },
             {
                 q: "What should I do first after logging in?",
@@ -111,7 +111,7 @@ const FAQ_SECTIONS = [
             },
             {
                 q: "Can I use this on my phone or tablet?",
-                a: "Yes. CashTap AI works in any web browser on desktop, tablet, or phone. You can search for topics, copy replies, and post them right from your phone — making it easy to earn on the go.",
+                a: "Yes. AI CashWave works in any web browser on desktop, tablet, or phone. You can search for topics, copy replies, and post them right from your phone — making it easy to earn on the go.",
             },
             {
                 q: "How long does it take to see results?",
@@ -136,11 +136,11 @@ const FAQ_SECTIONS = [
             },
             {
                 q: "Can I promote any product or only specific ones?",
-                a: "You can promote any product that has an affiliate program. The app doesn't restrict you — just paste your affiliate link and it gets inserted into your replies and posts. Whether it's a weight loss supplement, a software tool, an online course, or a physical product — if it has an affiliate link, it works with CashTap AI.",
+                a: "You can promote any product that has an affiliate program. The app doesn't restrict you — just paste your affiliate link and it gets inserted into your replies and posts. Whether it's a weight loss supplement, a software tool, an online course, or a physical product — if it has an affiliate link, it works with AI CashWave.",
             },
             {
                 q: "Do I need to pay for ads or spend any money?",
-                a: "No. Everything you do with CashTap AI is free traffic. You're posting replies on Reddit, YouTube, and Facebook — all free platforms. You're submitting your link to free traffic sources. There's zero ad spend required. Your only investment is your time.",
+                a: "No. Everything you do with AI CashWave is free traffic. You're posting replies on Reddit, YouTube, and Facebook — all free platforms. You're submitting your link to free traffic sources. There's zero ad spend required. Your only investment is your time.",
             },
         ],
     },
@@ -257,7 +257,7 @@ const FAQ_SECTIONS = [
             },
             {
                 q: "What browsers are supported?",
-                a: "CashTap AI works on all modern browsers — Chrome, Safari, Firefox, Edge, and Brave. It works on Windows, Mac, iOS, and Android. For the best experience, we recommend using the latest version of Chrome.",
+                a: "AI CashWave works on all modern browsers — Chrome, Safari, Firefox, Edge, and Brave. It works on Windows, Mac, iOS, and Android. For the best experience, we recommend using the latest version of Chrome.",
             },
             {
                 q: "I'm getting an error or the page won't load. What should I do?",
@@ -331,13 +331,13 @@ export default function TrainingPage() {
                         Training <span className="text-gradient">Academy</span>
                     </>
                 }
-                subtitle="Everything you need to start earning with CashTap AI."
+                subtitle="Everything you need to start earning with AI CashWave."
             />
 
             <div
                 role="tablist"
                 aria-label="Training sections"
-                className="flex gap-1 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-1"
+                className="surface-panel flex gap-1 p-1"
             >
                 {TABS.map((item) => {
                     const Icon = item.icon;
@@ -352,7 +352,7 @@ export default function TrainingPage() {
                             className={clsx(
                                 "flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-md)] px-4 py-3 text-sm font-semibold transition-colors",
                                 active
-                                    ? "bg-[var(--gold)] text-[#0A0A0B]"
+                                    ? "bg-[var(--gold)] text-[var(--text-on-accent)]"
                                     : "text-text-muted hover:bg-[var(--surface-2)] hover:text-text-primary"
                             )}
                         >
@@ -362,7 +362,7 @@ export default function TrainingPage() {
                                 <span
                                     className={clsx(
                                         "rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
-                                        active ? "bg-black/15" : "bg-[var(--surface-3)] text-text-muted"
+                                        active ? "surface-tab-active" : "surface-tab-idle"
                                     )}
                                 >
                                     {faqCount}
@@ -396,7 +396,7 @@ export default function TrainingPage() {
                                 {VIDEOS.map((video, i) => (
                                     <div
                                         key={video.id}
-                                        className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)]"
+                                        className="surface-panel overflow-hidden"
                                     >
                                         <VideoThumbnail
                                             videoId={video.id}
@@ -407,7 +407,7 @@ export default function TrainingPage() {
                                             <span className="w-fit rounded bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-accent">
                                                 Video {i + 1}
                                             </span>
-                                            <h3 className="text-sm font-bold text-white">{video.title}</h3>
+                                            <h3 className="ds-h6">{video.title}</h3>
                                             <p className="text-[12px] leading-relaxed text-text-muted">{video.description}</p>
                                         </div>
                                     </div>
@@ -424,7 +424,7 @@ export default function TrainingPage() {
                                 {PREMIUM_VIDEOS.map((video) => (
                                     <div
                                         key={video.id}
-                                        className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)]"
+                                        className="surface-panel overflow-hidden"
                                     >
                                         <VideoThumbnail
                                             videoId={video.id}
@@ -435,7 +435,7 @@ export default function TrainingPage() {
                                             <span className="w-fit rounded bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-accent">
                                                 {video.badge}
                                             </span>
-                                            <h3 className="text-sm font-bold text-white">{video.title}</h3>
+                                            <h3 className="ds-h6">{video.title}</h3>
                                             <p className="text-[12px] leading-relaxed text-text-muted">{video.desc}</p>
                                         </div>
                                     </div>
@@ -443,7 +443,7 @@ export default function TrainingPage() {
                             </div>
                         </section>
 
-                        <details className="group rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)]">
+                        <details className="surface-panel group">
                             <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-4 text-sm font-semibold text-text-primary [&::-webkit-details-marker]:hidden">
                                 <BookOpen size={16} className="text-accent" />
                                 Step-by-Step Guide
@@ -456,7 +456,7 @@ export default function TrainingPage() {
                                     return (
                                         <div
                                             key={s.step}
-                                            className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4"
+                                            className="surface-nested flex flex-col gap-3"
                                         >
                                             <div className="flex items-start gap-3">
                                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/20 bg-accent/10">
@@ -466,14 +466,14 @@ export default function TrainingPage() {
                                                     <span className="text-[9px] font-bold uppercase tracking-widest text-accent">
                                                         Step {s.step}
                                                     </span>
-                                                    <h3 className="text-sm font-bold text-white">{s.title}</h3>
+                                                    <h3 className="ds-h6">{s.title}</h3>
                                                     <p className="text-[13px] leading-relaxed text-text-secondary">{s.description}</p>
                                                 </div>
                                             </div>
                                             <div className="flex flex-col gap-2 pl-12">
                                                 {s.tips.map((tip, j) => (
                                                     <div key={j} className="flex items-start gap-2">
-                                                        <CheckCircle2 size={12} className="mt-0.5 shrink-0 text-green-400" />
+                                                        <CheckCircle2 size={12} className="mt-0.5 shrink-0 icon-trust-success" />
                                                         <span className="text-[12px] leading-relaxed text-text-secondary">{tip}</span>
                                                     </div>
                                                 ))}
@@ -497,7 +497,7 @@ export default function TrainingPage() {
                             </div>
                         </details>
 
-                        <details className="group rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)]">
+                        <details className="surface-panel group">
                             <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-4 text-sm font-semibold text-text-primary [&::-webkit-details-marker]:hidden">
                                 <Zap size={16} className="text-accent" />
                                 Pro Tips for More Earnings
@@ -510,13 +510,13 @@ export default function TrainingPage() {
                                     return (
                                         <div
                                             key={tip.title}
-                                            className="flex flex-col gap-2.5 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4"
+                                            className="surface-nested flex flex-col gap-2.5"
                                         >
                                             <div className="flex items-center gap-2.5">
                                                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10">
                                                     <Icon size={15} className="text-accent" />
                                                 </div>
-                                                <h3 className="text-[13px] font-bold text-white">{tip.title}</h3>
+                                                <h3 className="ds-h6">{tip.title}</h3>
                                             </div>
                                             <p className="text-[12px] leading-relaxed text-text-muted">{tip.text}</p>
                                         </div>
@@ -525,14 +525,14 @@ export default function TrainingPage() {
                             </div>
                         </details>
 
-                        <details className="group rounded-[var(--radius-lg)] border border-green-500/15 bg-green-500/3" open>
+                        <details className="checklist-panel group rounded-[var(--radius-lg)]" open>
                             <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-4 text-sm font-semibold text-text-primary [&::-webkit-details-marker]:hidden">
-                                <CheckCircle2 size={16} className="text-green-400" />
+                                <CheckCircle2 size={16} className="icon-trust-success" />
                                 Quick Start Checklist
                                 <span className="ml-auto text-[11px] font-medium text-text-muted group-open:hidden">Show</span>
                                 <span className="ml-auto hidden text-[11px] font-medium text-text-muted group-open:inline">Hide</span>
                             </summary>
-                            <div className="flex flex-col gap-3 border-t border-green-500/15 px-5 py-5">
+                            <div className="flex flex-col gap-3 border-t border-[var(--success-border)] px-5 py-5">
                                 {[
                                     "Watch both training videos above",
                                     "Go to Step 1 and search for your first topic",
@@ -543,8 +543,8 @@ export default function TrainingPage() {
                                     "Repeat daily — aim for 5-10 replies per day",
                                 ].map((item, i) => (
                                     <div key={item} className="flex items-start gap-3">
-                                        <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-green-500/20 bg-green-500/10">
-                                            <span className="text-[9px] font-black text-green-400">{i + 1}</span>
+                                        <div className="checklist-step">
+                                            <span>{i + 1}</span>
                                         </div>
                                         <span className="text-[13px] leading-relaxed text-text-secondary">{item}</span>
                                     </div>
@@ -554,7 +554,7 @@ export default function TrainingPage() {
 
                         <section className="flex flex-col items-center justify-between gap-4 rounded-[var(--radius-lg)] border border-accent/20 bg-accent/5 p-6 md:flex-row">
                             <div className="flex flex-col gap-1">
-                                <h3 className="text-base font-bold text-white">Ready to start earning?</h3>
+                                <h3 className="ds-h5">Ready to start earning?</h3>
                                 <p className="text-[13px] text-text-muted">Go to Step 1 and search for your first topic now.</p>
                             </div>
                             <Link

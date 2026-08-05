@@ -1,6 +1,6 @@
-# CashTap AI Mobile Guide
+# AI CashWave Mobile Guide
 
-Mobile behavior spec for CashTap AI member area.
+Mobile behavior spec for AI CashWave member area.
 
 ## Viewport & PWA
 
@@ -12,7 +12,7 @@ Mobile behavior spec for CashTap AI member area.
 ## Shell
 
 - **Desktop:** collapsible sidebar via `html[data-sidebar]` + `localStorage`
-- **Mobile:** slim top bar (logo + `CashTap&nbsp;AI`, no hamburger)
+- **Mobile:** slim top bar (logo + `AI&nbsp;CashWave`, no hamburger)
 - Content padding: `pb-24` for bottom tab clearance
 - Safe areas: `env(safe-area-inset-top)` on top bar, bottom nav uses `safe-area-inset-bottom`
 

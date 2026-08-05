@@ -241,7 +241,7 @@ export function SpecialistWelcomePopup({
                     <motion.button
                         type="button"
                         aria-label="Close welcome offer"
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        className="absolute inset-0 overlay-scrim backdrop-blur-sm"
                         onClick={dismiss}
                         initial={reduceMotion ? false : { opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -266,15 +266,15 @@ export function SpecialistWelcomePopup({
                         transition={{ type: "spring", stiffness: 340, damping: 30 }}
                     >
                         <div className="relative flex max-h-[min(96dvh,46rem)] flex-col overflow-hidden max-sm:rounded-t-3xl sm:rounded-3xl">
-                            {/* Gold/indigo ambient wash behind the hero */}
+                            {/* Gold/copper ambient wash behind the hero */}
                             <div
                                 aria-hidden
-                                className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(80%_100%_at_50%_0%,rgba(234,179,8,0.08),transparent_75%)]"
+                                className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(80%_100%_at_50%_0%,var(--accent-bg-subtle),transparent_75%)]"
                             />
 
                             {/* Header: icon tile + close (headline carries the brand) */}
                             <div className="relative z-10 flex shrink-0 items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5 sm:pt-4">
-                                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent text-[#0A0A0B] shadow-[0_4px_12px_rgba(234,179,8,0.25)]">
+                                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent text-[var(--text-on-accent)] shadow-[0_4px_12px_var(--accent-border)]">
                                     <Wallet size={16} strokeWidth={2.4} />
                                 </span>
                                 <button
@@ -301,8 +301,8 @@ export function SpecialistWelcomePopup({
                                         id={titleId}
                                         className="brand-font mt-1 text-center text-[1.9rem] font-bold uppercase leading-none tracking-tight text-text-primary sm:text-left sm:text-[2.6rem]"
                                     >
-                                        CashTap{" "}
-                                        <span className="text-gradient">AI</span>
+                                        AI{" "}
+                                        <span className="text-gradient">CashWave</span>
                                     </h2>
 
                                     <div className="mx-auto mt-3 max-w-[22rem] space-y-0.5 text-center text-[14px] leading-[1.5] text-text-secondary sm:mx-0 sm:mt-4 sm:max-w-none sm:space-y-1 sm:text-left sm:text-[15.5px] sm:leading-[1.6]">
@@ -398,13 +398,13 @@ export function SpecialistWelcomePopup({
                                             <span className="text-[11.5px] font-bold uppercase tracking-[0.16em] text-text-secondary sm:text-[12px]">
                                                 Your code expires in
                                             </span>
-                                            <span className="brand-font rounded-lg bg-red-500/10 px-2 py-1 text-[1.25rem] font-black leading-none tabular-nums text-red-400 sm:text-[1.5rem]">
+                                            <span className="brand-font rounded-lg bg-[var(--danger-bg-subtle)] px-2 py-1 text-[1.25rem] font-black leading-none tabular-nums text-[var(--danger)] sm:text-[1.5rem]">
                                                 {mm}:{ss}
                                             </span>
                                         </div>
-                                        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-red-500/10">
+                                        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[var(--danger-bg-faint)]">
                                             <div
-                                                className="h-full rounded-full bg-red-500 transition-[width] duration-300 ease-linear"
+                                                className="h-full rounded-full bg-[var(--danger)] transition-[width] duration-300 ease-linear"
                                                 style={{ width: `${progressPct}%` }}
                                             />
                                         </div>
@@ -417,7 +417,7 @@ export function SpecialistWelcomePopup({
                                     >
                                         <span
                                             aria-hidden
-                                            className="absolute inset-y-0 -left-1/3 w-1/4 -skew-x-12 bg-white/20 blur-md motion-safe:animate-[sheen_3s_ease-in-out_infinite]"
+                                            className="absolute inset-y-0 -left-1/3 w-1/4 -skew-x-12 bg-[var(--accent-bg-medium)] blur-md motion-safe:animate-[sheen_3s_ease-in-out_infinite]"
                                         />
                                         <Phone size={20} strokeWidth={2.4} className="shrink-0" />
                                         <span className="flex flex-col items-start leading-none">

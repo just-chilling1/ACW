@@ -10,7 +10,7 @@ import { clsx } from "clsx";
 import { InfoHint } from "@/components/ui/InfoHint";
 import { Field } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
-import { GenerationProgress } from "@/components/ui/generation-progress";
+import { PlatformBadge } from "@/components/ui/platform-badge";
 import { VideoThumbnail } from "@/components/ui/video-thumbnail";
 import { VideoOverlay } from "@/components/ui/video-overlay";
 
@@ -158,7 +158,7 @@ export default function DfyPage() {
         return parts.map((part, i) => {
             if (part.match(urlRegex)) {
                 return (
-                    <span key={i} className="text-blue-400 hover:underline cursor-pointer transition-colors break-all">
+                    <span key={i} className="link-info break-all">
                         {part}
                     </span>
                 );
@@ -226,12 +226,12 @@ export default function DfyPage() {
                         <div className={clsx(
                             "flex items-center gap-2.5 px-4 py-2 rounded-full border transition-all",
                             step >= s.num
-                                ? "border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)] text-[var(--gold)]"
+                                ? "border-[var(--accent-border)] bg-[var(--accent-bg-subtle)] text-[var(--gold)]"
                                 : "border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted"
                         )}>
                             <span className={clsx(
                                 "flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold",
-                                step >= s.num ? "bg-[var(--gold)] text-[#0A0A0B]" : "border border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted"
+                                step >= s.num ? "bg-[var(--gold)] text-[var(--text-on-accent)]" : "border border-[var(--border-subtle)] bg-[var(--surface-2)] text-text-muted"
                             )}>
                                 {step > s.num ? <Check size={12} /> : s.num}
                             </span>
@@ -239,7 +239,7 @@ export default function DfyPage() {
                         </div>
                         {i < 2 && (
                             <ChevronRight size={14} className={clsx(
-                                step > s.num ? "text-accent" : "text-text-muted/30"
+                                step > s.num ? "text-accent" : "text-text-muted"
                             )} />
                         )}
                     </div>
@@ -258,7 +258,7 @@ export default function DfyPage() {
                     >
                         <div className="flex items-center gap-3 px-1">
                             <Zap size={18} className="text-accent" />
-                            <h2 className="text-xl font-bold text-white inline-flex items-center gap-2">
+                            <h2 className="ds-h2 inline-flex items-center gap-2">
                                 Choose Your Keyword
                                 <InfoHint
                                     label="What is a niche?"
@@ -275,13 +275,13 @@ export default function DfyPage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: idx * 0.06 }}
                                     onClick={() => handleSelectKeyword(kw)}
-                                    className="card-base group relative flex flex-col gap-4 overflow-hidden p-6! text-left transition-all hover:border-[rgba(234,179,8,0.3)]"
+                                    className="card-base group relative flex flex-col gap-4 overflow-hidden p-6! text-left transition-all hover:border-[var(--accent-border-strong)]"
                                 >
                                     <div className="flex items-center justify-between">
                                         <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">
                                             {kw.niche}
                                         </span>
-                                        <div className="flex items-center gap-1.5 rounded-md bg-[rgba(16,185,129,0.12)] px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-[var(--success)]">
+                                        <div className="badge-success flex items-center gap-1.5 px-2 py-1">
                                             <Flame size={10} />
                                             <span>High Intent</span>
                                         </div>
@@ -316,12 +316,12 @@ export default function DfyPage() {
                     >
                         <div className="card-base flex items-center justify-between p-5!">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)]">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)]">
                                     <Check size={16} className="text-[var(--gold)]" />
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Selected Keyword</p>
-                                    <p className="text-[15px] font-bold text-white">&ldquo;{selectedKeyword.label}&rdquo;</p>
+                                    <p className="text-[15px] font-bold text-text-primary">&ldquo;{selectedKeyword.label}&rdquo;</p>
                                 </div>
                             </div>
                             <button
@@ -335,11 +335,11 @@ export default function DfyPage() {
 
                         <div className="card-base flex flex-col gap-6 p-8!">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)]">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)]">
                                     <LinkIcon size={18} className="text-[var(--gold)]" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold text-white inline-flex items-center gap-2">
+                                    <h2 className="ds-h2 inline-flex items-center gap-2">
                                         Provide Your Digistore Affiliate Link
                                         <InfoHint
                                             label="What is a Digistore affiliate link?"
@@ -406,7 +406,7 @@ export default function DfyPage() {
                         {!loadingPhase && results.length > 0 && (
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-center justify-between px-1">
-                                    <h2 className="text-lg font-bold text-white">
+                                    <h2 className="ds-h3">
                                         {results.length} Posts Found — Replies Ready
                                     </h2>
                                     <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 py-1 text-[11px] font-semibold text-[var(--gold)]">
@@ -423,20 +423,13 @@ export default function DfyPage() {
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: idx * 0.05 }}
-                                                className="border border-[var(--border-subtle)] rounded-[var(--radius-lg)] bg-[var(--surface-1)] overflow-hidden"
+                                                className="surface-panel overflow-hidden"
                                             >
                                                 {/* Post header */}
                                                 <div className="p-4 flex items-start justify-between gap-3 border-b border-[var(--border-subtle)]">
                                                     <div className="flex flex-col gap-2 flex-1 min-w-0">
                                                         <div className="flex items-center gap-2">
-                                                            <span className={clsx(
-                                                                "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border inline-flex items-center gap-1",
-                                                                item.post.platform === "Reddit"
-                                                                    ? "text-orange-400 border-orange-400/20 bg-orange-400/5"
-                                                                    : "text-red-500 border-red-500/20 bg-red-500/5"
-                                                            )}>
-                                                                {item.post.platform}
-                                                            </span>
+                                                            <PlatformBadge platform={item.post.platform} />
                                                             <span className="text-[9px] text-text-muted">
                                                                 {typeof item.post.engagement === "number"
                                                                     ? `${item.post.engagement.toLocaleString()} engagements`
@@ -476,7 +469,7 @@ export default function DfyPage() {
                                                                             className={clsx(
                                                                                 "flex items-center gap-1 rounded px-2 py-1 text-[10px] font-semibold transition-all",
                                                                                 isCopied
-                                                                                    ? "border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.12)] text-[var(--success)]"
+                                                                                    ? "status-success"
                                                                                     : "btn-secondary px-2 py-1 text-[10px]"
                                                                             )}
                                                                         >
@@ -502,7 +495,7 @@ export default function DfyPage() {
                         {/* Error in step 3 */}
                         {!loadingPhase && results.length === 0 && error && (
                             <div className="flex flex-col items-center py-16 gap-4">
-                                <p className="text-sm text-red-400">{error}</p>
+                                <p className="text-sm text-[var(--danger)]">{error}</p>
                                 <button onClick={() => setStep(2)} className="btn-primary">
                                     <RotateCcw size={14} />
                                     <span>Try Again</span>
@@ -524,7 +517,7 @@ export default function DfyPage() {
                     ))}
                 </div>
                 <p className="text-[12px] text-text-muted font-medium">
-                    © 2026 CashTap AI. All rights reserved.
+                    © 2026 AI CashWave. All rights reserved.
                 </p>
             </footer>
 

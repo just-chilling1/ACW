@@ -16,7 +16,7 @@ export function SkeletonRows({
       {Array.from({ length: rows }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4"
+          className="surface-nested flex items-center gap-4"
         >
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-5 w-16 rounded-full" />
@@ -43,7 +43,7 @@ export function SkeletonCards({
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-4"
+          className="surface-panel flex flex-col gap-3 p-4"
         >
           <Skeleton className="h-3 w-16" />
           <Skeleton className="h-4 w-full" />

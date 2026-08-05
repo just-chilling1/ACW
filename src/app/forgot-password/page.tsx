@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Mail, ArrowLeft, ShieldCheck, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
+import { Card } from "@/components/ui/card";
 import { FloatingSupportButton } from "@/components/support/FloatingSupportButton";
 
 export default function ForgotPasswordPage() {
@@ -37,7 +38,7 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <div className="app-bg min-h-dvh flex items-center justify-center p-6 relative overflow-x-hidden">
+        <div className="min-h-dvh flex items-center justify-center p-6 relative overflow-x-hidden">
             <FloatingSupportButton />
 
             <motion.div
@@ -45,11 +46,11 @@ export default function ForgotPasswordPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md relative z-10"
             >
-                <div className="card-base flex flex-col gap-8 p-10">
+                <Card padding="none" className="flex flex-col gap-8 p-10!">
                     <div className="flex flex-col items-center gap-4 text-center">
                         <Image
                             src="/logo.png"
-                            alt="CashTap AI"
+                            alt="AI CashWave"
                             width={220}
                             height={48}
                             className="h-10 w-auto object-contain"
@@ -71,8 +72,8 @@ export default function ForgotPasswordPage() {
                             animate={{ opacity: 1, scale: 1 }}
                             className="flex flex-col items-center gap-5 py-4"
                         >
-                            <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center">
-                                <CheckCircle2 size={32} className="text-green-400" />
+                            <div className="success-icon-well">
+                                <CheckCircle2 size={32} />
                             </div>
                             <div className="flex flex-col items-center gap-2 text-center">
                                 <p className="text-sm text-text-primary font-semibold">Reset link sent!</p>
@@ -94,7 +95,7 @@ export default function ForgotPasswordPage() {
                                 <motion.div
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="bg-red-500/10 border border-red-500/20 p-4 rounded-sm flex items-center gap-3 text-red-400 text-sm"
+                                className="error-banner"
                                 >
                                     <span>{error}</span>
                                 </motion.div>
@@ -141,10 +142,10 @@ export default function ForgotPasswordPage() {
                             Back to Login
                         </Link>
                     </div>
-                </div>
+                </Card>
 
-                <div className="mt-6 flex items-center justify-center gap-1 text-[10px] text-text-muted">
-                    <ShieldCheck size={10} className="text-green-400" />
+                <div className="mt-6 flex items-center justify-center gap-1 text-xs text-text-secondary">
+                    <ShieldCheck size={10} className="icon-trust-success" />
                     <span>256-bit Encrypted</span>
                 </div>
             </motion.div>

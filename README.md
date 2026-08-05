@@ -1,4 +1,4 @@
-# CashTap AI
+# AI CashWave
 
 Next.js affiliate earnings app (clone of 1-Tap Cashflow), deployed at **https://cashtapaiaccess.com**.
 

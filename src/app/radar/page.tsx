@@ -11,25 +11,7 @@ import { clsx } from "clsx";
 import { PageHeader } from "@/components/ui/page-header";
 import { GenerationProgress } from "@/components/ui/generation-progress";
 import { SelectableChip } from "@/components/ui/selectable-chip";
-import { SkeletonCards } from "@/components/ui/skeleton";
-
-function PlatformBadge({ platform }: { platform: string }) {
-  const isReddit = platform === "Reddit";
-  return (
-    <span
-      className={clsx(
-        "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest",
-        isReddit
-          ? "border-orange-400/20 bg-orange-400/5 text-orange-400"
-          : "border-red-500/20 bg-red-500/5 text-red-500"
-      )}
-    >
-      {platform}
-    </span>
-  );
-}
-
-function RadarAdCard({
+import { PlatformBadge } from "@/components/ui/platform-badge";
   post,
   isSelected,
   onToggle,
@@ -45,14 +27,14 @@ function RadarAdCard({
       onClick={onToggle}
       className={clsx(
         "card-base relative cursor-pointer p-4! transition-all",
-        isSelected && "border-[rgba(234,179,8,0.45)] bg-[rgba(234,179,8,0.06)]"
+        isSelected && "border-[var(--accent-border-emphasis)] bg-[var(--accent-bg-faint)]"
       )}
     >
       <div
         className={clsx(
           "absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border-2 transition-all sm:h-5 sm:w-5",
           isSelected
-            ? "border-[var(--gold)] bg-[var(--gold)] text-[#0A0A0B]"
+            ? "border-[var(--gold)] bg-[var(--gold)] text-[var(--text-on-accent)]"
             : "border-[var(--border-strong)] bg-[var(--surface-2)]"
         )}
       >
@@ -215,7 +197,7 @@ export default function RadarPage() {
         animate={{ opacity: 1 }}
         className="flex min-h-[60vh] flex-col items-center justify-center gap-6"
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-1)]">
+                <div className="ds-well flex h-14 w-14 items-center justify-center p-0!">
           <Search size={24} strokeWidth={1.75} className="text-text-muted" />
         </div>
         <div className="flex flex-col gap-2 text-center">
@@ -247,7 +229,7 @@ export default function RadarPage() {
               <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-text-muted">
                 Selected
               </span>
-              <span className="text-lg font-bold tabular-nums text-[var(--gold)]">
+              <span className="ds-h3 tabular-nums text-[var(--gold)]">
                 {selectedAds.length}
               </span>
             </div>
@@ -324,7 +306,7 @@ export default function RadarPage() {
             </div>
           ) : hasFetchedActive ? (
             <div className="col-span-full flex flex-col items-center justify-center gap-3 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] py-16">
-              <Search size={32} strokeWidth={1.5} className="text-text-muted/30" />
+              <Search size={32} strokeWidth={1.5} className="text-text-muted" />
               <p className="text-sm font-medium text-text-muted">
                 No ads found for &ldquo;{activeChip}&rdquo;
               </p>

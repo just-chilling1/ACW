@@ -91,7 +91,7 @@ export function ContactSupportWidget() {
     return (
       <div className="card-base min-w-0 space-y-5 overflow-hidden p-5">
         <div className="flex flex-col items-center text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(16,185,129,0.3)] bg-[rgba(16,185,129,0.1)]">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--success-border)] bg-[var(--success-bg-faint)]">
             <CheckCircle2 className="h-6 w-6 text-[var(--success)]" />
           </div>
           <h3 className="ds-h3">{sentViaMailto ? 'Check your email app' : 'Message sent'}</h3>

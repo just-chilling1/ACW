@@ -33,7 +33,7 @@ export function SourceCard({
     <article
       className={clsx(
         "card-base flex flex-col gap-3 p-4!",
-        completed && "border-[rgba(16,185,129,0.35)]",
+        completed && "border-[var(--success-border-strong)]",
         className
       )}
     >
@@ -46,8 +46,8 @@ export function SourceCard({
             className={clsx(
               "rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
               isEasy
-                ? "bg-[rgba(16,185,129,0.12)] text-[var(--success)]"
-                : "bg-[rgba(245,179,1,0.12)] text-[var(--warning)]"
+                ? "badge-success"
+                : "badge-warning"
             )}
           >
             {difficulty}
@@ -61,7 +61,7 @@ export function SourceCard({
             className={clsx(
               "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors",
               completed
-                ? "border-[var(--success)] bg-[var(--success)] text-white"
+                ? "border-[var(--success)] bg-[var(--success)] text-[var(--text-on-accent)]"
                 : "border-[var(--border-strong)] text-transparent hover:border-[var(--gold)]"
             )}
           >

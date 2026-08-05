@@ -30,6 +30,6 @@ Complete [SUPABASE_AUTH_SETUP.md](./SUPABASE_AUTH_SETUP.md) before testing forgo
 
 ## 5. Smoke test
 
-- [ ] `https://cashtapaiaccess.com/login` shows **CashTap AI**
+- [ ] `https://cashtapaiaccess.com/login` shows **AI CashWave**
 - [ ] Sign in with an existing 1tap user works
 - [ ] Forgot password email redirects to `cashtapaiaccess.com`

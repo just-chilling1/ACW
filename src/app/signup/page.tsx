@@ -9,6 +9,7 @@ import { Mail, UserPlus, ShieldAlert, User, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { ONBOARDING_META_KEY } from "@/config/onboarding-content";
 import { FloatingSupportButton } from "@/components/support/FloatingSupportButton";
+import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 
 export default function SignupPage() {
@@ -65,7 +66,7 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="app-bg min-h-dvh flex items-center justify-center p-6 relative overflow-x-hidden">
+        <div className="min-h-dvh flex items-center justify-center p-6 relative overflow-x-hidden">
             <FloatingSupportButton />
 
             <motion.div
@@ -73,11 +74,11 @@ export default function SignupPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full max-w-md relative z-10"
             >
-                <div className="card-base flex flex-col gap-8 p-10">
+                <Card padding="none" className="flex flex-col gap-8 p-10!">
                     <div className="flex flex-col items-center gap-4 text-center">
                         <Image
                             src="/logo.png"
-                            alt="CashTap AI"
+                            alt="AI CashWave"
                             width={240}
                             height={52}
                             className="h-12 w-auto object-contain"
@@ -91,7 +92,7 @@ export default function SignupPage() {
                             <motion.div
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                className="bg-red-500/10 border border-red-500/20 p-4 rounded-sm flex items-center gap-3 text-red-400 text-sm"
+                                className="error-banner"
                             >
                                 <ShieldAlert size={18} />
                                 <span>{error}</span>
@@ -172,7 +173,7 @@ export default function SignupPage() {
                             Log In
                         </Link>
                     </div>
-                </div>
+                </Card>
 
                 <div className="mt-8 text-center">
                     <p className="page-eyebrow">

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="45%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#CA8A04"/>
+    </linearGradient>
+    <linearGradient id="copper" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#C17F3A"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1C1C1F"/>
+      <stop offset="100%" stop-color="#161618"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Tile -->
+  <rect x="21.503999999999998" y="21.503999999999998" width="468.992" height="468.992" rx="92.16" fill="url(#panel)" stroke="#242427" stroke-width="4.096"/>
+
+  <!-- Back wave (copper) -->
+  <path d="M 61.44 296.96
+           C 143.36 215.04, 215.04 368.64, 281.6 296.96
+           S 419.84 194.56, 450.56 266.24"
+        stroke="url(#copper)" stroke-width="23.04" stroke-linecap="round" fill="none" opacity="0.95"/>
+
+  <!-- Front wave (gold) -->
+  <path d="M 61.44 337.92
+           C 163.84 256, 245.76 399.36, 317.44 327.68
+           S 440.32 235.52, 450.56 307.2"
+        stroke="url(#gold)" stroke-width="28.16" stroke-linecap="round" fill="none" filter="url(#glow)"/>
+
+  <!-- Coin / cash node -->
+  <circle cx="256" cy="194.56" r="56.32" fill="url(#gold)" filter="url(#glow)"/>
+  <text x="256" y="207.36" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="56.32" font-weight="800" fill="#0A0A0B">$</text>
+
+  <!-- AI sparkles -->
+  <g fill="#C17F3A" opacity="0.95">
+    <circle cx="368.64" cy="143.36" r="9.216"/>
+    <circle cx="399.36" cy="174.08" r="6.144"/>
+    <circle cx="348.16" cy="184.32" r="4.608"/>
+  </g>
+  <path d="M 378.88 112.64 l 6.144 18.432 l 19.456 2.048 l -15.36 12.288 l 5.12 18.432 l -16.384 -11.264 l -16.384 11.264 l 5.12 -18.432 l -15.36 -12.288 l 19.456 -2.048 z"
+        fill="#FDE047" transform="translate(10.24, 0)"/>
+</svg>

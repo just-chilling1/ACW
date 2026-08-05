@@ -89,7 +89,7 @@ export function countryFromIp(ip: string | null | undefined): string | null {
  * country header. We therefore:
  * 1) honor any explicit country header if present, then
  * 2) GeoIP-lookup the client IP from `do-connecting-ip` (works for both the
- *    CashTap app and the EverAffiliate iframe embed).
+ *    AI CashWave app and the EverAffiliate iframe embed).
  */
 export function resolveRequestCountry(request: Request): string | null {
     const headerCandidates = [

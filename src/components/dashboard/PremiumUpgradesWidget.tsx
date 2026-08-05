@@ -36,7 +36,7 @@ export function PremiumUpgradesWidget() {
                 className={clsx(
                   "flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] border transition-colors",
                   isActive
-                    ? "border-[rgba(234,179,8,0.4)] bg-[rgba(234,179,8,0.12)] text-[var(--gold)]"
+                    ? "border-[var(--accent-border-emphasis)] bg-[var(--accent-bg-medium)] text-[var(--gold)]"
                     : "border-[var(--border-subtle)] bg-[var(--surface-2)] text-[var(--gold)]"
                 )}
               >
@@ -50,7 +50,7 @@ export function PremiumUpgradesWidget() {
                 <p className="mt-0.5 text-xs leading-relaxed text-text-muted">{feature.description}</p>
               </div>
 
-              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/5 text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--gold)]">
+              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--surface-3)] text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--gold)]">
                 <ArrowRight size={14} strokeWidth={1.75} />
               </span>
             </Link>

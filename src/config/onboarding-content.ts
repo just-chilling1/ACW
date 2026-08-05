@@ -1,9 +1,11 @@
 /**
- * CashTap AI onboarding — edit copy here only.
+ * AI CashWave onboarding — edit copy here only.
  * Plain language, no product/page names, no ads.
  */
 
-export const ONBOARDING_PRODUCT_NAME = "CashTap AI";
+import { APP_NAME } from "@/lib/brand";
+
+export const ONBOARDING_PRODUCT_NAME = APP_NAME;
 
 export const ONBOARDING_DASHBOARD_ROUTE = "/dashboard";
 

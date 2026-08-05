@@ -13,7 +13,7 @@ const MILESTONES = [
     { threshold: 5, label: "Getting Serious", icon: Flame, reward: "You're ahead of 80% of members." },
     { threshold: 10, label: "Ad Hunter", icon: Zap, reward: "Top 10% of earners started here." },
     { threshold: 25, label: "Power User", icon: Trophy, reward: "You're in the top 5%. Keep going!" },
-    { threshold: 50, label: "CashTap Master", icon: Crown, reward: "Elite status. You're unstoppable." },
+    { threshold: 50, label: "CashWave Master", icon: Crown, reward: "Elite status. You're unstoppable." },
 ];
 
 export function MilestoneTracker({ totalSearches }: MilestoneTrackerProps) {
@@ -27,11 +27,11 @@ export function MilestoneTracker({ totalSearches }: MilestoneTrackerProps) {
         <div className="card-base flex flex-col gap-5 p-6!">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)]">
                         <Trophy size={18} className="text-[var(--gold)]" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-bold text-text-primary">Your Progress</span>
+                        <span className="ds-h6">Your Progress</span>
                         <span className="text-[10px] uppercase tracking-widest text-text-muted">
                             {currentMilestone ? currentMilestone.label : "Just Getting Started"}
                         </span>
@@ -46,7 +46,7 @@ export function MilestoneTracker({ totalSearches }: MilestoneTrackerProps) {
             </div>
 
             {currentMilestone && (
-                <p className="rounded-lg border border-[rgba(16,185,129,0.15)] bg-[rgba(16,185,129,0.08)] px-3 py-2 text-xs font-medium text-[var(--success)]">
+                <p className="status-success rounded-lg px-3 py-2 text-xs font-medium">
                     {currentMilestone.reward}
                 </p>
             )}

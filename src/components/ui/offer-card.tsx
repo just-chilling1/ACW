@@ -27,7 +27,7 @@ export function OfferCard({
     <article
       className={clsx(
         "card-base flex h-full flex-col gap-3 p-5!",
-        selected && "border-[rgba(234,179,8,0.45)]",
+        selected && "border-[var(--accent-border-emphasis)]",
         className
       )}
     >
@@ -35,7 +35,7 @@ export function OfferCard({
         <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">
           {niche}
         </span>
-        <span className="rounded-md bg-[rgba(16,185,129,0.12)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--success)]">
+        <span className="badge-success">
           {badge}
         </span>
       </div>

@@ -1,6 +1,6 @@
 # Supabase dashboard steps (manual)
 
-Complete these in the Supabase project used by 1tap and CashTap AI.
+Complete these in the Supabase project used by 1tap and AI CashWave.
 
 ## Redirect URLs
 
@@ -26,7 +26,7 @@ Use `{{ .ConfirmationURL }}` in the reset link so `redirectTo` from each app con
 <p><a href="{{ .ConfirmationURL }}">Reset Password</a></p>
 ```
 
-CashTap calls `resetPasswordForEmail` with `https://cashtapaiaccess.com/auth/callback?next=/reset-password`.
+AI CashWave calls `resetPasswordForEmail` with `https://cashtapaiaccess.com/auth/callback?next=/reset-password`.
 
 ## Confirm signup (if enabled)
 

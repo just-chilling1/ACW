@@ -9,13 +9,13 @@ import { SpecialistWelcomePopup } from "@/components/ui/specialist-welcome-popup
  */
 export default function SpecialistPopupPreviewPage() {
     return (
-        <div className="min-h-dvh bg-page text-white flex items-center justify-center p-6">
+        <div className="min-h-dvh flex items-center justify-center p-6 text-text-primary">
             <div className="max-w-md text-center space-y-3">
-                <p className="text-sm text-white/60 uppercase tracking-widest">
+                <p className="ds-annotation text-text-tertiary">
                     Dev preview
                 </p>
                 <h1 className="text-2xl font-bold">Start-Up Specialist Popup</h1>
-                <p className="text-sm text-white/70">
+                <p className="ds-body-sm text-text-secondary">
                     Production users only see this when US/CA + Mon–Fri 08:30–17:30
                     PT.
                 </p>

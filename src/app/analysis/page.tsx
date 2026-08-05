@@ -23,9 +23,9 @@ function LevelBadge({ level }: { level: string }) {
     return (
         <div className={clsx(
             "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider",
-            isHigh ? "text-green-400 bg-green-500/10 border border-green-500/20" :
-            isActive ? "text-accent bg-accent/10 border border-accent/20" :
-            "text-text-muted bg-surface border border-border-dim"
+            isHigh ? "badge-level-high" :
+            isActive ? "badge-level-active" :
+            "badge-level-low"
         )}>
             {isHigh ? <Flame size={10} /> : isActive ? <Zap size={10} /> : <TrendingDown size={10} />}
             <span>{isHigh ? "High" : isActive ? "Active" : "Low"}</span>
@@ -34,7 +34,7 @@ function LevelBadge({ level }: { level: string }) {
 }
 
 function ConfidenceBar({ value }: { value: number }) {
-    const color = value >= 80 ? "bg-green-500" : value >= 50 ? "bg-accent" : "bg-orange-400";
+    const color = value >= 80 ? "progress-fill-high" : value >= 50 ? "progress-fill-mid" : "progress-fill-low";
     return (
         <div className="flex items-center gap-2 w-full min-w-[100px]">
             <div className="flex-1 h-1.5 bg-page rounded-full overflow-hidden border border-border-dim/20">
@@ -169,7 +169,7 @@ export default function AnalysisPage() {
             {sortKey === sKey ? (
                 sortDir === "desc" ? <ChevronDown size={10} className="text-accent" /> : <ChevronUp size={10} className="text-accent" />
             ) : (
-                <ArrowUpDown size={10} className="text-text-muted/30 group-hover/sort:text-text-muted transition-colors" />
+                <ArrowUpDown size={10} className="text-text-muted group-hover/sort:text-text-secondary transition-colors" />
             )}
         </button>
     );
@@ -177,11 +177,11 @@ export default function AnalysisPage() {
     if (variations.length === 0) {
         return (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-                <div className="w-14 h-14 rounded-xl bg-surface flex items-center justify-center border border-border-dim">
+                <div className="ds-well flex h-14 w-14 items-center justify-center p-0!">
                     <Search size={24} className="text-text-muted" />
                 </div>
                 <div className="text-center flex flex-col gap-2">
-                    <h2 className="text-xl font-bold text-text-primary">Start with Step 1</h2>
+                    <h2 className="ds-h2">Start with Step 1</h2>
                     <p className="text-sm text-text-muted">Enter a topic first so we can check demand.</p>
                 </div>
                 <button onClick={() => router.push("/search")} className="btn-primary">
@@ -285,10 +285,10 @@ export default function AnalysisPage() {
                             <div className="flex flex-col gap-1.5">
                                 <div className="flex items-center gap-2">
                                     <BarChart3 size={14} className="text-accent" />
-                                    <span className="text-xs font-bold text-white">Demand Level</span>
+                                    <span className="text-xs font-bold text-text-primary">Demand Level</span>
                                 </div>
                                 <p className="text-[11px] text-text-muted leading-relaxed">
-                                    <strong className="text-green-400">High</strong> = lots of people talking about this. Great for ads.
+                                    <strong className="text-success">High</strong> = lots of people talking about this. Great for ads.
                                     <strong className="text-accent"> Active</strong> = decent amount of activity. Worth trying.
                                     <strong className="text-text-muted"> Low</strong> = not much activity. Try a different angle.
                                 </p>
@@ -296,7 +296,7 @@ export default function AnalysisPage() {
                             <div className="flex flex-col gap-1.5">
                                 <div className="flex items-center gap-2">
                                     <MessageSquare size={14} className="text-accent" />
-                                    <span className="text-xs font-bold text-white">Ad Count</span>
+                                    <span className="text-xs font-bold text-text-primary">Ad Count</span>
                                 </div>
                                 <p className="text-[11px] text-text-muted leading-relaxed">
                                     How many ads and conversations we found on Reddit and YouTube. More ads = more places to post your reply and earn.
@@ -305,7 +305,7 @@ export default function AnalysisPage() {
                             <div className="flex flex-col gap-1.5">
                                 <div className="flex items-center gap-2">
                                     <Shield size={14} className="text-accent" />
-                                    <span className="text-xs font-bold text-white">Confidence</span>
+                                    <span className="text-xs font-bold text-text-primary">Confidence</span>
                                 </div>
                                 <p className="text-[11px] text-text-muted leading-relaxed">
                                     How sure we are about the data. Higher = more reliable. Based on how much live data we collected from real platforms.
@@ -314,7 +314,7 @@ export default function AnalysisPage() {
                             <div className="flex flex-col gap-1.5">
                                 <div className="flex items-center gap-2">
                                     <Info size={14} className="text-accent" />
-                                    <span className="text-xs font-bold text-white">What to Do</span>
+                                    <span className="text-xs font-bold text-text-primary">What to Do</span>
                                 </div>
                                 <p className="text-[11px] text-text-muted leading-relaxed">
                                     Click any row to select it. Then press <strong className="text-accent">&ldquo;Step 3: Find Ads&rdquo;</strong> to see real ads for that topic and create replies.
@@ -328,7 +328,7 @@ export default function AnalysisPage() {
             {/* Data Table — only after user starts analysis */}
             {hasStarted && (
             <div id="generation-results" className="-mx-4 scroll-mt-24 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-            <div className="min-w-[640px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] shadow-[var(--elevation-1)]">
+            <div className="surface-panel-elevated min-w-[640px] overflow-hidden">
                 {/* Table Header */}
                 <div className="sticky top-0 grid grid-cols-12 gap-4 border-b border-[var(--border-subtle)] bg-[var(--surface-1)] px-5 py-3">
                     <div className="col-span-4">
@@ -364,7 +364,7 @@ export default function AnalysisPage() {
                                 onClick={() => setActiveChip(v)}
                                 className={clsx(
                                     "grid w-full grid-cols-12 gap-4 px-5 py-3.5 text-left transition-colors hover:bg-[var(--surface-3)]",
-                                    isSelected && "border-l-2 border-l-[var(--gold)] bg-[rgba(234,179,8,0.06)]"
+                                    isSelected && "border-l-2 border-l-[var(--gold)] bg-[var(--accent-bg-faint)]"
                                 )}
                             >
                                 <div className="col-span-4 flex min-w-0 items-center gap-2">
@@ -433,7 +433,7 @@ export default function AnalysisPage() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <Brain size={16} className="text-accent" />
-                            <span className="text-sm font-bold text-white">Details for &ldquo;{activeChip}&rdquo;</span>
+                            <span className="ds-h6">Details for &ldquo;{activeChip}&rdquo;</span>
                         </div>
                         <button
                             onClick={() => {
@@ -453,7 +453,7 @@ export default function AnalysisPage() {
                     </p>
                     <div className="flex items-center gap-4 text-[10px] text-text-muted pt-2 border-t border-border-dim/15">
                         <span>Sources: <strong className="text-text-primary">{analysisByVariation[activeChip].sources ?? 0}</strong></span>
-                        <span>Live data: <strong className={analysisByVariation[activeChip].liveData ? "text-green-400" : "text-text-muted"}>{analysisByVariation[activeChip].liveData ? "Yes" : "No"}</strong></span>
+                        <span>Live data: <strong className={analysisByVariation[activeChip].liveData ? "text-success" : "text-text-muted"}>{analysisByVariation[activeChip].liveData ? "Yes" : "No"}</strong></span>
                     </div>
                 </motion.div>
             )}

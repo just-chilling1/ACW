@@ -31,7 +31,7 @@ export function FloatingSupportButton() {
       {open && (
         <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Contact support">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 overlay-scrim backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
           <div className="absolute inset-x-3 bottom-3 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[400px]">

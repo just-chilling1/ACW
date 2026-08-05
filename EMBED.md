@@ -13,7 +13,7 @@ Everything works exactly like in the app:
 - **10-minute countdown** with red urgency timer.
 - **Click tracking** — every "Call Now" tap is recorded in the
   `specialist_popup_events` Supabase table (visitor country + device;
-  `user_id` is empty for visitors who aren't logged into CashTap).
+  `user_id` is empty for visitors who aren't logged into AI CashWave).
 - **Close button** hides the popup (and tells your page to hide the iframe).
 
 ## Copy-paste snippet
@@ -24,7 +24,7 @@ Put this right before `</body>` on your website:
 <iframe
   id="cashtap-specialist-popup"
   src="https://cashtapaiaccess.com/embed/specialist-popup"
-  title="CashTap AI Start-Up Specialist"
+  title="AI CashWave Start-Up Specialist"
   style="position:fixed;inset:0;width:100%;height:100%;border:0;z-index:999999;display:none;background:transparent"
   allowtransparency="true"
 ></iframe>
@@ -44,7 +44,7 @@ Put this right before `</body>` on your website:
 How it behaves:
 
 1. The iframe loads invisibly (`display:none`).
-2. The popup checks eligibility against the CashTap server (DigitalOcean)
+2. The popup checks eligibility against the AI CashWave server (DigitalOcean)
    using the **visitor's** IP (GeoIP → US/CA) and the current Pacific time.
 3. If eligible, the iframe posts `{ type: "cashtap-specialist-popup", open: true }`
    and the snippet makes it visible, covering the page with the popup + dimmed
@@ -61,12 +61,12 @@ Same queries as the in-app popup (Supabase SQL Editor):
 SELECT count(*) FROM specialist_popup_events WHERE event = 'cta_call_click';
 ```
 
-Clicks from your website and from inside the CashTap app all land in the same
+Clicks from your website and from inside the AI CashWave app all land in the same
 table.
 
 ## Notes
 
 - The dismiss is per browser session (sessionStorage inside the iframe).
 - `tel:` links work from iframes on phones — tapping the button opens the dialer.
-- Do not add `X-Frame-Options`/`frame-ancestors` restrictions to the CashTap
+- Do not add `X-Frame-Options`/`frame-ancestors` restrictions to the AI CashWave
   deployment for this route, or embedding will break.

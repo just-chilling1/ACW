@@ -26,7 +26,7 @@ export const DASHBOARD_TRAINING_VIDEOS: readonly DashboardTrainingVideo[] = [
     id: "1213002066",
     title: "How The Money Flows",
     description:
-      "Where the money comes from, who pays you, and what every word inside CashTap AI actually means — in plain language.",
+      "Where the money comes from, who pays you, and what every word inside AI CashWave actually means — in plain language.",
     duration: "10+ min",
     thumbnail: `/thumbnails/thumb-d02-how-the-money-flows.webp?v=${THUMB_V}`,
     visible: true,

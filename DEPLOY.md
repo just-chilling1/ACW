@@ -1,4 +1,4 @@
-# CashTap AI — deployment notes
+# AI CashWave — deployment notes
 
 `.env.local.example` is committed as a template; copy it to `.env.local` locally (gitignored).
 

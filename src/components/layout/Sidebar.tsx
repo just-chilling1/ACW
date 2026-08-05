@@ -95,7 +95,7 @@ export function Sidebar({
             key={step.path}
             title="Complete the previous step first"
             className={clsx(
-              "command-nav-link shrink-0 cursor-not-allowed opacity-40",
+              "command-nav-link shrink-0 nav-locked",
               collapsedView ? "justify-center px-0" : "whitespace-nowrap"
             )}
           >
@@ -122,7 +122,7 @@ export function Sidebar({
         >
           <div className={clsx("flex items-center", collapsedView ? "justify-center" : "gap-3")}>
             {completed ? (
-              <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[rgba(16,185,129,0.15)] text-[var(--success)]">
+              <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[var(--success-bg-medium)] text-[var(--success)]">
                 <Check size={12} strokeWidth={2.5} />
               </span>
             ) : (
@@ -168,12 +168,12 @@ export function Sidebar({
               "group flex min-w-0 items-center",
               collapsed ? "w-full justify-center" : "mx-auto w-[85%] pt-1"
             )}
-            title="CashTap AI"
+            title="AI CashWave"
           >
             {collapsed ? (
               <Image
                 src="/logo-mark.png"
-                alt="CashTap AI"
+                alt="AI CashWave"
                 width={40}
                 height={40}
                 className="h-9 w-9 object-contain"
@@ -182,7 +182,7 @@ export function Sidebar({
             ) : (
               <Image
                 src="/logo.png"
-                alt="CashTap AI"
+                alt="AI CashWave"
                 width={220}
                 height={48}
                 className="h-auto w-full object-contain object-left"
@@ -236,7 +236,7 @@ export function Sidebar({
                   href={promo.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[rgba(234,179,8,0.22)] bg-[var(--surface-2)] p-3 transition-colors hover:border-[rgba(234,179,8,0.4)]"
+                  className="group flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--accent-border-soft)] bg-[var(--surface-2)] p-3 transition-colors hover:border-[var(--accent-border-emphasis)]"
                 >
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <span className="text-[12px] font-semibold leading-tight text-[var(--gold)]">
@@ -310,7 +310,7 @@ export function Sidebar({
           onClick={resetSession}
           title="Logout"
           className={clsx(
-            "command-nav-link w-full text-red-400/70 hover:bg-red-500/5 hover:text-red-400",
+            "command-nav-link nav-danger w-full",
             collapsed ? "justify-center px-0" : "whitespace-nowrap"
           )}
         >

@@ -1,7 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import {
+    readSession,
+    writeSession,
+    clearSession,
+    migrateLegacySession,
+    clearLegacySession,
+} from "@/lib/session-storage";
 
 export interface Ad {
     id: string;
@@ -50,7 +57,17 @@ interface SearchContextType {
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
+const EMPTY_STATE = {
+    keyword: "",
+    variations: [] as string[],
+    activeChip: "",
+    affiliateLink: "",
+    history: [] as string[],
+};
+
 export function SearchProvider({ children }: { children: React.ReactNode }) {
+    const [userId, setUserId] = useState<string | null>(null);
+    const userIdRef = useRef<string | null>(null);
     const [keyword, setKeyword] = useState("");
     const [variations, setVariations] = useState<string[]>([]);
     const [activeChip, setActiveChip] = useState("");
@@ -63,101 +80,135 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     const [selectedAds, setSelectedAds] = useState<Ad[]>([]);
     const [history, setHistory] = useState<string[]>([]);
 
-    // Load history and last search state on mount
-    useEffect(() => {
-        const fetchHistoryAndState = async () => {
-            try {
-                // Restore from localStorage first for faster UI
-                const savedKeyword = localStorage.getItem("cashtap_current_keyword");
-                const savedVariations = localStorage.getItem("cashtap_current_variations");
-                const savedChip = localStorage.getItem("cashtap_current_chip");
-                const savedAffiliate = localStorage.getItem("cashtap_current_affiliate");
-                if (savedKeyword) setKeyword(savedKeyword);
-                if (savedVariations) setVariations(JSON.parse(savedVariations));
-                if (savedChip) setActiveChip(savedChip);
-                if (savedAffiliate) setAffiliateLink(savedAffiliate);
-                // Do not restore selected ads across reloads — analysis/posts are session-only,
-                // so restoring ads would unlock later steps out of order.
-
-                // Fetch real history from Supabase
-                const { data, error } = await supabase
-                    .from("search_history")
-                    .select("keyword")
-                    .order("created_at", { ascending: false })
-                    .limit(20);
-
-                if (!error && data) {
-                    const uniqueKeywords: string[] = [];
-                    data.forEach(item => {
-                        if (!uniqueKeywords.includes(item.keyword) && uniqueKeywords.length < 5) {
-                            uniqueKeywords.push(item.keyword);
-                        }
-                    });
-                    setHistory(uniqueKeywords);
-                    localStorage.setItem("cashtap_history", JSON.stringify(uniqueKeywords));
-
-                    // If we don't have a keyword in state, use the latest from history
-                    if (!savedKeyword && uniqueKeywords[0]) {
-                        const lastKeyword = uniqueKeywords[0];
-                        setKeyword(lastKeyword);
-                        localStorage.setItem("cashtap_current_keyword", lastKeyword);
-
-                        // Also try to fetch variations for this last keyword
-                        const { data: vData } = await supabase
-                            .from("keyword_variations")
-                            .select("variations")
-                            .eq("parent_keyword", lastKeyword)
-                            .single();
-
-                        if (vData?.variations) {
-                            setVariations(vData.variations);
-                            setActiveChip(vData.variations[0]);
-                            localStorage.setItem("cashtap_current_variations", JSON.stringify(vData.variations));
-                            localStorage.setItem("cashtap_current_chip", vData.variations[0]);
-                        }
-                    }
-                } else {
-                    const savedHistory = localStorage.getItem("cashtap_history");
-                    if (savedHistory) setHistory(JSON.parse(savedHistory));
-                }
-            } catch (e) {
-                console.error("Error restoring state:", e);
-                const savedHistory = localStorage.getItem("cashtap_history");
-                if (savedHistory) setHistory(JSON.parse(savedHistory));
-            }
-        };
-        fetchHistoryAndState();
-    }, []);
-
-    // Persist changes to localStorage
-    useEffect(() => {
-        if (keyword) localStorage.setItem("cashtap_current_keyword", keyword);
-        if (variations.length > 0) localStorage.setItem("cashtap_current_variations", JSON.stringify(variations));
-        if (activeChip) localStorage.setItem("cashtap_current_chip", activeChip);
-        if (affiliateLink) localStorage.setItem("cashtap_current_affiliate", affiliateLink);
-        localStorage.setItem("cashtap_selected_posts", JSON.stringify(selectedAds));
-    }, [keyword, variations, activeChip, affiliateLink, selectedAds]);
-
-    const addToHistory = async (k: string) => {
-        const newHistory = [k, ...history.filter(h => h !== k)].slice(0, 5);
-        setHistory(newHistory);
-        localStorage.setItem("cashtap_history", JSON.stringify(newHistory));
-    };
-
-    const resetSession = async () => {
-        setKeyword("");
-        setVariations([]);
-        setActiveChip("");
+    const clearInMemoryState = useCallback(() => {
+        setKeyword(EMPTY_STATE.keyword);
+        setVariations(EMPTY_STATE.variations);
+        setActiveChip(EMPTY_STATE.activeChip);
+        setAffiliateLink(EMPTY_STATE.affiliateLink);
+        setHistory(EMPTY_STATE.history);
         setPostsByVariation({});
         setActivityByVariation({});
         setAnalysisByVariation({});
-        setAffiliateLink("");
         setExpandedPostId(null);
         setRepliesByPostId({});
         setSelectedAds([]);
-        setHistory([]);
-        localStorage.removeItem("cashtap_history");
-        localStorage.removeItem("cashtap_selected_posts");
+    }, []);
+
+    const hydrateFromStorage = useCallback((uid: string) => {
+        migrateLegacySession(uid);
+        const saved = readSession(uid);
+        if (saved.keyword) setKeyword(saved.keyword);
+        if (saved.variations) setVariations(saved.variations);
+        if (saved.activeChip) setActiveChip(saved.activeChip);
+        if (saved.affiliateLink) setAffiliateLink(saved.affiliateLink);
+        if (saved.history) setHistory(saved.history);
+    }, []);
+
+    const fetchHistoryFromDb = useCallback(async (uid: string, savedKeyword?: string) => {
+        try {
+            const { data, error } = await supabase
+                .from("search_history")
+                .select("keyword")
+                .order("created_at", { ascending: false })
+                .limit(20);
+
+            if (!error && data) {
+                const uniqueKeywords: string[] = [];
+                data.forEach((item) => {
+                    if (!uniqueKeywords.includes(item.keyword) && uniqueKeywords.length < 5) {
+                        uniqueKeywords.push(item.keyword);
+                    }
+                });
+                setHistory(uniqueKeywords);
+                writeSession(uid, { history: uniqueKeywords });
+
+                if (!savedKeyword && uniqueKeywords[0]) {
+                    const lastKeyword = uniqueKeywords[0];
+                    setKeyword(lastKeyword);
+                    writeSession(uid, { keyword: lastKeyword });
+
+                    const { data: vData } = await supabase
+                        .from("keyword_variations")
+                        .select("variations")
+                        .eq("parent_keyword", lastKeyword)
+                        .single();
+
+                    if (vData?.variations) {
+                        setVariations(vData.variations);
+                        setActiveChip(vData.variations[0]);
+                        writeSession(uid, {
+                            keyword: lastKeyword,
+                            variations: vData.variations,
+                            activeChip: vData.variations[0],
+                        });
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Error fetching search history:", e);
+        }
+    }, []);
+
+    // Auth listener — reload state when the logged-in user changes
+    useEffect(() => {
+        const init = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            const uid = session?.user?.id ?? null;
+            userIdRef.current = uid;
+            setUserId(uid);
+
+            if (uid) {
+                hydrateFromStorage(uid);
+                const saved = readSession(uid);
+                await fetchHistoryFromDb(uid, saved.keyword);
+            } else {
+                clearLegacySession();
+            }
+        };
+
+        void init();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            const newUid = session?.user?.id ?? null;
+            if (newUid === userIdRef.current) return;
+
+            userIdRef.current = newUid;
+            setUserId(newUid);
+            clearInMemoryState();
+
+            if (newUid) {
+                hydrateFromStorage(newUid);
+                const saved = readSession(newUid);
+                void fetchHistoryFromDb(newUid, saved.keyword);
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [clearInMemoryState, hydrateFromStorage, fetchHistoryFromDb]);
+
+    // Persist changes to user-scoped localStorage
+    useEffect(() => {
+        if (!userId) return;
+        writeSession(userId, {
+            keyword,
+            variations,
+            activeChip,
+            affiliateLink,
+            history,
+            selectedAds,
+        });
+    }, [userId, keyword, variations, activeChip, affiliateLink, history, selectedAds]);
+
+    const addToHistory = async (k: string) => {
+        const newHistory = [k, ...history.filter((h) => h !== k)].slice(0, 5);
+        setHistory(newHistory);
+    };
+
+    const resetSession = async () => {
+        const uid = userIdRef.current;
+        clearInMemoryState();
+        if (uid) clearSession(uid);
+        clearLegacySession();
         await supabase.auth.signOut();
         window.location.href = "/login";
     };

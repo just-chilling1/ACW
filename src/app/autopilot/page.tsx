@@ -229,7 +229,7 @@ export default function AutomatedProfitsPage() {
             {/* Hero */}
             <section className="card-base relative flex flex-col items-center gap-4 overflow-hidden p-8 text-center md:p-12">
                 <div className="relative z-10 flex flex-col items-center gap-6">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-[var(--radius-lg)] border border-[rgba(234,179,8,0.3)] bg-[rgba(234,179,8,0.08)]">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--accent-border-strong)] bg-[var(--accent-bg-subtle)]">
                         <TrendingUp size={32} strokeWidth={1.5} className="text-[var(--gold)]" />
                     </div>
                     <h2 className="ds-h2">100+ Free Traffic Sources — Submit Once, Get Traffic Forever</h2>
@@ -267,11 +267,11 @@ export default function AutomatedProfitsPage() {
             <section className="card-base mt-10 flex flex-col gap-8 p-8!">
                 <div className="flex items-center gap-3">
                     <BookOpen size={22} className="text-[var(--gold)]" />
-                    <h2 className="text-xl font-bold text-text-primary">How This Works (Super Simple!)</h2>
+                    <h2 className="ds-h2">How This Works (Super Simple!)</h2>
                 </div>
 
-                <div className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6">
-                    <h3 className="text-base font-bold text-text-primary">The Secret To Automated Traffic:</h3>
+                <div className="surface-well-lg flex flex-col gap-4">
+                    <h3 className="ds-h5">The Secret To Automated Traffic:</h3>
                     <p className="text-sm text-text-secondary leading-relaxed">Most people waste hours every day posting on social media for traffic.</p>
                     <p className="text-sm text-text-secondary leading-relaxed">But what if you could submit your link ONCE and get traffic for months or even YEARS?</p>
                     <p className="text-sm font-bold leading-relaxed text-[var(--gold)]">That&apos;s exactly what these traffic sources do. You submit once, and they send you visitors automatically - no daily work required!</p>
@@ -283,17 +283,17 @@ export default function AutomatedProfitsPage() {
                         { num: "2", title: "Submit Your Link", desc: "Follow the simple step-by-step instructions to submit your link to each site. Takes 5-15 minutes per site." },
                         { num: "3", title: "Get Automatic Traffic", desc: "Once submitted, these sites send you traffic automatically. No daily work needed!" },
                     ].map((step) => (
-                        <div key={step.num} className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-6">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--gold)] text-sm font-semibold text-[#0A0A0B]">
+                        <div key={step.num} className="step-card">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--gold)] text-sm font-semibold text-[var(--text-on-accent)]">
                                 {step.num}
                             </div>
-                            <h3 className="text-lg font-bold text-text-primary">{step.title}</h3>
+                            <h3 className="ds-h3">{step.title}</h3>
                             <p className="text-sm text-text-secondary leading-relaxed">{step.desc}</p>
                         </div>
                     ))}
                 </div>
 
-                <div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[rgba(234,179,8,0.2)] bg-[rgba(234,179,8,0.06)] p-5">
+                <div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--accent-border-soft)] bg-[var(--accent-bg-faint)] p-5">
                     <Lightbulb size={18} className="mt-0.5 shrink-0 text-[var(--gold)]" />
                     <div>
                         <span className="text-sm font-bold text-[var(--gold)]">Pro Tip: </span>
@@ -306,7 +306,7 @@ export default function AutomatedProfitsPage() {
             <section className="mt-14 flex flex-col gap-8">
                 {/* Page URL Input */}
                 <div className="card-base flex flex-col gap-4 p-8!">
-                    <h3 className="inline-flex items-center gap-2 text-lg font-bold text-text-primary">
+                    <h3 className="ds-h3 inline-flex items-center gap-2">
                         Enter Your Page URL:
                         <InfoHint
                             label="What is a page URL or affiliate link?"
@@ -372,7 +372,7 @@ export default function AutomatedProfitsPage() {
                                 transition={{ delay: Math.min(idx * 0.03, 0.8) }}
                                 className={clsx(
                                     "card-base overflow-hidden p-0! transition-all",
-                                    isDone ? "border-[rgba(16,185,129,0.35)]" : "hover:border-[rgba(234,179,8,0.3)]"
+                                    isDone ? "border-[var(--success-border-strong)]" : "hover:border-[var(--accent-border-strong)]"
                                 )}
                             >
                                 <div className="flex flex-col gap-3 p-5">
@@ -383,19 +383,19 @@ export default function AutomatedProfitsPage() {
                                         <span className={clsx(
                                             "rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
                                             source.difficulty === "Easy"
-                                                ? "bg-[rgba(16,185,129,0.12)] text-[var(--success)]"
-                                                : "bg-[rgba(245,179,1,0.12)] text-[var(--warning)]"
+                                                ? "badge-success"
+                                                : "badge-warning"
                                         )}>
                                             {source.difficulty}
                                         </span>
                                         {isDone && (
-                                            <span className="ml-auto rounded-md border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.12)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--success)]">
+                                            <span className="badge-success ml-auto">
                                                 Done
                                             </span>
                                         )}
                                     </div>
 
-                                    <h3 className="text-base font-bold text-text-primary">{source.name}</h3>
+                                    <h3 className="ds-h5">{source.name}</h3>
 
                                     <div className="flex items-center gap-4 text-xs text-text-muted">
                                         <div className="flex items-center gap-1.5">
@@ -453,7 +453,7 @@ export default function AutomatedProfitsPage() {
                                                             className={clsx(
                                                                 "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
                                                                 copiedDescId === source.id
-                                                                    ? "border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.12)] text-[var(--success)]"
+                                                                    ? "status-success"
                                                                     : "btn-secondary px-3 py-1.5 text-xs"
                                                             )}
                                                         >
@@ -478,7 +478,7 @@ export default function AutomatedProfitsPage() {
                                                         className={clsx(
                                                             "flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold transition-all",
                                                             isDone
-                                                                ? "border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.12)] text-[var(--success)]"
+                                                                    ? "status-success"
                                                                 : "btn-secondary px-4 py-2.5 text-xs"
                                                         )}
                                                     >
@@ -518,7 +518,7 @@ export default function AutomatedProfitsPage() {
                     ))}
                 </div>
                 <p className="text-[12px] text-text-muted font-medium">
-                    © 2026 CashTap AI. All rights reserved.
+                    © 2026 AI CashWave. All rights reserved.
                 </p>
             </footer>
 

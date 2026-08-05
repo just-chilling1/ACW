@@ -1,10 +1,10 @@
-# CashTap AI — Shared Supabase with 1-Tap Cashflow
+# AI CashWave — Shared Supabase with 1-Tap Cashflow
 
-CashTap AI uses the **same Supabase project** as 1-Tap Cashflow (`1tap`).
+AI CashWave uses the **same Supabase project** as 1-Tap Cashflow (`1tap`).
 
 ## Environment variables
 
-Copy your existing values from the 1tap Vercel project (or local setup) into `.env.local` and the CashTap Vercel project:
+Copy your existing values from the 1tap Vercel project (or local setup) into `.env.local` and the AI CashWave Vercel project:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
@@ -31,6 +31,6 @@ In **Authentication → URL Configuration**:
 Use the **Reset Password** email template with `{{ .ConfirmationURL }}` so each app’s `redirectTo` in `resetPasswordForEmail` sends users to the correct domain:
 
 - 1tap: `https://1tapcashflowaccess.com/auth/callback?next=/reset-password`
-- CashTap: `https://cashtapaiaccess.com/auth/callback?next=/reset-password`
+- AI CashWave: `https://cashtapaiaccess.com/auth/callback?next=/reset-password`
 
 Do not hardcode a single domain in the template when both apps share one Supabase project.

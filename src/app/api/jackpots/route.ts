@@ -77,7 +77,7 @@ function getFallbackPosts(keyword: string): any[] {
     }
     if (bestKey && bestScore >= 2) return FALLBACK_POSTS[bestKey];
 
-    // Last resort: money / hustle content is the most common CashTap niche
+    // Last resort: money / hustle content is the most common AI CashWave niche
     return FALLBACK_POSTS["how to make money with ai tools reddit"];
 }
 

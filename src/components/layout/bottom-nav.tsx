@@ -73,7 +73,7 @@ export function BottomNav() {
     return (
         <>
             <nav
-                className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-subtle)] bg-[rgba(10,10,11,0.92)] backdrop-blur-md lg:hidden"
+                className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-subtle)] bg-[var(--chrome-bg)] backdrop-blur-md lg:hidden"
                 style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
             >
                 <div className="grid grid-cols-5 h-16">
@@ -87,7 +87,7 @@ export function BottomNav() {
                                 <div
                                     key={tab.path}
                                     title="Complete the previous step first"
-                                    className="relative flex flex-col items-center justify-center gap-1 text-text-muted/40 cursor-not-allowed"
+                                    className="relative flex flex-col items-center justify-center gap-1 nav-locked"
                                 >
                                     <Lock size={22} strokeWidth={1.8} />
                                     <span className="text-[11px] font-semibold leading-none">{tab.label}</span>
@@ -135,26 +135,26 @@ export function BottomNav() {
                     <button
                         type="button"
                         aria-label="Close menu"
-                        className="absolute inset-0 bg-black/60"
+                        className="absolute inset-0 overlay-scrim"
                         onClick={() => setMoreOpen(false)}
                     />
                     <div
-                        className="absolute bottom-0 inset-x-0 mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-t-2xl border-t border-[var(--border-subtle)] bg-[var(--surface-1)] shadow-[0_-12px_40px_rgba(0,0,0,0.45)] max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-0.75rem))] supports-[height:100dvh]:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-0.75rem))]"
+                        className="absolute bottom-0 inset-x-0 mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-t-2xl border-t border-[var(--border-subtle)] bg-[var(--surface-1)] chrome-sheet max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-0.75rem))] supports-[height:100dvh]:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-0.75rem))]"
                         role="dialog"
                         aria-modal="true"
                         aria-label="More menu"
                     >
                         <div className="relative shrink-0 px-4 pb-2 pt-2.5 [@media(max-height:740px)]:pb-1.5 [@media(max-height:740px)]:pt-2">
                             <div className="flex justify-center pb-2 [@media(max-height:740px)]:pb-1.5">
-                                <div className="h-1 w-9 rounded-full bg-white/20" />
+                                <div className="sheet-handle" />
                             </div>
                             <div className="flex items-center justify-between gap-3">
-                                <h2 className="text-[15px] font-bold text-white [@media(max-height:740px)]:text-sm">More</h2>
+                                <h2 className="ds-h5 [@media(max-height:740px)]:text-sm">More</h2>
                                 <button
                                     type="button"
                                     onClick={() => setMoreOpen(false)}
                                     aria-label="Close menu"
-                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-white/5 hover:text-white [@media(max-height:740px)]:h-8 [@media(max-height:740px)]:w-8"
+                                    className="btn-icon h-9 w-9 min-h-0 min-w-0 rounded-full [@media(max-height:740px)]:h-8 [@media(max-height:740px)]:w-8"
                                 >
                                     <X size={17} />
                                 </button>
@@ -177,7 +177,7 @@ export function BottomNav() {
                                             <div
                                                 key={item.path}
                                                 title="Complete the previous step first"
-                                                className={clsx(MORE_ROW, "opacity-40 cursor-not-allowed text-text-muted")}
+                                                className={clsx(MORE_ROW, "nav-locked")}
                                             >
                                                 <Lock size={16} className="shrink-0" />
                                                 <span className={MORE_ITEM_TEXT}>{item.label}</span>
@@ -192,12 +192,12 @@ export function BottomNav() {
                                             onClick={() => setMoreOpen(false)}
                                             className={clsx(
                                                 MORE_ROW,
-                                                active ? "bg-accent/10 text-accent" : "text-text-secondary hover:bg-white/5"
+                                                active ? "bg-accent/10 text-accent" : "text-text-secondary hover-surface"
                                             )}
                                         >
                                             <Icon size={16} className="shrink-0" />
                                             <span className={MORE_ITEM_TEXT}>{item.label}</span>
-                                            <ChevronRight size={13} className="shrink-0 opacity-40" />
+                                            <ChevronRight size={13} className="shrink-0 text-text-tertiary" />
                                         </Link>
                                     );
                                 })}
@@ -239,7 +239,7 @@ export function BottomNav() {
                                         href={promo.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex min-h-[44px] items-center justify-between gap-2.5 rounded-[var(--radius-md)] border border-[rgba(234,179,8,0.22)] bg-[var(--surface-2)] px-2.5 py-2 transition-colors hover:border-[rgba(234,179,8,0.4)] [@media(max-height:740px)]:min-h-[40px] [@media(max-height:740px)]:py-1.5"
+                                        className="flex min-h-[44px] items-center justify-between gap-2.5 rounded-[var(--radius-md)] border border-[var(--accent-border-soft)] bg-[var(--surface-2)] px-2.5 py-2 transition-colors hover:border-[var(--accent-border-emphasis)] [@media(max-height:740px)]:min-h-[40px] [@media(max-height:740px)]:py-1.5"
                                     >
                                         <div className="flex min-w-0 flex-col gap-0.5">
                                             <span className="text-[12px] font-semibold leading-tight text-[var(--gold)] [@media(max-height:740px)]:text-[11px]">{promo.title}</span>
@@ -253,7 +253,7 @@ export function BottomNav() {
                             <div className="flex flex-col gap-0.5 border-t border-[var(--border-subtle)] pt-3 [@media(max-height:740px)]:pt-2">
                                 <Link
                                     href="/support"
-                                    className={clsx(MORE_ROW, "text-text-secondary hover:bg-white/5")}
+                                    className={clsx(MORE_ROW, "text-text-secondary hover-surface")}
                                 >
                                     <Headphones size={16} className="shrink-0" />
                                     <span className={MORE_ITEM_TEXT}>Support Center</span>
@@ -264,7 +264,7 @@ export function BottomNav() {
                                         resetSession();
                                         setMoreOpen(false);
                                     }}
-                                    className={clsx(MORE_ROW, "text-red-400/80 hover:bg-red-500/5")}
+                                    className={clsx(MORE_ROW, "nav-danger")}
                                 >
                                     <LogOut size={16} className="shrink-0" />
                                     <span className={MORE_ITEM_TEXT}>Logout</span>

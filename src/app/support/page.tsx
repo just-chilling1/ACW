@@ -18,7 +18,7 @@ import { SUPPORT_EMAIL, SUPPORT_PORTAL_URL } from "@/lib/support";
 
 const FAQS = [
   {
-    question: "How do I actually earn money with CashTap AI?",
+    question: "How do I actually earn money with AI CashWave?",
     answer:
       "The core 4-step system finds real conversations online, then our AI writes replies that include your affiliate link. When someone clicks and buys, you earn a commission. You also get Done-For-You keywords with pre-made replies, 200+ ready-to-post Facebook posts via Instant Income, and 100+ traffic sources through Automated Profits.",
   },
@@ -73,9 +73,9 @@ const FAQS = [
       "Exclusive offers appear in the sidebar (and under More on mobile): Earn $400/Day Testing New Apps, Get Paid To Copy & Paste, and Fast Cash Training. Each opens in a new tab and is optional — separate from your membership.",
   },
   {
-    question: "Can I use CashTap AI on my phone?",
+    question: "Can I use AI CashWave on my phone?",
     answer:
-      "Yes. CashTap AI works in any modern web browser on desktop, tablet, or phone. You can search topics, copy replies, and post right from your phone.",
+      "Yes. AI CashWave works in any modern web browser on desktop, tablet, or phone. You can search topics, copy replies, and post right from your phone.",
   },
   {
     question: "I’m getting an error or the page won’t load. What should I do?",
@@ -100,7 +100,7 @@ export default function SupportPage() {
       <PageHeader
         eyebrow="HELP"
         title="Support Center"
-        subtitle="Documentation and assistance for CashTap AI."
+        subtitle="Documentation and assistance for AI CashWave."
       />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -110,8 +110,8 @@ export default function SupportPage() {
           rel="noopener noreferrer"
           className="group"
         >
-          <div className="card-base flex h-full items-center gap-4 p-5! transition-colors group-hover:border-[rgba(234,179,8,0.35)]">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.1)]">
+          <div className="card-base flex h-full items-center gap-4 p-5! transition-colors group-hover:border-[var(--accent-border-strong)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[var(--accent-border)] bg-[var(--accent-bg-medium)]">
               <Headphones size={22} strokeWidth={1.75} className="text-[var(--gold)]" />
             </div>
             <div className="min-w-0 flex-1">
@@ -127,8 +127,8 @@ export default function SupportPage() {
         </a>
 
         <a href={`mailto:${SUPPORT_EMAIL}`} className="group">
-          <div className="card-base flex h-full items-center gap-4 p-5! transition-colors group-hover:border-[rgba(16,185,129,0.35)]">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.1)]">
+          <div className="card-base flex h-full items-center gap-4 p-5! transition-colors group-hover:border-[var(--success-border-strong)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[var(--success-border)] bg-[var(--success-bg-faint)]">
               <Mail size={22} strokeWidth={1.75} className="text-[var(--success)]" />
             </div>
             <div className="min-w-0 flex-1">
@@ -147,13 +147,13 @@ export default function SupportPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="card-base overflow-hidden p-0! lg:col-span-3">
           <div className="flex items-start gap-3 border-b border-[var(--border-subtle)] px-5 py-5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.1)]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[var(--accent-border)] bg-[var(--accent-bg-medium)]">
               <HelpCircle size={20} strokeWidth={1.75} className="text-[var(--gold)]" />
             </div>
             <div>
               <h3 className="ds-h3">Frequently Asked Questions</h3>
               <p className="mt-1 text-sm text-text-muted">
-                Common questions about CashTap AI. Full walkthroughs are in{" "}
+                Common questions about AI CashWave. Full walkthroughs are in{" "}
                 <Link href="/training" className="font-semibold text-[var(--gold)] hover:underline">
                   Training
                 </Link>
@@ -202,8 +202,8 @@ export default function SupportPage() {
 
       <div className="card-base">
         <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] border border-[rgba(99,102,241,0.3)] bg-[rgba(99,102,241,0.1)]">
-            <FileText size={20} strokeWidth={1.75} className="text-[#6366F1]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] border border-[var(--info-border)] bg-[var(--info-bg-faint)]">
+            <FileText size={20} strokeWidth={1.75} className="text-[var(--copper)]" />
           </div>
           <div>
             <h3 className="ds-h3">Refund Protocol</h3>

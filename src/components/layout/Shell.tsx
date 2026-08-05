@@ -41,17 +41,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="app-bg flex h-dvh w-full max-w-[100vw] overflow-hidden">
+    <div className="flex h-dvh w-full max-w-[100vw] overflow-hidden">
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
       />
 
       <main className="relative min-h-0 min-w-0 w-full flex-1 overflow-x-hidden overflow-y-auto scroll-smooth transition-[padding] duration-300 lg:pl-[var(--sidebar-w)]">
-        <div className="sticky top-0 z-30 flex h-14 items-center justify-center border-b border-[var(--border-subtle)] bg-[rgba(10,10,11,0.8)] px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
+        <div className="sticky top-0 z-30 flex h-14 items-center justify-center border-b border-[var(--border-subtle)] bg-[var(--chrome-bg)] px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
           <Image
             src="/logo.png"
-            alt="CashTap AI"
+            alt="AI CashWave"
             width={160}
             height={36}
             className="h-7 w-auto object-contain"

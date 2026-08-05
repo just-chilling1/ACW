@@ -14,7 +14,7 @@ export default function ScaleTrainingPage() {
         transition={{ delay: 0.1 }}
         className="flex flex-col items-center gap-6 text-center"
       >
-        <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.08)] px-5 py-2">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-bg-subtle)] px-5 py-2">
           <Sparkles size={14} strokeWidth={1.75} className="text-[var(--gold)]" />
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--gold)]">
             Exclusive Training
@@ -22,7 +22,7 @@ export default function ScaleTrainingPage() {
         </div>
 
         <h1 className="ds-h1 max-w-3xl text-[clamp(2rem,5vw,3rem)]!">
-          Scale Your <span className="text-gradient">CashTap AI</span> To $1,000+ Per Day
+          Scale Your <span className="text-gradient">AI CashWave</span> To $1,000+ Per Day
         </h1>
 
         <p className="ds-subtitle max-w-xl text-base md:text-lg">

@@ -35,7 +35,7 @@ export function AdCard({
     <article
       className={clsx(
         "card-base flex flex-col gap-3 p-4!",
-        selected && "border-[rgba(234,179,8,0.45)] bg-[rgba(234,179,8,0.06)]",
+        selected && "border-[var(--accent-border-emphasis)] bg-[var(--accent-bg-faint)]",
         onSelect && "cursor-pointer",
         className
       )}
@@ -58,7 +58,7 @@ export function AdCard({
           {source}
         </span>
         {selected ? (
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--gold)] text-[#0A0A0B]">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--gold)] text-[var(--text-on-accent)]">
             <Check size={12} strokeWidth={2.5} />
           </span>
         ) : null}

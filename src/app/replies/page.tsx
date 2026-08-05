@@ -14,23 +14,7 @@ import { InfoHint } from "@/components/ui/InfoHint";
 import { PageHeader } from "@/components/ui/page-header";
 import { GenerationProgress } from "@/components/ui/generation-progress";
 import { Field } from "@/components/ui/field";
-import { Skeleton } from "@/components/ui/skeleton";
-
-function PlatformBadge({ platform }: { platform: string }) {
-    const isReddit = platform === "Reddit";
-    return (
-        <span className={clsx(
-            "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border inline-flex items-center gap-1",
-            isReddit
-                ? "text-orange-400 border-orange-400/20 bg-orange-400/5"
-                : "text-red-500 border-red-500/20 bg-red-500/5"
-        )}>
-            {platform}
-        </span>
-    );
-}
-
-export default function RepliesPage() {
+import { PlatformBadge } from "@/components/ui/platform-badge";
     const {
         selectedAds, setSelectedAds, keyword,
         repliesByPostId, setRepliesByPostId,
@@ -92,7 +76,7 @@ export default function RepliesPage() {
         return parts.map((part, i) => {
             if (part.match(urlRegex)) {
                 return (
-                    <span key={i} className="text-blue-400 hover:underline cursor-pointer transition-colors break-all">
+                    <span key={i} className="link-info break-all">
                         {part}
                     </span>
                 );
@@ -108,7 +92,7 @@ export default function RepliesPage() {
                     <Radar size={24} className="text-text-muted" />
                 </div>
                 <div className="text-center flex flex-col gap-2">
-                    <h2 className="text-xl font-bold text-text-primary">No Ads Selected</h2>
+                    <h2 className="ds-h2">No Ads Selected</h2>
                     <p className="text-sm text-text-muted">Go to Step 3 and pick ads first.</p>
                 </div>
                 <button onClick={() => router.push("/radar")} className="btn-primary">
@@ -190,7 +174,7 @@ export default function RepliesPage() {
                                 <div className="flex items-center gap-1.5 shrink-0">
                                     <button
                                         onClick={() => removePost(post.id)}
-                                        className="w-10 h-10 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center text-text-muted hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                        className="btn-icon h-10 w-10 min-h-0 min-w-0 rounded-lg sm:h-7 sm:w-7 hover:text-[var(--danger)] hover:bg-[var(--danger-bg-faint)]"
                                         title="Remove ad"
                                     >
                                         <Trash2 size={13} />
@@ -208,7 +192,7 @@ export default function RepliesPage() {
                             </div>
 
                             {/* Action bar */}
-                            <div className="flex items-center justify-between px-4 py-2.5 border-t border-border-dim/15 bg-[#0a0a0c]">
+                            <div className="flex items-center justify-between px-4 py-2.5 border-t border-border-dim/15 bg-[var(--surface-1)]">
                                 <button
                                     onClick={() => {
                                         if (replies.length === 0) handleGenerate(post);
@@ -280,7 +264,7 @@ export default function RepliesPage() {
                                                         const isCopied = copiedId === uniqueId;
 
                                                         return (
-                                                            <div key={rIdx} className="group flex flex-col rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4 transition-colors hover:border-[rgba(234,179,8,0.3)]">
+                                                            <div key={rIdx} className="group flex flex-col rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4 transition-colors hover:border-[var(--accent-border-strong)]">
                                                                 <div className="mb-2.5 flex items-center justify-between">
                                                                     <span className="page-eyebrow text-[10px]! tracking-[0.12em]!">{labels[rIdx]}</span>
                                                                     <button
@@ -288,7 +272,7 @@ export default function RepliesPage() {
                                                                         className={clsx(
                                                                             "flex items-center gap-1 rounded px-2 py-1 text-[10px] font-bold transition-all",
                                                                             isCopied
-                                                                                ? "bg-[var(--success)] text-white"
+                                                                                ? "bg-[var(--success)] text-[var(--text-on-accent)]"
                                                                                 : "btn-secondary px-2 py-1 text-[10px]"
                                                                         )}
                                                                     >

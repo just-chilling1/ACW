@@ -107,7 +107,7 @@ export function GenerationProgress({
   return (
     <div className="flex w-full flex-col gap-3">
       {active && (
-        <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-3 shadow-[var(--elevation-1)] sm:p-4">
+        <div className="surface-panel-elevated p-3 sm:p-4">
           <div className="mb-3 flex items-start gap-3">
             <Loader2
               size={18}
