@@ -15,6 +15,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { GenerationProgress } from "@/components/ui/generation-progress";
 import { Field } from "@/components/ui/field";
 import { PlatformBadge } from "@/components/ui/platform-badge";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export default function RepliesPage() {
     const {
         selectedAds, setSelectedAds, keyword,
         repliesByPostId, setRepliesByPostId,

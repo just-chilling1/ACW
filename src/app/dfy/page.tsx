@@ -10,6 +10,7 @@ import { clsx } from "clsx";
 import { InfoHint } from "@/components/ui/InfoHint";
 import { Field } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
+import { GenerationProgress } from "@/components/ui/generation-progress";
 import { PlatformBadge } from "@/components/ui/platform-badge";
 import { VideoThumbnail } from "@/components/ui/video-thumbnail";
 import { VideoOverlay } from "@/components/ui/video-overlay";

@@ -12,6 +12,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { GenerationProgress } from "@/components/ui/generation-progress";
 import { SelectableChip } from "@/components/ui/selectable-chip";
 import { PlatformBadge } from "@/components/ui/platform-badge";
+import { SkeletonCards } from "@/components/ui/skeleton";
+
+function PostCard({
   post,
   isSelected,
   onToggle,
@@ -296,7 +299,7 @@ export default function RadarPage() {
           ) : hasFetchedActive && currentPosts.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {currentPosts.map((post) => (
-                <RadarAdCard
+                <PostCard
                   key={post.id}
                   post={post}
                   isSelected={selectedAds.some((p) => p.id === post.id)}
