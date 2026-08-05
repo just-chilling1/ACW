@@ -3,9 +3,25 @@ import { createBrowserClient } from '@supabase/ssr'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-if (!supabaseUrl || !supabaseAnonKey) {
-    if (typeof window === 'undefined') {
-        console.error('CRITICAL: Missing Supabase environment variables on server side')
+function assertSupabaseConfig() {
+    if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY')
+    }
+
+    // JWT anon keys have three segments; a truncated key causes Supabase "Invalid API key".
+    const jwtSegments = supabaseAnonKey.split('.').length
+    if (jwtSegments < 3 && !supabaseAnonKey.startsWith('sb_publishable_')) {
+        throw new Error(
+            'NEXT_PUBLIC_SUPABASE_ANON_KEY looks truncated — paste the full anon key from Supabase → Settings → API',
+        )
+    }
+}
+
+if (typeof window === 'undefined') {
+    try {
+        assertSupabaseConfig()
+    } catch (error) {
+        console.error('CRITICAL:', error instanceof Error ? error.message : error)
     }
 }
 

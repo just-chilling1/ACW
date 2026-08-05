@@ -9,6 +9,7 @@ Complete these in the Supabase project used by 1tap and AI CashWave.
 Add (keep existing 1tap entries):
 
 ```
+https://aicashwavemembersarea.com/**
 https://cashtapaiaccess.com/**
 http://localhost:3000/**
 http://localhost:3001/**

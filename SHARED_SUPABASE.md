@@ -7,9 +7,12 @@ AI CashWave uses the **same Supabase project** as 1-Tap Cashflow (`1tap`).
 Copy your existing values from the 1tap Vercel project (or local setup) into `.env.local` and the AI CashWave Vercel project:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_URL=https://vbrondpoorcnjhavhfja.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<full anon key from Supabase → Settings → API>
+NEXT_PUBLIC_SITE_URL=https://aicashwavemembersarea.com
 ```
+
+The anon key must be the **full** JWT (three dot-separated parts). A partial key causes **Invalid API key** on signup/login.
 
 Add any server-side keys your 1tap deployment uses (e.g. RapidAPI, LLM).
 
@@ -24,7 +27,7 @@ Add any server-side keys your 1tap deployment uses (e.g. RapidAPI, LLM).
 In **Authentication → URL Configuration**:
 
 1. Keep `https://1tapcashflowaccess.com/**` (and localhost if used).
-2. Add `https://cashtapaiaccess.com/**`.
+2. Add `https://aicashwavemembersarea.com/**` and `https://cashtapaiaccess.com/**`.
 
 ## Password reset (both products)
 

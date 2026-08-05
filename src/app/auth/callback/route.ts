@@ -2,7 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
-const SITE_URL = "https://cashtapaiaccess.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://aicashwavemembersarea.com";
 
 function safeNextPath(next: string | null): string {
   if (!next || !next.startsWith("/") || next.startsWith("//")) return "/reset-password";

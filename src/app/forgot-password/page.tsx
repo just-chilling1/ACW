@@ -21,8 +21,9 @@ export default function ForgotPasswordPage() {
         setError(null);
 
         try {
+            const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `https://cashtapaiaccess.com/auth/callback?next=/reset-password`,
+                redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
             });
 
             if (error) {
