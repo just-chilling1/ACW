@@ -2,10 +2,7 @@ from PIL import Image
 from pathlib import Path
 
 thumb_dir = Path(__file__).resolve().parent / "thumbnails"
-logo_path = Path(__file__).resolve().parent / "logo.png"
-assets_dir = Path(
-    r"C:\Users\gt\.cursor\projects\c-Users-gt-Desktop-cashtapai\assets"
-)
+logo_path = Path(__file__).resolve().parent / "logo-wordmark.png"
 
 logo = Image.open(logo_path).convert("RGBA")
 
@@ -35,9 +32,6 @@ def trim_logo(img: Image.Image, threshold: int = 30) -> Image.Image:
     return img
 
 
-logo = trim_logo(logo)
-
-
 def knock_out_black(img: Image.Image, threshold: int = 25) -> Image.Image:
     pixels = img.load()
     w, h = img.size
@@ -49,28 +43,24 @@ def knock_out_black(img: Image.Image, threshold: int = 25) -> Image.Image:
     return img
 
 
-logo = knock_out_black(logo)
+logo = knock_out_black(trim_logo(logo))
 
 for thumb_path in sorted(thumb_dir.glob("acw-thumb-*.png")):
     base = Image.open(thumb_path).convert("RGBA")
     tw, th = base.size
 
-    # Icon-only favicon: size by height for a square mark in the corner.
-    target_h = int(th * 0.11)
-    scale = target_h / logo.height
-    target_w = int(logo.width * scale)
+    target_w = int(tw * 0.24)
+    scale = target_w / logo.width
+    target_h = int(logo.height * scale)
     logo_resized = logo.resize((target_w, target_h), Image.Resampling.LANCZOS)
 
-    margin_x = int(tw * 0.035)
-    margin_y = int(th * 0.045)
+    margin_x = int(tw * 0.03)
+    margin_y = int(th * 0.04)
+    cover_w = int(tw * 0.40)
+    cover_h = int(th * 0.19)
 
-    # Cover prior wordmark / logo overlays in the bottom-right.
-    cover_w = int(tw * 0.36)
-    cover_h = int(th * 0.18)
-    cover = Image.new("RGBA", (cover_w, cover_h), (20, 15, 10, 220))
-    base.alpha_composite(
-        cover, (tw - cover_w - margin_x // 2, th - cover_h - margin_y // 2)
-    )
+    cover = Image.new("RGBA", (cover_w, cover_h), (20, 15, 10, 255))
+    base.paste(cover, (tw - cover_w, th - cover_h))
 
     x = tw - target_w - margin_x
     y = th - target_h - margin_y
@@ -78,5 +68,4 @@ for thumb_path in sorted(thumb_dir.glob("acw-thumb-*.png")):
 
     out = base.convert("RGB")
     out.save(thumb_path, "PNG", optimize=True)
-    out.save(assets_dir / thumb_path.name, "PNG", optimize=True)
-    print(f"Updated {thumb_path.name} ({tw}x{th}, logo {target_w}x{target_h})")
+    print(f"Updated {thumb_path.name} (logo {target_w}x{target_h})")
