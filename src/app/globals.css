@@ -635,10 +635,16 @@ html[data-sidebar="collapsed"] {
   }
 
   .btn-chip {
-    @apply px-3 py-1.5 text-xs font-semibold border text-text-muted transition-colors;
+    @apply inline-flex items-center px-3 py-1.5 text-xs font-semibold border text-text-muted transition-colors;
     border-radius: var(--radius-md);
     border-color: var(--border-subtle);
     background: var(--surface-2);
+  }
+
+  .btn-chip:hover:not(:disabled) {
+    border-color: var(--border-strong, var(--border-subtle));
+    color: var(--text-primary);
+    background: var(--surface-3, var(--surface-2));
   }
 
   .btn-chip-active {

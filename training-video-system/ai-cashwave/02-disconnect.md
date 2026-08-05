@@ -1,12 +1,8 @@
 [calm] Before you touch the first training module, I want to hand you something the training assumes you already have. The map.
 
-In the next ten minutes I'm going to show you exactly how money moves through affiliate reply marketing. Where AI CashWave fits in it. And what every strange word you're about to meet actually means.
+In the next ten minutes I'm going to show you exactly how money moves through affiliate reply marketing. Where AI CashWave fits in it. And what every strange word you're about to meet actually means — in plain language, assuming you know nothing. Because that's the only honest way to do it.
 
-In plain language. Assuming you know nothing. Because that's the only honest way to do it.
-
-People who watch this see the training and go — ah, obviously. People who skip it see the training and go — wait, what?
-
-Ten minutes now saves you ten hours of confusion later.
+People who watch this see the training and go — ah, obviously. People who skip it see the training and go — wait, what? Ten minutes now saves you ten hours of confusion later.
 
 [confident] Here's the whole business in one sentence. People online have problems. They search for answers on Reddit, YouTube, and Facebook. They read conversations where strangers recommend products. Your reply includes your affiliate link. Someone clicks, someone buys, and you earn a commission.
 
@@ -60,7 +56,7 @@ Third: demand. After you enter a topic, AI CashWave checks how many conversation
 
 Fourth: engagement. That's the activity on a specific post — comments, upvotes, views. Think of it like a crowd gathered around one person talking in the town square. Bigger crowd, more people see what you say next. Why you care: a reply on a dead thread is a reply nobody reads.
 
-Fifth: Curiosity Hook. That's one of the AI reply styles in Step 4. It's written to make people want to click without sounding salesy. The FAQ notes it tends to get the most clicks. Think of it like opening a door just enough that someone wants to walk through. Why you care: clicks are how you get paid.
+Fifth: Curiosity Hook. That's one of the AI reply styles in Step 4 — alongside Short & Direct and Detailed Value. It's written to make people want to click without sounding salesy. The FAQ notes it tends to get the most clicks. Think of it like opening a door just enough that someone wants to walk through. Why you care: clicks are how you get paid.
 
 Sixth: commission. That's your cut when someone buys through your link. Often twenty to one hundred dollars or more per sale. Think of it like a finder's fee the product owner pays you for sending a customer. Why you care: that's literally where your money comes from.
 
@@ -68,17 +64,17 @@ Seventh: niche. That's the category your topic lives in. Weight Loss. Make Money
 
 [warmly] Now let's watch every one of those words do its job in a single real loop. Meet Jordan.
 
-Jordan opens AI CashWave on a Tuesday morning. Step 1 — Enter Topic. Jordan types weight loss. That's the keyword.
+Jordan opens AI CashWave on a Tuesday morning. Step 1 — Enter Topic. Jordan types weight loss. That's the keyword. Hits Find Ads.
 
-Step 2 — Check Demand. The app analyzes Reddit and YouTube. Demand comes back High. Good sign. Lots of conversations happening.
+Step 2 — Check Demand. The app found keyword variations. Jordan clicks Check Demand — nothing runs until you start it. Demand comes back High on the best variation. Good sign. Lots of conversations happening.
 
-Step 3 — Find Ads. Jordan sees a list of posts on the Radar screen. High engagement on a Reddit thread where someone asks — what's the best program for losing thirty pounds? Jordan clicks to select it.
+Step 3 — Find Ads. Jordan picks the High keyword chip and clicks Find Ads. Real posts load on the Radar screen. High engagement on a Reddit thread where someone asks — what's the best program for losing thirty pounds? Jordan clicks to select it.
 
-Step 4 — Create Replies. Jordan pastes an affiliate link into the field. Picks the Curiosity Hook style. The AI generates a reply. Jordan copies it, goes to that live Reddit thread, and pastes.
+Step 4 — Create Replies. Jordan pastes an affiliate link into the field. Clicks Create Replies on that ad. Picks the Curiosity Hook style. The AI generates a reply. Jordan copies it, clicks Go to Post, and pastes it live in that Reddit thread.
 
 A few hours later, someone reads Jordan's reply. They click the affiliate link. They buy the product. DigiStore24 records the sale. Jordan earns a commission.
 
-Total time Jordan spent hunting for that conversation: about five minutes inside the app. That's one loop of the machine. Run it again tomorrow. And the day after.
+Total time Jordan spent inside the app: about ten minutes. That's one loop of the machine. Run it again tomorrow. And the day after.
 
 [thoughtful] I know three doubts are probably sitting in your chest right now. Let me name them.
 
@@ -98,7 +94,7 @@ But notice what the math is. Not a mystery. Not a trick. Small, understandable n
 
 [calm] Here's how to use the training without drowning.
 
-On Home you've got three dashboard videos. You just finished the first two. Video 3 is a quick tour — watch that next if you haven't.
+On Home you've got three dashboard videos. You just finished Video 1. This is Video 2. Video 3 is a quick tour — watch that next if you haven't.
 
 Then open Training in the sidebar. That's the Training Academy. Start with Getting Started with AI CashWave — it walks the full four-step workflow.
 
@@ -108,7 +104,7 @@ When you get stuck, Support is in the sidebar. Contact Support anytime.
 
 [excited] Your first win — the activation moment — is simple. Complete the four-step loop once.
 
-Enter a topic. Weight loss works. Or pick any niche you care about. Let demand analyze. Select at least one ad on the Radar. Paste your affiliate link. Generate a Curiosity Hook reply. Copy it. Paste it live on that Reddit or YouTube thread.
+Enter a topic. Weight loss works. Or pick any niche you care about. Click Check Demand. Select at least one ad on Find Ads. Paste your affiliate link. Generate a Curiosity Hook reply. Copy it. Paste it live on that Reddit or YouTube thread.
 
 That's it. One topic searched. One ad selected. One reply posted live. When you finish that, you've done what ninety percent of buyers never do. You've used what you bought.
 

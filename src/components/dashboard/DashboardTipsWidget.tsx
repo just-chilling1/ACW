@@ -41,7 +41,6 @@ export function DashboardTipsWidget() {
         <p className="page-eyebrow text-[11px]!">{tip.title}</p>
       </div>
       <p className="text-sm leading-relaxed text-text-muted">{tip.body}</p>
-      <p className="mt-3 text-xs text-text-muted italic">Individual results vary.</p>
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ArrowRight, History, Loader2 } from "lucide-react";
+import { Search, ArrowRight, Loader2 } from "lucide-react";
 import { useSearch } from "@/context/SearchContext";
 import { motion } from "framer-motion";
 import { InfoHint } from "@/components/ui/InfoHint";
@@ -10,6 +10,8 @@ import { InlineError } from "@/components/ui/InlineError";
 import { GenerationProgress } from "@/components/ui/generation-progress";
 import { Field } from "@/components/ui/field";
 import { Steps } from "@/components/ui/steps";
+import { RecentTopics } from "@/components/ui/recent-topics";
+import { isValidTopicKeyword, sanitizeTopicKeyword } from "@/lib/keyword";
 
 export default function SearchPage() {
   const {
@@ -30,12 +32,20 @@ export default function SearchPage() {
   const router = useRouter();
 
   const handleSearch = async (val?: string) => {
-    const searchVal = val || keyword;
-    if (!searchVal) return;
+    const searchVal = sanitizeTopicKeyword(val || keyword);
+    if (!searchVal) {
+      setError("Enter a short topic to search for.");
+      return;
+    }
+    if (!isValidTopicKeyword(searchVal)) {
+      setError('Enter a short topic like "weight loss" — not a link or long paste.');
+      return;
+    }
 
     setLoading(true);
     setShowOfferBanner(true);
     setError("");
+    setKeyword(searchVal);
     addToHistory(searchVal);
     setPostsByVariation({});
     setActivityByVariation({});
@@ -123,32 +133,14 @@ export default function SearchPage() {
 
         <InlineError message={error} />
 
-        {history.length > 0 && (
-          <div className="border-t border-[var(--border-subtle)] pt-6">
-            <div className="mb-3 flex items-center justify-center gap-2">
-              <History size={14} strokeWidth={1.75} className="text-text-muted" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-                Recent
-              </span>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2">
-              {history.map((h, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    setKeyword(h);
-                    handleSearch(h);
-                  }}
-                  disabled={loading}
-                  className="btn-chip disabled:opacity-50"
-                >
-                  {h}
-                  <ArrowRight size={12} strokeWidth={1.75} className="opacity-50" />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <RecentTopics
+          topics={history}
+          disabled={loading}
+          onSelect={(topic) => {
+            setKeyword(topic);
+            handleSearch(topic);
+          }}
+        />
       </div>
 
       {(loading || showOfferBanner) && (

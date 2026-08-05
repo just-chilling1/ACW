@@ -1,4 +1,4 @@
-"""Composite the AI CashWave wordmark (transparent background) onto thumbnails."""
+﻿"""Composite the AI CashWave wordmark (transparent background) onto thumbnails."""
 from PIL import Image
 from pathlib import Path
 

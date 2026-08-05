@@ -97,7 +97,6 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          <p className="text-center text-xs italic text-text-muted">Individual results vary.</p>
         </div>
 
         <aside className="flex flex-col gap-4">

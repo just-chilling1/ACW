@@ -9,6 +9,7 @@ import {
     migrateLegacySession,
     clearLegacySession,
 } from "@/lib/session-storage";
+import { cleanHistoryItems, sanitizeTopicKeyword, isValidTopicKeyword } from "@/lib/keyword";
 
 export interface Ad {
     id: string;
@@ -97,11 +98,14 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     const hydrateFromStorage = useCallback((uid: string) => {
         migrateLegacySession(uid);
         const saved = readSession(uid);
-        if (saved.keyword) setKeyword(saved.keyword);
+        if (saved.keyword) {
+            const cleanedKeyword = sanitizeTopicKeyword(saved.keyword);
+            setKeyword(isValidTopicKeyword(cleanedKeyword) ? cleanedKeyword : "");
+        }
         if (saved.variations) setVariations(saved.variations);
         if (saved.activeChip) setActiveChip(saved.activeChip);
         if (saved.affiliateLink) setAffiliateLink(saved.affiliateLink);
-        if (saved.history) setHistory(saved.history);
+        if (saved.history) setHistory(cleanHistoryItems(saved.history));
     }, []);
 
     const fetchHistoryFromDb = useCallback(async (uid: string, savedKeyword?: string) => {
@@ -114,17 +118,14 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
                 .limit(20);
 
             if (!error && data) {
-                const uniqueKeywords: string[] = [];
-                data.forEach((item) => {
-                    if (!uniqueKeywords.includes(item.keyword) && uniqueKeywords.length < 5) {
-                        uniqueKeywords.push(item.keyword);
-                    }
-                });
+                const uniqueKeywords = cleanHistoryItems(data.map((item) => item.keyword));
                 setHistory(uniqueKeywords);
                 writeSession(uid, { history: uniqueKeywords });
 
                 if (!savedKeyword && uniqueKeywords[0]) {
-                    const lastKeyword = uniqueKeywords[0];
+                    const lastKeyword = sanitizeTopicKeyword(uniqueKeywords[0]);
+                    if (!isValidTopicKeyword(lastKeyword)) return;
+
                     setKeyword(lastKeyword);
                     writeSession(uid, { keyword: lastKeyword });
 
@@ -161,7 +162,12 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
             if (uid) {
                 hydrateFromStorage(uid);
                 const saved = readSession(uid);
-                await fetchHistoryFromDb(uid, saved.keyword);
+                const savedKeyword = saved.keyword
+                    ? sanitizeTopicKeyword(saved.keyword)
+                    : undefined;
+                const validSavedKeyword =
+                    savedKeyword && isValidTopicKeyword(savedKeyword) ? savedKeyword : undefined;
+                await fetchHistoryFromDb(uid, validSavedKeyword);
             } else {
                 clearLegacySession();
             }
@@ -180,28 +186,60 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
             if (newUid) {
                 hydrateFromStorage(newUid);
                 const saved = readSession(newUid);
-                void fetchHistoryFromDb(newUid, saved.keyword);
+                const savedKeyword = saved.keyword
+                    ? sanitizeTopicKeyword(saved.keyword)
+                    : undefined;
+                const validSavedKeyword =
+                    savedKeyword && isValidTopicKeyword(savedKeyword) ? savedKeyword : undefined;
+                void fetchHistoryFromDb(newUid, validSavedKeyword);
             }
         });
 
         return () => subscription.unsubscribe();
     }, [clearInMemoryState, hydrateFromStorage, fetchHistoryFromDb]);
 
+    // Drop corrupted topics that may still sit in memory or localStorage
+    useEffect(() => {
+        if (!userId) return;
+
+        const cleanedHistory = cleanHistoryItems(history);
+        const validKeyword = isValidTopicKeyword(sanitizeTopicKeyword(keyword))
+            ? sanitizeTopicKeyword(keyword)
+            : "";
+
+        if (
+            cleanedHistory.length !== history.length ||
+            cleanedHistory.some((item, index) => item !== history[index])
+        ) {
+            setHistory(cleanedHistory);
+        }
+        if (keyword !== validKeyword) {
+            setKeyword(validKeyword);
+        }
+    }, [userId, history, keyword]);
+
     // Persist changes to user-scoped localStorage
     useEffect(() => {
         if (!userId) return;
+
+        const cleanedHistory = cleanHistoryItems(history);
+        const cleanedKeyword = sanitizeTopicKeyword(keyword);
+        const validKeyword = isValidTopicKeyword(cleanedKeyword) ? cleanedKeyword : "";
+
         writeSession(userId, {
-            keyword,
+            keyword: validKeyword,
             variations,
             activeChip,
             affiliateLink,
-            history,
+            history: cleanedHistory,
             selectedAds,
         });
     }, [userId, keyword, variations, activeChip, affiliateLink, history, selectedAds]);
 
     const addToHistory = async (k: string) => {
-        const newHistory = [k, ...history.filter((h) => h !== k)].slice(0, 5);
+        const cleaned = sanitizeTopicKeyword(k);
+        if (!cleaned) return;
+        const newHistory = cleanHistoryItems([cleaned, ...history]);
         setHistory(newHistory);
     };
 

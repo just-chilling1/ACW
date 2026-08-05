@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
 import { expandKeywords } from "@/lib/llm";
+import { isValidTopicKeyword, sanitizeTopicKeyword } from "@/lib/keyword";
 
 const MAX_KEYWORD_LENGTH = 200;
 
@@ -12,10 +13,10 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        const keyword = clampString(body.keyword, MAX_KEYWORD_LENGTH);
+        const keyword = sanitizeTopicKeyword(clampString(body.keyword, MAX_KEYWORD_LENGTH));
 
-        if (!keyword) {
-            return NextResponse.json({ error: "Niche keyword required" }, { status: 400 });
+        if (!keyword || !isValidTopicKeyword(keyword)) {
+            return NextResponse.json({ error: "Enter a short ad topic — not a link or long paste." }, { status: 400 });
         }
 
         let variations: string[] = [];
