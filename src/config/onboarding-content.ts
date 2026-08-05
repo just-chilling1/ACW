@@ -11,6 +11,9 @@ export const ONBOARDING_DASHBOARD_ROUTE = "/dashboard";
 
 export const ONBOARDING_META_KEY = "onboarding_completed" as const;
 
+/** ISO timestamp written by /api/onboarding/complete — used by the onboarding gate. */
+export const ONBOARDING_COMPLETED_AT_META_KEY = "onboarding_completed_at" as const;
+
 export const onboardingContent = {
     productTagline: "High-intent ads. Replies that convert.",
     dashboardRoute: ONBOARDING_DASHBOARD_ROUTE,

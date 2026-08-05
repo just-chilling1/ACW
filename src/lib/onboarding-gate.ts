@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { ONBOARDING_META_KEY } from "@/config/onboarding-content";
+import { ONBOARDING_META_KEY, ONBOARDING_COMPLETED_AT_META_KEY } from "@/config/onboarding-content";
 
 export interface OnboardingGateResult {
     ok: true;
@@ -16,6 +16,11 @@ export async function resolveOnboardingGate(
     authMeta?: Record<string, unknown> | null
 ): Promise<OnboardingGateResult> {
     const metaFlag = authMeta?.[ONBOARDING_META_KEY];
+    const metaCompletedAt = authMeta?.[ONBOARDING_COMPLETED_AT_META_KEY];
+
+    if (typeof metaCompletedAt === "string" && metaCompletedAt.length > 0) {
+        return { ok: true, isComplete: true };
+    }
 
     let timestampQueryFailed = false;
 
@@ -65,6 +70,10 @@ export async function resolveOnboardingGate(
         } catch {
             // fall through
         }
+    }
+
+    if (metaFlag === true) {
+        return { ok: true, isComplete: true };
     }
 
     return { ok: true, isComplete: false };

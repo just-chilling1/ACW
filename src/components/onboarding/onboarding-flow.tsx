@@ -1,22 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { supabase } from "@/lib/supabase";
 import {
     onboardingContent,
-    ONBOARDING_META_KEY,
     ONBOARDING_PRODUCT_NAME,
 } from "@/config/onboarding-content";
 
 export function OnboardingFlow() {
-    const router = useRouter();
     const cfg = onboardingContent.activation;
 
     const [firstName, setFirstName] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [activationStep, setActivationStep] = useState(0);
 
     useEffect(() => {
@@ -31,43 +29,25 @@ export function OnboardingFlow() {
         if (!trimmed || submitting) return;
 
         setSubmitting(true);
+        setError(null);
+
         try {
-            let userId: string | null = null;
-            let existingMeta: Record<string, unknown> = {};
+            const res = await fetch("/api/onboarding/complete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ firstName: trimmed }),
+            });
 
-            try {
-                const { data } = await supabase.auth.getUser();
-                userId = data.user?.id ?? null;
-                existingMeta = (data.user?.user_metadata ?? {}) as Record<string, unknown>;
-            } catch {
-                // ignore
+            if (!res.ok) {
+                const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+                setError(payload?.error ?? "Could not activate your system. Please try again.");
+                return;
             }
 
-            if (userId) {
-                try {
-                    await supabase
-                        .from("users")
-                        .update({ onboarding_completed_at: new Date().toISOString() })
-                        .eq("id", userId);
-                } catch {
-                    // ignore — column or table may not exist
-                }
-            }
-
-            try {
-                await supabase.auth.updateUser({
-                    data: {
-                        ...existingMeta,
-                        [ONBOARDING_META_KEY]: true,
-                        full_name: trimmed,
-                    },
-                });
-            } catch {
-                // ignore
-            }
-
-            router.push(onboardingContent.dashboardRoute);
-            router.refresh();
+            await supabase.auth.refreshSession();
+            window.location.assign(onboardingContent.dashboardRoute);
+        } catch {
+            setError("Could not activate your system. Please try again.");
         } finally {
             setSubmitting(false);
         }
@@ -151,6 +131,10 @@ export function OnboardingFlow() {
                     </div>
 
                     <p className="mt-5 text-sm font-medium text-accent">{cfg.note}</p>
+
+                    {error ? (
+                        <p className="mt-5 text-sm font-medium text-[var(--danger)]">{error}</p>
+                    ) : null}
 
                     <button
                         type="button"
