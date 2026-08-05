@@ -144,8 +144,7 @@ export function Sidebar({
   return (
     <aside
       className={clsx(
-        "fixed inset-y-0 left-0 z-40 hidden h-dvh grid-rows-[auto_minmax(0,1fr)_auto] gap-3 overflow-hidden border-r border-[var(--border-subtle)] p-3 transition-[width] duration-300 lg:grid",
-        "bg-[var(--sidebar-bg)] backdrop-blur-xl",
+        "app-sidebar fixed inset-y-0 left-0 z-40 hidden h-dvh grid-rows-[auto_minmax(0,1fr)_auto] gap-3 overflow-hidden p-3 transition-[width] duration-300 lg:grid",
         collapsed ? "w-[var(--sidebar-w-collapsed)]" : "w-[var(--sidebar-w)]"
       )}
     >
