@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { X, DollarSign, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { toEmbedUrl } from "@/lib/video-thumbnails";
 
-const WITHDRAW_URL = "https://jvz4.com/c/3547097/442443/";
+const WITHDRAW_URL = "https://perpetualincome365.convertri.com/7figure-everwebinar-registration#aff=DigitalAvalon&cam=membersarea";
 const WITHDRAW_AMOUNT = "$214.36";
 
 interface VideoOverlayProps {
