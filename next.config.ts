@@ -1,12 +1,10 @@
 import type { NextConfig } from "next";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
+  // A stray package-lock.json in the home directory makes Turbopack infer the
+  // wrong workspace root, which breaks module resolution and route matching.
   turbopack: {
-    root: projectRoot,
+    root: process.cwd(),
   },
   // Keep the MaxMind country DB on disk (not bundled into a broken webpack chunk).
   serverExternalPackages: ["geoip-country"],
