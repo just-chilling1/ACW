@@ -1,11 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+<<<<<<< HEAD
   // A stray package-lock.json in the home directory makes Turbopack infer the
   // wrong workspace root, which breaks module resolution and route matching.
   turbopack: {
     root: process.cwd(),
   },
+=======
+>>>>>>> parent of c68e7de (midifications)
   // Keep the MaxMind country DB on disk (not bundled into a broken webpack chunk).
   serverExternalPackages: ["geoip-country"],
   async headers() {
