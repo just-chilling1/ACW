@@ -119,3 +119,200 @@ export async function generateReplies(posts: any[], affiliateLink: string): Prom
         return [];
     }
 }
+
+function parseJsonResponse<T>(raw: string): T {
+    const cleaned = raw.replace(/```json|```/g, "").trim();
+    return JSON.parse(cleaned) as T;
+}
+
+export async function analyzeOfferFromLink(
+    affiliateLink: string,
+    pageContext: string
+): Promise<{
+    productName: string;
+    category: string;
+    mainProblem: string;
+    targetAudience: string;
+    mainBenefit: string;
+    positioning: string;
+    searchKeywords: string[];
+}> {
+    const contextBlock = pageContext
+        ? `Page content from the offer:\n${pageContext}\n\n`
+        : "No page content could be fetched. Infer from the URL structure and common affiliate offer patterns.\n\n";
+
+    const prompt = `${contextBlock}Affiliate link: ${affiliateLink}
+
+Act as a marketing strategist. Analyze this offer for a non-technical affiliate marketer.
+
+Return ONLY JSON:
+{
+  "productName": "...",
+  "category": "...",
+  "mainProblem": "one sentence — what problem does this solve?",
+  "targetAudience": "who buys this?",
+  "mainBenefit": "primary outcome for the buyer",
+  "positioning": "how to position this naturally in conversations",
+  "searchKeywords": ["5-8 high-intent social search phrases people use when looking for this solution — include reddit-friendly phrasing"]
+}`;
+
+    try {
+        const result = await callChatGPT([{ role: "user", content: prompt }]);
+        const parsed = parseJsonResponse<{
+            productName: string;
+            category: string;
+            mainProblem: string;
+            targetAudience: string;
+            mainBenefit: string;
+            positioning: string;
+            searchKeywords: string[];
+        }>(result);
+        return {
+            ...parsed,
+            searchKeywords: Array.isArray(parsed.searchKeywords)
+                ? parsed.searchKeywords.slice(0, 8)
+                : [],
+        };
+    } catch (e) {
+        console.warn("analyzeOfferFromLink failed:", e);
+        return {
+            productName: "Your Offer",
+            category: "General",
+            mainProblem: "People are looking for a practical solution in this niche.",
+            targetAudience: "People searching for help online",
+            mainBenefit: "A helpful solution they can try",
+            positioning: "Lead with helpful advice, introduce the offer naturally.",
+            searchKeywords: ["best solution reddit", "recommendations reddit 2024"],
+        };
+    }
+}
+
+export async function explainOpportunityPick(
+    offerSummary: string,
+    postTitle: string,
+    postText: string
+): Promise<string> {
+    const prompt = `Offer: ${offerSummary}
+Conversation: "${postTitle}" — ${postText.slice(0, 400)}
+
+In 1-2 simple sentences, explain why this conversation is a good place to help and mention the offer naturally. No jargon. Return plain text only.`;
+
+    try {
+        const result = await callChatGPT([{ role: "user", content: prompt }]);
+        return result.trim().slice(0, 500);
+    } catch {
+        return "This person is actively looking for a solution, and a helpful answer fits better here than a direct promotion.";
+    }
+}
+
+export async function generateCampaignStrategy(
+    offerSummary: string,
+    conversationSummary: string
+): Promise<{ approach: string; bestAngle: string; recommendedCta: string }> {
+    const prompt = `Offer: ${offerSummary}
+Target conversation: ${conversationSummary}
+
+You are a campaign strategist. Return ONLY JSON:
+{
+  "approach": "1-2 sentences — recommended approach (helpful first, promotion second)",
+  "bestAngle": "the strongest positioning angle in plain language",
+  "recommendedCta": "how soft or direct the CTA should be"
+}`;
+
+    try {
+        const result = await callChatGPT([{ role: "user", content: prompt }]);
+        return parseJsonResponse(result);
+    } catch {
+        return {
+            approach:
+                "Answer the person's question first with useful information. Introduce the offer only after establishing relevance.",
+            bestAngle: "Focus on the main benefit without sounding like an ad.",
+            recommendedCta: "Keep the CTA soft and optional.",
+        };
+    }
+}
+
+export async function generatePromotionPack(
+    offerSummary: string,
+    conversationSummary: string,
+    strategy: { approach: string; bestAngle: string; recommendedCta: string },
+    affiliateLink: string
+): Promise<{
+    recommendedReply: string;
+    alternativeReply: string;
+    shortReply: string;
+    followUpResponse: string;
+    objectionResponse: string;
+    dmResponse: string;
+    cta: string;
+    postingGuidance: string;
+}> {
+    const prompt = `Offer: ${offerSummary}
+Conversation: ${conversationSummary}
+Strategy: ${JSON.stringify(strategy)}
+Affiliate link (include naturally in replies): ${affiliateLink}
+
+Create a complete promotion pack for a Reddit/YouTube comment. Helpful first, not spammy. Sound human.
+
+Return ONLY JSON:
+{
+  "recommendedReply": "primary reply with link woven in naturally",
+  "alternativeReply": "different angle, still natural",
+  "shortReply": "concise version under 280 chars with link",
+  "followUpResponse": "if someone responds positively or asks for more info",
+  "objectionResponse": "if someone is skeptical",
+  "dmResponse": "for a private follow-up if appropriate",
+  "cta": "recommended soft call-to-action phrase",
+  "postingGuidance": "1-2 sentences telling the user exactly what to do"
+}`;
+
+    try {
+        const result = await callChatGPT([{ role: "user", content: prompt }]);
+        return parseJsonResponse(result);
+    } catch (e) {
+        console.error("Promotion pack generation failed:", e);
+        const base = `I've had good results with something like this — worth a look if you're exploring options: ${affiliateLink}`;
+        return {
+            recommendedReply: base,
+            alternativeReply: base,
+            shortReply: base.slice(0, 280),
+            followUpResponse: `Happy to share more details if you're curious — the main thing that helped me was here: ${affiliateLink}`,
+            objectionResponse:
+                "Totally fair to be skeptical. I felt the same until I tried it myself — no pressure, just sharing what worked for me.",
+            dmResponse: `Hey — saw your reply. Happy to point you to what I used if you want: ${affiliateLink}`,
+            cta: "Worth checking out if it fits what you're looking for.",
+            postingGuidance:
+                "Copy the recommended reply, open the post, paste as a comment, and engage naturally if anyone responds.",
+        };
+    }
+}
+
+export async function generateConversationAssist(
+    offerSummary: string,
+    ourPreviousReply: string,
+    theirReply: string
+): Promise<{ recommended: string; why: string; softer?: string; stronger?: string }> {
+    const prompt = `Offer context: ${offerSummary}
+Your previous reply: ${ourPreviousReply}
+Their response: ${theirReply}
+
+Suggest what to say next. Return ONLY JSON:
+{
+  "recommended": "best next response",
+  "why": "one sentence why this works",
+  "softer": "more casual version",
+  "stronger": "more direct version with link if appropriate"
+}`;
+
+    try {
+        const result = await callChatGPT([{ role: "user", content: prompt }]);
+        return parseJsonResponse(result);
+    } catch {
+        return {
+            recommended: "Thanks for sharing! Happy to answer any other questions if helpful.",
+            why: "Keeps the conversation friendly without pushing.",
+            softer: "Appreciate the reply — let me know if you want more details.",
+            stronger: "Glad that helped — feel free to check the link I mentioned if you want to dig in.",
+        };
+    }
+}
