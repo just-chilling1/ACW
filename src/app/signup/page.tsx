@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Mail, UserPlus, ShieldAlert, User, Eye, EyeOff } from "lucide-react";
-import { ONBOARDING_META_KEY } from "@/config/onboarding-content";
 import { AuthPageLayout } from "@/components/layout/AuthPageLayout";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { Card } from "@/components/ui/card";
@@ -35,10 +34,9 @@ export default function SignupPage() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/onboarding`,
+                    emailRedirectTo: `${window.location.origin}/dashboard`,
                     data: {
                         full_name: name,
-                        [ONBOARDING_META_KEY]: false,
                     }
                 },
             });
@@ -56,7 +54,7 @@ export default function SignupPage() {
                 }).catch(() => {});
 
                 if (data.session) {
-                    window.location.href = "/onboarding";
+                    window.location.href = "/dashboard";
                 } else {
                     window.location.href = "/login";
                 }

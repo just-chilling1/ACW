@@ -18,13 +18,12 @@ export function getWorkflowProgress(
   return 3;
 }
 
-/** Locked until workflowProgress >= requiresWorkflowStep. */
+/** All workflow steps are always accessible. */
 export function isWorkflowStepLocked(
-  requiresWorkflowStep: number | undefined,
-  workflowProgress: number
+  _requiresWorkflowStep: number | undefined,
+  _workflowProgress: number
 ): boolean {
-  if (!requiresWorkflowStep) return false;
-  return workflowProgress < requiresWorkflowStep;
+  return false;
 }
 
 /** Step N is completed only after the user has progressed past it. */

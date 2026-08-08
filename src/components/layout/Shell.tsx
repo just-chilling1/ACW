@@ -15,8 +15,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
     pathname === "/signup" ||
     pathname === "/forgot-password" ||
     pathname === "/reset-password" ||
-    pathname === "/onboarding" ||
-    pathname.startsWith("/onboarding/") ||
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/dev/") ||
     pathname.startsWith("/embed/");

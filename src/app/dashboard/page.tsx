@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Search, BookOpen, Play } from "lucide-react";
 import { ContactSupportWidget } from "@/components/dashboard/ContactSupportWidget";
@@ -17,6 +18,16 @@ const VISIBLE_VIDEOS = DASHBOARD_TRAINING_VIDEOS.filter((v) => v.visible !== fal
 
 export default function DashboardPage() {
   const router = useRouter();
+  const [firstName, setFirstName] = useState<string | null>(null);
+
+  useEffect(() => {
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      const fullName = user?.user_metadata?.full_name;
+      if (typeof fullName === "string" && fullName.trim()) {
+        setFirstName(fullName.trim().split(/\s+/)[0]);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -51,6 +62,7 @@ export default function DashboardPage() {
             <span>
               <span className="text-[var(--gold)]">AI</span> CashWave
             </span>
+            {firstName ? `, ${firstName}` : ""}
           </>
         }
         subtitle="Watch the videos below in order — then enter a topic and start finding ads to reply to. The Training Academy is there whenever you want a deeper walkthrough."

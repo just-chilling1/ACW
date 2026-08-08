@@ -1,6 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { resolveOnboardingGate } from '@/lib/onboarding-gate'
 
 export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl
@@ -81,10 +80,12 @@ export async function proxy(request: NextRequest) {
         pathname === '/embed' ||
         pathname.startsWith('/embed/') ||
         isStaticAsset
-    const isOnboardingRoute = pathname === '/onboarding' || pathname.startsWith('/onboarding/')
-
     if (pathname.startsWith('/api') || isStaticAsset) {
         return response
+    }
+
+    if (pathname === '/onboarding' || pathname.startsWith('/onboarding/')) {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
     if (!user && !isAuthRoute && !isPublicRoute) {
@@ -93,22 +94,6 @@ export async function proxy(request: NextRequest) {
 
     if (user && isAuthRoute) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-
-    if (user && !isPublicRoute) {
-        const gate = await resolveOnboardingGate(
-            supabase,
-            user.id,
-            (user.user_metadata ?? null) as Record<string, unknown> | null
-        )
-
-        if (gate.isComplete && isOnboardingRoute) {
-            return NextResponse.redirect(new URL('/dashboard', request.url))
-        }
-
-        if (!gate.isComplete && !isOnboardingRoute) {
-            return NextResponse.redirect(new URL('/onboarding', request.url))
-        }
     }
 
     return response
