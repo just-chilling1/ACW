@@ -6,7 +6,8 @@ import Link from "next/link";
 import {
   LayoutGrid, Radar, LogOut, ChevronRight, GraduationCap, Sparkles,
   Search, MessageSquare, Brain, ExternalLink,
-  PanelLeftClose, PanelLeftOpen, Lock, Check, HelpCircle
+  PanelLeftClose, PanelLeftOpen, Lock, Check, HelpCircle,
+  type LucideIcon,
 } from "lucide-react";
 import { useSearch } from "@/context/SearchContext";
 import { clsx } from "clsx";
@@ -19,14 +20,40 @@ import {
 } from "@/lib/workflow-progress";
 import { EXCLUSIVE_OFFERS } from "@/lib/exclusive-offers";
 
-const STEPS = [
-  { path: "/dashboard", label: "Home", icon: LayoutGrid },
-  { path: "/search", label: "Step 1: Enter Topic", icon: Search, stepIndex: 1 },
-  { path: "/analysis", label: "Step 2: Check Demand", icon: Brain, requiresWorkflowStep: 1, stepIndex: 2 },
-  { path: "/radar", label: "Step 3: Find Ads", icon: Radar, requiresWorkflowStep: 2, stepIndex: 3 },
-  { path: "/replies", label: "Step 4: Create Replies", icon: MessageSquare, requiresWorkflowStep: 3, stepIndex: 4 },
-  { path: "/training", label: "Training", icon: GraduationCap },
-  { path: "/support", label: "Support", icon: HelpCircle },
+type NavItem = {
+  path: string;
+  label: string;
+  icon: LucideIcon;
+  requiresWorkflowStep?: number;
+  stepIndex?: number;
+};
+
+type NavSection = {
+  label?: string;
+  items: NavItem[];
+};
+
+const NAV_SECTIONS: NavSection[] = [
+  {
+    label: "Dashboard",
+    items: [{ path: "/dashboard", label: "Home", icon: LayoutGrid }],
+  },
+  {
+    label: "Generate",
+    items: [
+      { path: "/search", label: "Step 1: Enter Topic", icon: Search, stepIndex: 1 },
+      { path: "/analysis", label: "Step 2: Check Demand", icon: Brain, requiresWorkflowStep: 1, stepIndex: 2 },
+      { path: "/radar", label: "Step 3: Find Ads", icon: Radar, requiresWorkflowStep: 2, stepIndex: 3 },
+      { path: "/replies", label: "Step 4: Create Replies", icon: MessageSquare, requiresWorkflowStep: 3, stepIndex: 4 },
+    ],
+  },
+  {
+    label: "Academy",
+    items: [{ path: "/training", label: "Training", icon: GraduationCap }],
+  },
+  {
+    items: [{ path: "/support", label: "Support", icon: HelpCircle }],
+  },
 ];
 
 export function Sidebar({
@@ -76,7 +103,7 @@ export function Sidebar({
   }, [collapsed]);
 
   const renderStepLink = useCallback(
-    (step: (typeof STEPS)[number], collapsedView: boolean) => {
+    (step: NavItem, collapsedView: boolean) => {
       const isActive = pathname === step.path;
       const Icon = step.icon;
       const locked = isWorkflowStepLocked(step.requiresWorkflowStep, workflowProgress);
@@ -199,15 +226,21 @@ export function Sidebar({
 
       <nav
         ref={navRef}
-        className="relative z-10 flex min-h-0 w-full min-w-0 flex-col gap-1 overflow-y-auto overscroll-y-contain touch-pan-y"
+        className="relative z-10 flex min-h-0 w-full min-w-0 flex-col overflow-y-auto overscroll-y-contain touch-pan-y"
       >
-        {!collapsed && (
-          <span className="mb-1 shrink-0 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-            Navigation
-          </span>
-        )}
-
-        {STEPS.map((step) => renderStepLink(step, collapsed))}
+        {NAV_SECTIONS.map((section, sectionIndex) => (
+          <div
+            key={section.label ?? `nav-section-${sectionIndex}`}
+            className={clsx("flex flex-col gap-1", sectionIndex > 0 && "mt-3")}
+          >
+            {!collapsed && section.label && (
+              <span className="mb-1 shrink-0 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
+                {section.label}
+              </span>
+            )}
+            {section.items.map((step) => renderStepLink(step, collapsed))}
+          </div>
+        ))}
 
         {!collapsed && (
           <>

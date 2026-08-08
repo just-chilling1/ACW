@@ -1417,9 +1417,10 @@ html[data-sidebar="collapsed"] {
 
 .exclusive-offer-link {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  min-height: calc(1.25rem + 2 * 1.35em);
   padding: 0.625rem 0.75rem;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
@@ -1443,7 +1444,6 @@ html[data-sidebar="collapsed"] {
 
 .exclusive-offer-link svg {
   flex-shrink: 0;
-  margin-top: 0.125rem;
   opacity: 0.85;
   transition: opacity 160ms var(--ease-out), transform 160ms var(--ease-out);
 }
