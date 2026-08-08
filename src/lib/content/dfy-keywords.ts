@@ -35,8 +35,7 @@ export const DFY_KEYWORDS: DfyKeyword[] = [
         search: "best email marketing platform for creators reddit",
         niche: "Marketing",
         description: "Founders deciding on their email marketing tech stack."
-    }
-
+    },
     {
         label: "Best probiotic for gut health",
         search: "best probiotic gut health reddit 2024",
