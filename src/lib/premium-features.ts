@@ -15,7 +15,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     {
         path: "/dfy",
         label: "Done-For-You",
-        description: "AI builds your full campaign from your affiliate link.",
+        description: "Ready-made campaigns you can post right away.",
         icon: Scan,
     },
     {
