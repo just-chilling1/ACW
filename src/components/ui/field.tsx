@@ -4,7 +4,7 @@ import { clsx } from "clsx";
 import type { InputHTMLAttributes, TextareaHTMLAttributes, ReactNode } from "react";
 
 type FieldBase = {
-  label?: string;
+  label?: ReactNode;
   hint?: string;
   error?: string;
   className?: string;
@@ -25,12 +25,12 @@ export type FieldProps = InputFieldProps | TextareaFieldProps;
 
 export function Field(props: FieldProps) {
   const { label, hint, error, className, trailing, as = "input", ...rest } = props;
-  const id = props.id ?? (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
+  const id = props.id ?? (typeof label === "string" ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
 
   return (
     <label className={clsx("flex w-full flex-col gap-1.5", className)}>
       {label ? (
-        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted">
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted flex items-center gap-1 flex-wrap">
           {label}
         </span>
       ) : null}

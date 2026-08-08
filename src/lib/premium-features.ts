@@ -15,19 +15,19 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     {
         path: "/dfy",
         label: "Done-For-You",
-        description: "Ready-made campaigns you can post right away.",
+        description: "One-click AI campaign — keywords, posts, replies, and bonus content.",
         icon: Scan,
     },
     {
         path: "/instant",
         label: "Instant Income",
-        description: "Simple posts and links that can start earning fast.",
+        description: "AI-personalized posts for Facebook, Reddit, Quora, and more.",
         icon: Sparkles,
     },
     {
         path: "/autopilot",
         label: "Automated Profits",
-        description: "Set it up once and let it keep working for you.",
+        description: "3 daily traffic sources with AI-written submission copy.",
         icon: Rocket,
     },
 ];
