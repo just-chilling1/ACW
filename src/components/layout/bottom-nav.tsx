@@ -241,7 +241,7 @@ export function BottomNav() {
                                             className="exclusive-offer-link [@media(max-height:740px)]:py-2 [@media(max-height:740px)]:text-[11px]"
                                             title={`${promo.title} (opens in new tab)`}
                                         >
-                                            <span className="min-w-0 truncate">{promo.title}</span>
+                                            <span className="min-w-0 flex-1">{promo.title}</span>
                                             <ExternalLink size={13} strokeWidth={1.75} />
                                         </a>
                                     ))}

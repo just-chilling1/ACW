@@ -261,7 +261,7 @@ export function Sidebar({
                       className="exclusive-offer-link"
                       title={`${promo.title} (opens in new tab)`}
                     >
-                      <span className="min-w-0 truncate">{promo.title}</span>
+                      <span className="min-w-0 flex-1">{promo.title}</span>
                       <ExternalLink size={14} strokeWidth={1.75} />
                     </a>
                   ))}

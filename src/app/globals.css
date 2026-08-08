@@ -1417,7 +1417,7 @@ html[data-sidebar="collapsed"] {
 
 .exclusive-offer-link {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.625rem 0.75rem;
@@ -1425,7 +1425,7 @@ html[data-sidebar="collapsed"] {
   border: 1px solid transparent;
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.35;
   color: var(--success);
   transition:
     background 160ms var(--ease-out),
@@ -1443,6 +1443,7 @@ html[data-sidebar="collapsed"] {
 
 .exclusive-offer-link svg {
   flex-shrink: 0;
+  margin-top: 0.125rem;
   opacity: 0.85;
   transition: opacity 160ms var(--ease-out), transform 160ms var(--ease-out);
 }
