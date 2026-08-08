@@ -52,6 +52,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [{ path: "/training", label: "Training", icon: GraduationCap }],
   },
   {
+    label: "Support",
     items: [{ path: "/support", label: "Support", icon: HelpCircle }],
   },
 ];
