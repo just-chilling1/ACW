@@ -8,7 +8,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Field } from "@/components/ui/field";
 import { InlineError } from "@/components/ui/InlineError";
 import { BuildSequence } from "@/components/dfy/build-sequence";
-import { DfyVideoSection } from "@/components/dfy/dfy-video-section";
 import { AUDIENCE_OPTIONS, type AudienceMode, type ChannelMode, type OfferSnapshot } from "@/lib/dfy/types";
 import { clsx } from "clsx";
 
@@ -159,8 +158,6 @@ function NewCampaignContent() {
             />
 
             {error ? <InlineError message={error} className="mb-4" /> : null}
-
-            {step === "setup" && <DfyVideoSection className="mb-6" compact />}
 
             {step === "setup" && (
                 <div className="flex flex-col gap-6">

@@ -13,6 +13,37 @@ export interface ScoredOpportunity {
     recommendedApproach: string;
 }
 
+export function buildFallbackReply(item: ScoredOpportunity, snapshot: OfferSnapshot, offerUrl: string): string {
+    const topic = item.post.title || item.post.text.slice(0, 80);
+    const pain = snapshot.painPoints[0]?.toLowerCase() || snapshot.category.toLowerCase();
+    const benefit = snapshot.primaryBenefits[0]?.toLowerCase() || snapshot.mainPromise.toLowerCase();
+
+    return [
+        `Great question about ${topic.toLowerCase()}.`,
+        `For ${pain}, a simple starting point is focusing on ${benefit}.`,
+        `I've seen beginners get better results when they follow a structured guide instead of piecing random tips together.`,
+        `If you want something built for ${snapshot.targetAudience.toLowerCase()}, ${snapshot.productName} walks through it step by step: ${offerUrl}`,
+    ].join(" ");
+}
+
+export function buildFallbackAlternatives(item: ScoredOpportunity, snapshot: OfferSnapshot, offerUrl: string): { style: string; text: string }[] {
+    const topic = item.post.title || "this topic";
+    return [
+        {
+            style: "Helpful expert",
+            text: `For ${topic.toLowerCase()}, I'd compare a few options and look for something that covers ${snapshot.primaryBenefits[0]?.toLowerCase() || "the basics"}. ${snapshot.productName} is worth a look: ${offerUrl}`,
+        },
+        {
+            style: "Relatable angle",
+            text: `A lot of people feel stuck on ${snapshot.painPoints[0]?.toLowerCase() || "getting started"}. A beginner-friendly resource like ${snapshot.productName} can help: ${offerUrl}`,
+        },
+        {
+            style: "Short & direct",
+            text: `${snapshot.productName} covers this well for beginners — ${offerUrl}`,
+        },
+    ];
+}
+
 export function scorePostHeuristic(post: SocialPost, snapshot: OfferSnapshot): ScoredOpportunity {
     const text = `${post.title || ""} ${post.text || ""}`;
     const offerRelevance = scoreOfferRelevance(text, snapshot);
@@ -31,14 +62,16 @@ export function scorePostHeuristic(post: SocialPost, snapshot: OfferSnapshot): S
     intent = clampScore(intent);
     const opportunityScore = clampScore(Math.round(relevance * 0.45 + intent * 0.55));
 
+    const topicSnippet = (post.title || post.text).slice(0, 60).toLowerCase();
+
     return {
         post,
         relevanceScore: relevance,
         intentScore: intent,
         opportunityScore,
         label: opportunityLabel(opportunityScore),
-        whySelected: `This ${post.platform} conversation matches ${snapshot.productName} because the person is discussing ${snapshot.painPoints[0]?.toLowerCase() || snapshot.category.toLowerCase()}.`,
-        recommendedApproach: `Answer their specific question first, then naturally mention ${snapshot.productName} as a resource that addresses ${snapshot.primaryBenefits[0]?.toLowerCase() || "their need"}.`,
+        whySelected: `This ${post.platform} thread asks about "${topicSnippet}" — a strong match for ${snapshot.productName} because it relates to ${snapshot.painPoints[0]?.toLowerCase() || snapshot.category.toLowerCase()}.`,
+        recommendedApproach: `Acknowledge their question about ${topicSnippet}, share a practical tip, then mention ${snapshot.productName} as a resource for ${snapshot.primaryBenefits[0]?.toLowerCase() || "getting started"}.`,
     };
 }
 
@@ -55,9 +88,11 @@ export async function enrichOpportunitiesWithAi(
         alternativeReplies: { style: string; text: string }[];
     })[] = [];
 
-    for (let i = 0; i < scored.length; i++) {
-        const item = scored[i];
-        const prompt = `Write a unique, high-quality promotional reply for this specific conversation.
+    for (let i = 0; i < scored.length; i += 3) {
+        const chunk = scored.slice(i, i + 3);
+        const chunkResults = await Promise.allSettled(
+            chunk.map(async (item) => {
+                const prompt = `Write a unique, high-quality promotional reply for this specific conversation.
 
 OFFER DETAILS:
 - Product: ${snapshot.productName}
@@ -84,37 +119,39 @@ RULES:
 Return ONLY JSON:
 {"id":"${item.post.id}","whySelected":"why this post fits ${snapshot.productName}","recommendedApproach":"how to approach this specific thread","recommendedReply":"...","alternativeReplies":[{"style":"Helpful expert","text":"..."},{"style":"Relatable angle","text":"..."},{"style":"Short & direct","text":"..."}]}`;
 
-        try {
-            const raw = await callChatGPT([{ role: "user", content: prompt }]);
-            const parsed = parseJsonFromLlm<{
-                id: string;
-                whySelected?: string;
-                recommendedApproach?: string;
-                recommendedReply?: string;
-                alternativeReplies?: { style: string; text: string }[];
-            }>(raw, { id: item.post.id });
+                const raw = await callChatGPT([{ role: "user", content: prompt }]);
+                const parsed = parseJsonFromLlm<{
+                    id: string;
+                    whySelected?: string;
+                    recommendedApproach?: string;
+                    recommendedReply?: string;
+                    alternativeReplies?: { style: string; text: string }[];
+                }>(raw, { id: item.post.id });
 
-            results.push({
-                ...item,
-                whySelected: parsed.whySelected || item.whySelected,
-                recommendedApproach: parsed.recommendedApproach || item.recommendedApproach,
-                recommendedReply: parsed.recommendedReply || `I'd start by addressing what they asked about ${snapshot.painPoints[0]?.toLowerCase() || "this topic"}. If it fits, ${snapshot.productName} covers this in a beginner-friendly way: ${offerUrl}`,
-                alternativeReplies: parsed.alternativeReplies?.length
-                    ? parsed.alternativeReplies
-                    : [
-                        { style: "Helpful expert", text: `For ${snapshot.category.toLowerCase()} questions like this, a practical step-by-step resource helps — ${offerUrl}` },
-                        { style: "Short & direct", text: `Worth comparing a few options. ${snapshot.productName} might fit if you want something beginner-friendly: ${offerUrl}` },
-                    ],
-            });
-        } catch {
-            results.push({
-                ...item,
-                recommendedReply: `Good question — for ${snapshot.painPoints[0]?.toLowerCase() || "this"}, I'd look at resources that focus on ${snapshot.primaryBenefits[0]?.toLowerCase() || "practical results"}. ${snapshot.productName} breaks it down here: ${offerUrl}`,
-                alternativeReplies: [
-                    { style: "Helpful expert", text: `One approach: address their main concern first, then share ${offerUrl} if it matches what they need.` },
-                    { style: "Short & direct", text: `${snapshot.productName} covers this — ${offerUrl}` },
-                ],
-            });
+                return {
+                    ...item,
+                    whySelected: parsed.whySelected || item.whySelected,
+                    recommendedApproach: parsed.recommendedApproach || item.recommendedApproach,
+                    recommendedReply: (parsed.recommendedReply?.trim() || buildFallbackReply(item, snapshot, offerUrl)),
+                    alternativeReplies: parsed.alternativeReplies?.length
+                        ? parsed.alternativeReplies
+                        : buildFallbackAlternatives(item, snapshot, offerUrl),
+                };
+            }),
+        );
+
+        for (let j = 0; j < chunk.length; j++) {
+            const settled = chunkResults[j];
+            const item = chunk[j];
+            if (settled.status === "fulfilled") {
+                results.push(settled.value);
+            } else {
+                results.push({
+                    ...item,
+                    recommendedReply: buildFallbackReply(item, snapshot, offerUrl),
+                    alternativeReplies: buildFallbackAlternatives(item, snapshot, offerUrl),
+                });
+            }
         }
     }
 

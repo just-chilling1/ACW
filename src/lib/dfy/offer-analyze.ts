@@ -219,11 +219,17 @@ export function deriveSearchQueries(snapshot: OfferSnapshot, primaryKeyword: str
         `${product} review reddit`,
         `${pain} help reddit`,
         `best ${category} for beginners reddit`,
+        `${product} worth it reddit`,
+        `${category} beginner tips reddit`,
+        `how to ${category} reddit`,
     ];
 
     if (niche) {
-        queries.push(`${niche.searchTerms[0]} ${category} reddit`);
+        for (const term of niche.searchTerms.slice(0, 4)) {
+            queries.push(`${term} ${category} reddit`);
+        }
+        queries.push(`${niche.label.toLowerCase()} ${product} reddit`);
     }
 
-    return [...new Set(queries.map((q) => q.replace(/\s+/g, " ").trim()))].slice(0, 6);
+    return [...new Set(queries.map((q) => q.replace(/\s+/g, " ").trim()))].slice(0, 12);
 }

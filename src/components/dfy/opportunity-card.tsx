@@ -61,7 +61,9 @@ export function OpportunityCard({
 
             <div className="rounded-[var(--radius-md)] border border-[var(--border-strong)] bg-[var(--surface-2)] p-3 sm:p-4">
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--gold-text)]">Recommended Reply</p>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">{opportunity.recommended_reply}</p>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
+                    {opportunity.recommended_reply || "Reply will appear here after generation. Click Regenerate to create one."}
+                </p>
             </div>
 
             {showAlternatives && opportunity.alternative_replies?.length ? (

@@ -10,6 +10,8 @@ import {
     generateHooks,
     generateWeeklyBatch,
     scorePostHeuristic,
+    buildFallbackReply,
+    buildFallbackAlternatives,
 } from "./content-engine";
 import type {
     AudienceMode,
@@ -93,8 +95,8 @@ export async function runBuildStage(
                     label: s.label,
                     why_selected: s.whySelected,
                     recommended_approach: s.recommendedApproach,
-                    recommended_reply: "",
-                    alternative_replies: [],
+                    recommended_reply: buildFallbackReply(s, snapshot, campaign.offer_url),
+                    alternative_replies: buildFallbackAlternatives(s, snapshot, campaign.offer_url),
                     meta: { postId: s.post.id },
                 });
             }

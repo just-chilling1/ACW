@@ -6,7 +6,6 @@ import { useParams } from "next/navigation";
 import { ArrowLeft, Download } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { CampaignReadyHero } from "@/components/dfy/campaign-ready-hero";
-import { DfyVideoSection } from "@/components/dfy/dfy-video-section";
 import {
     OverviewTab,
     OpportunitiesTab,
@@ -41,6 +40,7 @@ export default function CampaignWorkspacePage() {
     const [regenerateError, setRegenerateError] = useState("");
     const [fillingWeek, setFillingWeek] = useState(false);
     const [improving, setImproving] = useState(false);
+    const [improveMessage, setImproveMessage] = useState("");
 
     const loadCampaign = async () => {
         const res = await fetch(`/api/dfy/campaigns/${id}`);
@@ -92,9 +92,20 @@ export default function CampaignWorkspacePage() {
 
     const handleImprove = async () => {
         setImproving(true);
+        setImproveMessage("");
         try {
             const res = await fetch(`/api/dfy/campaigns/${id}/improve`, { method: "POST" });
-            if (res.ok) await loadCampaign();
+            const data = await res.json().catch(() => ({}));
+            if (res.ok) {
+                if (data.campaign) setCampaign(data.campaign);
+                if (data.opportunities) setOpportunities(data.opportunities);
+                await loadCampaign();
+                setImproveMessage("Campaign improved — score, opportunities, and replies updated.");
+            } else {
+                setImproveMessage(data.error || "Improve failed. Please try again.");
+            }
+        } catch {
+            setImproveMessage("Improve failed. Please try again.");
         } finally {
             setImproving(false);
         }
@@ -144,11 +155,15 @@ export default function CampaignWorkspacePage() {
                 </div>
             ) : null}
 
-            <DfyVideoSection className="mb-8" compact />
-
             {regenerateError ? (
                 <p className="mb-4 rounded-[var(--radius-md)] border border-[var(--danger)] bg-[var(--danger-fill)] px-4 py-2 text-sm text-[var(--danger)]">
                     {regenerateError}
+                </p>
+            ) : null}
+
+            {improveMessage ? (
+                <p className={`mb-4 rounded-[var(--radius-md)] border px-4 py-2 text-sm ${improveMessage.includes("failed") || improveMessage.includes("Could not") ? "border-[var(--danger)] bg-[var(--danger-fill)] text-[var(--danger)]" : "border-[var(--gold)] bg-[var(--gold-fill)] text-[var(--gold-text)]"}`}>
+                    {improveMessage}
                 </p>
             ) : null}
 
