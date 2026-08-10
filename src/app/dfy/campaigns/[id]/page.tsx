@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { ArrowLeft, Download } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { CampaignReadyHero } from "@/components/dfy/campaign-ready-hero";
+import { DfyVideoSection } from "@/components/dfy/dfy-video-section";
 import {
     OverviewTab,
     OpportunitiesTab,
@@ -142,6 +143,8 @@ export default function CampaignWorkspacePage() {
                     <CampaignReadyHero name={campaign.name} score={campaign.score} stats={stats} />
                 </div>
             ) : null}
+
+            <DfyVideoSection className="mb-8" compact />
 
             {regenerateError ? (
                 <p className="mb-4 rounded-[var(--radius-md)] border border-[var(--danger)] bg-[var(--danger-fill)] px-4 py-2 text-sm text-[var(--danger)]">

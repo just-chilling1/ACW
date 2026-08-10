@@ -2,6 +2,15 @@ export type CampaignStatus = "draft" | "building" | "ready" | "failed";
 export type OpportunityLabel = "excellent" | "strong" | "good" | "low";
 export type AudienceMode =
     | "auto"
+    | "weight_loss"
+    | "make_money_online"
+    | "health_fitness"
+    | "beauty_skincare"
+    | "relationships"
+    | "tech_gadgets"
+    | "pets"
+    | "home_garden"
+    /** @deprecated legacy values — kept for older saved campaigns */
     | "make_money"
     | "solve_problem"
     | "beginners"
@@ -186,14 +195,14 @@ export const BUILD_STAGES: { key: BuildStage; label: string }[] = [
     { key: "finalize", label: "Preparing your action plan" },
 ];
 
-export const AUDIENCE_OPTIONS: { id: AudienceMode; label: string; description: string; recommended?: boolean }[] = [
-    { id: "make_money", label: "People looking to make money", description: "Side income, online earnings, financial freedom.", recommended: true },
-    { id: "solve_problem", label: "People solving a specific problem", description: "Active problem-solvers seeking solutions." },
-    { id: "beginners", label: "Beginners", description: "New to the topic and looking for simple guidance." },
-    { id: "business_owners", label: "Business owners", description: "Entrepreneurs and small business operators." },
-    { id: "professionals", label: "Professionals", description: "Career-focused individuals in specific fields." },
-    { id: "hobby", label: "Hobby & interest audiences", description: "Passion-driven communities and enthusiasts." },
-];
+import { APP_NICHES } from "@/lib/niches";
+
+export const AUDIENCE_OPTIONS: { id: AudienceMode; label: string; description: string; recommended?: boolean }[] =
+    APP_NICHES.map((niche) => ({
+        id: niche.id as AudienceMode,
+        label: niche.label,
+        description: niche.description,
+    }));
 
 export const CHANNEL_OPTIONS: { id: ChannelMode; label: string; recommended?: boolean }[] = [
     { id: "everywhere", label: "Everywhere", recommended: true },

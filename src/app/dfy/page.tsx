@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Sparkles, ArrowRight, Eye } from "lucide-react";
+import { Sparkles, Eye } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { CampaignLibrary } from "@/components/dfy/campaign-tabs";
-import { EXCLUSIVE_OFFERS } from "@/lib/exclusive-offers";
+import { DfyVideoSection } from "@/components/dfy/dfy-video-section";
 
 type CampaignSummary = {
     id: string;
@@ -55,6 +55,8 @@ export default function DfyLandingPage() {
                 </div>
             </section>
 
+            <DfyVideoSection className="mb-10" />
+
             <section className="mb-10">
                 <PageHeader title="My Campaigns" subtitle="Reopen saved campaigns anytime." />
                 {loading ? (
@@ -62,23 +64,6 @@ export default function DfyLandingPage() {
                 ) : (
                     <CampaignLibrary campaigns={campaigns} onDelete={handleDelete} />
                 )}
-            </section>
-
-            <section className="card-base p-5 sm:p-6">
-                <h2 className="mb-2 text-lg font-semibold text-text-primary">Don&apos;t have an offer yet?</h2>
-                <p className="mb-4 text-sm text-text-secondary">Let Cashwave help you find one.</p>
-                <div className="flex flex-col gap-2">
-                    {EXCLUSIVE_OFFERS.map((offer) => (
-                        <Link
-                            key={offer.url}
-                            href={`/dfy/new?url=${encodeURIComponent(offer.url)}&name=${encodeURIComponent(offer.title)}`}
-                            className="flex items-center justify-between rounded-[var(--radius-md)] border border-[var(--border-subtle)] px-4 py-3 text-sm text-text-secondary transition hover:border-[var(--border-strong)] hover:text-text-primary"
-                        >
-                            {offer.title}
-                            <ArrowRight size={14} />
-                        </Link>
-                    ))}
-                </div>
             </section>
         </div>
     );

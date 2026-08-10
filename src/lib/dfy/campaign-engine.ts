@@ -58,25 +58,25 @@ export async function runBuildStage(
                 offer_snapshot: analyzed,
                 audience_mode: resolvedAudience,
                 name: analyzed.productName,
-                primary_keyword: derivePrimaryKeyword(analyzed),
+                primary_keyword: derivePrimaryKeyword(analyzed, audienceMode),
             }).eq("id", campaign.id);
             campaign.offer_snapshot = analyzed;
             campaign.name = analyzed.productName;
-            campaign.primary_keyword = derivePrimaryKeyword(analyzed);
+            campaign.primary_keyword = derivePrimaryKeyword(analyzed, audienceMode);
             break;
         }
         case "determine_audience":
             break;
         case "determine_strategy": {
-            const keyword = campaign.primary_keyword || derivePrimaryKeyword(snapshot);
+            const keyword = campaign.primary_keyword || derivePrimaryKeyword(snapshot, audienceMode);
             const strategy = await buildStrategy(snapshot, campaign.audience_mode as AudienceMode, channels, keyword);
             await supabase.from("campaigns").update({ strategy }).eq("id", campaign.id);
             break;
         }
         case "discover_opportunities": {
-            const keyword = campaign.primary_keyword || derivePrimaryKeyword(snapshot);
-            const queries = deriveSearchQueries(snapshot, keyword);
-            const posts = await discoverPosts(supabase, queries);
+            const keyword = campaign.primary_keyword || derivePrimaryKeyword(snapshot, audienceMode);
+            const queries = deriveSearchQueries(snapshot, keyword, audienceMode);
+            const posts = await discoverPosts(supabase, queries, snapshot, audienceMode);
             await supabase.from("campaign_opportunities").delete().eq("campaign_id", campaign.id);
             const scored = posts.map((p) => scorePostHeuristic(p, snapshot));
             for (const s of scored) {
@@ -326,12 +326,31 @@ export async function runWeeklyBatchForCampaign(
         await supabase.from("campaign_assets").delete().in("id", batchIds);
     }
 
-    const bestHook = (existingBatch || []).find((a) => a.kind === "hook" && (a.meta as { recommended?: boolean })?.recommended)?.content
-        || (existingBatch || []).find((a) => a.kind === "hook")?.content;
-    const bestCta = (existingBatch || []).find((a) => a.kind === "cta" && (a.meta as { recommended?: boolean })?.recommended)?.content
-        || (existingBatch || []).find((a) => a.kind === "cta")?.content;
+    const hooks = (existingBatch || []).filter((a) => a.kind === "hook");
+    const ctas = (existingBatch || []).filter((a) => a.kind === "cta");
 
-    const batch = await generateWeeklyBatch(snapshot, campaign.offer_url, keyword, bestHook, bestCta);
+    const pickHookForAngle = (angle: string, dayIndex: number) => {
+        const match = hooks.find((h) => (h.meta as { bestForAngle?: string })?.bestForAngle === angle);
+        return match?.content || hooks[dayIndex % hooks.length]?.content;
+    };
+
+    const pickCtaForAngle = (angle: string, dayIndex: number) => {
+        const match = ctas.find((c) => (c.meta as { bestForAngle?: string })?.bestForAngle === angle);
+        return match?.content || ctas[dayIndex % ctas.length]?.content;
+    };
+
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const dayHooks: Record<string, string> = {};
+    const dayCtas: Record<string, string> = {};
+    weekdays.forEach((day, i) => {
+        const angle = snapshot.contentAngles[i % snapshot.contentAngles.length];
+        const hook = pickHookForAngle(angle, i);
+        const cta = pickCtaForAngle(angle, i);
+        if (hook) dayHooks[day] = hook;
+        if (cta) dayCtas[day] = cta;
+    });
+
+    const batch = await generateWeeklyBatch(snapshot, campaign.offer_url, keyword, dayHooks, dayCtas);
     for (const item of batch) {
         await supabase.from("campaign_assets").insert({
             campaign_id: campaign.id,

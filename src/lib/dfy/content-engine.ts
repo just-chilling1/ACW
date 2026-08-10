@@ -1,5 +1,6 @@
 import { callChatGPT } from "@/lib/llm";
 import { parseJsonFromLlm, clampScore, opportunityLabel } from "./parse-json";
+import { scoreOfferRelevance } from "./search-fallbacks";
 import type { OfferSnapshot, ScoreBreakdown, SocialPost } from "./types";
 
 export interface ScoredOpportunity {
@@ -13,30 +14,20 @@ export interface ScoredOpportunity {
 }
 
 export function scorePostHeuristic(post: SocialPost, snapshot: OfferSnapshot): ScoredOpportunity {
-    const text = `${post.title || ""} ${post.text || ""}`.toLowerCase();
-    const keywords = [
-        snapshot.productName,
-        snapshot.category,
-        ...snapshot.painPoints,
-        ...snapshot.primaryBenefits,
-    ].map((k) => k.toLowerCase());
+    const text = `${post.title || ""} ${post.text || ""}`;
+    const offerRelevance = scoreOfferRelevance(text, snapshot);
 
-    let relevance = 45;
-    for (const kw of keywords) {
-        if (kw.length > 3 && text.includes(kw.slice(0, Math.min(kw.length, 12)))) relevance += 8;
-    }
-    if (/best|recommend|how|help|looking|need|advice|which|what/.test(text)) relevance += 10;
-
+    let relevance = clampScore(35 + offerRelevance);
     let intent = 50;
-    if (/looking for|need help|recommend|which|what should|how do i|best/.test(text)) intent += 25;
-    if (/buy|purchase|worth it|alternative|vs/.test(text)) intent += 15;
+    const lower = text.toLowerCase();
+    if (/looking for|need help|recommend|which|what should|how do i|best|worth it|anyone tried/.test(lower)) intent += 25;
+    if (/buy|purchase|alternative|vs|review/.test(lower)) intent += 15;
 
     const engagementNum = typeof post.engagement === "number"
         ? post.engagement
         : parseInt(String(post.engagement || "0").replace(/\D/g, ""), 10) || 0;
     if (engagementNum > 500) intent += 5;
 
-    relevance = clampScore(relevance);
     intent = clampScore(intent);
     const opportunityScore = clampScore(Math.round(relevance * 0.45 + intent * 0.55));
 
@@ -46,8 +37,8 @@ export function scorePostHeuristic(post: SocialPost, snapshot: OfferSnapshot): S
         intentScore: intent,
         opportunityScore,
         label: opportunityLabel(opportunityScore),
-        whySelected: "This conversation shows someone actively looking for guidance related to your offer.",
-        recommendedApproach: "Give a helpful educational answer first, then introduce the relevant resource naturally.",
+        whySelected: `This ${post.platform} conversation matches ${snapshot.productName} because the person is discussing ${snapshot.painPoints[0]?.toLowerCase() || snapshot.category.toLowerCase()}.`,
+        recommendedApproach: `Answer their specific question first, then naturally mention ${snapshot.productName} as a resource that addresses ${snapshot.primaryBenefits[0]?.toLowerCase() || "their need"}.`,
     };
 }
 
@@ -64,57 +55,66 @@ export async function enrichOpportunitiesWithAi(
         alternativeReplies: { style: string; text: string }[];
     })[] = [];
 
-    for (let i = 0; i < scored.length; i += 3) {
-        const chunk = scored.slice(i, i + 3);
-        const prompt = `For each conversation, create promotion replies for "${snapshot.productName}".
-Offer URL to weave naturally when appropriate: ${offerUrl}
+    for (let i = 0; i < scored.length; i++) {
+        const item = scored[i];
+        const prompt = `Write a unique, high-quality promotional reply for this specific conversation.
 
-Rules:
-- Do NOT claim the user personally used the product unless framed as "one angle you could use".
-- Be helpful first, promotional second.
-- Match the conversation context.
-- Return ONLY JSON array:
-[{"id":"post_id","whySelected":"...","recommendedApproach":"...","recommendedReply":"...","alternativeReplies":[{"style":"Helpful","text":"..."},{"style":"Personal angle","text":"..."},{"style":"Short","text":"..."}]}]
+OFFER DETAILS:
+- Product: ${snapshot.productName}
+- Category: ${snapshot.category}
+- Main promise: ${snapshot.mainPromise}
+- Benefits: ${snapshot.primaryBenefits.join(", ")}
+- Pain points solved: ${snapshot.painPoints.join(", ")}
+- Offer URL: ${offerUrl}
 
-Conversations:
-${JSON.stringify(chunk.map((c) => ({ id: c.post.id, platform: c.post.platform, title: c.post.title, text: c.post.text })))}`;
+CONVERSATION:
+Platform: ${item.post.platform}
+Title: ${item.post.title || "N/A"}
+Text: ${item.post.text}
+
+RULES:
+1. Reply must directly address THIS person's question or problem — not a generic template.
+2. Be genuinely helpful first. Add real value before mentioning the offer.
+3. Include the offer URL naturally once in the recommended reply.
+4. Write 3 alternative replies with different styles: "Helpful expert", "Relatable angle", "Short & direct".
+5. Each reply must be unique to this conversation — do NOT reuse phrasing across posts.
+6. Do NOT claim you personally used the product. Frame as a useful resource.
+7. 3-6 sentences for the recommended reply. Alternatives can be shorter.
+
+Return ONLY JSON:
+{"id":"${item.post.id}","whySelected":"why this post fits ${snapshot.productName}","recommendedApproach":"how to approach this specific thread","recommendedReply":"...","alternativeReplies":[{"style":"Helpful expert","text":"..."},{"style":"Relatable angle","text":"..."},{"style":"Short & direct","text":"..."}]}`;
 
         try {
             const raw = await callChatGPT([{ role: "user", content: prompt }]);
-            const parsed = parseJsonFromLlm<Array<{
+            const parsed = parseJsonFromLlm<{
                 id: string;
                 whySelected?: string;
                 recommendedApproach?: string;
                 recommendedReply?: string;
                 alternativeReplies?: { style: string; text: string }[];
-            }>>(raw, []);
+            }>(raw, { id: item.post.id });
 
-            for (const item of chunk) {
-                const ai = parsed.find((p) => p.id === item.post.id);
-                results.push({
-                    ...item,
-                    whySelected: ai?.whySelected || item.whySelected,
-                    recommendedApproach: ai?.recommendedApproach || item.recommendedApproach,
-                    recommendedReply: ai?.recommendedReply || `One helpful angle: share practical steps first, then mention ${snapshot.productName} as a resource if it fits: ${offerUrl}`,
-                    alternativeReplies: ai?.alternativeReplies?.length
-                        ? ai.alternativeReplies
-                        : [
-                            { style: "Helpful", text: `Focus on the core problem first, then suggest a resource like ${offerUrl} if relevant.` },
-                            { style: "Short", text: `Worth comparing a few options — ${offerUrl} might fit if you want a beginner-friendly path.` },
-                        ],
-                });
-            }
-        } catch {
-            for (const item of chunk) {
-                results.push({
-                    ...item,
-                    recommendedReply: `One angle you could use: share a practical tip related to their question, then mention ${snapshot.productName} as a resource: ${offerUrl}`,
-                    alternativeReplies: [
-                        { style: "Helpful", text: `I'd start with the basics they asked about, then share ${offerUrl} if it matches what they need.` },
-                        { style: "Short", text: `Check ${offerUrl} — it covers this in a beginner-friendly way.` },
+            results.push({
+                ...item,
+                whySelected: parsed.whySelected || item.whySelected,
+                recommendedApproach: parsed.recommendedApproach || item.recommendedApproach,
+                recommendedReply: parsed.recommendedReply || `I'd start by addressing what they asked about ${snapshot.painPoints[0]?.toLowerCase() || "this topic"}. If it fits, ${snapshot.productName} covers this in a beginner-friendly way: ${offerUrl}`,
+                alternativeReplies: parsed.alternativeReplies?.length
+                    ? parsed.alternativeReplies
+                    : [
+                        { style: "Helpful expert", text: `For ${snapshot.category.toLowerCase()} questions like this, a practical step-by-step resource helps — ${offerUrl}` },
+                        { style: "Short & direct", text: `Worth comparing a few options. ${snapshot.productName} might fit if you want something beginner-friendly: ${offerUrl}` },
                     ],
-                });
-            }
+            });
+        } catch {
+            results.push({
+                ...item,
+                recommendedReply: `Good question — for ${snapshot.painPoints[0]?.toLowerCase() || "this"}, I'd look at resources that focus on ${snapshot.primaryBenefits[0]?.toLowerCase() || "practical results"}. ${snapshot.productName} breaks it down here: ${offerUrl}`,
+                alternativeReplies: [
+                    { style: "Helpful expert", text: `One approach: address their main concern first, then share ${offerUrl} if it matches what they need.` },
+                    { style: "Short & direct", text: `${snapshot.productName} covers this — ${offerUrl}` },
+                ],
+            });
         }
     }
 
@@ -160,17 +160,32 @@ Rules:
     }));
 }
 
-export async function generateHooks(snapshot: OfferSnapshot): Promise<Array<{ content: string; meta: { category: string; recommended?: boolean } }>> {
+export async function generateHooks(snapshot: OfferSnapshot): Promise<Array<{ content: string; meta: { category: string; recommended?: boolean; bestForAngle?: string } }>> {
     const prompt = `Create 20 short hooks for "${snapshot.productName}".
-Return ONLY JSON: [{"content":"...","meta":{"category":"Curiosity|Problem|Benefit|Contrarian|Story|Question|Beginner|Mistake","recommended":false}}]
-Mark exactly ONE hook with "recommended":true — your single best hook for this offer.`;
+Product promise: ${snapshot.mainPromise}
+Target audience: ${snapshot.targetAudience}
+Content angles: ${snapshot.contentAngles.join(", ")}
+
+Return ONLY JSON:
+[{"content":"...","meta":{"category":"Curiosity|Problem|Benefit|Contrarian|Story|Question|Beginner|Mistake","bestForAngle":"problem/solution","recommended":false}}]
+
+Rules:
+- Each hook must reference the product, audience, or pain point — no generic filler.
+- Mark "recommended": true on exactly ONE hook that best fits the strongest angle "${snapshot.strongestAngle}".
+- Set "bestForAngle" on each hook to the content angle it fits best.`;
 
     try {
         const raw = await callChatGPT([{ role: "user", content: prompt }]);
-        const parsed = parseJsonFromLlm<Array<{ content: string; meta: { category: string; recommended?: boolean } }>>(raw, []);
+        const parsed = parseJsonFromLlm<Array<{ content: string; meta: { category: string; recommended?: boolean; bestForAngle?: string } }>>(raw, []);
         if (parsed.length >= 10) {
             const hasRecommended = parsed.some((h) => h.meta?.recommended);
-            if (!hasRecommended) parsed[0].meta = { ...parsed[0].meta, recommended: true };
+            if (!hasRecommended) {
+                const bestIdx = parsed.findIndex((h) =>
+                    h.meta?.bestForAngle === snapshot.contentAngles[0] ||
+                    h.content.toLowerCase().includes(snapshot.productName.toLowerCase().slice(0, 12)),
+                );
+                parsed[bestIdx >= 0 ? bestIdx : 0].meta = { ...parsed[bestIdx >= 0 ? bestIdx : 0].meta, recommended: true };
+            }
             return parsed.slice(0, 20);
         }
     } catch { /* fallback */ }
@@ -178,20 +193,32 @@ Mark exactly ONE hook with "recommended":true — your single best hook for this
     const categories = ["Curiosity", "Problem", "Benefit", "Question", "Beginner", "Contrarian", "Story", "Mistake"];
     const angles = snapshot.contentAngles.length ? snapshot.contentAngles : [snapshot.mainPromise, snapshot.strongestAngle];
     return Array.from({ length: 15 }, (_, i) => ({
-        content: `${categories[i % categories.length]}: What if ${angles[i % angles.length].toLowerCase()} was simpler than you think?`,
-        meta: { category: categories[i % categories.length], recommended: i === 1 },
+        content: `${categories[i % categories.length]}: What if ${angles[i % angles.length].toLowerCase()} with ${snapshot.productName} was simpler than you think?`,
+        meta: {
+            category: categories[i % categories.length],
+            bestForAngle: snapshot.contentAngles[i % snapshot.contentAngles.length],
+            recommended: snapshot.contentAngles[i % snapshot.contentAngles.length] === snapshot.contentAngles[0],
+        },
     }));
 }
 
-export async function generateCtas(snapshot: OfferSnapshot, offerUrl: string): Promise<Array<{ content: string; meta: { type: string; recommended?: boolean } }>> {
+export async function generateCtas(snapshot: OfferSnapshot, offerUrl: string): Promise<Array<{ content: string; meta: { type: string; recommended?: boolean; bestForAngle?: string } }>> {
     const prompt = `Create 6 call-to-action lines for "${snapshot.productName}".
 Offer URL: ${offerUrl}
-Return ONLY JSON: [{"content":"...","meta":{"type":"Soft CTA|Educational CTA|Resource CTA|Curiosity CTA|Direct CTA|Comment CTA","recommended":false}}]
-Mark exactly ONE with "recommended":true — the best CTA for beginners.`;
+Target audience: ${snapshot.targetAudience}
+Main promise: ${snapshot.mainPromise}
+Content angles: ${snapshot.contentAngles.join(", ")}
+
+Return ONLY JSON:
+[{"content":"...","meta":{"type":"Soft CTA|Educational CTA|Resource CTA|Curiosity CTA|Direct CTA|Comment CTA","bestForAngle":"problem/solution","recommended":false}}]
+
+Rules:
+- Each CTA must mention the product benefit or audience need — include the URL in every CTA.
+- Mark "recommended": true on the ONE CTA best suited for ${snapshot.targetAudience}.`;
 
     try {
         const raw = await callChatGPT([{ role: "user", content: prompt }]);
-        const parsed = parseJsonFromLlm<Array<{ content: string; meta: { type: string; recommended?: boolean } }>>(raw, []);
+        const parsed = parseJsonFromLlm<Array<{ content: string; meta: { type: string; recommended?: boolean; bestForAngle?: string } }>>(raw, []);
         if (parsed.length >= 4) {
             const hasRecommended = parsed.some((c) => c.meta?.recommended);
             if (!hasRecommended) parsed[0].meta = { ...parsed[0].meta, recommended: true };
@@ -202,11 +229,11 @@ Mark exactly ONE with "recommended":true — the best CTA for beginners.`;
     const types = ["Soft CTA", "Educational CTA", "Resource CTA", "Curiosity CTA", "Direct CTA", "Comment CTA"];
     return types.map((type, i) => ({
         content: type === "Direct CTA"
-            ? `Ready to try it? ${offerUrl}`
+            ? `Ready to try ${snapshot.productName}? ${offerUrl}`
             : type === "Educational CTA"
-                ? `If you want a beginner-friendly walkthrough, this breaks it down: ${offerUrl}`
-                : `Worth a look if this matches what you need: ${offerUrl}`,
-        meta: { type, recommended: i === 1 },
+                ? `If you want a beginner-friendly walkthrough of ${snapshot.mainPromise.toLowerCase()}, this breaks it down: ${offerUrl}`
+                : `Worth a look if ${snapshot.productName} matches what you need: ${offerUrl}`,
+        meta: { type, bestForAngle: snapshot.contentAngles[i % snapshot.contentAngles.length], recommended: i === 1 },
     }));
 }
 
@@ -233,44 +260,59 @@ export async function generateWeeklyBatch(
     snapshot: OfferSnapshot,
     offerUrl: string,
     keyword: string,
-    bestHook?: string,
-    bestCta?: string,
+    dayHooks?: Record<string, string>,
+    dayCtas?: Record<string, string>,
 ): Promise<Array<{ kind: "post"; channel: string; content: string; meta: { weekday: string; angle: string; section: string; hook: string; cta: string } }>> {
-    const prompt = `Create a complete 5-day content pack (Mon-Fri) for keyword "${keyword}" promoting "${snapshot.productName}".
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const prompt = `Create a complete 5-day content pack (Mon-Fri) for "${snapshot.productName}".
+Keyword context: ${keyword}
 Offer URL: ${offerUrl}
-${bestHook ? `Best hook to weave in: ${bestHook}` : ""}
-${bestCta ? `Best CTA to use: ${bestCta}` : ""}
+Target audience: ${snapshot.targetAudience}
+Main promise: ${snapshot.mainPromise}
+Benefits: ${snapshot.primaryBenefits.join(", ")}
+Pain points: ${snapshot.painPoints.join(", ")}
+Content angles to rotate: ${snapshot.contentAngles.join(", ")}
 
 Return ONLY JSON:
-[{"weekday":"Mon"|"Tue"|"Wed"|"Thu"|"Fri","channel":"Facebook"|"Reddit"|"Blog","hook":"attention-grabbing opening line","content":"full post body ready to publish","cta":"call to action with link","meta":{"angle":"..."}}]
+[{"weekday":"Mon"|"Tue"|"Wed"|"Thu"|"Fri","channel":"Facebook"|"Reddit"|"Blog","hook":"attention-grabbing opening line","content":"MIDDLE BODY ONLY — 120-200 words of detailed, valuable post content","cta":"call to action with link","meta":{"angle":"..."}}]
 
-Rules: each day must include hook, full post, and CTA. Diversified angles, platform-appropriate, non-spammy, no fake personal stories.`;
+CRITICAL RULES:
+- "content" must be ONLY the post body — do NOT repeat the hook or CTA inside content.
+- Each day's content must be unique, detailed (120-200 words), and specific to ${snapshot.productName}.
+- Reference real benefits, pain points, and use cases — not generic filler.
+- Vary angles, platforms, and writing style across days.
+- No fake personal stories or invented results.
+- The hook and CTA are stored separately — keep them out of the body text.`;
 
     try {
         const raw = await callChatGPT([{ role: "user", content: prompt }]);
         const parsed = parseJsonFromLlm<Array<{ weekday: string; channel: string; hook?: string; content: string; cta?: string; meta?: { angle?: string } }>>(raw, []);
         if (parsed.length >= 5) {
-            return parsed.slice(0, 5).map((item, i) => ({
-                kind: "post" as const,
-                channel: item.channel,
-                content: item.content,
-                meta: {
-                    weekday: item.weekday,
-                    angle: item.meta?.angle || snapshot.contentAngles[i % snapshot.contentAngles.length],
-                    section: "weekly_batch",
-                    hook: item.hook || bestHook || `${snapshot.strongestAngle}`,
-                    cta: item.cta || bestCta || `Learn more: ${offerUrl}`,
-                },
-            }));
+            return parsed.slice(0, 5).map((item, i) => {
+                const angle = item.meta?.angle || snapshot.contentAngles[i % snapshot.contentAngles.length];
+                const hook = item.hook || dayHooks?.[item.weekday] || `${angle}: A practical look at ${snapshot.mainPromise.toLowerCase()}`;
+                const cta = item.cta || dayCtas?.[item.weekday] || `Learn more about ${snapshot.productName}: ${offerUrl}`;
+                return {
+                    kind: "post" as const,
+                    channel: item.channel,
+                    content: stripHookAndCtaFromBody(item.content, hook, cta),
+                    meta: {
+                        weekday: item.weekday,
+                        angle,
+                        section: "weekly_batch",
+                        hook,
+                        cta,
+                    },
+                };
+            });
         }
-    } catch { /* fallback */ }
+    } catch { /* fallback below */ }
 
-    const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-    return days.map((weekday, i) => {
+    return weekdays.map((weekday, i) => {
         const angle = snapshot.contentAngles[i % snapshot.contentAngles.length];
-        const hook = bestHook || `${angle}: A simpler way to ${snapshot.mainPromise.toLowerCase()}`;
-        const cta = bestCta || `Worth exploring if this fits: ${offerUrl}`;
-        const content = `${hook}\n\n${weekday} post about ${keyword}: ${angle} — ${snapshot.mainPromise}.\n\n${cta}`;
+        const hook = dayHooks?.[weekday] || `${angle}: What most people get wrong about ${snapshot.category.toLowerCase()}`;
+        const cta = dayCtas?.[weekday] || `If ${snapshot.productName} fits what you're looking for, see the full breakdown here: ${offerUrl}`;
+        const content = buildDetailedPostBody(snapshot, angle, keyword, weekday, i);
         return {
             kind: "post" as const,
             channel: i % 2 === 0 ? "Facebook" : "Reddit",
@@ -278,6 +320,30 @@ Rules: each day must include hook, full post, and CTA. Diversified angles, platf
             meta: { weekday, angle, section: "weekly_batch", hook, cta },
         };
     });
+}
+
+function stripHookAndCtaFromBody(body: string, hook: string, cta: string): string {
+    let cleaned = body.trim();
+    if (hook && cleaned.startsWith(hook.trim())) {
+        cleaned = cleaned.slice(hook.trim().length).trim();
+    }
+    if (cta && cleaned.endsWith(cta.trim())) {
+        cleaned = cleaned.slice(0, -cta.trim().length).trim();
+    }
+    return cleaned.replace(/^\n+|\n+$/g, "");
+}
+
+function buildDetailedPostBody(snapshot: OfferSnapshot, angle: string, keyword: string, weekday: string, dayIndex = 0): string {
+    const benefit = snapshot.primaryBenefits[dayIndex % snapshot.primaryBenefits.length] || snapshot.mainPromise;
+    const pain = snapshot.painPoints[0] || "getting started";
+    return [
+        `When it comes to ${keyword}, one of the biggest challenges is ${pain.toLowerCase()}.`,
+        `That's why I wanted to share a ${angle} perspective on ${snapshot.productName}.`,
+        `Instead of jumping between random tips, it helps to focus on ${benefit.toLowerCase()} — especially if you're ${snapshot.targetAudience.toLowerCase()}.`,
+        `${snapshot.productName} is built around ${snapshot.mainPromise.toLowerCase()}, which makes it easier to understand what to do next without feeling overwhelmed.`,
+        `On ${weekday}, this angle works well because people are actively looking for practical guidance they can use right away — not hype.`,
+        `If you've been comparing options, look at whether the solution actually addresses ${pain.toLowerCase()} and gives you clear next steps.`,
+    ].join("\n\n");
 }
 
 export function computeCampaignScore(

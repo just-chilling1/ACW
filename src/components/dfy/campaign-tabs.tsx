@@ -171,7 +171,7 @@ export function HooksCtaPanel({ assets, onRegenerate, regeneratingId }: HooksCta
                                     ) : null}
                                     {hook.meta?.recommended === true ? (
                                         <span className="rounded-full bg-[var(--gold-fill)] px-2 py-0.5 text-[10px] font-semibold uppercase text-[var(--gold-text)]">
-                                            Best Choice
+                                            {hook.meta?.bestForAngle ? `Best for ${String(hook.meta.bestForAngle)}` : "Best Choice"}
                                         </span>
                                     ) : null}
                                 </div>
@@ -212,7 +212,7 @@ export function HooksCtaPanel({ assets, onRegenerate, regeneratingId }: HooksCta
                                     ) : null}
                                     {cta.meta?.recommended === true ? (
                                         <span className="rounded-full bg-[var(--gold-fill)] px-2 py-0.5 text-[10px] font-semibold uppercase text-[var(--gold-text)]">
-                                            Best Choice
+                                            {cta.meta?.bestForAngle ? `Best for ${String(cta.meta.bestForAngle)}` : "Best Choice"}
                                         </span>
                                     ) : null}
                                 </div>
@@ -333,6 +333,13 @@ export function WeeklyBatchTab({ assets, onFillWeek, filling, onRegenerate, rege
     }, {});
 
     const activeAsset = byDay[activeDay];
+    const fullPostText = activeAsset
+        ? [
+            activeAsset.meta?.hook ? String(activeAsset.meta.hook) : "",
+            activeAsset.content,
+            activeAsset.meta?.cta ? String(activeAsset.meta.cta) : "",
+        ].filter(Boolean).join("\n\n")
+        : "";
 
     return (
         <div className="flex flex-col gap-4">
@@ -401,7 +408,7 @@ export function WeeklyBatchTab({ assets, onFillWeek, filling, onRegenerate, rege
                             ) : null}
 
                             <div className="flex flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-3">
-                                <CopyButton text={activeAsset.content} label="Copy Full Post" variant="primary" />
+                                <CopyButton text={fullPostText} label="Copy Full Post" variant="primary" />
                                 <button
                                     type="button"
                                     onClick={() => onRegenerate(activeAsset.id)}

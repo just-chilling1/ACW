@@ -1,5 +1,7 @@
 import { callChatGPT } from "@/lib/llm";
 import { parseJsonFromLlm } from "./parse-json";
+import { APP_NICHES } from "@/lib/niches";
+import { detectOfferNiche } from "./search-fallbacks";
 import type { AudienceMode, CampaignStrategy, OfferSnapshot } from "./types";
 
 async function fetchPageSignals(url: string): Promise<{ title: string; description: string; hostname: string }> {
@@ -65,6 +67,7 @@ Page title: ${signals.title}
 Meta description: ${signals.description}
 Domain: ${signals.hostname}
 Preferred audience mode: ${audienceMode}
+Available niche audiences: ${APP_NICHES.map((n) => n.id).join(", ")}
 
 Return ONLY JSON with these keys:
 {
@@ -82,7 +85,7 @@ Return ONLY JSON with these keys:
   "contentAngles": string[],
   "ctaStyle": string,
   "promotionChannels": string[],
-  "recommendedAudienceMode": "auto"|"make_money"|"solve_problem"|"beginners"|"business_owners"|"professionals"|"hobby",
+  "recommendedAudienceMode": "auto"|"weight_loss"|"make_money_online"|"health_fitness"|"beauty_skincare"|"relationships"|"tech_gadgets"|"pets"|"home_garden",
   "promotionStyle": string
 }
 
@@ -104,11 +107,20 @@ Rules:
             objections: parsed.objections?.length ? parsed.objections : DEFAULT_SNAPSHOT.objections,
             contentAngles: parsed.contentAngles?.length ? parsed.contentAngles : DEFAULT_SNAPSHOT.contentAngles,
             promotionChannels: parsed.promotionChannels?.length ? parsed.promotionChannels : DEFAULT_SNAPSHOT.promotionChannels,
+            recommendedAudienceMode: parsed.recommendedAudienceMode || detectOfferNiche({
+                ...DEFAULT_SNAPSHOT,
+                ...parsed,
+                productName: parsed.productName || signals.title || DEFAULT_SNAPSHOT.productName,
+            }, audienceMode),
         };
     } catch {
-        return {
+        const partial = {
             ...DEFAULT_SNAPSHOT,
             productName: signals.title || DEFAULT_SNAPSHOT.productName,
+        };
+        return {
+            ...partial,
+            recommendedAudienceMode: detectOfferNiche(partial, audienceMode),
         };
     }
 }
@@ -119,27 +131,39 @@ export async function buildStrategy(
     channels: string[],
     primaryKeyword: string,
 ): Promise<CampaignStrategy> {
-    const prompt = `Create a beginner-friendly campaign strategy.
+    const niche = APP_NICHES.find((n) => n.id === detectOfferNiche(snapshot, audienceMode));
+    const prompt = `Create a specific, actionable campaign strategy for promoting this exact offer.
 
-Offer: ${snapshot.productName}
-Promise: ${snapshot.mainPromise}
-Audience: ${snapshot.targetAudience}
+Product: ${snapshot.productName}
+Category: ${snapshot.category}
+Main promise: ${snapshot.mainPromise}
+Target audience: ${snapshot.targetAudience}
+Primary benefits: ${snapshot.primaryBenefits.join(", ")}
+Pain points solved: ${snapshot.painPoints.join(", ")}
+Strongest angle: ${snapshot.strongestAngle}
+Content angles: ${snapshot.contentAngles.join(", ")}
+Objections to address: ${snapshot.objections.join(", ")}
+Niche focus: ${niche?.label || "General"}
 Audience mode: ${audienceMode}
 Channels: ${channels.join(", ")}
-Primary keyword: ${primaryKeyword}
+Primary search keyword: ${primaryKeyword}
 
 Return ONLY JSON:
 {
-  "summary": "2-3 sentence plain-English strategy",
-  "whoToTarget": string,
-  "whatToSay": string,
-  "whereToPromote": string,
-  "whatToStartWith": string,
-  "strongestOpportunities": string,
-  "ctaStyle": string,
-  "whatToAvoid": string,
-  "firstStep": string
-}`;
+  "summary": "2-3 sentences referencing the specific product, audience, and promotion approach",
+  "whoToTarget": "specific audience description tied to this offer",
+  "whatToSay": "specific messaging angles using product benefits and pain points",
+  "whereToPromote": "specific platforms and community types for this niche",
+  "whatToStartWith": "specific first content type for this offer",
+  "strongestOpportunities": "what kinds of conversations to look for",
+  "ctaStyle": "recommended CTA approach for this product",
+  "whatToAvoid": "specific mistakes for this niche/offer",
+  "firstStep": "concrete first action referencing the offer"
+}
+
+Rules:
+- Every field must mention specifics from this offer — no generic filler.
+- Do not invent fake testimonials or results.`;
 
     try {
         const result = await callChatGPT([{ role: "user", content: prompt }]);
@@ -155,34 +179,51 @@ Return ONLY JSON:
             firstStep: "Copy the recommended reply for the top opportunity",
         });
     } catch {
+        const nicheLabel = niche?.label || snapshot.category;
         return {
-            summary: `Start with educational content for beginners, then move into problem/solution posts and comparison content.`,
+            summary: `Promote ${snapshot.productName} to ${snapshot.targetAudience.toLowerCase()} by leading with ${snapshot.strongestAngle.toLowerCase()} in ${nicheLabel} communities.`,
             whoToTarget: snapshot.targetAudience,
-            whatToSay: snapshot.strongestAngle,
-            whereToPromote: "Reddit, YouTube, and relevant communities",
-            whatToStartWith: "Helpful replies to high-intent conversations",
-            strongestOpportunities: "Questions from people actively looking for solutions",
+            whatToSay: `Focus on ${snapshot.primaryBenefits.slice(0, 2).join(" and ").toLowerCase()}, addressing ${snapshot.painPoints[0]?.toLowerCase() || "their main frustration"}.`,
+            whereToPromote: channels.includes("everywhere") ? `${snapshot.promotionChannels.slice(0, 3).join(", ")}` : channels.join(", "),
+            whatToStartWith: `Reply to people asking for ${snapshot.category.toLowerCase()} recommendations`,
+            strongestOpportunities: `Questions from ${snapshot.targetAudience.toLowerCase()} comparing options or asking for beginner advice`,
             ctaStyle: snapshot.ctaStyle,
-            whatToAvoid: "Pushy promotion and fake personal stories",
-            firstStep: "Start with the best opportunity Cashwave found",
+            whatToAvoid: `Aggressive sales language, unrelated niches, and claims not supported by ${snapshot.productName}`,
+            firstStep: `Find a conversation about ${snapshot.painPoints[0]?.toLowerCase() || snapshot.mainPromise.toLowerCase()} and share a helpful reply`,
         };
     }
 }
 
-export function derivePrimaryKeyword(snapshot: OfferSnapshot): string {
-    const base = `${snapshot.productName} ${snapshot.mainPromise}`.toLowerCase();
-    if (/money|income|earn|side hustle|ai tool/.test(base)) {
-        return `how to ${snapshot.mainPromise.toLowerCase().slice(0, 60)} reddit`;
+export function derivePrimaryKeyword(snapshot: OfferSnapshot, audienceMode?: string): string {
+    const product = snapshot.productName.trim();
+    const category = snapshot.category.trim().toLowerCase();
+    const pain = snapshot.painPoints[0]?.trim() || snapshot.mainPromise.trim();
+    const niche = APP_NICHES.find((n) => n.id === detectOfferNiche(snapshot, audienceMode));
+
+    if (niche?.id === "make_money_online") {
+        return `${product} make money online reddit`;
     }
-    return `best ${snapshot.category.toLowerCase()} ${snapshot.productName} reddit`;
+
+    return `${pain} ${category} ${product} reddit`.replace(/\s+/g, " ").trim().slice(0, 80);
 }
 
-export function deriveSearchQueries(snapshot: OfferSnapshot, primaryKeyword: string): string[] {
-    return [
+export function deriveSearchQueries(snapshot: OfferSnapshot, primaryKeyword: string, audienceMode?: string): string[] {
+    const product = snapshot.productName.trim();
+    const category = snapshot.category.trim().toLowerCase();
+    const pain = snapshot.painPoints[0]?.trim() || snapshot.mainPromise.trim();
+    const niche = APP_NICHES.find((n) => n.id === detectOfferNiche(snapshot, audienceMode));
+
+    const queries = [
         primaryKeyword,
-        `${snapshot.productName} recommendation reddit`,
-        `${snapshot.painPoints[0] || snapshot.mainPromise} help reddit`,
-        `best ${snapshot.category.toLowerCase()} for beginners reddit`,
-        `${snapshot.productName} review reddit`,
-    ].slice(0, 5);
+        `${product} recommendation reddit`,
+        `${product} review reddit`,
+        `${pain} help reddit`,
+        `best ${category} for beginners reddit`,
+    ];
+
+    if (niche) {
+        queries.push(`${niche.searchTerms[0]} ${category} reddit`);
+    }
+
+    return [...new Set(queries.map((q) => q.replace(/\s+/g, " ").trim()))].slice(0, 6);
 }

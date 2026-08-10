@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Field } from "@/components/ui/field";
 import { InlineError } from "@/components/ui/InlineError";
 import { BuildSequence } from "@/components/dfy/build-sequence";
+import { DfyVideoSection } from "@/components/dfy/dfy-video-section";
 import { AUDIENCE_OPTIONS, type AudienceMode, type ChannelMode, type OfferSnapshot } from "@/lib/dfy/types";
 import { clsx } from "clsx";
 
@@ -15,7 +16,7 @@ function NewCampaignContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [offerUrl, setOfferUrl] = useState(searchParams.get("url") || "");
-    const [audienceMode, setAudienceMode] = useState<AudienceMode>("make_money");
+    const [audienceMode, setAudienceMode] = useState<AudienceMode>("weight_loss");
     const channels: ChannelMode[] = ["everywhere"];
     const [snapshot, setSnapshot] = useState<OfferSnapshot | null>(null);
     const [analyzing, setAnalyzing] = useState(false);
@@ -159,6 +160,8 @@ function NewCampaignContent() {
 
             {error ? <InlineError message={error} className="mb-4" /> : null}
 
+            {step === "setup" && <DfyVideoSection className="mb-6" compact />}
+
             {step === "setup" && (
                 <div className="flex flex-col gap-6">
                     <Field
@@ -192,6 +195,7 @@ function NewCampaignContent() {
 
                     <section>
                         <h3 className="mb-3 text-sm font-semibold text-text-primary">Who should we target?</h3>
+                        <p className="mb-3 text-xs text-text-muted">Choose the niche that best matches your offer. Cashwave will find conversations and content for that audience.</p>
                         <div className="grid gap-2 sm:grid-cols-2">
                             {AUDIENCE_OPTIONS.map((opt) => (
                                 <button
@@ -205,10 +209,7 @@ function NewCampaignContent() {
                                             : "border-[var(--border-subtle)] hover:border-[var(--border-strong)]",
                                     )}
                                 >
-                                    <p className="text-sm font-semibold text-text-primary">
-                                        {opt.label}
-                                        {opt.recommended ? " (Recommended)" : ""}
-                                    </p>
+                                    <p className="text-sm font-semibold text-text-primary">{opt.label}</p>
                                     <p className="mt-1 text-xs text-text-muted">{opt.description}</p>
                                 </button>
                             ))}

@@ -87,11 +87,11 @@ export function OpportunityCard({
                     className="btn-secondary px-3 py-2 text-xs sm:text-sm"
                 >
                     <ExternalLink size={14} strokeWidth={1.75} />
-                    View Opportunity
+                    View Offer
                 </a>
                 {onToggleAlternatives ? (
                     <button type="button" onClick={onToggleAlternatives} className="btn-secondary px-3 py-2 text-xs sm:text-sm">
-                        {showAlternatives ? "Hide Alternatives" : "View Alternatives"}
+                        {showAlternatives ? "Hide Replies" : "View All Replies"}
                     </button>
                 ) : null}
                 {onRegenerate ? (

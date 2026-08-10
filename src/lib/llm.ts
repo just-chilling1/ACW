@@ -1,6 +1,10 @@
-export async function callChatGPT(messages: { role: string; content: string }[]) {
+const REGENERATION_HOST = "chatgpt-42.p.rapidapi.com";
+
+async function callChatGPTWithHost(
+    messages: { role: string; content: string }[],
+    host: string,
+) {
     const apiKey = process.env.RAPIDAPI_KEY;
-    const host = process.env.RAPIDAPI_HOST_CHATGPT || 'chatgpt-42.p.rapidapi.com';
 
     if (!apiKey) {
         throw new Error("Missing RAPIDAPI_KEY for ChatGPT");
@@ -41,6 +45,16 @@ export async function callChatGPT(messages: { role: string; content: string }[])
     }
 
     return typeof result === 'string' ? result : JSON.stringify(result);
+}
+
+export async function callChatGPT(messages: { role: string; content: string }[]) {
+    const host = process.env.RAPIDAPI_HOST_CHATGPT || REGENERATION_HOST;
+    return callChatGPTWithHost(messages, host);
+}
+
+/** Regeneration endpoints always use chatgpt-42.p.rapidapi.com */
+export async function callChatGPTForRegeneration(messages: { role: string; content: string }[]) {
+    return callChatGPTWithHost(messages, REGENERATION_HOST);
 }
 
 export async function expandKeywords(keyword: string): Promise<string[]> {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
-import { callChatGPT } from "@/lib/llm";
+import { callChatGPTForRegeneration } from "@/lib/llm";
 import { parseJsonFromLlm } from "@/lib/dfy/parse-json";
 import type { OfferSnapshot } from "@/lib/dfy/types";
 
@@ -58,13 +58,19 @@ export async function POST(req: Request, { params }: RouteParams) {
 
             if (!opp) return NextResponse.json({ error: "Opportunity not found." }, { status: 404 });
 
-            const prompt = `Rewrite this reply (${mode}) for context: ${opp.context}
-Offer: ${snapshot.productName}
-URL: ${campaign.offer_url}
-Return ONLY JSON: {"recommendedReply":"...","alternativeReplies":[{"style":"Helpful","text":"..."}]}
-No fake personal experiences.`;
+            const prompt = `Rewrite this reply (${mode}) for the conversation below.
 
-            const raw = await callChatGPT([{ role: "user", content: prompt }]);
+CONVERSATION: ${opp.context}
+OFFER: ${snapshot.productName}
+CATEGORY: ${snapshot.category}
+PROMISE: ${snapshot.mainPromise}
+BENEFITS: ${snapshot.primaryBenefits.join(", ")}
+URL: ${campaign.offer_url}
+
+Return ONLY JSON: {"recommendedReply":"unique reply for THIS post","alternativeReplies":[{"style":"Helpful expert","text":"..."},{"style":"Relatable angle","text":"..."},{"style":"Short & direct","text":"..."}]}
+Rules: Address their specific question. Include URL once. No fake personal experiences. Each reply must be different.`;
+
+            const raw = await callChatGPTForRegeneration([{ role: "user", content: prompt }]);
             const parsed = parseJsonFromLlm<{ recommendedReply: string; alternativeReplies: { style: string; text: string }[] }>(raw, {
                 recommendedReply: opp.recommended_reply,
                 alternativeReplies: opp.alternative_replies || [],
@@ -108,12 +114,16 @@ Return ONLY the new CTA text, no JSON.`;
             } else if (isWeeklyBatch) {
                 prompt = `Rewrite this weekly post (${mode}) for "${snapshot.productName}".
 Offer URL: ${campaign.offer_url}
+Target audience: ${snapshot.targetAudience}
+Angle: ${meta.angle || ""}
 Current hook: ${meta.hook || ""}
-Current post: ${asset.content}
+Current post body (middle only): ${asset.content}
 Current CTA: ${meta.cta || ""}
 
 Return ONLY JSON:
-{"hook":"...","content":"full post body","cta":"..."}`;
+{"hook":"new hook","content":"MIDDLE BODY ONLY — 120-200 words, detailed, no hook or CTA repeated inside","cta":"new CTA with link"}
+
+Rules: content must NOT include the hook or CTA text. Be specific to ${snapshot.productName}.`;
             } else {
                 prompt = `Rewrite this ${asset.kind} (${mode}):
 ${asset.content}
@@ -121,7 +131,7 @@ Offer: ${snapshot.productName}
 Return ONLY the new text, no JSON.`;
             }
 
-            const raw = await callChatGPT([{ role: "user", content: prompt }]);
+            const raw = await callChatGPTForRegeneration([{ role: "user", content: prompt }]);
 
             let content = raw.trim();
             let updatedMeta = { ...meta };
