@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowRight, CheckCircle2, Circle, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Circle, Sparkles } from "lucide-react";
 import { clsx } from "clsx";
 import type { CampaignAssetRow, CampaignOpportunityRow, CampaignRow } from "@/lib/dfy/types";
 import { CopyButton } from "./copy-button";
@@ -137,6 +137,39 @@ function PostCard({
     );
 }
 
+function StepNav({
+    step,
+    onBack,
+    onNext,
+    backLabel,
+    nextLabel,
+}: {
+    step: number;
+    onBack?: () => void;
+    onNext?: () => void;
+    backLabel?: string;
+    nextLabel?: string;
+}) {
+    return (
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+            {onBack ? (
+                <button type="button" onClick={onBack} className="btn-secondary w-full py-3 sm:w-auto sm:min-w-[160px]">
+                    <ArrowLeft size={16} />
+                    {backLabel ?? `Back to Step ${step - 1}`}
+                </button>
+            ) : (
+                <div className="hidden sm:block sm:min-w-[160px]" />
+            )}
+            {onNext ? (
+                <button type="button" onClick={onNext} className="btn-primary w-full py-4 text-base sm:w-auto sm:min-w-[200px]">
+                    {nextLabel ?? `Next: Step ${step + 1}`}
+                    <ArrowRight size={18} />
+                </button>
+            ) : null}
+        </div>
+    );
+}
+
 export function CampaignLinearFlow({
     campaign,
     opportunities,
@@ -186,20 +219,26 @@ export function CampaignLinearFlow({
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 {STEPS.map((s) => {
                     const active = step === s.id;
-                    const completed = step > s.id;
+                    const sectionComplete =
+                        s.id === 1
+                            ? replyProgress.total > 0 && replyProgress.done === replyProgress.total
+                            : s.id === 2
+                              ? campaignProgress.posts.total > 0 && campaignProgress.posts.done === campaignProgress.posts.total
+                              : s.id === 3
+                                ? campaignProgress.week.total > 0 && campaignProgress.week.done === campaignProgress.week.total
+                                : campaignProgress.total > 0 && campaignProgress.done === campaignProgress.total;
                     return (
                         <button
                             key={s.id}
                             type="button"
-                            onClick={() => completed && setStep(s.id)}
-                            disabled={!completed && !active}
+                            onClick={() => setStep(s.id)}
                             className={clsx(
-                                "flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2.5 text-left text-sm transition",
+                                "flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2.5 text-left text-sm transition hover:border-[var(--border-strong)]",
                                 active
                                     ? "border-[var(--gold)] bg-[var(--gold-fill)] font-semibold text-[var(--gold-text)]"
-                                    : completed
-                                      ? "border-[var(--success-border)] bg-[var(--success-bg-faint)] text-[var(--success)] hover:opacity-90"
-                                      : "border-[var(--border-subtle)] text-text-muted",
+                                    : sectionComplete
+                                      ? "border-[var(--success-border)] bg-[var(--success-bg-faint)] text-[var(--success)]"
+                                      : "border-[var(--border-subtle)] text-text-secondary hover:bg-[var(--surface-2)]",
                             )}
                         >
                             <span
@@ -207,12 +246,12 @@ export function CampaignLinearFlow({
                                     "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold",
                                     active
                                         ? "bg-[var(--gold)] text-black"
-                                        : completed
+                                        : sectionComplete
                                           ? "bg-[var(--success)] text-white"
-                                          : "bg-[var(--surface-2)]",
+                                          : "bg-[var(--surface-2)] text-text-muted",
                                 )}
                             >
-                                {completed ? <CheckCircle2 size={14} /> : s.id}
+                                {sectionComplete && !active ? <CheckCircle2 size={14} /> : s.id}
                             </span>
                             <span className="truncate">{s.label}</span>
                         </button>
@@ -257,10 +296,7 @@ export function CampaignLinearFlow({
                         </div>
                     )}
 
-                    <button type="button" onClick={() => setStep(2)} className="btn-primary w-full py-4 text-base">
-                        Next: Get Posts to Share
-                        <ArrowRight size={18} />
-                    </button>
+                    <StepNav step={1} onNext={() => setStep(2)} nextLabel="Next: Post Your Content" />
                 </section>
             )}
 
@@ -301,10 +337,13 @@ export function CampaignLinearFlow({
                         </div>
                     )}
 
-                    <button type="button" onClick={() => setStep(3)} className="btn-primary w-full py-4 text-base">
-                        Next: Fill My Week
-                        <ArrowRight size={18} />
-                    </button>
+                    <StepNav
+                        step={2}
+                        onBack={() => setStep(1)}
+                        onNext={() => setStep(3)}
+                        backLabel="Back: Replies"
+                        nextLabel="Next: Fill My Week"
+                    />
                 </section>
             )}
 
@@ -370,10 +409,13 @@ export function CampaignLinearFlow({
                         </>
                     )}
 
-                    <button type="button" onClick={() => setStep(4)} className="btn-primary w-full py-4 text-base">
-                        Next: You&apos;re Done
-                        <ArrowRight size={18} />
-                    </button>
+                    <StepNav
+                        step={3}
+                        onBack={() => setStep(2)}
+                        onNext={() => setStep(4)}
+                        backLabel="Back: Posts"
+                        nextLabel="Next: All Done"
+                    />
                 </section>
             )}
 
@@ -428,9 +470,7 @@ export function CampaignLinearFlow({
                         ) : null}
                     </div>
 
-                    <button type="button" onClick={() => setStep(1)} className="btn-secondary w-full py-3">
-                        ← Back to Step 1 (Replies)
-                    </button>
+                    <StepNav step={4} onBack={() => setStep(3)} backLabel="Back: Fill My Week" />
                 </section>
             )}
         </div>
