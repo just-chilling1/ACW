@@ -9,6 +9,8 @@ import type { CampaignOpportunityRow } from "@/lib/dfy/types";
 
 type OpportunityCardProps = {
     opportunity: CampaignOpportunityRow;
+    index?: number;
+    simple?: boolean;
     onRegenerate?: () => void;
     regenerating?: boolean;
     showAlternatives?: boolean;
@@ -19,6 +21,8 @@ type OpportunityCardProps = {
 
 export function OpportunityCard({
     opportunity,
+    index,
+    simple = false,
     onRegenerate,
     regenerating,
     showAlternatives,
@@ -28,6 +32,83 @@ export function OpportunityCard({
 }: OpportunityCardProps) {
     const label = labelDisplay(opportunity.label);
     const done = isOpportunityDone(opportunity);
+
+    if (simple) {
+        return (
+            <article
+                className={clsx(
+                    "card-base flex flex-col gap-4 p-4 sm:p-5 transition",
+                    done && "border-[var(--success-border)] bg-[var(--success-bg-faint)]",
+                )}
+            >
+                <div className="flex items-start gap-3">
+                    {index != null ? (
+                        <span
+                            className={clsx(
+                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold",
+                                done ? "bg-[var(--success)] text-white" : "bg-[var(--gold)] text-black",
+                            )}
+                        >
+                            {done ? <CheckCircle2 size={16} /> : index}
+                        </span>
+                    ) : null}
+                    <div className="min-w-0 flex-1">
+                        <h3 className="text-base font-semibold text-text-primary">{opportunity.title}</h3>
+                        <p className="mt-1 text-xs text-text-muted">
+                            {opportunity.platform} · Tap &ldquo;Open Post&rdquo; to see the conversation
+                        </p>
+                    </div>
+                </div>
+
+                <div className="rounded-[var(--radius-md)] border-2 border-[var(--gold)] bg-[var(--surface-2)] p-4">
+                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-[var(--gold-text)]">
+                        Your reply — copy this
+                    </p>
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
+                        {opportunity.recommended_reply || "Reply loading…"}
+                    </p>
+                </div>
+
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                    <CopyButton text={opportunity.recommended_reply} label="Copy Reply" variant="primary" />
+                    <a
+                        href={opportunity.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-secondary flex items-center justify-center gap-2 px-4 py-3 text-sm"
+                    >
+                        <ExternalLink size={16} />
+                        Open Post
+                    </a>
+                    {onMarkDone ? (
+                        <button
+                            type="button"
+                            onClick={() => onMarkDone(!done)}
+                            disabled={markingDone}
+                            className={clsx(
+                                "flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold",
+                                done ? "btn-secondary" : "btn-primary",
+                            )}
+                        >
+                            {markingDone ? (
+                                "Saving…"
+                            ) : done ? (
+                                <>
+                                    <Circle size={16} />
+                                    Undo Done
+                                </>
+                            ) : (
+                                <>
+                                    <CheckCircle2 size={16} />
+                                    Done ✓
+                                </>
+                            )}
+                        </button>
+                    ) : null}
+                </div>
+            </article>
+        );
+    }
 
     return (
         <article className={clsx(

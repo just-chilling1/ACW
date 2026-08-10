@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Sparkles, ArrowLeft } from "lucide-react";
+import { Sparkles, ArrowLeft, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Field } from "@/components/ui/field";
 import { InlineError } from "@/components/ui/InlineError";
@@ -22,7 +22,7 @@ function NewCampaignContent() {
     const [building, setBuilding] = useState(false);
     const [buildProgress, setBuildProgress] = useState<{ completedStages: string[]; currentStage?: string }>({ completedStages: [] });
     const [error, setError] = useState("");
-    const [step, setStep] = useState<"setup" | "understand" | "building">("setup");
+    const [step, setStep] = useState<1 | 2 | 3>(1);
 
     const [savedOffers, setSavedOffers] = useState<Array<{ id: string; url: string; name: string; snapshot: OfferSnapshot }>>([]);
 
@@ -46,7 +46,7 @@ function NewCampaignContent() {
 
     const handleAnalyze = async () => {
         if (!offerUrl.trim()) {
-            setError("Please paste your product or affiliate link.");
+            setError("Paste your product or affiliate link first.");
             return;
         }
         setError("");
@@ -63,7 +63,7 @@ function NewCampaignContent() {
             if (data.snapshot.recommendedAudienceMode && data.snapshot.recommendedAudienceMode !== "auto") {
                 setAudienceMode(data.snapshot.recommendedAudienceMode);
             }
-            setStep("understand");
+            setStep(2);
         } catch (e) {
             setError(e instanceof Error ? e.message : "We couldn't analyze that page right now.");
         } finally {
@@ -75,7 +75,7 @@ function NewCampaignContent() {
         if (!offerUrl.trim()) return;
         setError("");
         setBuilding(true);
-        setStep("building");
+        setStep(3);
 
         try {
             let currentSnapshot = snapshot;
@@ -138,7 +138,7 @@ function NewCampaignContent() {
             }
         } catch (e) {
             setError(e instanceof Error ? e.message : "Build failed. Please try again.");
-            setStep("understand");
+            setStep(2);
         } finally {
             setBuilding(false);
         }
@@ -152,26 +152,34 @@ function NewCampaignContent() {
             </Link>
 
             <PageHeader
-                eyebrow="Campaign Setup"
-                title="Build My Campaign"
-                subtitle="Paste your offer. Cashwave handles the rest."
+                eyebrow="Build a Campaign"
+                title="3 Steps — Paste, Analyze, Build"
+                subtitle="One button at a time. Nothing happens until you click."
+                step={step}
+                totalSteps={3}
             />
 
             {error ? <InlineError message={error} className="mb-4" /> : null}
 
-            {step === "setup" && (
+            {step === 1 && (
                 <div className="flex flex-col gap-6">
-                    <Field
-                        label="What are you promoting?"
-                        hint="Cashwave will automatically analyze the offer for you."
-                        value={offerUrl}
-                        onChange={(e) => setOfferUrl(e.target.value)}
-                        placeholder="Paste your product or affiliate link"
-                    />
+                    <div className="card-base p-5 sm:p-6">
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">Step 1 of 3</p>
+                        <h2 className="ds-h3 mb-2">Paste your link</h2>
+                        <p className="mb-4 text-sm text-text-secondary">
+                            Paste the product or affiliate link you want to promote. Then tap the button.
+                        </p>
+                        <Field
+                            label="Your link"
+                            value={offerUrl}
+                            onChange={(e) => setOfferUrl(e.target.value)}
+                            placeholder="https://..."
+                        />
+                    </div>
 
                     {savedOffers.length > 0 ? (
                         <div>
-                            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">Or choose a saved offer</p>
+                            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">Or pick a saved link</p>
                             <div className="flex flex-wrap gap-2">
                                 {savedOffers.map((offer) => (
                                     <button
@@ -190,9 +198,8 @@ function NewCampaignContent() {
                         </div>
                     ) : null}
 
-                    <section>
-                        <h3 className="mb-3 text-sm font-semibold text-text-primary">Who should we target?</h3>
-                        <p className="mb-3 text-xs text-text-muted">Choose the niche that best matches your offer. Cashwave will find conversations and content for that audience.</p>
+                    <div className="card-base p-5 sm:p-6">
+                        <p className="mb-3 text-sm font-semibold text-text-primary">Who are you targeting?</p>
                         <div className="grid gap-2 sm:grid-cols-2">
                             {AUDIENCE_OPTIONS.map((opt) => (
                                 <button
@@ -207,44 +214,56 @@ function NewCampaignContent() {
                                     )}
                                 >
                                     <p className="text-sm font-semibold text-text-primary">{opt.label}</p>
-                                    <p className="mt-1 text-xs text-text-muted">{opt.description}</p>
                                 </button>
                             ))}
                         </div>
-                    </section>
+                    </div>
 
-                    <button type="button" onClick={handleAnalyze} disabled={analyzing} className="btn-primary w-full sm:w-auto">
-                        {analyzing ? "Analyzing…" : "Continue"}
+                    <button type="button" onClick={handleAnalyze} disabled={analyzing} className="btn-primary w-full py-4 text-base">
+                        {analyzing ? "Analyzing…" : "Click Here — Analyze My Link"}
+                        {!analyzing ? <ArrowRight size={18} /> : null}
                     </button>
                 </div>
             )}
 
-            {step === "understand" && snapshot && (
+            {step === 2 && snapshot && (
                 <div className="flex flex-col gap-6">
-                    <section className="card-base p-5 sm:p-6">
-                        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">We understand your offer</h3>
+                    <div className="card-base p-5 sm:p-6">
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">Step 2 of 3</p>
+                        <h2 className="ds-h3 mb-2">Here&apos;s what we found</h2>
+                        <p className="mb-4 text-sm text-text-secondary">
+                            Looks good? Tap the button to build your full campaign.
+                        </p>
                         <dl className="space-y-3 text-sm">
                             <div><dt className="text-text-muted">Product</dt><dd className="font-semibold text-text-primary">{snapshot.productName}</dd></div>
                             <div><dt className="text-text-muted">Best audience</dt><dd className="text-text-secondary">{snapshot.targetAudience}</dd></div>
-                            <div><dt className="text-text-muted">Strongest angle</dt><dd className="text-text-secondary">{snapshot.strongestAngle}</dd></div>
-                            <div><dt className="text-text-muted">Recommended promotion style</dt><dd className="text-text-secondary">{snapshot.promotionStyle || snapshot.ctaStyle}</dd></div>
+                            <div><dt className="text-text-muted">Main angle</dt><dd className="text-text-secondary">{snapshot.strongestAngle}</dd></div>
                         </dl>
-                    </section>
+                    </div>
 
-                    <p className="text-sm text-text-muted">Cashwave will handle the research, strategy, content, and campaign planning for you.</p>
-
-                    <button type="button" onClick={handleBuild} disabled={building} className="btn-primary w-full sm:w-auto">
+                    <button type="button" onClick={handleBuild} disabled={building} className="btn-primary w-full py-4 text-base">
                         <Sparkles size={18} />
-                        Build My Campaign
+                        {building ? "Building…" : "Click Here — Build My Campaign"}
+                    </button>
+
+                    <button type="button" onClick={() => setStep(1)} className="btn-secondary w-full py-3 text-sm">
+                        ← Change link
                     </button>
                 </div>
             )}
 
-            {step === "building" && (
-                <BuildSequence
-                    active={building}
-                    progress={{ completedStages: buildProgress.completedStages as never[], currentStage: buildProgress.currentStage as never }}
-                />
+            {step === 3 && (
+                <div className="flex flex-col gap-4">
+                    <div className="card-base p-5 sm:p-6">
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">Step 3 of 3</p>
+                        <h2 className="ds-h3 mb-2">Building your campaign…</h2>
+                        <p className="text-sm text-text-secondary">Wait here. We&apos;ll take you to your results when done.</p>
+                    </div>
+                    <BuildSequence
+                        active={building}
+                        progress={{ completedStages: buildProgress.completedStages as never[], currentStage: buildProgress.currentStage as never }}
+                    />
+                </div>
             )}
         </div>
     );

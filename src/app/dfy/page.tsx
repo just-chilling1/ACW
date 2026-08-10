@@ -40,9 +40,9 @@ export default function DfyLandingPage() {
                 <p className="page-eyebrow mb-3">DFY Campaign Builder</p>
                 <h1 className="ds-h1 mb-3 max-w-2xl">Your Marketing Campaign. Built For You.</h1>
                 <p className="ds-subtitle mb-6 max-w-xl">
-                    Give Cashwave your offer. We&apos;ll find the opportunities, create the content, and build your action plan.
+                    Paste your link → get replies → copy posts → done. Three simple steps.
                 </p>
-                <p className="mb-6 text-sm text-text-muted">One offer → complete promotional campaign.</p>
+                <p className="mb-6 text-sm text-text-muted">One button at a time. Nothing happens until you click.</p>
                 <div className="flex flex-col gap-3 sm:flex-row">
                     <Link href="/dfy/new" className="btn-primary">
                         <Sparkles size={18} strokeWidth={1.75} />
