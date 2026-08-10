@@ -37,6 +37,7 @@ export default function CampaignWorkspacePage() {
     const [tab, setTab] = useState<TabId>("overview");
     const [loading, setLoading] = useState(true);
     const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
+    const [regenerateError, setRegenerateError] = useState("");
     const [fillingWeek, setFillingWeek] = useState(false);
     const [improving, setImproving] = useState(false);
 
@@ -58,13 +59,21 @@ export default function CampaignWorkspacePage() {
 
     const handleRegenerate = async (targetType: "opportunity" | "asset", targetId: string) => {
         setRegeneratingId(targetId);
+        setRegenerateError("");
         try {
             const res = await fetch(`/api/dfy/campaigns/${id}/regenerate`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ targetType, targetId, mode: "different_angle" }),
             });
-            if (res.ok) await loadCampaign();
+            const data = await res.json().catch(() => ({}));
+            if (res.ok) {
+                await loadCampaign();
+            } else {
+                setRegenerateError(data.error || "Regeneration failed. Please try again.");
+            }
+        } catch {
+            setRegenerateError("Regeneration failed. Please try again.");
         } finally {
             setRegeneratingId(null);
         }
@@ -134,6 +143,12 @@ export default function CampaignWorkspacePage() {
                 </div>
             ) : null}
 
+            {regenerateError ? (
+                <p className="mb-4 rounded-[var(--radius-md)] border border-[var(--danger)] bg-[var(--danger-fill)] px-4 py-2 text-sm text-[var(--danger)]">
+                    {regenerateError}
+                </p>
+            ) : null}
+
             <div className="mb-6 flex gap-1 overflow-x-auto border-b border-[var(--border-subtle)] pb-px">
                 {TABS.map((t) => (
                     <button
@@ -175,7 +190,11 @@ export default function CampaignWorkspacePage() {
                         onRegenerate={(aid) => handleRegenerate("asset", aid)}
                         regeneratingId={regeneratingId}
                     />
-                    <HooksCtaPanel assets={assets} />
+                    <HooksCtaPanel
+                        assets={assets}
+                        onRegenerate={(aid) => handleRegenerate("asset", aid)}
+                        regeneratingId={regeneratingId}
+                    />
                 </>
             )}
             {tab === "week" && (

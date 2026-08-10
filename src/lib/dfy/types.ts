@@ -187,8 +187,7 @@ export const BUILD_STAGES: { key: BuildStage; label: string }[] = [
 ];
 
 export const AUDIENCE_OPTIONS: { id: AudienceMode; label: string; description: string; recommended?: boolean }[] = [
-    { id: "auto", label: "Let Cashwave choose", description: "Recommended — we pick the best audience from your offer.", recommended: true },
-    { id: "make_money", label: "People looking to make money", description: "Side income, online earnings, financial freedom." },
+    { id: "make_money", label: "People looking to make money", description: "Side income, online earnings, financial freedom.", recommended: true },
     { id: "solve_problem", label: "People solving a specific problem", description: "Active problem-solvers seeking solutions." },
     { id: "beginners", label: "Beginners", description: "New to the topic and looking for simple guidance." },
     { id: "business_owners", label: "Business owners", description: "Entrepreneurs and small business operators." },

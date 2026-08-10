@@ -160,24 +160,45 @@ Rules:
     }));
 }
 
-export async function generateHooks(snapshot: OfferSnapshot): Promise<Array<{ content: string; meta: { category: string } }>> {
+export async function generateHooks(snapshot: OfferSnapshot): Promise<Array<{ content: string; meta: { category: string; recommended?: boolean } }>> {
     const prompt = `Create 20 short hooks for "${snapshot.productName}".
-Return ONLY JSON: [{"content":"...","meta":{"category":"Curiosity|Problem|Benefit|Contrarian|Story|Question|Beginner|Mistake"}}]`;
+Return ONLY JSON: [{"content":"...","meta":{"category":"Curiosity|Problem|Benefit|Contrarian|Story|Question|Beginner|Mistake","recommended":false}}]
+Mark exactly ONE hook with "recommended":true — your single best hook for this offer.`;
 
     try {
         const raw = await callChatGPT([{ role: "user", content: prompt }]);
-        const parsed = parseJsonFromLlm<Array<{ content: string; meta: { category: string } }>>(raw, []);
-        if (parsed.length >= 10) return parsed.slice(0, 20);
+        const parsed = parseJsonFromLlm<Array<{ content: string; meta: { category: string; recommended?: boolean } }>>(raw, []);
+        if (parsed.length >= 10) {
+            const hasRecommended = parsed.some((h) => h.meta?.recommended);
+            if (!hasRecommended) parsed[0].meta = { ...parsed[0].meta, recommended: true };
+            return parsed.slice(0, 20);
+        }
     } catch { /* fallback */ }
 
-    const categories = ["Curiosity", "Problem", "Benefit", "Question", "Beginner"];
+    const categories = ["Curiosity", "Problem", "Benefit", "Question", "Beginner", "Contrarian", "Story", "Mistake"];
+    const angles = snapshot.contentAngles.length ? snapshot.contentAngles : [snapshot.mainPromise, snapshot.strongestAngle];
     return Array.from({ length: 15 }, (_, i) => ({
-        content: `${categories[i % categories.length]}: What if ${snapshot.mainPromise.toLowerCase()} was simpler than you think?`,
-        meta: { category: categories[i % categories.length] },
+        content: `${categories[i % categories.length]}: What if ${angles[i % angles.length].toLowerCase()} was simpler than you think?`,
+        meta: { category: categories[i % categories.length], recommended: i === 1 },
     }));
 }
 
 export async function generateCtas(snapshot: OfferSnapshot, offerUrl: string): Promise<Array<{ content: string; meta: { type: string; recommended?: boolean } }>> {
+    const prompt = `Create 6 call-to-action lines for "${snapshot.productName}".
+Offer URL: ${offerUrl}
+Return ONLY JSON: [{"content":"...","meta":{"type":"Soft CTA|Educational CTA|Resource CTA|Curiosity CTA|Direct CTA|Comment CTA","recommended":false}}]
+Mark exactly ONE with "recommended":true — the best CTA for beginners.`;
+
+    try {
+        const raw = await callChatGPT([{ role: "user", content: prompt }]);
+        const parsed = parseJsonFromLlm<Array<{ content: string; meta: { type: string; recommended?: boolean } }>>(raw, []);
+        if (parsed.length >= 4) {
+            const hasRecommended = parsed.some((c) => c.meta?.recommended);
+            if (!hasRecommended) parsed[0].meta = { ...parsed[0].meta, recommended: true };
+            return parsed.slice(0, 6);
+        }
+    } catch { /* fallback below */ }
+
     const types = ["Soft CTA", "Educational CTA", "Resource CTA", "Curiosity CTA", "Direct CTA", "Comment CTA"];
     return types.map((type, i) => ({
         content: type === "Direct CTA"
@@ -212,35 +233,51 @@ export async function generateWeeklyBatch(
     snapshot: OfferSnapshot,
     offerUrl: string,
     keyword: string,
-): Promise<Array<{ kind: "post"; channel: string; content: string; meta: { weekday: string; angle: string; section: string } }>> {
-    const prompt = `Create a 5-day content pack (Mon-Fri) for keyword "${keyword}" promoting "${snapshot.productName}".
+    bestHook?: string,
+    bestCta?: string,
+): Promise<Array<{ kind: "post"; channel: string; content: string; meta: { weekday: string; angle: string; section: string; hook: string; cta: string } }>> {
+    const prompt = `Create a complete 5-day content pack (Mon-Fri) for keyword "${keyword}" promoting "${snapshot.productName}".
 Offer URL: ${offerUrl}
+${bestHook ? `Best hook to weave in: ${bestHook}` : ""}
+${bestCta ? `Best CTA to use: ${bestCta}` : ""}
 
 Return ONLY JSON:
-[{"weekday":"Mon"|"Tue"|"Wed"|"Thu"|"Fri","channel":"Facebook"|"Reddit"|"Blog","content":"...","meta":{"angle":"..."}}]
+[{"weekday":"Mon"|"Tue"|"Wed"|"Thu"|"Fri","channel":"Facebook"|"Reddit"|"Blog","hook":"attention-grabbing opening line","content":"full post body ready to publish","cta":"call to action with link","meta":{"angle":"..."}}]
 
-Rules: diversified angles, platform-appropriate, non-spammy, no fake personal stories.`;
+Rules: each day must include hook, full post, and CTA. Diversified angles, platform-appropriate, non-spammy, no fake personal stories.`;
 
     try {
         const raw = await callChatGPT([{ role: "user", content: prompt }]);
-        const parsed = parseJsonFromLlm<Array<{ weekday: string; channel: string; content: string; meta?: { angle?: string } }>>(raw, []);
+        const parsed = parseJsonFromLlm<Array<{ weekday: string; channel: string; hook?: string; content: string; cta?: string; meta?: { angle?: string } }>>(raw, []);
         if (parsed.length >= 5) {
-            return parsed.slice(0, 5).map((item) => ({
+            return parsed.slice(0, 5).map((item, i) => ({
                 kind: "post" as const,
                 channel: item.channel,
                 content: item.content,
-                meta: { weekday: item.weekday, angle: item.meta?.angle || "tips", section: "weekly_batch" },
+                meta: {
+                    weekday: item.weekday,
+                    angle: item.meta?.angle || snapshot.contentAngles[i % snapshot.contentAngles.length],
+                    section: "weekly_batch",
+                    hook: item.hook || bestHook || `${snapshot.strongestAngle}`,
+                    cta: item.cta || bestCta || `Learn more: ${offerUrl}`,
+                },
             }));
         }
     } catch { /* fallback */ }
 
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-    return days.map((weekday, i) => ({
-        kind: "post" as const,
-        channel: i % 2 === 0 ? "Facebook" : "Reddit",
-        content: `${weekday} post about ${keyword}: ${snapshot.contentAngles[i % snapshot.contentAngles.length]} — ${snapshot.mainPromise}. ${offerUrl}`,
-        meta: { weekday, angle: snapshot.contentAngles[i % snapshot.contentAngles.length], section: "weekly_batch" },
-    }));
+    return days.map((weekday, i) => {
+        const angle = snapshot.contentAngles[i % snapshot.contentAngles.length];
+        const hook = bestHook || `${angle}: A simpler way to ${snapshot.mainPromise.toLowerCase()}`;
+        const cta = bestCta || `Worth exploring if this fits: ${offerUrl}`;
+        const content = `${hook}\n\n${weekday} post about ${keyword}: ${angle} — ${snapshot.mainPromise}.\n\n${cta}`;
+        return {
+            kind: "post" as const,
+            channel: i % 2 === 0 ? "Facebook" : "Reddit",
+            content,
+            meta: { weekday, angle, section: "weekly_batch", hook, cta },
+        };
+    });
 }
 
 export function computeCampaignScore(

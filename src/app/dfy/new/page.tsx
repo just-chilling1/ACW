@@ -8,15 +8,15 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Field } from "@/components/ui/field";
 import { InlineError } from "@/components/ui/InlineError";
 import { BuildSequence } from "@/components/dfy/build-sequence";
-import { AUDIENCE_OPTIONS, CHANNEL_OPTIONS, type AudienceMode, type ChannelMode, type OfferSnapshot } from "@/lib/dfy/types";
+import { AUDIENCE_OPTIONS, type AudienceMode, type ChannelMode, type OfferSnapshot } from "@/lib/dfy/types";
 import { clsx } from "clsx";
 
 function NewCampaignContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [offerUrl, setOfferUrl] = useState(searchParams.get("url") || "");
-    const [audienceMode, setAudienceMode] = useState<AudienceMode>("auto");
-    const [channels, setChannels] = useState<ChannelMode[]>(["everywhere"]);
+    const [audienceMode, setAudienceMode] = useState<AudienceMode>("make_money");
+    const channels: ChannelMode[] = ["everywhere"];
     const [snapshot, setSnapshot] = useState<OfferSnapshot | null>(null);
     const [analyzing, setAnalyzing] = useState(false);
     const [building, setBuilding] = useState(false);
@@ -31,24 +31,18 @@ function NewCampaignContent() {
         if (url) setOfferUrl(url);
         fetch("/api/dfy/offers")
             .then((r) => r.json())
-            .then((d) => setSavedOffers(d.offers || []))
+            .then((d) => {
+                const offers = d.offers || [];
+                const seen = new Set<string>();
+                const unique = offers.filter((offer: { url: string }) => {
+                    if (seen.has(offer.url)) return false;
+                    seen.add(offer.url);
+                    return true;
+                });
+                setSavedOffers(unique);
+            })
             .catch(() => setSavedOffers([]));
     }, [searchParams]);
-
-    const toggleChannel = (id: ChannelMode) => {
-        if (id === "everywhere") {
-            setChannels(["everywhere"]);
-            return;
-        }
-        setChannels((prev) => {
-            const withoutEverywhere = prev.filter((c) => c !== "everywhere");
-            if (withoutEverywhere.includes(id)) {
-                const next = withoutEverywhere.filter((c) => c !== id);
-                return next.length ? next : ["everywhere"];
-            }
-            return [...withoutEverywhere, id];
-        });
-    };
 
     const handleAnalyze = async () => {
         if (!offerUrl.trim()) {
@@ -66,7 +60,7 @@ function NewCampaignContent() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Analysis failed");
             setSnapshot(data.snapshot);
-            if (data.snapshot.recommendedAudienceMode && audienceMode === "auto") {
+            if (data.snapshot.recommendedAudienceMode && data.snapshot.recommendedAudienceMode !== "auto") {
                 setAudienceMode(data.snapshot.recommendedAudienceMode);
             }
             setStep("understand");
@@ -125,18 +119,23 @@ function NewCampaignContent() {
             const campaignId = createData.campaign.id;
 
             const poll = window.setInterval(async () => {
-                const progRes = await fetch(`/api/dfy/campaigns/${campaignId}/build`);
-                const progData = await progRes.json();
-                if (progData.progress) setBuildProgress(progData.progress);
+                try {
+                    const progRes = await fetch(`/api/dfy/campaigns/${campaignId}/build`);
+                    const progData = await progRes.json();
+                    if (progData.progress) setBuildProgress(progData.progress);
+                } catch {
+                    /* ignore polling errors */
+                }
             }, 2000);
 
-            const buildRes = await fetch(`/api/dfy/campaigns/${campaignId}/build`, { method: "POST" });
-            window.clearInterval(poll);
-
-            const buildData = await buildRes.json();
-            if (!buildRes.ok) throw new Error(buildData.error);
-
-            router.push(`/dfy/campaigns/${campaignId}`);
+            try {
+                const buildRes = await fetch(`/api/dfy/campaigns/${campaignId}/build`, { method: "POST" });
+                const buildData = await buildRes.json();
+                if (!buildRes.ok) throw new Error(buildData.error);
+                router.push(`/dfy/campaigns/${campaignId}`);
+            } finally {
+                window.clearInterval(poll);
+            }
         } catch (e) {
             setError(e instanceof Error ? e.message : "Build failed. Please try again.");
             setStep("understand");
@@ -211,26 +210,6 @@ function NewCampaignContent() {
                                         {opt.recommended ? " (Recommended)" : ""}
                                     </p>
                                     <p className="mt-1 text-xs text-text-muted">{opt.description}</p>
-                                </button>
-                            ))}
-                        </div>
-                    </section>
-
-                    <section>
-                        <h3 className="mb-3 text-sm font-semibold text-text-primary">Where should we promote it?</h3>
-                        <div className="flex flex-wrap gap-2">
-                            {CHANNEL_OPTIONS.map((opt) => (
-                                <button
-                                    key={opt.id}
-                                    type="button"
-                                    onClick={() => toggleChannel(opt.id)}
-                                    className={clsx(
-                                        "btn-chip",
-                                        channels.includes(opt.id) && "btn-chip-active",
-                                    )}
-                                >
-                                    {opt.label}
-                                    {opt.recommended ? " ★" : ""}
                                 </button>
                             ))}
                         </div>

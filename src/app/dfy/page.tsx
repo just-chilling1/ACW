@@ -34,18 +34,6 @@ export default function DfyLandingPage() {
         setCampaigns((prev) => prev.filter((c) => c.id !== id));
     };
 
-    const handleDuplicate = async (id: string) => {
-        const res = await fetch(`/api/dfy/campaigns/${id}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "duplicate" }),
-        });
-        const data = await res.json();
-        if (data.campaign) {
-            setCampaigns((prev) => [data.campaign, ...prev]);
-        }
-    };
-
     return (
         <div className="mx-auto max-w-5xl px-4 pb-24 pt-6 sm:px-6 sm:pt-8">
             <section className="mb-10 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-strong)] bg-[var(--surface-1)] p-6 sm:p-10">
@@ -72,7 +60,7 @@ export default function DfyLandingPage() {
                 {loading ? (
                     <div className="card-base p-6 text-sm text-text-muted">Loading campaigns…</div>
                 ) : (
-                    <CampaignLibrary campaigns={campaigns} onDelete={handleDelete} onDuplicate={handleDuplicate} />
+                    <CampaignLibrary campaigns={campaigns} onDelete={handleDelete} />
                 )}
             </section>
 

@@ -12,6 +12,32 @@ type CopyButtonProps = {
     variant?: "primary" | "secondary";
 };
 
+async function copyToClipboard(text: string): Promise<boolean> {
+    if (navigator.clipboard?.writeText) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch {
+            /* fall through to legacy copy */
+        }
+    }
+
+    try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        return ok;
+    } catch {
+        return false;
+    }
+}
+
 export function CopyButton({
     text,
     label = "Copy",
@@ -20,14 +46,23 @@ export function CopyButton({
     variant = "secondary",
 }: CopyButtonProps) {
     const [copied, setCopied] = useState(false);
+    const [failed, setFailed] = useState(false);
 
-    const handleCopy = async () => {
-        try {
-            await navigator.clipboard.writeText(text);
+    const handleCopy = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!text?.trim()) {
+            setFailed(true);
+            window.setTimeout(() => setFailed(false), 1600);
+            return;
+        }
+        const ok = await copyToClipboard(text);
+        if (ok) {
             setCopied(true);
             window.setTimeout(() => setCopied(false), 1600);
-        } catch {
-            /* ignore */
+        } else {
+            setFailed(true);
+            window.setTimeout(() => setFailed(false), 1600);
         }
     };
 
@@ -37,7 +72,7 @@ export function CopyButton({
             onClick={handleCopy}
             className={clsx(
                 variant === "primary" ? "btn-primary" : "btn-secondary",
-                "px-3 py-2 text-xs sm:text-sm",
+                "shrink-0 px-3 py-2 text-xs sm:text-sm",
                 className,
             )}
         >
@@ -45,6 +80,11 @@ export function CopyButton({
                 <>
                     <Check size={14} strokeWidth={2} className="text-[var(--success)]" />
                     {copiedLabel}
+                </>
+            ) : failed ? (
+                <>
+                    <Copy size={14} strokeWidth={1.75} />
+                    Copy failed
                 </>
             ) : (
                 <>

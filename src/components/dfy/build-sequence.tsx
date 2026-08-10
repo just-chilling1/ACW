@@ -13,15 +13,34 @@ type BuildSequenceProps = {
 
 export function BuildSequence({ progress, active }: BuildSequenceProps) {
     const completed = new Set(progress.completedStages || []);
+    const totalStages = BUILD_STAGES.length;
+    const completedCount = BUILD_STAGES.filter((s) => completed.has(s.key)).length;
+    const progressPct = active && progress.currentStage
+        ? Math.round(((completedCount + 0.5) / totalStages) * 100)
+        : Math.round((completedCount / totalStages) * 100);
 
     return (
         <div className="surface-panel-elevated p-5 sm:p-6">
             <h2 className="mb-1 text-lg font-semibold text-text-primary sm:text-xl">
                 Cashwave is building your campaign
             </h2>
-            <p className="mb-5 text-sm text-text-muted">
+            <p className="mb-4 text-sm text-text-muted">
                 We&apos;re handling the research, strategy, content, and campaign planning for you.
             </p>
+
+            <div className="mb-5">
+                <div className="mb-1 flex justify-between text-xs text-text-muted">
+                    <span>Progress</span>
+                    <span className="tabular-nums">{progressPct}%</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-[var(--surface-2)]">
+                    <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${progressPct}%`, background: "var(--grad-brand)" }}
+                    />
+                </div>
+            </div>
+
             <ul className="flex flex-col gap-3">
                 {BUILD_STAGES.map((stage, i) => {
                     const done = completed.has(stage.key);

@@ -182,5 +182,7 @@ export function deriveSearchQueries(snapshot: OfferSnapshot, primaryKeyword: str
         primaryKeyword,
         `${snapshot.productName} recommendation reddit`,
         `${snapshot.painPoints[0] || snapshot.mainPromise} help reddit`,
-    ].slice(0, 3);
+        `best ${snapshot.category.toLowerCase()} for beginners reddit`,
+        `${snapshot.productName} review reddit`,
+    ].slice(0, 5);
 }

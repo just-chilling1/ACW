@@ -317,7 +317,7 @@ export async function runWeeklyBatchForCampaign(
     const keyword = campaign.primary_keyword || derivePrimaryKeyword(snapshot);
     const { data: existingBatch } = await supabase
         .from("campaign_assets")
-        .select("id, meta")
+        .select("id, kind, content, meta")
         .eq("campaign_id", campaign.id);
     const batchIds = (existingBatch || [])
         .filter((a) => (a.meta as { section?: string })?.section === "weekly_batch")
@@ -326,7 +326,12 @@ export async function runWeeklyBatchForCampaign(
         await supabase.from("campaign_assets").delete().in("id", batchIds);
     }
 
-    const batch = await generateWeeklyBatch(snapshot, campaign.offer_url, keyword);
+    const bestHook = (existingBatch || []).find((a) => a.kind === "hook" && (a.meta as { recommended?: boolean })?.recommended)?.content
+        || (existingBatch || []).find((a) => a.kind === "hook")?.content;
+    const bestCta = (existingBatch || []).find((a) => a.kind === "cta" && (a.meta as { recommended?: boolean })?.recommended)?.content
+        || (existingBatch || []).find((a) => a.kind === "cta")?.content;
+
+    const batch = await generateWeeklyBatch(snapshot, campaign.offer_url, keyword, bestHook, bestCta);
     for (const item of batch) {
         await supabase.from("campaign_assets").insert({
             campaign_id: campaign.id,

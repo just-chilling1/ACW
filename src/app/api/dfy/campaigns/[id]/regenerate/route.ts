@@ -2,8 +2,29 @@ import { NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
 import { callChatGPT } from "@/lib/llm";
 import { parseJsonFromLlm } from "@/lib/dfy/parse-json";
+import type { OfferSnapshot } from "@/lib/dfy/types";
 
 type RouteParams = { params: Promise<{ id: string }> };
+
+function getSnapshot(campaign: { offer_snapshot?: OfferSnapshot | null }): OfferSnapshot {
+    const snap = campaign.offer_snapshot;
+    return {
+        productName: snap?.productName || "this offer",
+        category: snap?.category || "",
+        mainPromise: snap?.mainPromise || "",
+        primaryBenefits: snap?.primaryBenefits || [],
+        secondaryBenefits: snap?.secondaryBenefits || [],
+        targetAudience: snap?.targetAudience || "",
+        buyerIntent: snap?.buyerIntent || "",
+        painPoints: snap?.painPoints || [],
+        desiredOutcome: snap?.desiredOutcome || "",
+        objections: snap?.objections || [],
+        strongestAngle: snap?.strongestAngle || "",
+        contentAngles: snap?.contentAngles || [],
+        ctaStyle: snap?.ctaStyle || "",
+        promotionChannels: snap?.promotionChannels || [],
+    };
+}
 
 export async function POST(req: Request, { params }: RouteParams) {
     const auth = await requireApiUser();
@@ -24,6 +45,8 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     if (!campaign) return NextResponse.json({ error: "Not found." }, { status: 404 });
 
+    const snapshot = getSnapshot(campaign);
+
     try {
         if (targetType === "opportunity" && targetId) {
             const { data: opp } = await auth.supabase
@@ -36,7 +59,7 @@ export async function POST(req: Request, { params }: RouteParams) {
             if (!opp) return NextResponse.json({ error: "Opportunity not found." }, { status: 404 });
 
             const prompt = `Rewrite this reply (${mode}) for context: ${opp.context}
-Offer: ${campaign.offer_snapshot?.productName}
+Offer: ${snapshot.productName}
 URL: ${campaign.offer_url}
 Return ONLY JSON: {"recommendedReply":"...","alternativeReplies":[{"style":"Helpful","text":"..."}]}
 No fake personal experiences.`;
@@ -47,10 +70,14 @@ No fake personal experiences.`;
                 alternativeReplies: opp.alternative_replies || [],
             });
 
-            await auth.supabase.from("campaign_opportunities").update({
+            const { error: updateError } = await auth.supabase.from("campaign_opportunities").update({
                 recommended_reply: parsed.recommendedReply,
                 alternative_replies: parsed.alternativeReplies,
             }).eq("id", targetId);
+
+            if (updateError) {
+                return NextResponse.json({ error: "Could not save regenerated reply." }, { status: 500 });
+            }
 
             return NextResponse.json({ opportunity: { ...opp, recommended_reply: parsed.recommendedReply, alternative_replies: parsed.alternativeReplies } });
         }
@@ -65,18 +92,62 @@ No fake personal experiences.`;
 
             if (!asset) return NextResponse.json({ error: "Asset not found." }, { status: 404 });
 
-            const prompt = `Rewrite this ${asset.kind} (${mode}):
-${asset.content}
-Offer: ${campaign.offer_snapshot?.productName}
-Return ONLY the new text, no JSON.`;
+            const meta = (asset.meta || {}) as Record<string, unknown>;
+            const isWeeklyBatch = meta.section === "weekly_batch";
 
-            const content = await callChatGPT([{ role: "user", content: prompt }]);
-            await auth.supabase.from("campaign_assets").update({ content: content.trim() }).eq("id", targetId);
-            return NextResponse.json({ asset: { ...asset, content: content.trim() } });
+            let prompt: string;
+            if (asset.kind === "hook") {
+                prompt = `Rewrite this marketing hook (${mode}) for "${snapshot.productName}":
+${asset.content}
+Return ONLY the new hook text, no JSON or labels.`;
+            } else if (asset.kind === "cta") {
+                prompt = `Rewrite this call-to-action (${mode}) for "${snapshot.productName}":
+${asset.content}
+Offer URL: ${campaign.offer_url}
+Return ONLY the new CTA text, no JSON.`;
+            } else if (isWeeklyBatch) {
+                prompt = `Rewrite this weekly post (${mode}) for "${snapshot.productName}".
+Offer URL: ${campaign.offer_url}
+Current hook: ${meta.hook || ""}
+Current post: ${asset.content}
+Current CTA: ${meta.cta || ""}
+
+Return ONLY JSON:
+{"hook":"...","content":"full post body","cta":"..."}`;
+            } else {
+                prompt = `Rewrite this ${asset.kind} (${mode}):
+${asset.content}
+Offer: ${snapshot.productName}
+Return ONLY the new text, no JSON.`;
+            }
+
+            const raw = await callChatGPT([{ role: "user", content: prompt }]);
+
+            let content = raw.trim();
+            let updatedMeta = { ...meta };
+
+            if (isWeeklyBatch) {
+                const parsed = parseJsonFromLlm<{ hook?: string; content?: string; cta?: string }>(raw, {});
+                if (parsed.content) content = parsed.content.trim();
+                if (parsed.hook) updatedMeta.hook = parsed.hook;
+                if (parsed.cta) updatedMeta.cta = parsed.cta;
+            }
+
+            const { error: updateError } = await auth.supabase.from("campaign_assets").update({
+                content,
+                meta: updatedMeta,
+            }).eq("id", targetId);
+
+            if (updateError) {
+                return NextResponse.json({ error: "Could not save regenerated content." }, { status: 500 });
+            }
+
+            return NextResponse.json({ asset: { ...asset, content, meta: updatedMeta } });
         }
 
         return NextResponse.json({ error: "Invalid regenerate target." }, { status: 400 });
-    } catch {
-        return NextResponse.json({ error: "Could not regenerate. Try again." }, { status: 500 });
+    } catch (e) {
+        const message = e instanceof Error ? e.message : "Could not regenerate. Try again.";
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
