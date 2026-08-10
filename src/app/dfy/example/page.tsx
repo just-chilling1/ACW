@@ -9,6 +9,7 @@ import { useState } from "react";
 
 export default function ExampleCampaignPage() {
     const [exampleOpportunities, setExampleOpportunities] = useState(EXAMPLE_OPPORTUNITIES);
+    const [exampleAssets, setExampleAssets] = useState(EXAMPLE_ASSETS);
 
     const handleExampleMarkDone = (id: string, done: boolean) => {
         setExampleOpportunities((prev) =>
@@ -16,6 +17,16 @@ export default function ExampleCampaignPage() {
                 opp.id === id
                     ? { ...opp, meta: { ...opp.meta, done, completedAt: done ? new Date().toISOString() : null } }
                     : opp,
+            ),
+        );
+    };
+
+    const handleExampleMarkAssetDone = (id: string, done: boolean) => {
+        setExampleAssets((prev) =>
+            prev.map((asset) =>
+                asset.id === id
+                    ? { ...asset, meta: { ...asset.meta, done, completedAt: done ? new Date().toISOString() : null } }
+                    : asset,
             ),
         );
     };
@@ -30,17 +41,19 @@ export default function ExampleCampaignPage() {
             <PageHeader
                 eyebrow="Example (Read-only)"
                 title={EXAMPLE_CAMPAIGN.name}
-                subtitle="This is what your finished campaign looks like. Follow the 3 steps."
+                subtitle="This is what your finished campaign looks like. Follow the 4 steps."
                 step={1}
-                totalSteps={3}
+                totalSteps={4}
             />
 
             <CampaignLinearFlow
                 campaign={EXAMPLE_CAMPAIGN}
                 opportunities={exampleOpportunities}
-                assets={EXAMPLE_ASSETS}
+                assets={exampleAssets}
                 onMarkOpportunityDone={handleExampleMarkDone}
                 markingOpportunityId={null}
+                onMarkAssetDone={handleExampleMarkAssetDone}
+                markingAssetId={null}
                 onFillWeek={async () => {}}
                 fillingWeek={false}
                 onImprove={async () => {}}

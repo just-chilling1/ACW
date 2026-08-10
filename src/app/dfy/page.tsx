@@ -40,7 +40,7 @@ export default function DfyLandingPage() {
                 <p className="page-eyebrow mb-3">DFY Campaign Builder</p>
                 <h1 className="ds-h1 mb-3 max-w-2xl">Your Marketing Campaign. Built For You.</h1>
                 <p className="ds-subtitle mb-6 max-w-xl">
-                    Paste your link → get replies → copy posts → done. Three simple steps.
+                    Paste your link → get replies → copy posts → fill your week → done. Four simple steps.
                 </p>
                 <p className="mb-6 text-sm text-text-muted">One button at a time. Nothing happens until you click.</p>
                 <div className="flex flex-col gap-3 sm:flex-row">

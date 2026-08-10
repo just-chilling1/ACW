@@ -1,18 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, Circle, Sparkles } from "lucide-react";
 import { clsx } from "clsx";
 import type { CampaignAssetRow, CampaignOpportunityRow, CampaignRow } from "@/lib/dfy/types";
 import { CopyButton } from "./copy-button";
 import { OpportunityCard } from "./opportunity-card";
-import { getOpportunityProgress } from "@/lib/dfy/opportunity-progress";
+import {
+    getCampaignProgress,
+    getContentPosts,
+    getOpportunityProgress,
+    getWeeklyPosts,
+    isAssetDone,
+} from "@/lib/dfy/campaign-progress";
 
 const STEPS = [
     { id: 1, label: "Reply to people" },
     { id: 2, label: "Post your content" },
-    { id: 3, label: "All done" },
+    { id: 3, label: "Fill my week" },
+    { id: 4, label: "All done" },
 ] as const;
+
+const TOTAL_STEPS = STEPS.length;
 
 type CampaignLinearFlowProps = {
     campaign: CampaignRow;
@@ -20,11 +29,113 @@ type CampaignLinearFlowProps = {
     assets: CampaignAssetRow[];
     onMarkOpportunityDone: (id: string, done: boolean) => void;
     markingOpportunityId: string | null;
+    onMarkAssetDone: (id: string, done: boolean) => void;
+    markingAssetId: string | null;
     onFillWeek: () => Promise<void>;
     fillingWeek: boolean;
     onImprove: () => Promise<void>;
     improving: boolean;
 };
+
+function CampaignProgressBar({
+    done,
+    total,
+    percent,
+}: {
+    done: number;
+    total: number;
+    percent: number;
+}) {
+    if (total === 0) return null;
+
+    return (
+        <div className="card-base p-4 sm:p-5">
+            <div className="mb-2 flex items-end justify-between gap-2">
+                <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Campaign Progress</p>
+                    <p className="text-lg font-semibold tabular-nums text-text-primary">
+                        {done} of {total} completed
+                    </p>
+                </div>
+                <p className="text-sm font-semibold tabular-nums text-[var(--gold-text)]">{percent}%</p>
+            </div>
+            <div className="h-2.5 overflow-hidden rounded-full bg-[var(--surface-2)]">
+                <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                        width: `${percent}%`,
+                        background: done === total ? "var(--success)" : "var(--grad-brand)",
+                    }}
+                />
+            </div>
+            <p className="mt-2 text-xs text-text-muted">
+                Mark replies, posts, and week-day posts as done to track your progress.
+            </p>
+        </div>
+    );
+}
+
+function PostCard({
+    label,
+    content,
+    done,
+    markingDone,
+    onMarkDone,
+}: {
+    label: string;
+    content: string;
+    done: boolean;
+    markingDone?: boolean;
+    onMarkDone?: (done: boolean) => void;
+}) {
+    return (
+        <article
+            className={clsx(
+                "card-base flex flex-col gap-3 p-4 sm:p-5 transition",
+                done && "border-[var(--success-border)] bg-[var(--success-bg-faint)]",
+            )}
+        >
+            <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">{label}</p>
+                {done ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[var(--success-bg-subtle)] px-2 py-0.5 text-[10px] font-semibold uppercase text-[var(--success)]">
+                        <CheckCircle2 size={12} />
+                        Done
+                    </span>
+                ) : null}
+            </div>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">{content}</p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                <CopyButton text={content} label="Copy Post" variant="primary" />
+                {onMarkDone ? (
+                    <button
+                        type="button"
+                        onClick={() => onMarkDone(!done)}
+                        disabled={markingDone}
+                        className={clsx(
+                            "flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold",
+                            done ? "btn-secondary" : "btn-primary",
+                        )}
+                    >
+                        {markingDone ? (
+                            "Saving…"
+                        ) : done ? (
+                            <>
+                                <Circle size={16} />
+                                Undo Done
+                            </>
+                        ) : (
+                            <>
+                                <CheckCircle2 size={16} />
+                                Done ✓
+                            </>
+                        )}
+                    </button>
+                ) : null}
+            </div>
+        </article>
+    );
+}
 
 export function CampaignLinearFlow({
     campaign,
@@ -32,6 +143,8 @@ export function CampaignLinearFlow({
     assets,
     onMarkOpportunityDone,
     markingOpportunityId,
+    onMarkAssetDone,
+    markingAssetId,
     onFillWeek,
     fillingWeek,
     onImprove,
@@ -47,14 +160,10 @@ export function CampaignLinearFlow({
         }
     }, [assets]);
 
-    const { done, total, percent } = getOpportunityProgress(opportunities);
-    const posts = assets.filter(
-        (a) =>
-            ["post", "comment", "submission_copy"].includes(a.kind) &&
-            a.meta?.section !== "calendar" &&
-            a.meta?.section !== "weekly_batch",
-    );
-    const weeklyPosts = assets.filter((a) => a.meta?.section === "weekly_batch");
+    const campaignProgress = getCampaignProgress(opportunities, assets);
+    const replyProgress = getOpportunityProgress(opportunities);
+    const posts = getContentPosts(assets);
+    const weeklyPosts = getWeeklyPosts(assets);
 
     const handleFillWeek = async () => {
         await onFillWeek();
@@ -68,8 +177,13 @@ export function CampaignLinearFlow({
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Step pills */}
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+            <CampaignProgressBar
+                done={campaignProgress.done}
+                total={campaignProgress.total}
+                percent={campaignProgress.percent}
+            />
+
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 {STEPS.map((s) => {
                     const active = step === s.id;
                     const completed = step > s.id;
@@ -80,7 +194,7 @@ export function CampaignLinearFlow({
                             onClick={() => completed && setStep(s.id)}
                             disabled={!completed && !active}
                             className={clsx(
-                                "flex flex-1 items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2.5 text-left text-sm transition",
+                                "flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2.5 text-left text-sm transition",
                                 active
                                     ? "border-[var(--gold)] bg-[var(--gold-fill)] font-semibold text-[var(--gold-text)]"
                                     : completed
@@ -106,34 +220,21 @@ export function CampaignLinearFlow({
                 })}
             </div>
 
-            {/* Step 1: Replies */}
             {step === 1 && (
                 <section className="flex flex-col gap-5">
                     <div className="card-base p-5 sm:p-6">
-                        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">Step 1 of 3</p>
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">Step 1 of {TOTAL_STEPS}</p>
                         <h2 className="ds-h3 mb-2">Copy replies &amp; post them</h2>
                         <p className="text-sm text-text-secondary">
-                            For each conversation below: tap <strong className="text-text-primary">Copy Reply</strong>, paste it on the post, then tap <strong className="text-text-primary">Done</strong>.
+                            For each conversation: tap <strong className="text-text-primary">Copy Reply</strong>, paste it, then tap <strong className="text-text-primary">Done ✓</strong>.
                         </p>
                     </div>
 
-                    {total > 0 ? (
-                        <div className="card-base p-4 sm:p-5">
-                            <div className="mb-2 flex items-end justify-between gap-2">
-                                <p className="text-sm font-semibold text-text-primary">
-                                    {done} of {total} done
-                                </p>
-                                <p className="text-sm font-semibold tabular-nums text-[var(--gold-text)]">{percent}%</p>
-                            </div>
-                            <div className="h-2 overflow-hidden rounded-full bg-[var(--surface-2)]">
-                                <div
-                                    className="h-full rounded-full transition-all duration-500"
-                                    style={{
-                                        width: `${percent}%`,
-                                        background: done === total ? "var(--success)" : "var(--grad-brand)",
-                                    }}
-                                />
-                            </div>
+                    {replyProgress.total > 0 ? (
+                        <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-4 py-3">
+                            <p className="text-sm font-semibold text-text-primary">
+                                Replies: {replyProgress.done} of {replyProgress.total} done
+                            </p>
                         </div>
                     ) : null}
 
@@ -163,16 +264,23 @@ export function CampaignLinearFlow({
                 </section>
             )}
 
-            {/* Step 2: Content */}
             {step === 2 && (
                 <section className="flex flex-col gap-5">
                     <div className="card-base p-5 sm:p-6">
-                        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">Step 2 of 3</p>
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">Step 2 of {TOTAL_STEPS}</p>
                         <h2 className="ds-h3 mb-2">Copy posts &amp; share them</h2>
                         <p className="text-sm text-text-secondary">
-                            Tap <strong className="text-text-primary">Copy Post</strong> on each one. Paste it on Facebook, Reddit, or anywhere you promote.
+                            Tap <strong className="text-text-primary">Copy Post</strong>, share it, then tap <strong className="text-text-primary">Done ✓</strong>.
                         </p>
                     </div>
+
+                    {campaignProgress.posts.total > 0 ? (
+                        <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-4 py-3">
+                            <p className="text-sm font-semibold text-text-primary">
+                                Posts: {campaignProgress.posts.done} of {campaignProgress.posts.total} done
+                            </p>
+                        </div>
+                    ) : null}
 
                     {posts.length === 0 ? (
                         <div className="card-base p-6 text-center text-sm text-text-secondary">
@@ -181,40 +289,58 @@ export function CampaignLinearFlow({
                     ) : (
                         <div className="flex flex-col gap-4">
                             {posts.map((asset, i) => (
-                                <article key={asset.id} className="card-base flex flex-col gap-3 p-4 sm:p-5">
-                                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">
-                                        Post {i + 1}
-                                    </p>
-                                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">{asset.content}</p>
-                                    <CopyButton text={asset.content} label="Copy Post" variant="primary" />
-                                </article>
+                                <PostCard
+                                    key={asset.id}
+                                    label={`Post ${i + 1}`}
+                                    content={asset.content}
+                                    done={isAssetDone(asset)}
+                                    markingDone={markingAssetId === asset.id}
+                                    onMarkDone={(doneState) => onMarkAssetDone(asset.id, doneState)}
+                                />
                             ))}
                         </div>
                     )}
 
-                    <div className="card-base flex flex-col gap-4 p-5 sm:p-6">
-                        <div>
-                            <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Bonus</p>
-                            <h3 className="ds-h5 mb-1">Need a full week of posts?</h3>
-                            <p className="text-sm text-text-secondary">
-                                Tap the button. We&apos;ll create 5 ready-to-copy posts (Mon–Fri).
-                            </p>
-                        </div>
-                        {!weekGenerated && weeklyPosts.length === 0 ? (
-                            <button
-                                type="button"
-                                onClick={handleFillWeek}
-                                disabled={fillingWeek}
-                                className="btn-primary w-full py-4 text-base"
-                            >
-                                <Sparkles size={18} />
-                                {fillingWeek ? "Creating your week…" : "Click Here — Fill My Week"}
-                            </button>
-                        ) : null}
+                    <button type="button" onClick={() => setStep(3)} className="btn-primary w-full py-4 text-base">
+                        Next: Fill My Week
+                        <ArrowRight size={18} />
+                    </button>
+                </section>
+            )}
 
-                        {(weekGenerated || weeklyPosts.length > 0) && (
-                            <div className="flex flex-col gap-3 border-t border-[var(--border-subtle)] pt-4">
-                                <p className="text-sm font-semibold text-[var(--success)]">✓ Your week is ready — copy each post:</p>
+            {step === 3 && (
+                <section className="flex flex-col gap-5">
+                    <div className="card-base p-5 sm:p-6">
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">Step 3 of {TOTAL_STEPS}</p>
+                        <h2 className="ds-h3 mb-2">Fill my week</h2>
+                        <p className="text-sm text-text-secondary">
+                            Tap the button to get 5 ready-to-copy posts (Mon–Fri). Copy each one, post it, then tap <strong className="text-text-primary">Done ✓</strong>.
+                        </p>
+                    </div>
+
+                    {!weekGenerated && weeklyPosts.length === 0 ? (
+                        <button
+                            type="button"
+                            onClick={handleFillWeek}
+                            disabled={fillingWeek}
+                            className="btn-primary w-full py-4 text-base"
+                        >
+                            <Sparkles size={18} />
+                            {fillingWeek ? "Creating your week…" : "Click Here — Fill My Week"}
+                        </button>
+                    ) : null}
+
+                    {(weekGenerated || weeklyPosts.length > 0) && (
+                        <>
+                            {campaignProgress.week.total > 0 ? (
+                                <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-4 py-3">
+                                    <p className="text-sm font-semibold text-text-primary">
+                                        Week posts: {campaignProgress.week.done} of {campaignProgress.week.total} done
+                                    </p>
+                                </div>
+                            ) : null}
+
+                            <div className="flex flex-col gap-4">
                                 {weeklyPosts.map((asset) => {
                                     const fullText = [
                                         asset.meta?.hook ? String(asset.meta.hook) : "",
@@ -224,40 +350,41 @@ export function CampaignLinearFlow({
                                         .filter(Boolean)
                                         .join("\n\n");
                                     return (
-                                        <article key={asset.id} className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4">
-                                            <p className="mb-2 text-xs font-semibold uppercase text-text-muted">
-                                                {String(asset.meta?.weekday || "Day")} post
-                                            </p>
-                                            <p className="mb-3 whitespace-pre-wrap text-sm leading-relaxed text-text-primary">{fullText}</p>
-                                            <CopyButton text={fullText} label="Copy Post" variant="primary" />
-                                        </article>
+                                        <PostCard
+                                            key={asset.id}
+                                            label={`${String(asset.meta?.weekday || "Day")} post`}
+                                            content={fullText}
+                                            done={isAssetDone(asset)}
+                                            markingDone={markingAssetId === asset.id}
+                                            onMarkDone={(doneState) => onMarkAssetDone(asset.id, doneState)}
+                                        />
                                     );
                                 })}
-                                {!fillingWeek && weeklyPosts.length === 0 ? (
-                                    <button type="button" onClick={handleFillWeek} className="btn-secondary w-full">
-                                        Try again
-                                    </button>
-                                ) : null}
                             </div>
-                        )}
-                    </div>
 
-                    <button type="button" onClick={() => setStep(3)} className="btn-primary w-full py-4 text-base">
+                            {!fillingWeek && weeklyPosts.length === 0 ? (
+                                <button type="button" onClick={handleFillWeek} className="btn-secondary w-full">
+                                    Try again
+                                </button>
+                            ) : null}
+                        </>
+                    )}
+
+                    <button type="button" onClick={() => setStep(4)} className="btn-primary w-full py-4 text-base">
                         Next: You&apos;re Done
                         <ArrowRight size={18} />
                     </button>
                 </section>
             )}
 
-            {/* Step 3: Done */}
-            {step === 3 && (
+            {step === 4 && (
                 <section className="flex flex-col gap-5">
                     <div className="card-base p-6 text-center sm:p-8">
                         <CheckCircle2 size={48} className="mx-auto mb-4 text-[var(--success)]" />
-                        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">Step 3 of 3</p>
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">Step 4 of {TOTAL_STEPS}</p>
                         <h2 className="ds-h2 mb-2">You&apos;re all set!</h2>
                         <p className="mx-auto max-w-md text-sm text-text-secondary">
-                            You copied your replies and posts. Keep posting every day to get results.
+                            You completed {campaignProgress.done} of {campaignProgress.total} tasks. Keep posting every day to get results.
                         </p>
                         {campaign.score != null ? (
                             <p className="mt-4 text-2xl font-bold tabular-nums text-[var(--gold-text)]">

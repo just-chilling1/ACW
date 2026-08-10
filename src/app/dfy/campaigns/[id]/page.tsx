@@ -19,6 +19,7 @@ export default function CampaignWorkspacePage() {
     const [fillingWeek, setFillingWeek] = useState(false);
     const [improving, setImproving] = useState(false);
     const [markingOpportunityId, setMarkingOpportunityId] = useState<string | null>(null);
+    const [markingAssetId, setMarkingAssetId] = useState<string | null>(null);
 
     const loadCampaign = async () => {
         const res = await fetch(`/api/dfy/campaigns/${id}`);
@@ -61,6 +62,25 @@ export default function CampaignWorkspacePage() {
             }
         } finally {
             setMarkingOpportunityId(null);
+        }
+    };
+
+    const handleMarkAssetDone = async (assetId: string, done: boolean) => {
+        setMarkingAssetId(assetId);
+        try {
+            const res = await fetch(`/api/dfy/campaigns/${id}/assets/${assetId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ done }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.asset) {
+                setAssets((prev) =>
+                    prev.map((asset) => (asset.id === assetId ? data.asset : asset)),
+                );
+            }
+        } finally {
+            setMarkingAssetId(null);
         }
     };
 
@@ -115,9 +135,9 @@ export default function CampaignWorkspacePage() {
             <PageHeader
                 eyebrow="Your Campaign"
                 title={campaign.name}
-                subtitle="Follow the 3 steps below. One button at a time."
+                subtitle="Follow the 4 steps below. One button at a time."
                 step={1}
-                totalSteps={3}
+                totalSteps={4}
                 actions={
                     <a href={`/api/dfy/campaigns/${id}/export?format=markdown`} className="btn-secondary px-3 py-2 text-xs">
                         <Download size={14} />
@@ -138,6 +158,8 @@ export default function CampaignWorkspacePage() {
                 assets={assets}
                 onMarkOpportunityDone={handleMarkOpportunityDone}
                 markingOpportunityId={markingOpportunityId}
+                onMarkAssetDone={handleMarkAssetDone}
+                markingAssetId={markingAssetId}
                 onFillWeek={handleFillWeek}
                 fillingWeek={fillingWeek}
                 onImprove={handleImprove}

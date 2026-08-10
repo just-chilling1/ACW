@@ -81,12 +81,22 @@ export const EXAMPLE_OPPORTUNITIES: CampaignOpportunityRow[] = [
 
 export const EXAMPLE_ASSETS: CampaignAssetRow[] = [
     {
+        id: "ex-asset-post-1",
+        campaign_id: EXAMPLE_CAMPAIGN_ID,
+        kind: "post",
+        channel: "Facebook",
+        content: "Most people overcomplicate making money with AI. Start with one simple workflow this week — pick one task you already do, find an AI tool for it, and track your results for 7 days.",
+        meta: { angle: "beginner education" },
+        used_at: null,
+        created_at: new Date().toISOString(),
+    },
+    {
         id: "ex-asset-1",
         campaign_id: EXAMPLE_CAMPAIGN_ID,
         kind: "post",
         channel: "Facebook",
-        content: "Most people overcomplicate making money with AI. Start with one simple workflow this week.",
-        meta: { weekday: "Mon", section: "weekly_batch", angle: "beginner education" },
+        content: "Monday: Share a quick tip about one AI tool that saved you time.\n\nTuesday: Answer a common beginner question in a group.\n\nWednesday: Post a simple before/after result.",
+        meta: { weekday: "Mon", section: "weekly_batch", angle: "beginner education", hook: "What if earning with AI was simpler than the gurus make it look?", cta: "Grab the free walkthrough here: https://example.com/ai-income-blueprint" },
         used_at: null,
         created_at: new Date().toISOString(),
     },
