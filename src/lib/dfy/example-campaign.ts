@@ -1,0 +1,116 @@
+import type { CampaignRow, CampaignOpportunityRow, CampaignAssetRow, CampaignActionRow } from "./types";
+
+export const EXAMPLE_CAMPAIGN_ID = "example-campaign";
+
+export const EXAMPLE_CAMPAIGN: CampaignRow = {
+    id: EXAMPLE_CAMPAIGN_ID,
+    user_id: "example",
+    name: "AI Income Blueprint",
+    offer_url: "https://example.com/ai-income-blueprint",
+    offer_snapshot: {
+        productName: "AI Income Blueprint",
+        category: "Online Income",
+        mainPromise: "A simple beginner-friendly path to earning with AI tools",
+        primaryBenefits: ["Step-by-step guidance", "No technical skills required", "Practical templates"],
+        secondaryBenefits: ["Flexible schedule", "Multiple income angles"],
+        targetAudience: "Beginners looking for practical ways to earn online",
+        buyerIntent: "High — actively searching for side income methods",
+        painPoints: ["Overwhelmed by AI hype", "Don't know where to start"],
+        desiredOutcome: "Clear first steps and confidence",
+        objections: ["Is this too good to be true?", "Do I need to be tech-savvy?"],
+        strongestAngle: "Simple beginner-friendly approach",
+        contentAngles: ["problem/solution", "beginner education", "mistakes", "tips", "FAQ"],
+        ctaStyle: "Educational + problem/solution",
+        promotionChannels: ["Reddit", "YouTube", "Facebook groups"],
+        promotionStyle: "Educational + problem/solution",
+    },
+    audience_mode: "auto",
+    channels: ["everywhere"],
+    status: "ready",
+    build_progress: { completedStages: [], currentStage: undefined },
+    strategy: {
+        summary: "Start with educational content for beginners, then move into problem/solution posts and comparison content.",
+        whoToTarget: "Beginners looking for practical ways to earn online",
+        whatToSay: "Simple beginner-friendly approach",
+        whereToPromote: "Reddit, YouTube, and relevant communities",
+        whatToStartWith: "Answer high-intent questions with helpful replies",
+        strongestOpportunities: "People actively asking how to start making money online",
+        ctaStyle: "Educational + soft resource recommendation",
+        whatToAvoid: "Aggressive sales language and spammy link drops",
+        firstStep: "Copy the recommended reply for the top opportunity",
+    },
+    score: 94,
+    score_breakdown: {
+        offerClarity: 92,
+        audienceFit: 95,
+        opportunityQuality: 93,
+        contentVariety: 90,
+        ctaQuality: 88,
+        campaignCoverage: 96,
+    },
+    primary_keyword: "how to make money with ai tools reddit",
+    stats: { opportunityCount: 10, assetCount: 64, channelCount: 4, contentDays: 30 },
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+};
+
+export const EXAMPLE_OPPORTUNITIES: CampaignOpportunityRow[] = [
+    {
+        id: "ex-opp-1",
+        campaign_id: EXAMPLE_CAMPAIGN_ID,
+        platform: "Reddit",
+        url: "https://www.reddit.com/r/sidehustle/",
+        title: "Someone is asking how to start making money online",
+        context: "I'm new to side hustles and keep seeing AI tools mentioned. What's a realistic way to start without spending a fortune?",
+        engagement: "723",
+        relevance_score: 92,
+        intent_score: 95,
+        opportunity_score: 94,
+        label: "excellent",
+        why_selected: "The person is actively looking for a solution and appears open to recommendations.",
+        recommended_approach: "Give a helpful educational answer first, then introduce the relevant resource naturally.",
+        recommended_reply: "One angle you could use: start with one simple AI workflow (like repurposing content or basic freelance tasks), test it for 2 weeks, then compare tools. If you want a beginner walkthrough, AI Income Blueprint breaks it down step by step: https://example.com/ai-income-blueprint",
+        alternative_replies: [
+            { style: "Helpful", text: "Focus on one skill first — writing, design, or research — then layer AI on top. Keep it simple for the first month." },
+            { style: "Short", text: "Pick one method, stick with it 30 days, then evaluate. That's the fastest way to know if it's for you." },
+        ],
+        meta: {},
+        created_at: new Date().toISOString(),
+    },
+];
+
+export const EXAMPLE_ASSETS: CampaignAssetRow[] = [
+    {
+        id: "ex-asset-1",
+        campaign_id: EXAMPLE_CAMPAIGN_ID,
+        kind: "post",
+        channel: "Facebook",
+        content: "Most people overcomplicate making money with AI. Start with one simple workflow this week.",
+        meta: { weekday: "Mon", section: "weekly_batch", angle: "beginner education" },
+        used_at: null,
+        created_at: new Date().toISOString(),
+    },
+    {
+        id: "ex-asset-2",
+        campaign_id: EXAMPLE_CAMPAIGN_ID,
+        kind: "hook",
+        channel: "All",
+        content: "What if earning with AI was simpler than the gurus make it look?",
+        meta: { category: "Curiosity" },
+        used_at: null,
+        created_at: new Date().toISOString(),
+    },
+];
+
+export const EXAMPLE_ACTIONS: CampaignActionRow[] = [
+    {
+        id: "ex-action-1",
+        campaign_id: EXAMPLE_CAMPAIGN_ID,
+        kind: "start_opportunity",
+        label: "Start with this opportunity",
+        payload: { opportunityId: "ex-opp-1" },
+        status: "todo",
+        completed_at: null,
+        created_at: new Date().toISOString(),
+    },
+];
