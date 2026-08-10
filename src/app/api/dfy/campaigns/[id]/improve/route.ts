@@ -9,7 +9,20 @@ const WEAK_STAGE_MAP: Record<string, BuildStage[]> = {
     "opportunity quality": ["discover_opportunities", "generate_replies"],
     "content variety": ["generate_content", "generate_hooks", "generate_ctas"],
     "campaign coverage": ["build_calendar", "generate_content"],
+    "offer clarity": ["analyze_offer", "determine_strategy"],
+    "audience fit": ["determine_audience", "determine_strategy"],
+    "cta quality": ["generate_ctas", "generate_hooks"],
 };
+
+const BASE_IMPROVE_STAGES: BuildStage[] = [
+    "discover_opportunities",
+    "generate_replies",
+    "generate_content",
+    "generate_hooks",
+    "generate_ctas",
+    "score_campaign",
+    "finalize",
+];
 
 async function fetchCampaign(
     supabase: NonNullable<Awaited<ReturnType<typeof requireApiUser>>["supabase"]>,
@@ -34,18 +47,15 @@ export async function POST(_req: Request, { params }: RouteParams) {
     const campaign = await fetchCampaign(auth.supabase, id, auth.user.id);
     if (!campaign) return NextResponse.json({ error: "Campaign not found." }, { status: 404 });
 
+    const previousScore = campaign.score;
+    const previousOpportunityCount = campaign.stats?.opportunityCount ?? 0;
+
     const weakAreas = (campaign.score_breakdown as { weakAreas?: string[] })?.weakAreas || [];
-    const stagesToRun: BuildStage[] = [];
+    const stagesToRun: BuildStage[] = [...BASE_IMPROVE_STAGES];
 
     for (const area of weakAreas) {
         const stages = WEAK_STAGE_MAP[area];
         if (stages) stagesToRun.push(...stages);
-    }
-
-    if (stagesToRun.length === 0) {
-        stagesToRun.push("discover_opportunities", "generate_replies", "generate_content");
-    } else if (stagesToRun.includes("discover_opportunities") && !stagesToRun.includes("generate_replies")) {
-        stagesToRun.push("generate_replies");
     }
 
     const uniqueStages = [...new Set(stagesToRun)];
@@ -57,27 +67,33 @@ export async function POST(_req: Request, { params }: RouteParams) {
             await runBuildStage(auth.supabase, fresh, stage);
         }
 
-        let fresh = await fetchCampaign(auth.supabase, id, auth.user.id);
-        if (fresh) {
-            await runBuildStage(auth.supabase, fresh, "score_campaign");
-            fresh = await fetchCampaign(auth.supabase, id, auth.user.id);
-        }
-        if (fresh) {
-            await runBuildStage(auth.supabase, fresh, "finalize");
-        }
-
         const updated = await fetchCampaign(auth.supabase, id, auth.user.id);
-        const { data: opportunities } = await auth.supabase
-            .from("campaign_opportunities")
-            .select("*")
-            .eq("campaign_id", id)
-            .order("opportunity_score", { ascending: false });
+        const [{ data: opportunities }, { data: assets }] = await Promise.all([
+            auth.supabase
+                .from("campaign_opportunities")
+                .select("*")
+                .eq("campaign_id", id)
+                .order("opportunity_score", { ascending: false }),
+            auth.supabase
+                .from("campaign_assets")
+                .select("*")
+                .eq("campaign_id", id)
+                .order("created_at", { ascending: true }),
+        ]);
+
+        const newScore = updated?.score ?? previousScore;
+        const newOpportunityCount = opportunities?.length ?? previousOpportunityCount;
 
         return NextResponse.json({
             campaign: updated,
             opportunities: opportunities || [],
+            assets: assets || [],
             ok: true,
             improved: uniqueStages,
+            previousScore,
+            newScore,
+            previousOpportunityCount,
+            newOpportunityCount,
         });
     } catch (e) {
         const message = e instanceof Error ? e.message : "Could not improve campaign. Try again.";

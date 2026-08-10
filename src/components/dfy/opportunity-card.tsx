@@ -1,9 +1,10 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
+import { CheckCircle2, Circle, ExternalLink } from "lucide-react";
 import { clsx } from "clsx";
 import { CopyButton } from "./copy-button";
 import { labelDisplay } from "@/lib/dfy/parse-json";
+import { isOpportunityDone } from "@/lib/dfy/opportunity-progress";
 import type { CampaignOpportunityRow } from "@/lib/dfy/types";
 
 type OpportunityCardProps = {
@@ -12,6 +13,8 @@ type OpportunityCardProps = {
     regenerating?: boolean;
     showAlternatives?: boolean;
     onToggleAlternatives?: () => void;
+    onMarkDone?: (done: boolean) => void;
+    markingDone?: boolean;
 };
 
 export function OpportunityCard({
@@ -20,18 +23,32 @@ export function OpportunityCard({
     regenerating,
     showAlternatives,
     onToggleAlternatives,
+    onMarkDone,
+    markingDone,
 }: OpportunityCardProps) {
     const label = labelDisplay(opportunity.label);
+    const done = isOpportunityDone(opportunity);
 
     return (
-        <article className="card-base flex flex-col gap-4 p-4 sm:p-5">
+        <article className={clsx(
+            "card-base flex flex-col gap-4 p-4 sm:p-5 transition",
+            done && "border-[var(--success-border)] bg-[var(--success-bg-faint)]",
+        )}>
             <div className="flex flex-wrap items-start justify-between gap-2">
-                <span className={clsx(
-                    "text-xs font-bold uppercase tracking-wide",
-                    opportunity.label === "excellent" ? "text-[var(--warning)]" : "text-[var(--gold-text)]",
-                )}>
-                    {opportunity.label === "excellent" ? "Excellent Opportunity" : `${label} Opportunity`}
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className={clsx(
+                        "text-xs font-bold uppercase tracking-wide",
+                        done ? "text-[var(--success)]" : opportunity.label === "excellent" ? "text-[var(--warning)]" : "text-[var(--gold-text)]",
+                    )}>
+                        {done ? "Completed" : opportunity.label === "excellent" ? "Excellent Opportunity" : `${label} Opportunity`}
+                    </span>
+                    {done ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--success-bg-subtle)] px-2 py-0.5 text-[10px] font-semibold uppercase text-[var(--success)]">
+                            <CheckCircle2 size={12} />
+                            Done
+                        </span>
+                    ) : null}
+                </div>
                 <span className="text-xs font-semibold tabular-nums text-text-muted">
                     {opportunity.opportunity_score}/100
                 </span>
@@ -104,6 +121,26 @@ export function OpportunityCard({
                         className="btn-secondary px-3 py-2 text-xs sm:text-sm"
                     >
                         {regenerating ? "Regenerating…" : "↻ Regenerate"}
+                    </button>
+                ) : null}
+                {onMarkDone ? (
+                    <button
+                        type="button"
+                        onClick={() => onMarkDone(!done)}
+                        disabled={markingDone}
+                        className={done ? "btn-secondary px-3 py-2 text-xs sm:text-sm" : "btn-primary px-3 py-2 text-xs sm:text-sm"}
+                    >
+                        {markingDone ? "Saving…" : done ? (
+                            <>
+                                <Circle size={14} strokeWidth={1.75} />
+                                Mark as Not Done
+                            </>
+                        ) : (
+                            <>
+                                <CheckCircle2 size={14} strokeWidth={1.75} />
+                                Mark as Done
+                            </>
+                        )}
                     </button>
                 ) : null}
             </div>

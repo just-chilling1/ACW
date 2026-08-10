@@ -81,7 +81,8 @@ export async function runBuildStage(
             const posts = await discoverPosts(supabase, queries, snapshot, audienceMode);
             await supabase.from("campaign_opportunities").delete().eq("campaign_id", campaign.id);
             const scored = posts.map((p) => scorePostHeuristic(p, snapshot));
-            for (const s of scored) {
+            for (let idx = 0; idx < scored.length; idx++) {
+                const s = scored[idx];
                 await supabase.from("campaign_opportunities").insert({
                     campaign_id: campaign.id,
                     platform: s.post.platform,
@@ -95,8 +96,8 @@ export async function runBuildStage(
                     label: s.label,
                     why_selected: s.whySelected,
                     recommended_approach: s.recommendedApproach,
-                    recommended_reply: buildFallbackReply(s, snapshot, campaign.offer_url),
-                    alternative_replies: buildFallbackAlternatives(s, snapshot, campaign.offer_url),
+                    recommended_reply: buildFallbackReply(s, snapshot, campaign.offer_url, idx),
+                    alternative_replies: buildFallbackAlternatives(s, snapshot, campaign.offer_url, idx),
                     meta: { postId: s.post.id },
                 });
             }
@@ -122,8 +123,13 @@ export async function runBuildStage(
                 }));
                 const scored = posts.map((p) => scorePostHeuristic(p, snapshot));
                 const enriched = await enrichOpportunitiesWithAi(scored, snapshot, campaign.offer_url);
-                for (const e of enriched) {
-                    const opp = opps.find((o) => o.url === e.post.url);
+                for (let idx = 0; idx < enriched.length; idx++) {
+                    const e = enriched[idx];
+                    const opp = opps.find((o) =>
+                        o.url === e.post.url
+                        || o.id === e.post.id
+                        || (o.meta as { postId?: string })?.postId === e.post.id,
+                    ) || opps[idx];
                     if (!opp) continue;
                     await supabase.from("campaign_opportunities").update({
                         why_selected: e.whySelected,

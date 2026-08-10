@@ -7,6 +7,7 @@ import { clsx } from "clsx";
 import type { CampaignActionRow, CampaignAssetRow, CampaignOpportunityRow, CampaignRow } from "@/lib/dfy/types";
 import { CopyButton } from "./copy-button";
 import { OpportunityCard } from "./opportunity-card";
+import { getOpportunityProgress } from "@/lib/dfy/opportunity-progress";
 
 type OverviewTabProps = {
     campaign: CampaignRow;
@@ -14,9 +15,11 @@ type OverviewTabProps = {
     assets: CampaignAssetRow[];
     actions: CampaignActionRow[];
     onViewStrategy: () => void;
+    onMarkOpportunityDone?: (id: string, done: boolean) => void;
+    markingOpportunityId?: string | null;
 };
 
-export function OverviewTab({ campaign, opportunities, assets, actions, onViewStrategy }: OverviewTabProps) {
+export function OverviewTab({ campaign, opportunities, assets, actions, onViewStrategy, onMarkOpportunityDone, markingOpportunityId }: OverviewTabProps) {
     const topOpp = opportunities[0];
     const todayAsset = assets.find((a) => a.kind === "post" && a.meta?.section !== "calendar") || assets.find((a) => a.kind === "post");
     const strategyAction = actions.find((a) => a.kind === "follow_strategy");
@@ -29,7 +32,11 @@ export function OverviewTab({ campaign, opportunities, assets, actions, onViewSt
                 {topOpp ? (
                     <div className="mb-6">
                         <p className="mb-2 text-xs font-semibold text-[var(--gold-text)]">1. Start with this opportunity</p>
-                        <OpportunityCard opportunity={topOpp} />
+                        <OpportunityCard
+                            opportunity={topOpp}
+                            onMarkDone={onMarkOpportunityDone ? (done) => onMarkOpportunityDone(topOpp.id, done) : undefined}
+                            markingDone={markingOpportunityId === topOpp.id}
+                        />
                     </div>
                 ) : null}
 
@@ -59,10 +66,13 @@ type OpportunitiesTabProps = {
     opportunities: CampaignOpportunityRow[];
     onRegenerate: (id: string) => void;
     regeneratingId: string | null;
+    onMarkDone: (id: string, done: boolean) => void;
+    markingDoneId: string | null;
 };
 
-export function OpportunitiesTab({ opportunities, onRegenerate, regeneratingId }: OpportunitiesTabProps) {
+export function OpportunitiesTab({ opportunities, onRegenerate, regeneratingId, onMarkDone, markingDoneId }: OpportunitiesTabProps) {
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+    const { done, total, percent } = getOpportunityProgress(opportunities);
 
     if (opportunities.length === 0) {
         return (
@@ -74,6 +84,29 @@ export function OpportunitiesTab({ opportunities, onRegenerate, regeneratingId }
 
     return (
         <div className="flex flex-col gap-4">
+            <section className="card-base p-4 sm:p-5">
+                <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
+                    <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Opportunity Progress</p>
+                        <p className="text-lg font-semibold tabular-nums text-text-primary">
+                            {done} of {total} completed
+                        </p>
+                    </div>
+                    <p className="text-sm font-semibold tabular-nums text-[var(--gold-text)]">{percent}%</p>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-[var(--surface-2)]">
+                    <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${percent}%`, background: done === total && total > 0 ? "var(--success)" : "var(--grad-brand)" }}
+                    />
+                </div>
+                {done === total && total > 0 ? (
+                    <p className="mt-2 text-xs text-[var(--success)]">All opportunities completed — great work!</p>
+                ) : (
+                    <p className="mt-2 text-xs text-text-muted">Mark each opportunity as done after you post your reply.</p>
+                )}
+            </section>
+
             {opportunities.map((opp) => (
                 <OpportunityCard
                     key={opp.id}
@@ -82,6 +115,8 @@ export function OpportunitiesTab({ opportunities, onRegenerate, regeneratingId }
                     regenerating={regeneratingId === opp.id}
                     showAlternatives={expanded[opp.id]}
                     onToggleAlternatives={() => setExpanded((p) => ({ ...p, [opp.id]: !p[opp.id] }))}
+                    onMarkDone={(doneState) => onMarkDone(opp.id, doneState)}
+                    markingDone={markingDoneId === opp.id}
                 />
             ))}
         </div>
@@ -275,11 +310,9 @@ export function StrategyScoreTab({ campaign, onImprove, improving }: StrategySco
                         <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Campaign Score</p>
                         <p className="text-3xl font-bold tabular-nums text-[var(--gold-text)]">{campaign.score ?? "—"}/100</p>
                     </div>
-                    {breakdown.weakAreas?.length ? (
-                        <button type="button" onClick={onImprove} disabled={improving} className="btn-primary">
-                            {improving ? "Improving…" : "Improve My Campaign"}
-                        </button>
-                    ) : null}
+                    <button type="button" onClick={onImprove} disabled={improving} className="btn-primary">
+                        {improving ? "Improving…" : "Improve My Campaign"}
+                    </button>
                 </div>
 
                 {breakdown.weakAreas?.length ? (

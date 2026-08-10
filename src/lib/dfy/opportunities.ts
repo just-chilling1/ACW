@@ -1,11 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { searchSocialData, sanitizePosts } from "@/lib/rapidapi";
-import { APP_NICHES } from "@/lib/niches";
 import type { OfferSnapshot, SocialPost } from "./types";
 import { detectOfferNiche, getFallbackPostsForOffer, scoreOfferRelevance } from "./search-fallbacks";
 
-const MIN_OPPORTUNITIES = 12;
-const MAX_OPPORTUNITIES = 20;
+export const MIN_OPPORTUNITIES = 10;
+export const MAX_OPPORTUNITIES = 15;
+
+function dedupeKey(post: SocialPost): string {
+    return post.id || post.url || `${post.platform}-${post.title}`;
+}
 
 function filterRelevantPosts(posts: SocialPost[], snapshot: OfferSnapshot, minScore: number): SocialPost[] {
     return posts
@@ -18,12 +21,29 @@ function filterRelevantPosts(posts: SocialPost[], snapshot: OfferSnapshot, minSc
         .map(({ post }) => post);
 }
 
-function pickRelevantPosts(posts: SocialPost[], snapshot: OfferSnapshot): SocialPost[] {
-    for (const threshold of [14, 8, 0]) {
+function pickRelevantPosts(posts: SocialPost[], snapshot: OfferSnapshot, minCount: number): SocialPost[] {
+    for (const threshold of [10, 6, 0]) {
         const filtered = filterRelevantPosts(posts, snapshot, threshold);
-        if (filtered.length > 0) return filtered;
+        if (filtered.length >= minCount || threshold === 0) {
+            return filtered.length > 0 ? filtered : posts;
+        }
     }
     return posts;
+}
+
+function addPost(seen: Set<string>, collected: SocialPost[], post: SocialPost): boolean {
+    const key = dedupeKey(post);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    collected.push({
+        id: post.id || key,
+        platform: post.platform || "Reddit",
+        text: post.text || post.title || "",
+        title: post.title,
+        url: post.url,
+        engagement: post.engagement,
+    });
+    return true;
 }
 
 export async function discoverPosts(
@@ -34,6 +54,7 @@ export async function discoverPosts(
 ): Promise<SocialPost[]> {
     const seen = new Set<string>();
     const collected: SocialPost[] = [];
+    const rawPool: SocialPost[] = [];
 
     for (const query of queries) {
         if (collected.length >= MAX_OPPORTUNITIES) break;
@@ -59,20 +80,20 @@ export async function discoverPosts(
             }
         }
 
-        const relevant = pickRelevantPosts(posts, snapshot);
+        for (const post of posts) {
+            rawPool.push(post);
+        }
 
+        const relevant = pickRelevantPosts(posts, snapshot, 3);
         for (const post of relevant) {
-            const key = post.url || post.id;
-            if (!key || seen.has(key)) continue;
-            seen.add(key);
-            collected.push({
-                id: post.id || key,
-                platform: post.platform || "Reddit",
-                text: post.text || post.title || "",
-                title: post.title,
-                url: post.url,
-                engagement: post.engagement,
-            });
+            addPost(seen, collected, post);
+            if (collected.length >= MAX_OPPORTUNITIES) break;
+        }
+    }
+
+    if (collected.length < MIN_OPPORTUNITIES) {
+        for (const post of pickRelevantPosts(rawPool, snapshot, 1)) {
+            addPost(seen, collected, post);
             if (collected.length >= MAX_OPPORTUNITIES) break;
         }
     }
@@ -80,10 +101,14 @@ export async function discoverPosts(
     const fallback = getFallbackPostsForOffer(snapshot, audienceMode);
     for (const post of fallback) {
         if (collected.length >= MIN_OPPORTUNITIES) break;
-        const key = post.url || post.id;
-        if (!key || seen.has(key)) continue;
-        seen.add(key);
-        collected.push(post);
+        addPost(seen, collected, post);
+    }
+
+    if (collected.length < MIN_OPPORTUNITIES) {
+        for (const post of fallback) {
+            if (collected.length >= MAX_OPPORTUNITIES) break;
+            addPost(seen, collected, post);
+        }
     }
 
     if (collected.length === 0) {
@@ -91,31 +116,4 @@ export async function discoverPosts(
     }
 
     return collected.slice(0, MAX_OPPORTUNITIES);
-}
-
-export function buildOfferSearchQueries(snapshot: OfferSnapshot, audienceMode?: string): string[] {
-    const niche = APP_NICHES.find((n) => n.id === detectOfferNiche(snapshot, audienceMode));
-    const product = snapshot.productName.trim();
-    const category = snapshot.category.trim();
-    const pain = snapshot.painPoints[0]?.trim() || snapshot.mainPromise.trim();
-
-    const queries = [
-        `${product} recommendation reddit`,
-        `${product} review reddit`,
-        `best ${category.toLowerCase()} for beginners reddit`,
-        `${pain} help reddit`,
-        `${product} worth it reddit`,
-        `${category.toLowerCase()} beginner tips reddit`,
-        `how to ${category.toLowerCase()} reddit`,
-    ];
-
-    if (niche) {
-        for (const term of niche.searchTerms.slice(0, 4)) {
-            queries.unshift(`${term} ${category.toLowerCase()} reddit`);
-        }
-        queries.push(`${niche.label.toLowerCase()} ${product} reddit`);
-        queries.push(`${niche.searchTerms[0]} beginner reddit`);
-    }
-
-    return [...new Set(queries.map((q) => q.replace(/\s+/g, " ").trim()))].slice(0, 12);
 }

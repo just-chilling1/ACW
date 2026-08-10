@@ -21,7 +21,14 @@ const FALLBACK_POSTS: Record<NicheId, SocialPost[]> = {
         { id: "fb-hf-2", platform: "Reddit", title: "Best beginner workout routine without a gym?", text: "Want to get in shape but hate the gym. What simple routines actually work for busy people?", url: "https://www.reddit.com/r/Fitness/", engagement: 478 },
         { id: "fb-hf-3", platform: "Reddit", title: "Gut health recommendations that actually helped?", text: "Bloating after meals and low energy. What changed things for you — diet, supplements, or something else?", url: "https://www.reddit.com/r/nutrition/", engagement: 289 },
         { id: "fb-hf-4", platform: "Reddit", title: "How to improve sleep quality naturally?", text: "Tried melatonin and sleep apps. Still waking up tired. What actually improved your sleep?", url: "https://www.reddit.com/r/sleep/", engagement: 412 },
-        { id: "fb-hf-5", platform: "Reddit", title: "Mobility exercises for people who sit all day?", text: "Desk job is wrecking my back and hips. What daily routine helped you feel better?", url: "https://www.reddit.com/r/flexibility/", engagement: 256 },
+        { id: "fb-hf-5", platform: "Reddit", title: "Mobility exercises for people who sit all day?", text: "Desk job is wrecking my back and hips. What daily routine helped you feel better?", url: "https://www.reddit.com/r/flexibility/comments/hf5", engagement: 256 },
+        { id: "fb-hf-6", platform: "Reddit", title: "Best protein powder for recovery without bloating?", text: "Every protein I try makes me bloated. What brands or types worked for you?", url: "https://www.reddit.com/r/Fitness/comments/hf6", engagement: 312 },
+        { id: "fb-hf-7", platform: "Reddit", title: "How to stay consistent with workouts when exhausted?", text: "Work stress kills my motivation. What helped you stay on track with fitness?", url: "https://www.reddit.com/r/Fitness/comments/hf7", engagement: 445 },
+        { id: "fb-hf-8", platform: "Reddit", title: "Natural anti-inflammatory options for joint stiffness?", text: "Morning stiffness is getting worse. What natural approaches actually helped?", url: "https://www.reddit.com/r/Supplements/comments/hf8", engagement: 278 },
+        { id: "fb-hf-9", platform: "Reddit", title: "Beginner home workout plan that actually sticks?", text: "Tried multiple programs and quit. What simple plan worked long-term for you?", url: "https://www.reddit.com/r/bodyweightfitness/comments/hf9", engagement: 389 },
+        { id: "fb-hf-10", platform: "Reddit", title: "Supplements for afternoon energy crash?", text: "I crash hard around 2pm every day. What supplements or habits fixed this for you?", url: "https://www.reddit.com/r/Supplements/comments/hf10", engagement: 423 },
+        { id: "fb-hf-11", platform: "Reddit", title: "How to reduce inflammation through diet?", text: "Doctor suggested lifestyle changes before meds. What dietary changes made a difference?", url: "https://www.reddit.com/r/nutrition/comments/hf11", engagement: 356 },
+        { id: "fb-hf-12", platform: "YouTube", title: "Beginner mobility routine for desk workers?", text: "Looking for a simple daily mobility routine for someone who sits 8+ hours. Recommendations?", url: "https://www.youtube.com/watch?v=hf12example", engagement: 890 },
     ],
     beauty_skincare: [
         { id: "fb-bs-1", platform: "Reddit", title: "Skincare routine for acne scars — what worked?", text: "Been dealing with acne scars for years. What products or routines actually made a visible difference?", url: "https://www.reddit.com/r/SkincareAddiction/", engagement: 567 },
@@ -86,7 +93,33 @@ export function detectOfferNiche(snapshot: OfferSnapshot, audienceMode?: string)
 
 export function getFallbackPostsForOffer(snapshot: OfferSnapshot, audienceMode?: string): SocialPost[] {
     const nicheId = detectOfferNiche(snapshot, audienceMode);
-    return FALLBACK_POSTS[nicheId];
+    const nichePosts = FALLBACK_POSTS[nicheId] || [];
+    const seen = new Set<string>();
+    const combined: SocialPost[] = [];
+
+    for (const post of nichePosts) {
+        const key = post.id || post.url;
+        if (key && !seen.has(key)) {
+            seen.add(key);
+            combined.push(post);
+        }
+    }
+
+    if (combined.length < 15) {
+        for (const posts of Object.values(FALLBACK_POSTS)) {
+            for (const post of posts) {
+                const key = post.id || post.url;
+                if (key && !seen.has(key)) {
+                    seen.add(key);
+                    combined.push(post);
+                }
+                if (combined.length >= 15) break;
+            }
+            if (combined.length >= 15) break;
+        }
+    }
+
+    return combined.slice(0, 15);
 }
 
 export function buildOfferRelevanceTerms(snapshot: OfferSnapshot): string[] {

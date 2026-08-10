@@ -41,6 +41,7 @@ export default function CampaignWorkspacePage() {
     const [fillingWeek, setFillingWeek] = useState(false);
     const [improving, setImproving] = useState(false);
     const [improveMessage, setImproveMessage] = useState("");
+    const [markingOpportunityId, setMarkingOpportunityId] = useState<string | null>(null);
 
     const loadCampaign = async () => {
         const res = await fetch(`/api/dfy/campaigns/${id}`);
@@ -90,17 +91,47 @@ export default function CampaignWorkspacePage() {
         }
     };
 
+    const handleMarkOpportunityDone = async (opportunityId: string, done: boolean) => {
+        setMarkingOpportunityId(opportunityId);
+        try {
+            const res = await fetch(`/api/dfy/campaigns/${id}/opportunities/${opportunityId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ done }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.opportunity) {
+                setOpportunities((prev) =>
+                    prev.map((opp) => (opp.id === opportunityId ? data.opportunity : opp)),
+                );
+            }
+        } finally {
+            setMarkingOpportunityId(null);
+        }
+    };
+
     const handleImprove = async () => {
         setImproving(true);
         setImproveMessage("");
+        const previousScore = campaign?.score;
+        const previousCount = opportunities.length;
         try {
             const res = await fetch(`/api/dfy/campaigns/${id}/improve`, { method: "POST" });
             const data = await res.json().catch(() => ({}));
             if (res.ok) {
                 if (data.campaign) setCampaign(data.campaign);
                 if (data.opportunities) setOpportunities(data.opportunities);
+                if (data.assets) setAssets(data.assets);
                 await loadCampaign();
-                setImproveMessage("Campaign improved — score, opportunities, and replies updated.");
+                const scoreDelta = data.newScore != null && data.previousScore != null
+                    ? data.newScore - data.previousScore
+                    : 0;
+                const oppDelta = (data.newOpportunityCount ?? opportunities.length) - (data.previousOpportunityCount ?? previousCount);
+                const parts: string[] = ["Campaign improved."];
+                if (scoreDelta !== 0) parts.push(`Score ${scoreDelta > 0 ? "up" : "down"} ${Math.abs(scoreDelta)} points (${data.previousScore} → ${data.newScore}).`);
+                if (oppDelta !== 0) parts.push(`${Math.abs(oppDelta)} ${oppDelta > 0 ? "new" : "fewer"} opportunities.`);
+                if (parts.length === 1) parts.push("Opportunities and replies refreshed.");
+                setImproveMessage(parts.join(" "));
             } else {
                 setImproveMessage(data.error || "Improve failed. Please try again.");
             }
@@ -192,6 +223,8 @@ export default function CampaignWorkspacePage() {
                     assets={assets}
                     actions={actions}
                     onViewStrategy={() => setTab("strategy")}
+                    onMarkOpportunityDone={handleMarkOpportunityDone}
+                    markingOpportunityId={markingOpportunityId}
                 />
             )}
             {tab === "opportunities" && (
@@ -199,6 +232,8 @@ export default function CampaignWorkspacePage() {
                     opportunities={opportunities}
                     onRegenerate={(oid) => handleRegenerate("opportunity", oid)}
                     regeneratingId={regeneratingId}
+                    onMarkDone={handleMarkOpportunityDone}
+                    markingDoneId={markingOpportunityId}
                 />
             )}
             {tab === "content" && (

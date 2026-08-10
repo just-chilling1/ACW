@@ -13,33 +13,54 @@ export interface ScoredOpportunity {
     recommendedApproach: string;
 }
 
-export function buildFallbackReply(item: ScoredOpportunity, snapshot: OfferSnapshot, offerUrl: string): string {
-    const topic = item.post.title || item.post.text.slice(0, 80);
-    const pain = snapshot.painPoints[0]?.toLowerCase() || snapshot.category.toLowerCase();
-    const benefit = snapshot.primaryBenefits[0]?.toLowerCase() || snapshot.mainPromise.toLowerCase();
+export function buildFallbackReply(item: ScoredOpportunity, snapshot: OfferSnapshot, offerUrl: string, index = 0): string {
+    const title = item.post.title || "";
+    const body = item.post.text || "";
+    const topic = title || body.slice(0, 100);
+    const excerpt = body.slice(0, 160).trim();
+    const pain = snapshot.painPoints[index % snapshot.painPoints.length] || snapshot.category;
+    const benefit = snapshot.primaryBenefits[index % snapshot.primaryBenefits.length] || snapshot.mainPromise;
+    const angle = snapshot.contentAngles[index % snapshot.contentAngles.length] || snapshot.strongestAngle;
 
-    return [
-        `Great question about ${topic.toLowerCase()}.`,
-        `For ${pain}, a simple starting point is focusing on ${benefit}.`,
-        `I've seen beginners get better results when they follow a structured guide instead of piecing random tips together.`,
-        `If you want something built for ${snapshot.targetAudience.toLowerCase()}, ${snapshot.productName} walks through it step by step: ${offerUrl}`,
-    ].join(" ");
+    const openers = [
+        `Re: "${topic}" — that's a common question in ${snapshot.category.toLowerCase()}.`,
+        `Thanks for sharing this — ${excerpt.slice(0, 80).toLowerCase()}${excerpt.length > 80 ? "…" : ""}`,
+        `I saw your post about ${topic.toLowerCase()} and had a few thoughts.`,
+        `Good question. When people mention ${pain.toLowerCase()}, it usually comes down to finding something structured.`,
+    ];
+    const middles = [
+        `One thing that helped others in your situation: start with ${benefit.toLowerCase()} before jumping to advanced tactics.`,
+        `For ${angle.toLowerCase()}, I'd focus on ${benefit.toLowerCase()} — especially if you're dealing with ${pain.toLowerCase()}.`,
+        `Rather than trying everything at once, pick one approach built around ${benefit.toLowerCase()} and stick with it for a few weeks.`,
+        `What worked for ${snapshot.targetAudience.toLowerCase()} I've seen is addressing ${pain.toLowerCase()} with a clear step-by-step path.`,
+    ];
+    const closers = [
+        `${snapshot.productName} covers this in a beginner-friendly way if you want a structured starting point: ${offerUrl}`,
+        `If you want something designed for ${snapshot.targetAudience.toLowerCase()}, ${snapshot.productName} breaks it down clearly: ${offerUrl}`,
+        `Worth comparing — ${snapshot.productName} is built around ${snapshot.mainPromise.toLowerCase()}: ${offerUrl}`,
+        `Happy to share a resource that walks through this: ${offerUrl}`,
+    ];
+
+    return [openers[index % openers.length], middles[index % middles.length], closers[index % closers.length]].join(" ");
 }
 
-export function buildFallbackAlternatives(item: ScoredOpportunity, snapshot: OfferSnapshot, offerUrl: string): { style: string; text: string }[] {
-    const topic = item.post.title || "this topic";
+export function buildFallbackAlternatives(item: ScoredOpportunity, snapshot: OfferSnapshot, offerUrl: string, index = 0): { style: string; text: string }[] {
+    const topic = item.post.title || item.post.text.slice(0, 60);
+    const pain = snapshot.painPoints[index % snapshot.painPoints.length] || "getting started";
+    const benefit = snapshot.primaryBenefits[index % snapshot.primaryBenefits.length] || snapshot.mainPromise;
+
     return [
         {
             style: "Helpful expert",
-            text: `For ${topic.toLowerCase()}, I'd compare a few options and look for something that covers ${snapshot.primaryBenefits[0]?.toLowerCase() || "the basics"}. ${snapshot.productName} is worth a look: ${offerUrl}`,
+            text: `For "${topic.toLowerCase()}", compare options that specifically address ${pain.toLowerCase()}. ${snapshot.productName} focuses on ${benefit.toLowerCase()}: ${offerUrl}`,
         },
         {
             style: "Relatable angle",
-            text: `A lot of people feel stuck on ${snapshot.painPoints[0]?.toLowerCase() || "getting started"}. A beginner-friendly resource like ${snapshot.productName} can help: ${offerUrl}`,
+            text: `A lot of people asking about ${topic.toLowerCase()} feel stuck on ${pain.toLowerCase()}. A structured guide like ${snapshot.productName} can help: ${offerUrl}`,
         },
         {
             style: "Short & direct",
-            text: `${snapshot.productName} covers this well for beginners — ${offerUrl}`,
+            text: `${snapshot.productName} is worth a look for this — ${benefit.toLowerCase()}: ${offerUrl}`,
         },
     ];
 }
@@ -62,7 +83,8 @@ export function scorePostHeuristic(post: SocialPost, snapshot: OfferSnapshot): S
     intent = clampScore(intent);
     const opportunityScore = clampScore(Math.round(relevance * 0.45 + intent * 0.55));
 
-    const topicSnippet = (post.title || post.text).slice(0, 60).toLowerCase();
+    const topicSnippet = (post.title || post.text).slice(0, 80).trim();
+    const pain = snapshot.painPoints[Math.abs(topicSnippet.length) % snapshot.painPoints.length] || snapshot.category;
 
     return {
         post,
@@ -70,8 +92,8 @@ export function scorePostHeuristic(post: SocialPost, snapshot: OfferSnapshot): S
         intentScore: intent,
         opportunityScore,
         label: opportunityLabel(opportunityScore),
-        whySelected: `This ${post.platform} thread asks about "${topicSnippet}" — a strong match for ${snapshot.productName} because it relates to ${snapshot.painPoints[0]?.toLowerCase() || snapshot.category.toLowerCase()}.`,
-        recommendedApproach: `Acknowledge their question about ${topicSnippet}, share a practical tip, then mention ${snapshot.productName} as a resource for ${snapshot.primaryBenefits[0]?.toLowerCase() || "getting started"}.`,
+        whySelected: `This ${post.platform} thread is about "${topicSnippet}" — ${snapshot.productName} fits because it helps with ${pain.toLowerCase()}.`,
+        recommendedApproach: `Read their post carefully, answer the specific question about ${topicSnippet.toLowerCase()}, then suggest ${snapshot.productName} only if it genuinely matches what they asked.`,
     };
 }
 
@@ -91,7 +113,8 @@ export async function enrichOpportunitiesWithAi(
     for (let i = 0; i < scored.length; i += 3) {
         const chunk = scored.slice(i, i + 3);
         const chunkResults = await Promise.allSettled(
-            chunk.map(async (item) => {
+            chunk.map(async (item, chunkIndex) => {
+                const globalIndex = i + chunkIndex;
                 const prompt = `Write a unique, high-quality promotional reply for this specific conversation.
 
 OFFER DETAILS:
@@ -132,10 +155,10 @@ Return ONLY JSON:
                     ...item,
                     whySelected: parsed.whySelected || item.whySelected,
                     recommendedApproach: parsed.recommendedApproach || item.recommendedApproach,
-                    recommendedReply: (parsed.recommendedReply?.trim() || buildFallbackReply(item, snapshot, offerUrl)),
+                    recommendedReply: (parsed.recommendedReply?.trim() || buildFallbackReply(item, snapshot, offerUrl, globalIndex)),
                     alternativeReplies: parsed.alternativeReplies?.length
                         ? parsed.alternativeReplies
-                        : buildFallbackAlternatives(item, snapshot, offerUrl),
+                        : buildFallbackAlternatives(item, snapshot, offerUrl, globalIndex),
                 };
             }),
         );
@@ -143,13 +166,14 @@ Return ONLY JSON:
         for (let j = 0; j < chunk.length; j++) {
             const settled = chunkResults[j];
             const item = chunk[j];
+            const globalIndex = i + j;
             if (settled.status === "fulfilled") {
                 results.push(settled.value);
             } else {
                 results.push({
                     ...item,
-                    recommendedReply: buildFallbackReply(item, snapshot, offerUrl),
-                    alternativeReplies: buildFallbackAlternatives(item, snapshot, offerUrl),
+                    recommendedReply: buildFallbackReply(item, snapshot, offerUrl, globalIndex),
+                    alternativeReplies: buildFallbackAlternatives(item, snapshot, offerUrl, globalIndex),
                 });
             }
         }
@@ -393,7 +417,7 @@ export function computeCampaignScore(
     const breakdown: ScoreBreakdown = {
         offerClarity: clampScore(snapshot.mainPromise.length > 20 ? 88 : 72),
         audienceFit: clampScore(snapshot.targetAudience.length > 15 ? 90 : 75),
-        opportunityQuality: clampScore(Math.min(95, 55 + opportunityCount * 2)),
+        opportunityQuality: clampScore(Math.min(95, 45 + opportunityCount * 3.5)),
         contentVariety: clampScore(Math.min(95, 50 + assetCount)),
         ctaQuality: clampScore(80),
         campaignCoverage: clampScore(Math.min(95, 40 + channelCount * 8 + Math.min(contentDays, 30))),

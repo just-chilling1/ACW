@@ -13,6 +13,17 @@ const TABS = ["overview", "opportunities", "content", "week", "strategy"] as con
 
 export default function ExampleCampaignPage() {
     const [tab, setTab] = useState<(typeof TABS)[number]>("overview");
+    const [exampleOpportunities, setExampleOpportunities] = useState(EXAMPLE_OPPORTUNITIES);
+
+    const handleExampleMarkDone = (id: string, done: boolean) => {
+        setExampleOpportunities((prev) =>
+            prev.map((opp) =>
+                opp.id === id
+                    ? { ...opp, meta: { ...opp.meta, done, completedAt: done ? new Date().toISOString() : null } }
+                    : opp,
+            ),
+        );
+    };
 
     return (
         <div className="mx-auto max-w-5xl px-4 pb-24 pt-6 sm:px-6 sm:pt-8">
@@ -54,14 +65,21 @@ export default function ExampleCampaignPage() {
             {tab === "overview" && (
                 <OverviewTab
                     campaign={EXAMPLE_CAMPAIGN}
-                    opportunities={EXAMPLE_OPPORTUNITIES}
+                    opportunities={exampleOpportunities}
                     assets={EXAMPLE_ASSETS}
                     actions={EXAMPLE_ACTIONS}
                     onViewStrategy={() => setTab("strategy")}
+                    onMarkOpportunityDone={handleExampleMarkDone}
                 />
             )}
             {tab === "opportunities" && (
-                <OpportunitiesTab opportunities={EXAMPLE_OPPORTUNITIES} onRegenerate={() => {}} regeneratingId={null} />
+                <OpportunitiesTab
+                    opportunities={exampleOpportunities}
+                    onRegenerate={() => {}}
+                    regeneratingId={null}
+                    onMarkDone={handleExampleMarkDone}
+                    markingDoneId={null}
+                />
             )}
             {tab === "content" && (
                 <>
