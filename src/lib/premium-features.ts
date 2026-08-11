@@ -21,7 +21,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     {
         path: "/instant",
         label: "Instant Income",
-        description: "Simple posts and links that can start earning fast.",
+        description: "Turn your offer into ready-to-use promotions.",
         icon: Sparkles,
     },
     {
