@@ -167,7 +167,7 @@ function StepNav({
             )}
             {onNext ? (
                 <button type="button" onClick={onNext} className="btn-primary w-full py-4 text-base sm:w-auto sm:min-w-[220px]">
-                    {nextLabel ?? `Next: ${STEPS[step]?.label ?? "Continue"}`}
+                    {nextLabel ?? `Next: ${STEPS.find((s) => s.id === step + 1)?.label ?? "Continue"}`}
                     <ArrowRight size={18} />
                 </button>
             ) : null}
