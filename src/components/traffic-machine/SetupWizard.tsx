@@ -53,7 +53,7 @@ export function SetupWizard({ initialUrl = "", recommendedAudience, onComplete, 
   };
 
   return (
-    <section className="card-base flex flex-col gap-6 p-8">
+    <section className="flex flex-col gap-6">
       <div className="flex items-center gap-3">
         {[1, 2, 3].map((s) => (
           <div

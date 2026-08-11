@@ -45,31 +45,11 @@ export function GuidedWorkflow({
   onComplete,
 }: GuidedWorkflowProps) {
   const [step, setStep] = useState(1);
-  const [done, setDone] = useState(false);
 
   if (!opportunity) return null;
 
   const { source } = opportunity;
   const siteName = source.name.split(" ")[0];
-
-  if (done) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="card-base flex max-h-[90vh] w-full max-w-lg flex-col gap-4 overflow-y-auto p-8"
-        >
-          <CheckCircle2 size={40} className="text-[var(--success)]" />
-          <h2 className="ds-h3">Opportunity Activated</h2>
-          <p className="text-text-secondary">Nice. Your Traffic Machine just grew.</p>
-          <button type="button" onClick={onClose} className="btn-primary">
-            Show Me What&apos;s Next
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center">
@@ -102,9 +82,14 @@ export function GuidedWorkflow({
                   <li key={i}>{inst}</li>
                 ))}
               </ol>
-              <button type="button" onClick={() => setStep(2)} className="btn-primary w-fit">
-                Next: Get Your Content
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button type="button" onClick={onClose} className="btn-secondary">
+                  Back
+                </button>
+                <button type="button" onClick={() => setStep(2)} className="btn-primary">
+                  Next: Get Your Content
+                </button>
+              </div>
             </div>
           )}
 
@@ -132,14 +117,19 @@ export function GuidedWorkflow({
                   <CopyBtn text={promotionKit.copyAll} label="Copy Everything" />
                 </div>
               )}
-              <button
-                type="button"
-                disabled={!promotionKit && loadingKit}
-                onClick={() => setStep(3)}
-                className="btn-primary w-fit"
-              >
-                Next: Open the Site
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button type="button" onClick={() => setStep(1)} className="btn-secondary">
+                  Back
+                </button>
+                <button
+                  type="button"
+                  disabled={!promotionKit || loadingKit}
+                  onClick={() => setStep(3)}
+                  className="btn-primary"
+                >
+                  Next: Open the Site
+                </button>
+              </div>
             </div>
           )}
 
@@ -158,9 +148,14 @@ export function GuidedWorkflow({
                 Open {siteName}
                 <ExternalLink size={14} />
               </a>
-              <button type="button" onClick={() => setStep(4)} className="btn-secondary w-fit">
-                I&apos;ve opened it
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button type="button" onClick={() => setStep(2)} className="btn-secondary">
+                  Back
+                </button>
+                <button type="button" onClick={() => setStep(4)} className="btn-primary">
+                  I&apos;ve opened it
+                </button>
+              </div>
             </div>
           )}
 
@@ -168,14 +163,10 @@ export function GuidedWorkflow({
             <div className="flex flex-col gap-4">
               <h3 className="ds-h5">Did you complete it?</h3>
               <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    onComplete();
-                    setDone(true);
-                  }}
-                  className="btn-primary"
-                >
+                <button type="button" onClick={() => setStep(3)} className="btn-secondary">
+                  Back
+                </button>
+                <button type="button" onClick={onComplete} className="btn-primary">
                   ✓ Done
                 </button>
                 <button type="button" onClick={onClose} className="btn-secondary">
