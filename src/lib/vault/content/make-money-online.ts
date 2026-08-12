@@ -226,7 +226,7 @@ Call it passive if you like, after the work is in the walls. Until then, call it
     angle: "How long it takes",
     question: "How long does it actually take to make money online?",
     searchQuery: "how long to make money online beginner",
-    answer: `For a beginner using free traffic, a honest window is 30 to 90 days to see the first real signal, and longer to see steady commissions.
+    answer: `For a beginner using free traffic, an honest window is 30 to 90 days to see the first real signal, and longer to see steady commissions.
 
 Week one is setup and awkward posting. You will feel late. You are not. Week two and three are volume: enough answers or pins that the platform has something to show people. Many beginners quit here because the dashboard is quiet. Quiet is normal. Search traffic is delayed.
 
@@ -282,7 +282,7 @@ Give the work a quarter, not a weekend. If you need it to replace a salary this 
     nicheId: "make_money_online",
     angle: "30-minute routine",
     pinTitle: "A 30-Minute Nightly Routine for Extra Income",
-    pinDescription: `Short on time? Use 30 minutes: find one question, write a helpful answer, log it, stop. Repeat on weeknights. The routine is the business. Details here: __LINK__ Keywords: make money in 30 minutes, night side hustle, beginner extra income.`,
+    pinDescription: `Short on time? Use 30 minutes: find one question, write a helpful answer, log it, stop. Repeat on weeknights so the work fits around your day. Build your nightly checklist here: __LINK__ Keywords: 30 minute side hustle, night side hustle, beginner extra income.`,
     boardName: "Daily Money Habits",
     imageConcept: "Clock-face layout on a 9:16 pin. Four slices: Find, Write, Post, Log. Deep brown background, cream type, gold clock hands. Caption: 'Same time every night'.",
     keywords: ["30 minute side hustle", "night routine extra income", "make money after work", "beginner work from home"],

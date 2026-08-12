@@ -9,7 +9,7 @@ export const BEAUTY_SKINCARE_SHORTS: ShortsScript[] = [
     title: "Three Reasons Your Skin Still Breaks Out",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 33,
-    hook: "Three routine mistakes may be keeping your breakouts and irritation in the same loop.",
+    hook: "Your breakout routine may be feeding the irritation. Check these three mistakes before adding another product.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -44,8 +44,8 @@ export const BEAUTY_SKINCARE_SHORTS: ShortsScript[] = [
           "Plain checklist card showing gentle cleanse, moisturize, track, and dermatologist for deep painful cysts.",
       },
     ],
-    cta: "The calm routine checklist is in my bio if you want the steps written out.",
-    caption: `Breakouts can get harder to read when every active lands at once. Keep the basics steady, test one change at a time, and look at what touches the hairline and pillow. Deep, painful cysts or scarring need a dermatologist. Calm checklist: __LINK__`,
+    cta: "Go to my bio for the written calm-routine checklist and follow it one change at a time.",
+    caption: `Breakouts get harder to read when every active lands at once. Keep the basics steady, test one change at a time, and check what touches your hairline and pillow. Deep, painful cysts or scarring need a dermatologist. Full calm-routine checklist: __LINK__`,
     hashtags: ["adultacne", "skincareroutine", "sensitiveskin", "skincarebasics"],
     visualStyle:
       "Faceless. Overhead product shots, object close-ups, calendar graphics, and plain checklist cards. Use only unlabeled containers.",
@@ -60,7 +60,7 @@ export const BEAUTY_SKINCARE_SHORTS: ShortsScript[] = [
     title: "Expensive Does Not Mean Effective",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 29,
-    hook: "A heavier jar and a prettier box do not make a skincare formula more effective.",
+    hook: "The prettiest jar on the shelf can still be the wrong product for your skin. Here is what matters more than price.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -95,8 +95,8 @@ export const BEAUTY_SKINCARE_SHORTS: ShortsScript[] = [
           "Plain cream background with three words appearing one at a time beside three generic bottle silhouettes.",
       },
     ],
-    cta: "The plain-language shopping checklist is in my bio if you want it.",
-    caption: `Expensive does not mean effective. Judge a product by its job, how your skin tolerates it, and whether you will use it consistently. A pretty jar cannot rescue a formula that burns or sits unopened. Shopping checklist: __LINK__`,
+    cta: "Open my bio for the written shopping checklist before your next skincare purchase.",
+    caption: `Expensive does not mean effective. Judge a product by its job, how your skin tolerates it, and whether you will use it consistently. A pretty jar cannot rescue a formula that burns or sits unopened. Full shopping checklist: __LINK__`,
     hashtags: ["budgetskincare", "skincaremyths", "skincareingredients", "beautytips"],
     visualStyle:
       "Faceless. Generic unlabeled jars, simple comparison graphics, and close-ups of hands reading packaging. No store or brand footage.",
@@ -111,7 +111,7 @@ export const BEAUTY_SKINCARE_SHORTS: ShortsScript[] = [
     title: "Six Products Later And Your Skin Is Angrier",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 37,
-    hook: "POV: you tried six new products this year, and now your skin is angrier than when you started.",
+    hook: "POV: six new products later, your skin is angrier—and now every bottle looks guilty.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -146,8 +146,8 @@ export const BEAUTY_SKINCARE_SHORTS: ShortsScript[] = [
           "Faceless hand writes a start date on a small tracker, followed by a plain card listing reaction warning signs.",
       },
     ],
-    cta: "The reset-and-track page is in my bio if you want a simpler place to restart.",
-    caption: `Six new products do not create six useful tests when they overlap. Return to tolerated basics, pause new additions during a reaction, then introduce one item and record the date. Swelling, blistering, or a continuing reaction needs professional advice. Reset page: __LINK__`,
+    cta: "Use the reset-and-track page in my bio to restart with the steps written out.",
+    caption: `Six overlapping products do not create six useful tests. Return to tolerated basics, pause new additions during a reaction, then introduce one item and record the date. Swelling, blistering, or a continuing reaction needs professional advice. Full reset-and-track plan: __LINK__`,
     hashtags: ["skincarereset", "sensitiveskin", "skincaremistakes", "skincaretracker"],
     visualStyle:
       "Faceless. Calendar graphics, unlabeled bottle silhouettes, an overhead bathroom tray, and a handwritten tracker close-up.",
@@ -162,7 +162,7 @@ export const BEAUTY_SKINCARE_SHORTS: ShortsScript[] = [
     title: "How To Read A Skincare Ingredient List",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 41,
-    hook: "You do not need a chemistry degree to get useful information from an ingredient list.",
+    hook: "Ignore the loud front label. The useful clues are hiding in four places on the ingredient list.",
     beats: [
       {
         timecode: "0:04-0:13",
@@ -205,8 +205,8 @@ export const BEAUTY_SKINCARE_SHORTS: ShortsScript[] = [
           "Plain checklist card with one job, patch-test, and stop on burning or swelling checked in sequence.",
       },
     ],
-    cta: "The ingredient decoder is in my bio if you want the common terms on one page.",
-    caption: `Read the top of the list, find ingredients that match the job you need, and flag triggers you already know. Marketing words on the front are not proof of tolerance. Patch-test and stop if burning or swelling develops. Ingredient decoder: __LINK__`,
+    cta: "Open my bio for the written ingredient decoder and keep it beside your next product search.",
+    caption: `Read the top of the list, find ingredients that match the job you need, and flag triggers you already know. Front-label marketing is not proof of tolerance. Patch-test and stop if burning or swelling develops. Full ingredient-list walkthrough: __LINK__`,
     hashtags: ["skincareingredients", "ingredientdecoder", "sensitiveskin", "skincare101"],
     visualStyle:
       "Faceless screen demo using a fictional ingredient list and generic package mockup. Hide all browser chrome, names, and branding.",
@@ -221,7 +221,7 @@ export const BEAUTY_SKINCARE_SHORTS: ShortsScript[] = [
     title: "Four Weeks Of A Three-Step Routine",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 35,
-    hook: "The honest before and after of four weeks with the same three-step skincare routine.",
+    hook: "Four weeks, three products, no miracle reveal—just the evidence most skincare before-and-afters leave out.",
     beats: [
       {
         timecode: "0:03-0:11",
@@ -256,8 +256,8 @@ export const BEAUTY_SKINCARE_SHORTS: ShortsScript[] = [
           "The crowded tray becomes three bottles beside a completed tracker, then a plain evidence-not-promise text card.",
       },
     ],
-    cta: "The four-week routine tracker is in my bio if you want to run the same test.",
-    caption: `A useful four-week before and after is not a miracle claim. Keep three tolerated steps steady, track comfort and reactions, and use the record to decide whether one change makes sense. Four-week tracker: __LINK__`,
+    cta: "Get the written four-week routine tracker from my bio and run the same careful test.",
+    caption: `A useful four-week before and after is not a miracle claim. Keep three tolerated steps steady, track comfort and reactions, and use the record to decide whether one change makes sense. Full four-week tracker: __LINK__`,
     hashtags: ["skincaretracker", "simpleroutine", "skincareconsistency", "fourweekroutine"],
     visualStyle:
       "Faceless. Overhead bottle shots, simple calendars, written trackers, and text cards. Use generic containers and no skin close-ups.",

@@ -102,32 +102,52 @@ export async function classifyActivity(keyword: string, sampleData: string): Pro
 
 
 export async function generateReplies(posts: any[], affiliateLink: string): Promise<any[]> {
-    const postsJson = JSON.stringify(posts.map(p => ({ id: p.id, text: p.text })));
-    const prompt = `For each of these social media ads/discussions, generate 3 distinct natural, human-sounding responses.
-    
-    TARGET LINK TO INCLUDE: ${affiliateLink || "NONE PROVIDED"}
-    
-    CRITICAL INSTRUCTIONS:
-    1. If a TARGET LINK is provided above, YOU MUST INCLUDE IT in every single reply. DO NOT skip it.
-    2. Weave the link naturally into the sentence (e.g., "Check this out: ${affiliateLink}" or "I used ${affiliateLink} to solve this").
-    3. Return ONLY the reply text. 
-    4. DO NOT include prefixes like "Short:", "Medium:", "Curiosity:", or "Variant:".
-    5. The responses must be conversational, high-value, and contextual to the original ad/discussion.
-    
-    Styles for the 3 results:
-    1. Short & Direct: A quick, punchy acknowledgement that includes the link.
-    2. Detailed Value: A helpful insight or personal-sounding story that explains WHY the link is useful.
-    3. Curiosity Hook: A question or "loop" that makes them want to click the link.
-    
-    Ads/Discussions to analyze:
-    ${postsJson}
-    
-    Return ONLY a JSON array of objects: [{"id": "post_id", "text": "original_text", "replies": ["Direct reply text here", "Detailed reply text here", "Hook reply text here"]}]`;
+    const link = affiliateLink || "NONE PROVIDED";
+    const postsJson = JSON.stringify(
+        posts.map((p) => ({
+            id: p.id,
+            text: String(p.text || "").slice(0, 500),
+            title: p.title ? String(p.title).slice(0, 160) : undefined,
+        })),
+    );
+
+    const prompt = `For each social media thread below, write 6 distinct reply variants a real person could paste.
+
+TARGET LINK (include in every reply when provided): ${link}
+
+Reply styles — return EXACTLY 6 replies in this order:
+1. Short — 1–2 sentences, punchy, answers the thread, then the link
+2. Detailed — 3–4 sentences with helpful context before recommending the link
+3. Curiosity — ends with a genuine question that invites discussion and includes the link naturally
+4. Empathetic — acknowledges their frustration/goal first, then offers the resource gently
+5. Expert tip — one practical tip related to the thread, then the link as a deeper walkthrough
+6. Soft recommend — low-pressure suggestion ("worth a look if…"), never hypey
+
+Quality rules:
+- First address the specific thread topic — do NOT open with a product pitch
+- Sound like a helpful peer on Reddit/Facebook, not an ad
+- Do NOT invent personal earnings, testimonials, guarantees, or fake "I tried this" stories
+- Do NOT use prefixes like "Short:" or "Style 1:"
+- Weave the link naturally (e.g. "this breakdown helped: ${link}")
+- Each of the 6 replies must use different wording and structure
+
+Threads:
+${postsJson}
+
+Return ONLY a JSON array:
+[{"id":"post_id","replies":["short","detailed","curiosity","empathetic","expert","soft"]}]`;
 
     const result = await callChatGPT([{ role: "user", content: prompt }]);
     try {
-        const cleaned = result.replace(/```json|```/g, '').trim();
-        return JSON.parse(cleaned);
+        const cleaned = result.replace(/```json|```/g, "").trim();
+        const parsed = JSON.parse(cleaned);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map((row: { id?: string; replies?: unknown }) => ({
+            id: row.id,
+            replies: Array.isArray(row.replies)
+                ? row.replies.map(String).filter((r) => r.trim()).slice(0, 6)
+                : [],
+        }));
     } catch (e) {
         console.error("Generation failed:", result);
         return [];

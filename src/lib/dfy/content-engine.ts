@@ -197,6 +197,7 @@ Return ONLY JSON array of 12 items:
 
 Rules:
 - Ready to copy, natural, non-spammy.
+- EVERY item must be unique — different angle, opening, and wording. Do not repeat or lightly rephrase another item.
 - Vary angles and CTAs.
 - No fake testimonials or invented personal experiences.`;
 
@@ -204,12 +205,20 @@ Rules:
         const raw = await callChatGPT([{ role: "user", content: prompt }]);
         const parsed = parseJsonFromLlm<Array<{ kind: "post" | "comment" | "submission_copy"; channel: string; content: string; meta?: Record<string, unknown> }>>(raw, []);
         if (parsed.length >= 6) {
-            return parsed.map((item, idx) => ({
-                kind: item.kind,
-                channel: item.channel || "Social",
-                content: item.content,
-                meta: { ...(item.meta || {}), angle: item.meta?.angle || snapshot.contentAngles[idx % snapshot.contentAngles.length], day: idx + 1 },
-            }));
+            const unique: typeof parsed = [];
+            for (const [idx, item] of parsed.entries()) {
+                if (!item.content?.trim()) continue;
+                const duplicate = unique.some((kept) => isNearDuplicateGenerated(kept.content, item.content));
+                if (duplicate) continue;
+                unique.push({
+                    ...item,
+                    kind: item.kind,
+                    channel: item.channel || "Social",
+                    content: item.content,
+                    meta: { ...(item.meta || {}), angle: item.meta?.angle || snapshot.contentAngles[idx % snapshot.contentAngles.length], day: unique.length + 1 },
+                });
+            }
+            if (unique.length >= 6) return unique.slice(0, 12);
         }
     } catch { /* fallback below */ }
 
@@ -219,6 +228,26 @@ Rules:
         content: `${angle.charAt(0).toUpperCase() + angle.slice(1)} angle for ${snapshot.productName}: ${snapshot.mainPromise}. Learn more: ${offerUrl}`,
         meta: { angle, day: idx + 1 },
     }));
+}
+
+function isNearDuplicateGenerated(a: string, b: string): boolean {
+    const normalize = (t: string) =>
+        t
+            .toLowerCase()
+            .replace(/https?:\/\/\S+/gi, " ")
+            .replace(/[^a-z0-9\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    const na = normalize(a);
+    const nb = normalize(b);
+    if (!na || !nb) return false;
+    if (na === nb) return true;
+    const fa = na.slice(0, 240);
+    const fb = nb.slice(0, 240);
+    if (fa && fb && fa === fb) return true;
+    const shorter = na.length <= nb.length ? na : nb;
+    const longer = na.length <= nb.length ? nb : na;
+    return shorter.length >= 48 && longer.includes(shorter);
 }
 
 export async function generateHooks(snapshot: OfferSnapshot): Promise<Array<{ content: string; meta: { category: string; recommended?: boolean; bestForAngle?: string } }>> {
@@ -323,8 +352,17 @@ export async function generateWeeklyBatch(
     keyword: string,
     dayHooks?: Record<string, string>,
     dayCtas?: Record<string, string>,
+    avoidContents: string[] = [],
 ): Promise<Array<{ kind: "post"; channel: string; content: string; meta: { weekday: string; angle: string; section: string; hook: string; cta: string } }>> {
     const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const avoidBlock =
+        avoidContents.length > 0
+            ? `\nEXISTING POSTS TO AVOID (do not reuse, copy, or closely paraphrase any of these):\n${avoidContents
+                  .slice(0, 10)
+                  .map((c, i) => `${i + 1}. ${c.slice(0, 280).replace(/\s+/g, " ")}`)
+                  .join("\n")}\n`
+            : "";
+
     const prompt = `Create a complete 5-day content pack (Mon-Fri) for "${snapshot.productName}".
 Keyword context: ${keyword}
 Offer URL: ${offerUrl}
@@ -333,39 +371,96 @@ Main promise: ${snapshot.mainPromise}
 Benefits: ${snapshot.primaryBenefits.join(", ")}
 Pain points: ${snapshot.painPoints.join(", ")}
 Content angles to rotate: ${snapshot.contentAngles.join(", ")}
-
+${avoidBlock}
 Return ONLY JSON:
 [{"weekday":"Mon"|"Tue"|"Wed"|"Thu"|"Fri","channel":"Facebook"|"Reddit"|"Blog","hook":"attention-grabbing opening line","content":"MIDDLE BODY ONLY — 120-200 words of detailed, valuable post content","cta":"call to action with link","meta":{"angle":"..."}}]
 
 CRITICAL RULES:
 - "content" must be ONLY the post body — do NOT repeat the hook or CTA inside content.
 - Each day's content must be unique, detailed (120-200 words), and specific to ${snapshot.productName}.
+- Do NOT repeat the same hook, CTA, opening line, or body across days.
+- Do NOT reuse wording from the EXISTING POSTS TO AVOID list.
 - Reference real benefits, pain points, and use cases — not generic filler.
 - Vary angles, platforms, and writing style across days.
 - No fake personal stories or invented results.
 - The hook and CTA are stored separately — keep them out of the body text.`;
 
+    const assemble = (
+        items: Array<{ weekday: string; channel: string; hook?: string; content: string; cta?: string; meta?: { angle?: string } }>,
+    ) => {
+        const unique: Array<{ kind: "post"; channel: string; content: string; meta: { weekday: string; angle: string; section: string; hook: string; cta: string } }> = [];
+        const usedHooks = new Set<string>();
+        const usedCtas = new Set<string>();
+        const usedBodies: string[] = [];
+
+        for (const [i, item] of items.entries()) {
+            const weekday = item.weekday || weekdays[i] || "Mon";
+            const angle = item.meta?.angle || snapshot.contentAngles[i % snapshot.contentAngles.length];
+            let hook = (item.hook || dayHooks?.[weekday] || `${angle}: A practical look at ${snapshot.mainPromise.toLowerCase()}`).trim();
+            let cta = (item.cta || dayCtas?.[weekday] || `Learn more about ${snapshot.productName}: ${offerUrl}`).trim();
+            let content = stripHookAndCtaFromBody(item.content, hook, cta);
+
+            const hookKey = normalizeLoose(hook);
+            const ctaKey = normalizeLoose(cta);
+            if (usedHooks.has(hookKey) && dayHooks) {
+                const unusedDay = weekdays.find((d) => dayHooks[d] && !usedHooks.has(normalizeLoose(dayHooks[d])));
+                if (unusedDay) hook = dayHooks[unusedDay];
+            }
+            if (usedCtas.has(ctaKey) && dayCtas) {
+                const unusedDay = weekdays.find((d) => dayCtas[d] && !usedCtas.has(normalizeLoose(dayCtas[d])));
+                if (unusedDay) cta = dayCtas[unusedDay];
+            }
+
+            const conflictsAvoid = avoidContents.some((existing) => isNearDuplicateGenerated(existing, content) || isNearDuplicateGenerated(existing, [hook, content, cta].join("\n\n")));
+            const conflictsWeek = usedBodies.some((existing) => isNearDuplicateGenerated(existing, content));
+            if (conflictsAvoid || conflictsWeek) {
+                content = buildDetailedPostBody(snapshot, `${angle}-${weekday}`, keyword, weekday, i + unique.length + 3);
+            }
+            if (usedBodies.some((existing) => isNearDuplicateGenerated(existing, content))) {
+                continue;
+            }
+
+            usedHooks.add(normalizeLoose(hook));
+            usedCtas.add(normalizeLoose(cta));
+            usedBodies.push(content);
+            unique.push({
+                kind: "post" as const,
+                channel: item.channel || (i % 2 === 0 ? "Facebook" : "Reddit"),
+                content,
+                meta: {
+                    weekday,
+                    angle,
+                    section: "weekly_batch",
+                    hook,
+                    cta,
+                },
+            });
+        }
+        return unique;
+    };
+
     try {
         const raw = await callChatGPT([{ role: "user", content: prompt }]);
         const parsed = parseJsonFromLlm<Array<{ weekday: string; channel: string; hook?: string; content: string; cta?: string; meta?: { angle?: string } }>>(raw, []);
         if (parsed.length >= 5) {
-            return parsed.slice(0, 5).map((item, i) => {
-                const angle = item.meta?.angle || snapshot.contentAngles[i % snapshot.contentAngles.length];
-                const hook = item.hook || dayHooks?.[item.weekday] || `${angle}: A practical look at ${snapshot.mainPromise.toLowerCase()}`;
-                const cta = item.cta || dayCtas?.[item.weekday] || `Learn more about ${snapshot.productName}: ${offerUrl}`;
-                return {
-                    kind: "post" as const,
-                    channel: item.channel,
-                    content: stripHookAndCtaFromBody(item.content, hook, cta),
-                    meta: {
-                        weekday: item.weekday,
-                        angle,
-                        section: "weekly_batch",
-                        hook,
-                        cta,
-                    },
-                };
-            });
+            const unique = assemble(parsed.slice(0, 5));
+            if (unique.length >= 5) return unique.slice(0, 5);
+            if (unique.length > 0) {
+                const filled = [...unique];
+                for (let i = filled.length; i < 5; i++) {
+                    const weekday = weekdays[i];
+                    const angle = snapshot.contentAngles[i % snapshot.contentAngles.length];
+                    const hook = dayHooks?.[weekday] || `${angle}: What most people get wrong about ${snapshot.category.toLowerCase()}`;
+                    const cta = dayCtas?.[weekday] || `If ${snapshot.productName} fits what you're looking for, see the full breakdown here: ${offerUrl}`;
+                    filled.push({
+                        kind: "post" as const,
+                        channel: i % 2 === 0 ? "Facebook" : "Reddit",
+                        content: buildDetailedPostBody(snapshot, `${angle}-extra`, keyword, weekday, i + 7),
+                        meta: { weekday, angle, section: "weekly_batch", hook, cta },
+                    });
+                }
+                return filled.slice(0, 5);
+            }
         }
     } catch { /* fallback below */ }
 
@@ -381,6 +476,15 @@ CRITICAL RULES:
             meta: { weekday, angle, section: "weekly_batch", hook, cta },
         };
     });
+}
+
+function normalizeLoose(text: string): string {
+    return text
+        .toLowerCase()
+        .replace(/https?:\/\/\S+/gi, " ")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 }
 
 function stripHookAndCtaFromBody(body: string, hook: string, cta: string): string {

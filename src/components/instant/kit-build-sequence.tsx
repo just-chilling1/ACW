@@ -34,8 +34,11 @@ export function KitBuildSequence({ progress, active }: KitBuildSequenceProps) {
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-[var(--surface-2)]">
                     <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${progressPct}%`, background: "var(--grad-brand)" }}
+                        className={clsx(
+                            "h-full rounded-full transition-all duration-500",
+                            active && "progress-bar-loading",
+                        )}
+                        style={{ width: `${Math.max(progressPct, active ? 8 : 0)}%`, background: "var(--grad-brand)" }}
                     />
                 </div>
             </div>

@@ -67,13 +67,15 @@ export function buildFallbackHooks(snapshot: OfferSnapshot) {
 
 export function buildFallbackReplies(snapshot: OfferSnapshot, offerUrl: string) {
     const triggers = [
-        { trigger: "How does this work?", style: "interested" },
+        { trigger: "How does this work?", style: "how" },
+        { trigger: "How often should I use it?", style: "frequency" },
         { trigger: "How much does it cost?", style: "price" },
         { trigger: "Is this legit?", style: "skeptical" },
         { trigger: "Where can I learn more?", style: "learn_more" },
         { trigger: "Has anyone tried this?", style: "generic" },
         { trigger: "Does this actually work?", style: "skeptical" },
-        { trigger: "What's included?", style: "interested" },
+        { trigger: "What's included?", style: "whats_included" },
+        { trigger: "Does this work for beginners?", style: "beginner" },
         { trigger: "Is there a free trial?", style: "price" },
     ];
     return triggers.map((t, i) => ({
@@ -84,15 +86,29 @@ export function buildFallbackReplies(snapshot: OfferSnapshot, offerUrl: string) 
 }
 
 function buildFallbackReplyContent(snapshot: OfferSnapshot, offerUrl: string, style: string, index: number): string {
+    const product = snapshot.productName;
+    const promise = snapshot.mainPromise.replace(/[.]+$/, "").toLowerCase();
+    const audience = snapshot.targetAudience.toLowerCase();
+    const benefit = (snapshot.primaryBenefits[0] || "practical guidance").replace(/[.]+$/, "").toLowerCase();
+    const pain = (snapshot.painPoints[index % snapshot.painPoints.length] || "getting started").replace(/[.]+$/, "").toLowerCase();
+
     switch (style) {
+        case "frequency":
+            return `I'd follow the recommended schedule on the ${product} page rather than guessing — it usually lists how often to use it clearly. Check here: ${offerUrl}`;
         case "price":
-            return `Good question — pricing details are on the official page. ${snapshot.productName} covers ${snapshot.mainPromise.toLowerCase()}. Here's where to check: ${offerUrl}`;
+            return `Pricing is on the official page (it can change, so that's the accurate source). ${product} focuses on ${promise}. Details: ${offerUrl}`;
         case "skeptical":
-            return `Fair to ask. ${snapshot.productName} is a resource for ${snapshot.targetAudience.toLowerCase()} — it focuses on ${snapshot.primaryBenefits[0]?.toLowerCase() || "practical guidance"}. Worth reviewing the details yourself: ${offerUrl}`;
+            return `Fair question. ${product} is aimed at ${audience} and focuses on ${benefit}. Best to review the page yourself and decide if it fits: ${offerUrl}`;
         case "learn_more":
-            return `Sure — ${snapshot.productName} breaks down ${snapshot.mainPromise.toLowerCase()} step by step. Full details here: ${offerUrl}`;
+            return `Sure — ${product} walks through ${promise} in a straightforward way. Full details here: ${offerUrl}`;
+        case "beginner":
+            return `Yes — it's geared toward ${audience}, especially if you're still figuring out ${pain}. ${product} keeps things focused on ${benefit}. More here: ${offerUrl}`;
+        case "whats_included":
+            return `What's included is listed on the official page so you get the current package details. ${product} is built around ${promise}: ${offerUrl}`;
+        case "how":
+            return `Short version: ${product} is set up to help with ${promise}, with an emphasis on ${benefit}. The page has the step-by-step: ${offerUrl}`;
         default:
-            return `${snapshot.productName} is designed to help with ${snapshot.painPoints[index % snapshot.painPoints.length]?.toLowerCase() || "getting started"}. It covers ${snapshot.mainPromise.toLowerCase()}. More info: ${offerUrl}`;
+            return `Good question. For people dealing with ${pain}, ${product} focuses on ${promise}. More info: ${offerUrl}`;
     }
 }
 

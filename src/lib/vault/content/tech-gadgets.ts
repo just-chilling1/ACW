@@ -8,9 +8,9 @@ export const TECH_GADGETS_ENTRIES: VaultEntry[] = [
     angle: "Public Wi-Fi vs home",
     question: "Do I actually need a VPN, or is that only for tech people?",
     searchQuery: "do I need a VPN for public wifi beginner",
-    answer: `You need a VPN for a boring reason, not a cinematic one. It protects you on networks you do not control.
+    answer: `A VPN is most useful on networks you do not control, but it is an extra privacy layer, not an invisibility cloak.
 
-Hotel lobbies, coffee shops, airports, and guest Wi-Fi at a friend's house are the usual trouble spots. Those networks can sit between your phone and the internet. A banking app may already lock its own traffic. Plenty of ordinary logins, "remember me" boxes, and half-updated sites do not. A VPN encrypts the path so the cafe router is not reading over your shoulder.
+Hotel lobbies, coffee shops, and airports are the usual places to use one. Modern banking apps and websites already encrypt their connections with HTTPS, so a VPN is not the only thing protecting a password. It does encrypt the network path from your device to the VPN provider, which reduces what the local network or internet provider can observe.
 
 At home, on a router you set up with a real password, the urgency drops. You might still want one if you travel often, share the connection with guests, or dislike how much your internet provider can log. You do not need the most expensive plan. You need a known company, a kill switch so the connection pauses if the VPN drops, and one device set up correctly before you add the rest.
 
@@ -247,7 +247,7 @@ Cancel from evidence. Curiosity is cheaper than a reconnection fee.`,
     nicheId: "tech_gadgets",
     angle: "VPN on/off checklist",
     pinTitle: "When to Turn a VPN On (A Beginner Checklist)",
-    pinDescription: `Public Wi-Fi, hotels, and airport waiting areas: VPN on before you join. Home on your own router is a lower priority. Save this checklist and read the plain-English setup: __LINK__ Keywords: VPN for beginners, public Wi-Fi safety, hotel internet privacy.`,
+    pinDescription: `Hotels, cafes, and airports: turn the VPN on before you browse. At home on your secured router, it is a lower priority. See when it helps and what it cannot hide: __LINK__ Keywords: VPN for beginners, public Wi-Fi safety, hotel internet privacy.`,
     boardName: "VPN and Privacy Basics",
     imageConcept: "9:16 cream pin. Title at top: 'VPN On or Off?'. Two columns: Public Wi-Fi (gold checkmarks) and Home Router (quiet gray notes). Footer: 'Turn it on before you connect'. Clean sans-serif, wide margins.",
     keywords: ["VPN for beginners", "public wifi safety", "do I need a VPN", "hotel wifi privacy", "VPN checklist"],

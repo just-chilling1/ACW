@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, Check, Clock } from "lucide-react";
+import { Bookmark, Check, Clock, Sparkles, Trash2 } from "lucide-react";
 import { clsx } from "clsx";
 import { CopyButton } from "@/components/dfy/copy-button";
 import {
@@ -25,13 +25,27 @@ export function ShortsScriptCard({
   onToggleSaved,
   onToggleUsed,
   disabled,
+  onCustomize,
+  customizing,
+  customizeError,
+  showSavedUsed = true,
+  onDelete,
+  deleting,
+  offerLabel,
 }: {
   script: ShortsScript;
-  saved: boolean;
-  used: boolean;
-  onToggleSaved: () => void;
-  onToggleUsed: () => void;
+  saved?: boolean;
+  used?: boolean;
+  onToggleSaved?: () => void;
+  onToggleUsed?: () => void;
   disabled?: boolean;
+  onCustomize?: () => void;
+  customizing?: boolean;
+  customizeError?: string | null;
+  showSavedUsed?: boolean;
+  onDelete?: () => void;
+  deleting?: boolean;
+  offerLabel?: string;
 }) {
   const hookEnd = script.beats[0]?.timecode.split("-")[0] ?? "0:00";
 
@@ -50,6 +64,9 @@ export function ShortsScriptCard({
       </div>
 
       <h3 className="ds-h5 leading-snug">{script.title}</h3>
+      {offerLabel ? (
+        <p className="text-xs font-semibold text-text-muted">Customized for {offerLabel}</p>
+      ) : null}
 
       <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-4">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
@@ -125,25 +142,56 @@ export function ShortsScriptCard({
       </div>
 
       <div className="flex flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-4">
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={onToggleSaved}
-          className={clsx("btn-secondary text-xs", saved && "btn-chip-active")}
-        >
-          <Bookmark size={14} fill={saved ? "currentColor" : "none"} />
-          {saved ? "Saved" : "Save"}
-        </button>
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={onToggleUsed}
-          className={clsx("btn-secondary text-xs", used && "btn-chip-active")}
-        >
-          <Check size={14} />
-          {used ? "Used" : "Mark used"}
-        </button>
+        {onCustomize ? (
+          <button
+            type="button"
+            disabled={disabled || customizing}
+            onClick={onCustomize}
+            className="btn-secondary text-xs"
+          >
+            <Sparkles size={14} />
+            {customizing ? "Customizing…" : "Customize to my offer"}
+          </button>
+        ) : null}
+        {showSavedUsed && onToggleSaved ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onToggleSaved}
+            className={clsx("btn-secondary text-xs", saved && "btn-chip-active")}
+          >
+            <Bookmark size={14} fill={saved ? "currentColor" : "none"} />
+            {saved ? "Saved" : "Save"}
+          </button>
+        ) : null}
+        {showSavedUsed && onToggleUsed ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onToggleUsed}
+            className={clsx("btn-secondary text-xs", used && "btn-chip-active")}
+          >
+            <Check size={14} />
+            {used ? "Used" : "Mark used"}
+          </button>
+        ) : null}
+        {onDelete ? (
+          <button
+            type="button"
+            disabled={disabled || deleting}
+            onClick={onDelete}
+            className="btn-secondary text-xs"
+          >
+            <Trash2 size={14} />
+            {deleting ? "Deleting…" : "Delete"}
+          </button>
+        ) : null}
       </div>
+      {customizeError ? (
+        <p className="text-sm text-[var(--danger)]" role="alert">
+          {customizeError}
+        </p>
+      ) : null}
     </article>
   );
 }

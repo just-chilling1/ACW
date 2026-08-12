@@ -1,30 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { PageHeader } from "@/components/ui/page-header";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TutorialVideoSection } from "@/components/ui/tutorial-video-section";
 import { NichePicker } from "@/components/ui/niche-picker";
-import { SelectableChip } from "@/components/ui/selectable-chip";
-import { Skeleton } from "@/components/ui/skeleton";
-import { InlineError } from "@/components/ui/InlineError";
 import { VaultEntryCard } from "@/components/vault/VaultEntryCard";
-import { useSearch } from "@/context/SearchContext";
+import {
+  PremiumLandingShell,
+  PremiumHero,
+  PremiumSection,
+  PremiumStateBlock,
+} from "@/components/premium";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
+import { isSafeHttpUrl } from "@/lib/safe-url";
 import { applyAffiliateLink, getVaultEntriesForNiche } from "@/lib/vault/catalog";
-import type { VaultPlatform, VaultStateResponse } from "@/lib/vault/types";
+import type { VaultEntryPack } from "@/lib/vault/vault-packs";
+import type { VaultStateResponse } from "@/lib/vault/types";
 
 const NICHE_KEY = "acw.vault.niche";
-const PLATFORM_KEY = "acw.vault.platform";
-
-type PlatformFilter = VaultPlatform | "all";
+const LINK_KEY = "acw.vault.affiliateLink";
 
 function isNicheId(value: string): value is NicheId {
   return APP_NICHES.some((n) => n.id === value);
-}
-
-function isPlatformFilter(value: string): value is PlatformFilter {
-  return value === "all" || value === "quora" || value === "pinterest";
 }
 
 function readStoredNiche(): NicheId {
@@ -38,33 +34,36 @@ function readStoredNiche(): NicheId {
   return "make_money_online";
 }
 
-function readStoredPlatform(): PlatformFilter {
-  if (typeof window === "undefined") return "all";
+function readStoredLink(): string {
+  if (typeof window === "undefined") return "";
   try {
-    const raw = localStorage.getItem(PLATFORM_KEY);
-    if (raw && isPlatformFilter(raw)) return raw;
+    return localStorage.getItem(LINK_KEY) || "";
   } catch {
-    // ignore
+    return "";
   }
-  return "all";
 }
 
 export default function VaultPage() {
-  const { affiliateLink } = useSearch();
+  const linkInputRef = useRef<HTMLInputElement>(null);
+  const [affiliateLink, setAffiliateLinkLocal] = useState("");
   const [niche, setNiche] = useState<NicheId>("make_money_online");
-  const [platform, setPlatform] = useState<PlatformFilter>("all");
-  const [savedOnly, setSavedOnly] = useState(false);
-  const [hideUsed, setHideUsed] = useState(false);
   const [saved, setSaved] = useState<Set<string>>(new Set());
   const [used, setUsed] = useState<Set<string>>(new Set());
+  const [packs, setPacks] = useState<VaultEntryPack[]>([]);
   const [hydrated, setHydrated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loadingState, setLoadingState] = useState(true);
+  const [loadingPacks, setLoadingPacks] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [packsError, setPacksError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [customizingIds, setCustomizingIds] = useState<Set<string>>(new Set());
+  const [customizeErrors, setCustomizeErrors] = useState<Record<string, string>>({});
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [linkHint, setLinkHint] = useState<string | null>(null);
 
   useEffect(() => {
     setNiche(readStoredNiche());
-    setPlatform(readStoredPlatform());
+    setAffiliateLinkLocal(readStoredLink());
     setHydrated(true);
   }, []);
 
@@ -72,15 +71,15 @@ export default function VaultPage() {
     if (!hydrated) return;
     try {
       localStorage.setItem(NICHE_KEY, niche);
-      localStorage.setItem(PLATFORM_KEY, platform);
+      localStorage.setItem(LINK_KEY, affiliateLink);
     } catch {
       // ignore
     }
-  }, [hydrated, niche, platform]);
+  }, [hydrated, niche, affiliateLink]);
 
   const loadState = useCallback(async () => {
     setError(null);
-    setLoading(true);
+    setLoadingState(true);
     try {
       const res = await fetch("/api/vault/state");
       if (!res.ok) {
@@ -93,33 +92,58 @@ export default function VaultPage() {
     } catch {
       setError("We couldn't load your saved and used items. You can still browse and copy.");
     } finally {
-      setLoading(false);
+      setLoadingState(false);
+    }
+  }, []);
+
+  const loadPacks = useCallback(async () => {
+    setPacksError(null);
+    setLoadingPacks(true);
+    try {
+      const res = await fetch("/api/vault/packs");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to load packs");
+      }
+      const data = (await res.json()) as { packs: VaultEntryPack[] };
+      setPacks(data.packs || []);
+    } catch {
+      setPacksError("We couldn't load your customized library.");
+    } finally {
+      setLoadingPacks(false);
     }
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    loadState();
-  }, [hydrated, loadState]);
+    void Promise.all([loadState(), loadPacks()]);
+  }, [hydrated, loadState, loadPacks]);
+
+  const trimmedAffiliateLink = affiliateLink.trim();
+  const linkValid = isSafeHttpUrl(trimmedAffiliateLink);
+  const visibleLinkHint =
+    trimmedAffiliateLink && !linkValid
+      ? "Paste a valid http(s) affiliate link first."
+      : linkHint;
 
   const nicheEntries = useMemo(
-    () => getVaultEntriesForNiche(niche, platform).map((entry) => applyAffiliateLink(entry, affiliateLink || "")),
-    [niche, platform, affiliateLink],
+    () =>
+      getVaultEntriesForNiche(niche).map((entry) =>
+        applyAffiliateLink(entry, linkValid ? trimmedAffiliateLink : ""),
+      ),
+    [niche, linkValid, trimmedAffiliateLink],
   );
 
-  const nicheTotal = useMemo(() => getVaultEntriesForNiche(niche).length, [niche]);
+  const nicheTotal = nicheEntries.length;
   const usedCount = useMemo(
-    () => getVaultEntriesForNiche(niche).filter((entry) => used.has(entry.id)).length,
-    [niche, used],
+    () => nicheEntries.filter((entry) => used.has(entry.id)).length,
+    [nicheEntries, used],
   );
 
-  const visibleEntries = useMemo(() => {
-    return nicheEntries.filter((entry) => {
-      if (savedOnly && !saved.has(entry.id)) return false;
-      if (hideUsed && used.has(entry.id)) return false;
-      return true;
-    });
-  }, [nicheEntries, savedOnly, hideUsed, saved, used]);
+  const nichePacks = useMemo(
+    () => packs.filter((pack) => pack.nicheId === niche),
+    [packs, niche],
+  );
 
   const patchState = useCallback(
     async (entryId: string, patch: { saved?: boolean; used?: boolean }) => {
@@ -158,102 +182,194 @@ export default function VaultPage() {
     [saved, used],
   );
 
+  const handleCustomize = useCallback(
+    async (entryId: string) => {
+      if (!linkValid) {
+        setLinkHint("Paste a valid http(s) affiliate link first.");
+        linkInputRef.current?.focus();
+        return;
+      }
+      setLinkHint(null);
+      setCustomizeErrors((prev) => {
+        const next = { ...prev };
+        delete next[entryId];
+        return next;
+      });
+      setCustomizingIds((prev) => new Set(prev).add(entryId));
+      try {
+        const res = await fetch("/api/vault/customize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entryId,
+            nicheId: niche,
+            affiliateLink: trimmedAffiliateLink,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.error || "Customize failed");
+        }
+        const pack = data.pack as VaultEntryPack;
+        setPacks((prev) => {
+          const without = prev.filter((item) => item.id !== pack.id);
+          const alsoWithoutDuplicate = without.filter(
+            (item) =>
+              !(
+                item.sourceEntryId === pack.sourceEntryId &&
+                item.affiliateLink === pack.affiliateLink
+              ),
+          );
+          return [pack, ...alsoWithoutDuplicate];
+        });
+      } catch (err) {
+        setCustomizeErrors((prev) => ({
+          ...prev,
+          [entryId]:
+            err instanceof Error
+              ? err.message
+              : "Could not customize that post. Please try again.",
+        }));
+      } finally {
+        setCustomizingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(entryId);
+          return next;
+        });
+      }
+    },
+    [linkValid, niche, trimmedAffiliateLink],
+  );
+
+  const handleDeletePack = useCallback(async (packId: string) => {
+    if (!window.confirm("Delete this customized post from your library?")) return;
+    const previous = packs;
+    setPacks((list) => list.filter((pack) => pack.id !== packId));
+    setDeletingId(packId);
+    try {
+      const res = await fetch(`/api/vault/packs/${packId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("delete failed");
+    } catch {
+      setPacks(previous);
+      setPacksError("We couldn't delete that pack. Please try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  }, [packs]);
+
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 12 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="mx-auto flex w-full max-w-2xl flex-col gap-6 py-6 pb-16"
-    >
-      <PageHeader
-        eyebrow="PREMIUM"
+    <PremiumLandingShell>
+      <PremiumHero
         title={
           <>
             Quora + Pinterest <span className="text-gradient">Vault</span>
           </>
         }
-        subtitle="Pick a niche. Copy a ready-to-post Quora answer or Pinterest pin. Your link is already in it."
+        subtitle="Paste your affiliate link, pick a niche, and copy ready-to-post Quora answers and Pinterest pins — or customize one to your offer."
       />
 
       <TutorialVideoSection
         title="How the Vault Works"
-        description="Choose a niche, copy an answer or pin, then paste it on Quora or Pinterest with your affiliate link already included."
+        description="Enter your link, choose a niche, copy a ready post, or customize a card so the message matches your offer."
       />
 
-      <section className="flex flex-col gap-3">
-        <h2 className="ds-h5">1. Choose your niche</h2>
+      <PremiumSection
+        step={1}
+        title="Paste your affiliate link"
+        description="Used only on this page. Posts update instantly; customize needs a valid link."
+      >
+        <input
+          ref={linkInputRef}
+          type="url"
+          inputMode="url"
+          autoComplete="url"
+          placeholder="https://your-affiliate-link.com/offer"
+          value={affiliateLink}
+          onChange={(event) => {
+            setAffiliateLinkLocal(event.target.value);
+            if (linkHint) setLinkHint(null);
+          }}
+          className="input-base w-full"
+        />
+        {visibleLinkHint ? (
+          <p className="text-sm text-[var(--danger)]" role="alert">
+            {visibleLinkHint}
+          </p>
+        ) : null}
+      </PremiumSection>
+
+      <PremiumSection step={2} title="Choose your niche">
         <NichePicker value={niche} onChange={setNiche} />
-      </section>
+      </PremiumSection>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="ds-h5">2. Filter the library</h2>
-        <div className="flex flex-wrap gap-2">
-          <SelectableChip label="All" selected={platform === "all"} onClick={() => setPlatform("all")} />
-          <SelectableChip label="Quora" selected={platform === "quora"} onClick={() => setPlatform("quora")} />
-          <SelectableChip
-            label="Pinterest"
-            selected={platform === "pinterest"}
-            onClick={() => setPlatform("pinterest")}
-          />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <SelectableChip
-            label="Saved only"
-            selected={savedOnly}
-            onClick={() => setSavedOnly((v) => !v)}
-          />
-          <SelectableChip
-            label="Hide used"
-            selected={hideUsed}
-            onClick={() => setHideUsed((v) => !v)}
-          />
-        </div>
-        <p className="text-sm text-text-muted">
-          {usedCount} of {nicheTotal} used
-        </p>
-      </section>
-
-      <section className="flex flex-col gap-3">
-        <h2 className="ds-h5">3. Copy and post</h2>
-
+      <PremiumSection
+        step={3}
+        title="Copy or customize"
+        meta={`${usedCount} of ${nicheTotal} used`}
+      >
         {error ? (
-          <div className="flex flex-col gap-3">
-            <InlineError message={error} />
-            <button type="button" className="btn-secondary w-fit" onClick={loadState}>
-              Try again
-            </button>
-          </div>
+          <PremiumStateBlock variant="error" message={error} onRetry={loadState} />
         ) : null}
 
-        {loading && (
+        {nicheEntries.length === 0 ? (
+          <PremiumStateBlock variant="empty" message="No posts in this niche yet." />
+        ) : (
           <div className="flex flex-col gap-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-40 w-full rounded-[var(--radius-lg)]" />
-            ))}
-          </div>
-        )}
-
-        {!loading && visibleEntries.length === 0 && (
-          <div className="card-base p-8 text-center text-sm text-text-muted">
-            No entries match these filters. Try another niche or clear Saved only / Hide used.
-          </div>
-        )}
-
-        {!loading && visibleEntries.length > 0 && (
-          <div className="flex flex-col gap-4">
-            {visibleEntries.map((entry) => (
+            {loadingState ? (
+              <p className="text-xs text-text-muted">Syncing saved and used marks…</p>
+            ) : null}
+            {nicheEntries.map((entry) => (
               <VaultEntryCard
                 key={entry.id}
                 entry={entry}
                 saved={saved.has(entry.id)}
                 used={used.has(entry.id)}
-                disabled={pendingId === entry.id}
+                disabled={pendingId === entry.id || customizingIds.has(entry.id)}
                 onToggleSaved={() => patchState(entry.id, { saved: !saved.has(entry.id) })}
                 onToggleUsed={() => patchState(entry.id, { used: !used.has(entry.id) })}
+                onCustomize={() => handleCustomize(entry.id)}
+                customizing={customizingIds.has(entry.id)}
+                customizeError={customizeErrors[entry.id] || null}
               />
             ))}
           </div>
         )}
-      </section>
-    </motion.div>
+      </PremiumSection>
+
+      <PremiumSection
+        step={4}
+        title="My library"
+        description="Offer-aware posts you customized. Showing packs for this niche."
+      >
+        {packsError ? (
+          <PremiumStateBlock variant="error" message={packsError} onRetry={loadPacks} />
+        ) : null}
+
+        {loadingPacks ? <PremiumStateBlock rows={2} heightClassName="h-32" /> : null}
+
+        {!loadingPacks && nichePacks.length === 0 ? (
+          <PremiumStateBlock
+            variant="empty"
+            message="Customize a post to save it here."
+          />
+        ) : null}
+
+        {!loadingPacks && nichePacks.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {nichePacks.map((pack) => (
+              <VaultEntryCard
+                key={pack.id}
+                entry={pack.entry}
+                showSavedUsed={false}
+                offerLabel={pack.offerSnapshot?.productName || pack.affiliateLink}
+                onDelete={() => handleDeletePack(pack.id)}
+                deleting={deletingId === pack.id}
+                disabled={deletingId === pack.id}
+              />
+            ))}
+          </div>
+        ) : null}
+      </PremiumSection>
+    </PremiumLandingShell>
   );
 }

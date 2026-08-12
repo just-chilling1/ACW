@@ -144,7 +144,17 @@ export async function runBuildStage(
         case "generate_content": {
             await supabase.from("campaign_assets").delete().eq("campaign_id", campaign.id).in("kind", ["post", "comment", "submission_copy"]);
             const content = await generateContentPack(snapshot, campaign.offer_url, channels);
+            const insertedFingerprints = new Set<string>();
             for (const item of content) {
+                const key = item.content
+                    .toLowerCase()
+                    .replace(/https?:\/\/\S+/gi, " ")
+                    .replace(/[^a-z0-9\s]/g, " ")
+                    .replace(/\s+/g, " ")
+                    .trim()
+                    .slice(0, 240);
+                if (!key || insertedFingerprints.has(key)) continue;
+                insertedFingerprints.add(key);
                 await supabase.from("campaign_assets").insert({
                     campaign_id: campaign.id,
                     kind: item.kind,
@@ -336,15 +346,29 @@ export async function runWeeklyBatchForCampaign(
 
     const hooks = (existingBatch || []).filter((a) => a.kind === "hook");
     const ctas = (existingBatch || []).filter((a) => a.kind === "cta");
+    const existingPosts = (existingBatch || []).filter(
+        (a) =>
+            ["post", "comment", "submission_copy"].includes(a.kind) &&
+            (a.meta as { section?: string })?.section !== "calendar" &&
+            (a.meta as { section?: string })?.section !== "weekly_batch",
+    );
+    const avoidContents = existingPosts.map((a) => a.content).filter(Boolean);
 
-    const pickHookForAngle = (angle: string, dayIndex: number) => {
-        const match = hooks.find((h) => (h.meta as { bestForAngle?: string })?.bestForAngle === angle);
-        return match?.content || hooks[dayIndex % hooks.length]?.content;
-    };
+    const usedHookIds = new Set<string>();
+    const usedCtaIds = new Set<string>();
 
-    const pickCtaForAngle = (angle: string, dayIndex: number) => {
-        const match = ctas.find((c) => (c.meta as { bestForAngle?: string })?.bestForAngle === angle);
-        return match?.content || ctas[dayIndex % ctas.length]?.content;
+    const pickUnused = <T extends { id: string; content: string; meta?: unknown }>(
+        items: T[],
+        used: Set<string>,
+        prefer: (item: T) => boolean,
+        dayIndex: number,
+    ): T | undefined => {
+        const unused = items.filter((item) => !used.has(item.id));
+        const pool = unused.length > 0 ? unused : items;
+        const match = pool.find(prefer);
+        const picked = match || pool[dayIndex % Math.max(pool.length, 1)];
+        if (picked) used.add(picked.id);
+        return picked;
     };
 
     const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
@@ -352,13 +376,30 @@ export async function runWeeklyBatchForCampaign(
     const dayCtas: Record<string, string> = {};
     weekdays.forEach((day, i) => {
         const angle = snapshot.contentAngles[i % snapshot.contentAngles.length];
-        const hook = pickHookForAngle(angle, i);
-        const cta = pickCtaForAngle(angle, i);
-        if (hook) dayHooks[day] = hook;
-        if (cta) dayCtas[day] = cta;
+        const hook = pickUnused(
+            hooks,
+            usedHookIds,
+            (h) => (h.meta as { bestForAngle?: string })?.bestForAngle === angle,
+            i,
+        );
+        const cta = pickUnused(
+            ctas,
+            usedCtaIds,
+            (c) => (c.meta as { bestForAngle?: string })?.bestForAngle === angle,
+            i,
+        );
+        if (hook?.content) dayHooks[day] = hook.content;
+        if (cta?.content) dayCtas[day] = cta.content;
     });
 
-    const batch = await generateWeeklyBatch(snapshot, campaign.offer_url, keyword, dayHooks, dayCtas);
+    const batch = await generateWeeklyBatch(
+        snapshot,
+        campaign.offer_url,
+        keyword,
+        dayHooks,
+        dayCtas,
+        avoidContents,
+    );
     for (const item of batch) {
         await supabase.from("campaign_assets").insert({
             campaign_id: campaign.id,

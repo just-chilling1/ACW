@@ -218,7 +218,7 @@ Sip through the day. Do not treat water like a task you binge at night.`,
     angle: "When it feels easier",
     question: "How long before a new health habit actually starts to feel easier?",
     searchQuery: "how long for exercise habit to feel easier over 50",
-    answer: `For a beginner over 50 using easy walking and a little home strength, a honest window is two to four weeks before the session feels less like a negotiation, and longer before clothes, stairs, or sleep clearly change.
+    answer: `For a beginner over 50 using easy walking and a little home strength, an honest window is two to four weeks before the session feels less like a negotiation, and longer before clothes, stairs, or sleep clearly change.
 
 Week one is awkward. Shoes feel wrong. You watch the clock. That is normal. Weeks two and three are where many people quit because the mirror is unchanged. The habit is still forming. The body is still deciding this is not a one-off.
 
@@ -284,7 +284,7 @@ Stay with the easy version long enough that it feels ordinary. Ordinary is the s
     platform: "pinterest",
     nicheId: "health_fitness",
     angle: "Supplement red flags",
-    pinTitle: "5 Label Clues a 'Energy Blend' Is Mostly Marketing",
+    pinTitle: "5 Label Clues an 'Energy Blend' Is Mostly Marketing",
     pinDescription: `One scoop that claims energy, fat burn, and joint comfort is usually a story. Look for a clear dose, a real gap, and a plan you can stop to test. Label filter: __LINK__ Keywords: supplement red flags, energy supplements over 50, vitamin shopping tips.`,
     boardName: "Smart Health Shopping",
     imageConcept: "White pin, five short lines with small magnifying-glass icons. Title in dark green. Gold bar under 'Habits first, bottles second'. High contrast for mobile.",

@@ -54,15 +54,15 @@ export function buildNextAction(
     return {
       type: "complete",
       title: "You're on a roll",
-      description: "Review your Traffic Machine health and try a traffic experiment to see what works best.",
-      ctaLabel: "Review Machine Health",
+      description: "Every source you finished can keep sending visitors. Browse below or change niche to unlock more.",
+      ctaLabel: "Browse sources",
     };
   }
 
   return {
     type: "complete",
-    title: "Traffic Machine is active",
-    description: "Keep activating opportunities to grow your traffic channels.",
-    ctaLabel: "Browse Opportunities",
+    title: "All matched sources done",
+    description: "Browse your completed list below, or rebuild with a different niche for more sources.",
+    ctaLabel: "Browse sources",
   };
 }

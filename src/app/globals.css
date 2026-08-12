@@ -827,6 +827,37 @@ html[data-sidebar="collapsed"] {
     100% { background-position: -100% 0; }
   }
 
+  /* Active progress fill — sheen so determinate bars still feel “loading” */
+  @keyframes progress-bar-sheen {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(220%); }
+  }
+
+  .progress-bar-loading {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-bar-loading::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.38) 45%,
+      rgba(255, 255, 255, 0.12) 55%,
+      transparent 100%
+    );
+    animation: progress-bar-sheen 1.35s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .progress-bar-loading::after {
+      animation: none;
+    }
+  }
+
   /* Semantic badges & status chips */
   .badge-success {
     border-radius: var(--radius-sm);
@@ -1519,4 +1550,51 @@ html[data-sidebar="collapsed"] {
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Premium feature landings — shared shell/hero */
+.premium-landing-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-strong);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--surface-3) 55%, transparent) 0%,
+      var(--surface-1) 48%,
+      var(--surface-1) 100%
+    );
+  box-shadow: var(--elevation-1);
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .premium-landing-hero {
+    padding: 2rem 2.25rem;
+  }
+}
+
+.premium-landing-hero__glow {
+  pointer-events: none;
+  position: absolute;
+  inset: -20% auto auto -10%;
+  width: min(22rem, 70%);
+  height: min(14rem, 55%);
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--gold) 18%, transparent) 0%,
+    transparent 70%
+  );
+  opacity: 0.9;
+}
+
+.premium-landing-section + .premium-landing-section {
+  scroll-margin-top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-landing {
+    animation: none !important;
+  }
 }

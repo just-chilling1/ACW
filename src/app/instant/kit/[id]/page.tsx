@@ -516,17 +516,7 @@ export default function KitDashboardPage() {
                             done={stepPost.status === "used"}
                             marking={markingId === stepPost.id}
                             onMarkDone={() => markUsed(stepPost)}
-                        >
-                            <button
-                                type="button"
-                                onClick={handleRotate}
-                                disabled={rotating}
-                                className="btn-secondary w-full sm:w-auto"
-                            >
-                                <RefreshCw size={14} />
-                                {rotating ? "Making a new one…" : "Give me a different post"}
-                            </button>
-                        </ActionCard>
+                        />
                     ) : (
                         <div className="surface-panel-elevated space-y-4 p-5 sm:p-6">
                             <h2 className="text-xl font-semibold">Need another post?</h2>
@@ -568,7 +558,7 @@ export default function KitDashboardPage() {
                     <StepNav
                         onBack={() => setStep(3)}
                         onNext={startNextCycle}
-                        nextLabel="Use next assets →"
+                        nextLabel="Use next asset"
                     />
                 </div>
             ) : null}

@@ -172,7 +172,7 @@ People stay when they feel seen in ordinary time, not only on birthdays. Start n
     angle: "Loneliness",
     question: "Why can you feel lonely even when you are in a relationship?",
     searchQuery: "feeling lonely in a relationship what to do",
-    answer: `Loneliness in a partnership is usually a contact problem, not a proof that you picked the wrong person.
+    answer: `If evenings have become two people scrolling in the same room, loneliness can grow even inside a loyal partnership. That is often a contact problem, not proof that you picked the wrong person.
 
 You can share a house, a calendar, and a last name, and still go days without being known. Parallel lives look efficient. Kids leave. Work shrinks. The TV gets louder. You become competent roommates. The ache is the missing "you matter in this room."
 
@@ -331,7 +331,7 @@ Time together is a decision, not a mood. Put it on the calendar, keep it small, 
     nicheId: "relationships",
     angle: "Texting agreement",
     pinTitle: "A Simple Texting Agreement for Couples Over 50",
-    pinDescription: `Use texts to coordinate and share a small bright thing. Hard talks go to a call or the kitchen. Agree on reply speed so silence does not become a story. Guide: __LINK__ Keywords: healthy texting in relationships, texting after 50, couple communication texts.`,
+    pinDescription: `Use texts to coordinate and share a small bright thing. Hard talks go to a call or the kitchen. Agree on reply speed so silence does not become a story. Make your texting agreement: __LINK__ Keywords: healthy texting in relationships, texting after 50, couple communication texts.`,
     boardName: "Modern Marriage Habits",
     imageConcept: "Phone-frame pin on warm gray. Three message bubbles: grocery, garden photo, 'Can we talk tonight?' Footer: 'Utility, not a courtroom'. Clean sans-serif.",
     keywords: ["healthy texting in relationships", "texting after 50", "couple communication texts", "texting rules for couples", "stop fighting over text"],

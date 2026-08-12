@@ -8,7 +8,7 @@ export const BEAUTY_SKINCARE_ENTRIES: VaultEntry[] = [
     angle: "Simple three-step routine",
     question: "What is a simple skincare routine for beginners over 50?",
     searchQuery: "simple skincare routine beginners over 50",
-    answer: `Most people do not need a ten-step routine. They need three products they will actually use twice a day.
+    answer: `If your face feels tight by lunch and your shelf keeps growing, more steps are probably not the answer. Most beginners need three products they will actually use every day.
 
 A workable starter routine after 50 looks like this. Morning: rinse with lukewarm water or use a gentle cleanser, apply moisturizer, then sunscreen. Night: cleanse, moisturize. If your skin feels tight by lunch, you washed too hard or skipped cream. Hot water and foaming soap are frequent culprits.
 
@@ -338,7 +338,7 @@ Match the product to the time of day, then stop adding steps that exist only to 
     nicheId: "beauty_skincare",
     angle: "AM vs PM product map",
     pinTitle: "Morning vs Night Skincare: What Goes When",
-    pinDescription: `Morning is moisturizer plus SPF. Night is a real cleanse, then cream, then retinol if you use it. Do not wear retinol to a sunny window. One-page map: __LINK__ Keywords: morning vs night skincare, am pm routine, when to apply retinol.`,
+    pinDescription: `Morning is moisturizer plus SPF. Night is a real cleanse, then cream, then retinol if you use it. Keep the jobs separate and the shelf simple. Save the one-page map: __LINK__ Keywords: morning vs night skincare, am pm routine, when to apply retinol.`,
     boardName: "Morning and Night Routines",
     imageConcept: "Two-column 9:16 layout. Left column sun icon + AM steps. Right column moon icon + PM steps. Warm taupe and cream. Thin divider. Caption: 'Defense by day. Repair at night.'",
     keywords: ["morning vs night skincare", "am pm routine", "when to apply retinol", "nighttime skincare steps", "morning sunscreen routine"],

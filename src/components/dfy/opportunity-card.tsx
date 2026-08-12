@@ -53,7 +53,16 @@ export function OpportunityCard({
                         </span>
                     ) : null}
                     <div className="min-w-0 flex-1">
-                        <h3 className="text-base font-semibold text-text-primary">{opportunity.title}</h3>
+                        <h3
+                            className={clsx(
+                                "text-base font-semibold",
+                                done
+                                    ? "text-text-muted line-through decoration-[var(--success)] decoration-2"
+                                    : "text-text-primary",
+                            )}
+                        >
+                            {opportunity.title}
+                        </h3>
                         <p className="mt-1 text-xs text-text-muted">
                             {opportunity.platform} · Tap &ldquo;Open Post&rdquo; to see the conversation
                         </p>
@@ -136,7 +145,16 @@ export function OpportunityCard({
             </div>
 
             <div>
-                <h3 className="text-base font-semibold text-text-primary sm:text-lg">{opportunity.title}</h3>
+                <h3
+                    className={clsx(
+                        "text-base font-semibold sm:text-lg",
+                        done
+                            ? "text-text-muted line-through decoration-[var(--success)] decoration-2"
+                            : "text-text-primary",
+                    )}
+                >
+                    {opportunity.title}
+                </h3>
                 <p className="mt-1 text-xs text-text-muted">
                     {opportunity.platform} · {opportunity.intent_score >= 70 ? "High buying intent" : "Moderate intent"}
                 </p>

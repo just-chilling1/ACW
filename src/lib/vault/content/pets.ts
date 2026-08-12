@@ -80,7 +80,7 @@ A slower walk can be aging. A dog who has checked out of the day needs a profess
     angle: "Daily routine",
     question: "What is a good feeding schedule for a dog or cat?",
     searchQuery: "dog cat feeding schedule for beginners",
-    answer: `A good feeding schedule is boring on purpose. Same bowls, same windows of time, measured food. Free-feeding a full bowl all day makes it hard to notice a skipped meal, which is often the first clue something is wrong.
+    answer: `If nobody knows whether the dog ate at 7 or the cat grazed all afternoon, a feeding problem can hide in plain sight. A good schedule is boring on purpose: same bowls, same windows of time, measured food. Free-feeding all day makes it hard to notice a skipped meal, which is often the first clue something is wrong.
 
 For most adult dogs, two meals work well: morning and early evening, about twelve hours apart. Puppies need more frequent meals; follow the breeder or clinic plan until the vet says otherwise. For most adult cats, two to four smaller meals beat one giant pile. Cats are built for several hunts, not one feast.
 
@@ -324,7 +324,7 @@ Pay for the picture you want. Stop paying for the picture you do not. That is tr
     nicheId: "pets",
     angle: "Vet bag checklist",
     pinTitle: "Vet Visit Prep: Carrier Practice and a Simple Bag",
-    pinDescription: `Leave the carrier out all week. Pack a towel, medicine bottles, and a symptom list. Ask about food if sedation is possible. Packing list: __LINK__ Keywords: vet visit tips, cat carrier training, prepare dog for vet.`,
+    pinDescription: `Leave the carrier out all week. Pack a towel, medicine bottles, and a symptom list. Ask about food if sedation is possible. Make the clinic trip calmer with this packing list: __LINK__ Keywords: vet visit tips, cat carrier training, prepare dog for vet.`,
     boardName: "Vet Visit Prep",
     imageConcept: "Checklist pin on pale blue. Six boxes with short labels: Carrier, Towel, Meds, Notes, Leash, Questions. Title: 'Before the parking lot'. Clean medical-not-scary palette.",
     keywords: ["vet visit tips", "cat carrier training", "prepare dog for vet", "pet vet checklist", "less stressful vet visit"],

@@ -1,0 +1,239 @@
+import { analyzeOffer } from "@/lib/dfy/offer-analyze";
+import { parseJsonFromLlm } from "@/lib/dfy/parse-json";
+import type { OfferSnapshot } from "@/lib/dfy/types";
+import { callChatGPT } from "@/lib/llm";
+import type { NicheId } from "@/lib/niches";
+import { isValidPackEntry } from "@/lib/vault/vault-packs";
+import type { VaultEntry } from "@/lib/vault/types";
+
+function buildRewritePrompt(seed: VaultEntry, offer: OfferSnapshot, affiliateLink: string): string {
+  if (seed.platform === "quora") {
+    return `Rewrite this Quora answer so it promotes THIS specific offer while staying helpful and non-spammy.
+
+OFFER
+- Product: ${offer.productName}
+- Promise: ${offer.mainPromise}
+- Audience: ${offer.targetAudience}
+- Strongest angle: ${offer.strongestAngle}
+- Pain points: ${offer.painPoints.join("; ")}
+- Benefits: ${offer.primaryBenefits.join("; ")}
+- Affiliate URL (must appear exactly once in answer only): ${affiliateLink}
+
+SEED (JSON)
+${JSON.stringify(seed, null, 2)}
+
+Return ONLY JSON matching QuoraEntry shape with the same id, platform "quora", nicheId.
+Rules:
+- Keep id, platform, nicheId exactly.
+- Rewrite angle, question, searchQuery, answer, topics for this offer.
+- Answer ≥180 words when possible. Lead with real help; place the affiliate URL once in the last third as a resource continuation.
+- question and searchQuery must NOT contain URLs or "__LINK__".
+- answer must include the affiliate URL exactly once as plain text and no "__LINK__".
+- No fake testimonials, guarantees, or medical/income promises.
+- Do not mention AI CashWave or internal product names.
+- Plain, concrete beginner-friendly language.`;
+  }
+
+  return `Rewrite this Pinterest pin so it promotes THIS specific offer.
+
+OFFER
+- Product: ${offer.productName}
+- Promise: ${offer.mainPromise}
+- Audience: ${offer.targetAudience}
+- Strongest angle: ${offer.strongestAngle}
+- Pain points: ${offer.painPoints.join("; ")}
+- Benefits: ${offer.primaryBenefits.join("; ")}
+- Affiliate URL (must appear exactly once in pinDescription only): ${affiliateLink}
+
+SEED (JSON)
+${JSON.stringify(seed, null, 2)}
+
+Return ONLY JSON matching PinterestEntry shape with the same id, platform "pinterest", nicheId.
+Rules:
+- Keep id, platform, nicheId exactly.
+- Rewrite angle, pinTitle (≤100 chars), pinDescription (≤500 chars), boardName, imageConcept, keywords (4-8).
+- pinDescription must include the affiliate URL exactly once and no "__LINK__".
+- pinTitle, boardName, imageConcept must NOT contain URLs or "__LINK__".
+- Benefit-led, not clickbait. No guarantees or spam triggers.
+- Do not mention AI CashWave or internal product names.`;
+}
+
+function mergeRewrite(seed: VaultEntry, partial: Partial<VaultEntry>): VaultEntry {
+  if (seed.platform === "quora") {
+    const p = partial as Partial<Extract<VaultEntry, { platform: "quora" }>>;
+    return {
+      ...seed,
+      angle: typeof p.angle === "string" && p.angle.trim() ? p.angle.trim() : seed.angle,
+      question: typeof p.question === "string" && p.question.trim() ? p.question.trim() : seed.question,
+      searchQuery:
+        typeof p.searchQuery === "string" && p.searchQuery.trim()
+          ? p.searchQuery.trim()
+          : seed.searchQuery,
+      answer: typeof p.answer === "string" && p.answer.trim() ? p.answer.trim() : seed.answer,
+      topics:
+        Array.isArray(p.topics) && p.topics.length
+          ? p.topics.map((t) => String(t).trim()).filter(Boolean).slice(0, 8)
+          : seed.topics,
+      id: seed.id,
+      platform: "quora",
+      nicheId: seed.nicheId,
+    };
+  }
+
+  const p = partial as Partial<Extract<VaultEntry, { platform: "pinterest" }>>;
+  return {
+    ...seed,
+    angle: typeof p.angle === "string" && p.angle.trim() ? p.angle.trim() : seed.angle,
+    pinTitle: typeof p.pinTitle === "string" && p.pinTitle.trim() ? p.pinTitle.trim() : seed.pinTitle,
+    pinDescription:
+      typeof p.pinDescription === "string" && p.pinDescription.trim()
+        ? p.pinDescription.trim()
+        : seed.pinDescription,
+    boardName:
+      typeof p.boardName === "string" && p.boardName.trim() ? p.boardName.trim() : seed.boardName,
+    imageConcept:
+      typeof p.imageConcept === "string" && p.imageConcept.trim()
+        ? p.imageConcept.trim()
+        : seed.imageConcept,
+    keywords:
+      Array.isArray(p.keywords) && p.keywords.length
+        ? p.keywords.map((k) => String(k).trim()).filter(Boolean).slice(0, 8)
+        : seed.keywords,
+    id: seed.id,
+    platform: "pinterest",
+    nicheId: seed.nicheId,
+  };
+}
+
+function fallbackOfferAwareEntry(
+  seed: VaultEntry,
+  offer: OfferSnapshot,
+  affiliateLink: string,
+): VaultEntry {
+  const product = offer.productName || "this resource";
+  if (seed.platform === "quora") {
+    const withLink = seed.answer.includes("__LINK__")
+      ? seed.answer.replace("__LINK__", affiliateLink)
+      : `${seed.answer.trim()}\n\nIf you want the step-by-step version for ${product}: ${affiliateLink}`;
+    return {
+      ...seed,
+      angle: offer.strongestAngle || seed.angle,
+      answer: withLink.includes(affiliateLink) ? withLink : `${withLink} ${affiliateLink}`,
+    };
+  }
+
+  const desc = seed.pinDescription.includes("__LINK__")
+    ? seed.pinDescription.replace("__LINK__", affiliateLink)
+    : `${seed.pinDescription.trim()} Learn more: ${affiliateLink}`;
+  return {
+    ...seed,
+    angle: offer.strongestAngle || seed.angle,
+    pinTitle: `${seed.pinTitle}`.slice(0, 100),
+    pinDescription: (desc.includes(affiliateLink) ? desc : `${desc} ${affiliateLink}`).slice(0, 500),
+  };
+}
+
+function degradedOffer(nicheId: NicheId): OfferSnapshot {
+  return {
+    productName: "Your Offer",
+    category: "Digital Product",
+    mainPromise: "A practical solution for people looking for results.",
+    primaryBenefits: ["Easy to get started", "Saves time", "Beginner-friendly"],
+    secondaryBenefits: ["Flexible approach", "Step-by-step guidance"],
+    targetAudience: "People in this niche looking for a clear next step",
+    buyerIntent: "High — actively searching for solutions",
+    painPoints: ["Overwhelmed by options", "Unsure where to start"],
+    desiredOutcome: "Clear next steps and confidence",
+    objections: ["Is this legit?", "Will it work for me?"],
+    strongestAngle: "Simple beginner-friendly approach",
+    contentAngles: ["problem/solution", "beginner education", "tips"],
+    ctaStyle: "Educational + soft resource recommendation",
+    promotionChannels: ["Quora", "Pinterest"],
+    recommendedAudienceMode: nicheId,
+    promotionStyle: "Educational + problem/solution",
+  };
+}
+
+async function rewriteOnce(
+  seed: VaultEntry,
+  offer: OfferSnapshot,
+  affiliateLink: string,
+): Promise<VaultEntry> {
+  const raw = await callChatGPT([
+    { role: "user", content: buildRewritePrompt(seed, offer, affiliateLink) },
+  ]);
+  const parsed = parseJsonFromLlm<Partial<VaultEntry>>(raw, {});
+  return mergeRewrite(seed, parsed);
+}
+
+export async function customizeVaultEntry(opts: {
+  seed: VaultEntry;
+  affiliateLink: string;
+  nicheId: NicheId;
+}): Promise<{ entry: VaultEntry; offerSnapshot: OfferSnapshot }> {
+  const { seed, affiliateLink, nicheId } = opts;
+
+  let offer: OfferSnapshot;
+  try {
+    offer = await analyzeOffer(affiliateLink, nicheId);
+  } catch {
+    offer = degradedOffer(nicheId);
+  }
+
+  const validateStrict = (entry: VaultEntry) =>
+    isValidPackEntry(entry, {
+      affiliateLink,
+      sourceEntryId: seed.id,
+      nicheId,
+      minQuoraWords: seed.platform === "quora" ? 180 : undefined,
+    });
+
+  const validateSoft = (entry: VaultEntry) =>
+    isValidPackEntry(entry, {
+      affiliateLink,
+      sourceEntryId: seed.id,
+      nicheId,
+      minQuoraWords: seed.platform === "quora" ? 120 : undefined,
+    });
+
+  const validationRank = (entry: VaultEntry) => {
+    if (validateStrict(entry)) return 2;
+    if (validateSoft(entry)) return 1;
+    return 0;
+  };
+
+  try {
+    let rewritten = await rewriteOnce(seed, offer, affiliateLink);
+    const firstRank = validationRank(rewritten);
+    if (firstRank === 2) {
+      return { entry: rewritten, offerSnapshot: offer };
+    }
+
+    try {
+      const retry = await rewriteOnce(seed, offer, affiliateLink);
+      if (validationRank(retry) > firstRank) {
+        rewritten = retry;
+      }
+    } catch (error) {
+      if (firstRank === 1) {
+        return { entry: rewritten, offerSnapshot: offer };
+      }
+      throw error;
+    }
+
+    if (validationRank(rewritten) > 0) {
+      return { entry: rewritten, offerSnapshot: offer };
+    }
+    const fallback = fallbackOfferAwareEntry(seed, offer, affiliateLink);
+    if (!validateSoft(fallback)) {
+      throw new Error("Customized entry failed validation");
+    }
+    return { entry: fallback, offerSnapshot: offer };
+  } catch (error) {
+    const fallback = fallbackOfferAwareEntry(seed, offer, affiliateLink);
+    if (!validateSoft(fallback)) {
+      throw error instanceof Error ? error : new Error("Customize failed");
+    }
+    return { entry: fallback, offerSnapshot: offer };
+  }
+}

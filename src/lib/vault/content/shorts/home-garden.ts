@@ -9,7 +9,7 @@ export const HOME_GARDEN_SHORTS: ShortsScript[] = [
     title: "Three Reasons Your Indoor Herbs Keep Dying",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 33,
-    hook: "Three reasons your indoor herbs keep dying, even when you remember to water them.",
+    hook: "You remembered to water the herbs—and that may be part of the problem. Check these three setup mistakes.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -44,8 +44,8 @@ export const HOME_GARDEN_SHORTS: ShortsScript[] = [
           "Three-panel graphic showing a drainage hole, a finger checking soil, and a sunlit windowsill.",
       },
     ],
-    cta: "The simple windowsill setup is in my bio if you want the steps in order.",
-    caption: `Indoor herbs usually fail for ordinary reasons: trapped water, weak light, or crowded roots. Use separate pots with drainage, check the mix before watering, and follow the sunlight. Setup guide: __LINK__`,
+    cta: "Go to my bio for the written windowsill setup and follow the steps in order.",
+    caption: `Indoor herbs often fail for ordinary reasons: trapped water, weak light, or crowded roots. Use separate pots with drainage, check the mix before watering, and follow the sunlight. Full windowsill setup guide: __LINK__`,
     hashtags: ["indoorgarden", "windowsillherbs", "herbgarden", "plantcare"],
     visualStyle:
       "Faceless. Use close object shots, a simple time-lapse, and clean text overlays. Burn in captions for every spoken line.",
@@ -60,7 +60,7 @@ export const HOME_GARDEN_SHORTS: ShortsScript[] = [
     title: "You Do Not Need A Yard To Grow Food",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 29,
-    hook: "The myth is that a real garden needs a yard. The truth fits on one sunny windowsill.",
+    hook: "No yard? The smallest useful food garden may already fit in the brightest square of your home.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -95,8 +95,8 @@ export const HOME_GARDEN_SHORTS: ShortsScript[] = [
           "Overhead object shot of scissors cutting a few herb leaves into a bowl beside the window.",
       },
     ],
-    cta: "The small-space starting plan is in my bio if you want a simple setup.",
-    caption: `You do not need a yard to grow something useful. Start with the light you have, add one or two properly drained pots, and grow what you will actually harvest. Small-space plan: __LINK__`,
+    cta: "Open my bio for the written small-space plan and build your first simple setup.",
+    caption: `You do not need a yard to grow something useful. Start with the light you have, add one or two properly drained pots, and choose what you will actually harvest. Full small-space garden plan: __LINK__`,
     hashtags: ["smallspacegarden", "containergarden", "indoorgarden", "beginnergardening"],
     visualStyle:
       "Faceless. Use text cards, windowsill object shots, and a short sunlight time-lapse. Keep every frame practical and uncluttered.",
@@ -111,7 +111,7 @@ export const HOME_GARDEN_SHORTS: ShortsScript[] = [
     title: "You Have Killed Basil Three Times",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 37,
-    hook: "You have killed basil three times, so you decide you are bad at plants.",
+    hook: "You did not kill basil three times. You may have repeated the same invisible setup mistake three times.",
     beats: [
       {
         timecode: "0:03-0:11",
@@ -146,8 +146,8 @@ export const HOME_GARDEN_SHORTS: ShortsScript[] = [
           "Three-item checklist appears beside healthy basil: drainage, window light, soil check.",
       },
     ],
-    cta: "The basil reset checklist is in my bio if you want to try again with a better setup.",
-    caption: `Killed basil three times? Check the setup before blaming yourself. Drainage, window light, and the soil itself should decide when you water. Basil reset checklist: __LINK__`,
+    cta: "Use the written basil reset checklist in my bio before you try the same setup again.",
+    caption: `Killed basil three times? Check the setup before blaming yourself. Drainage, window light, and the soil itself should decide when you water. Full basil reset checklist: __LINK__`,
     hashtags: ["basilcare", "indoorgarden", "plantmistakes", "windowsillgarden"],
     visualStyle:
       "Faceless. Tell the story with locked-off plant shots, root graphics, and close-ups of the pot and soil. Burn in captions.",
@@ -162,7 +162,7 @@ export const HOME_GARDEN_SHORTS: ShortsScript[] = [
     title: "Pick A Windowsill By Watching The Light Move",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 41,
-    hook: "Do not pick a plant window at noon. Watch how the light moves across one full day.",
+    hook: "That bright noon window may be dim for most of the day. Three quick clips reveal where the useful light actually lands.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -197,8 +197,8 @@ export const HOME_GARDEN_SHORTS: ShortsScript[] = [
           "Overhead shot placing herb pots in the highlighted zone, then a calendar graphic turning from summer to winter.",
       },
     ],
-    cta: "The windowsill light checklist is in my bio if you want the full setup.",
-    caption: `A bright-looking room can still give a plant weak light. Record the sill morning, midday, and afternoon, mark the direct sun, and place pots in the overlap. Light checklist: __LINK__`,
+    cta: "Open my bio for the written windowsill-light checklist and complete the full setup.",
+    caption: `A bright-looking room can still give a plant weak light. Record the sill morning, midday, and afternoon, mark the direct sun, and place pots in the overlap. Full windowsill-light walkthrough: __LINK__`,
     hashtags: ["windowsillgarden", "plantlight", "indoorgardening", "gardentips"],
     visualStyle:
       "Faceless screen demo plus overhead object shots. Crop out personal details, use large labels, and burn in the voiceover captions.",
@@ -213,7 +213,7 @@ export const HOME_GARDEN_SHORTS: ShortsScript[] = [
     title: "From Seed To First Windowsill Harvest",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 35,
-    hook: "The before is a tray of potting mix. The after is enough fresh greens for one small meal.",
+    hook: "This bare tray can become one small harvest—but the step most beginners skip happens after the sprouts appear.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -248,8 +248,8 @@ export const HOME_GARDEN_SHORTS: ShortsScript[] = [
           "Overhead before-and-after split: bare seeded tray on the left, leafy tray and a small bowl of cut greens on the right.",
       },
     ],
-    cta: "The seed-to-harvest windowsill sequence is in my bio if you want each step written out.",
-    caption: `Seed to first windowsill harvest is a short sequence: sow, follow the light, check the mix, thin crowded growth, then cut the outer leaves. Full sequence: __LINK__`,
+    cta: "Get the written seed-to-harvest sequence from my bio and follow each step in order.",
+    caption: `Seed to first windowsill harvest is a practical sequence: sow, follow the light, check the mix, thin crowded growth, then cut the outer leaves. Full seed-to-harvest walkthrough: __LINK__`,
     hashtags: ["growfromseed", "windowsillgarden", "saladgreens", "beginnergardening"],
     visualStyle:
       "Faceless. Use overhead planting shots, a simple sprout time-lapse, and a clean before-and-after split. Burn in captions.",

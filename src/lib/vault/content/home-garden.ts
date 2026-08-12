@@ -32,7 +32,7 @@ Start smaller than your neighbors. Small and alive beats large and abandoned.`,
     angle: "Kitchen windowsill",
     question: "What herbs can a beginner grow on a kitchen windowsill?",
     searchQuery: "easiest herbs to grow on a windowsill",
-    answer: `A sunny kitchen window can feed you herbs if you treat it like a small farm, not a decoration.
+    answer: `If supermarket basil keeps collapsing on your sill, the problem is usually the pot, light, or drainage — not a lack of talent. A sunny kitchen window can feed you herbs when you treat it like a small farm, not a decoration.
 
 Start with four that forgive mistakes: basil, chives, mint, and parsley. Basil wants warmth and regular picking. Chives bounce back after you snip them. Mint is almost too eager, so keep it in its own pot or it will bully the others. Parsley is slower, which is useful — it teaches patience.
 
@@ -309,9 +309,9 @@ Grow what you will harvest twice a week. A patio that feeds Tuesday pasta is a s
     nicheId: "home_garden",
     angle: "Small-yard compost",
     pinTitle: "Compost in a Small Yard: Greens, Browns, One Bin",
-    pinDescription: `A lidded bin, kitchen scraps, and dry leaves or cardboard. No meat, no dairy. Mix should feel like a wrung-out sponge. Yes/no scrap list: __LINK__ Keywords: composting for beginners, small space compost, what to compost at home.`,
+    pinDescription: `A lidded bin, kitchen scraps, and dry leaves or cardboard are enough to start. No meat, no dairy. Keep the mix like a wrung-out sponge. Build a cleaner first bin with this scrap list: __LINK__ Keywords: composting for beginners, small space compost, what to compost at home.`,
     boardName: "Simple Composting",
-    imageConcept: "Illustrated tumbler bin on a patio. Two arrows: Greens (peels, coffee) and Browns (leaves, cardboard). Title at top. Warm brown and sage palette. Caption: 'Not a homestead required'.",
+    imageConcept: "Illustrated tumbler bin on a patio. Two arrows: Greens (peels, coffee) and Browns (leaves, cardboard). Title at top. Warm brown and sage palette. Caption: 'No homestead required'.",
     keywords: ["composting for beginners", "small yard compost bin", "what to put in compost", "kitchen scrap compost", "compost tumbler tips"],
   },
   {

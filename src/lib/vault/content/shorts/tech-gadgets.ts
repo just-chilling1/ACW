@@ -9,7 +9,7 @@ export const TECH_GADGETS_SHORTS: ShortsScript[] = [
     title: "Three Reasons Wi-Fi Is Slow In Half Your House",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 33,
-    hook: "Three mistakes can make fast Wi-Fi feel broken on the far side of your house.",
+    hook: "Your internet can be fast at the router and useless down the hall. These three setup mistakes explain the gap.",
     beats: [
       {
         timecode: "0:04-0:11",
@@ -44,8 +44,8 @@ export const TECH_GADGETS_SHORTS: ShortsScript[] = [
           "Checklist card showing open shelf, test both bands, and avoid metal, with each item receiving a check.",
       },
     ],
-    cta: "The room-by-room Wi-Fi checklist is in my bio if you want the tests in order.",
-    caption: `Slow Wi-Fi in half the house usually starts with placement, the wrong band, or interference. Move the router into the open, closer to the middle, then test both bands in the slow room. Checklist: __LINK__`,
+    cta: "Go to my bio for the written room-by-room Wi-Fi checklist and run the tests in order.",
+    caption: `Slow Wi-Fi in half the house often starts with placement, band choice, or interference. Move the router into the open, closer to the middle, then test both bands in the slow room. Full room-by-room checklist: __LINK__`,
     hashtags: ["wifi", "homenetwork", "techtips", "routerplacement"],
     visualStyle:
       "Faceless. Use router object shots, a simple floor plan, and clean signal graphics. Burn in large captions for silent viewing.",
@@ -60,7 +60,7 @@ export const TECH_GADGETS_SHORTS: ShortsScript[] = [
     title: "More Internet Speed Rarely Fixes A Weak Room",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 28,
-    hook: "Paying for more speed will not push a weak Wi-Fi signal through three walls.",
+    hook: "Before paying for faster internet, run this two-room test. Your plan may not be the bottleneck.",
     beats: [
       {
         timecode: "0:03-0:09",
@@ -94,8 +94,8 @@ export const TECH_GADGETS_SHORTS: ShortsScript[] = [
         visual: "Plain text card reading FIX COVERAGE FIRST with a small router and room icon.",
       },
     ],
-    cta: "The two-room diagnosis is in my bio if you want to check before changing your plan.",
-    caption: `More speed at the router does not guarantee a strong signal in every room. Compare one test beside the router with one in the problem room, then fix coverage before capacity. Two-room check: __LINK__`,
+    cta: "Open my bio for the written two-room diagnosis before you change your internet plan.",
+    caption: `More speed at the router does not guarantee a strong signal in every room. Compare one test beside the router with one in the problem room, then fix coverage before capacity. Full two-room diagnosis: __LINK__`,
     hashtags: ["wifi", "internetspeed", "homenetwork", "techmyths"],
     visualStyle:
       "Faceless. Use text cards, a generic house diagram, and cropped speed-test screens with no names, ads, or personal details.",
@@ -110,7 +110,7 @@ export const TECH_GADGETS_SHORTS: ShortsScript[] = [
     title: "The Buffering Circle Always Picks The Best Scene",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 37,
-    hook: "POV: the movie reaches the one scene everyone waited for, and the buffering circle appears.",
+    hook: "POV: the buffering circle appears at the best scene—and your internet plan may be innocent.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -145,8 +145,8 @@ export const TECH_GADGETS_SHORTS: ShortsScript[] = [
           "The same television now playing a generic landscape scene smoothly while a small traffic meter settles.",
       },
     ],
-    cta: "My movie-night buffering checklist is in the bio if you want the fixes in order.",
-    caption: `When a movie buffers at the worst moment, check the traffic inside the house before changing the plan. Pause backups, restart the streaming device, and test the band that fits the room. Movie-night checklist: __LINK__`,
+    cta: "Go to my bio for the written movie-night checklist and try the fixes in order.",
+    caption: `When a movie buffers at the worst moment, check traffic inside the house before changing the plan. Pause backups, restart the streaming device, and test the band that fits the room. Full movie-night checklist: __LINK__`,
     hashtags: ["streaming", "buffering", "wifi", "movienight", "techtips"],
     visualStyle:
       "Faceless. Film the television, remote, router, and device menus only. Use generic screens and hide all account details.",
@@ -161,7 +161,7 @@ export const TECH_GADGETS_SHORTS: ShortsScript[] = [
     title: "What Your Wi-Fi Speed Test Actually Means",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 40,
-    hook: "A Wi-Fi speed test gives you three numbers. Here is what each one can actually tell you.",
+    hook: "Those three speed-test numbers are answering different questions. One of them is probably not what you think.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -204,8 +204,8 @@ export const TECH_GADGETS_SHORTS: ShortsScript[] = [
           "Side-by-side result cards labeled near router and slow room, followed by icons for placement, bands, and interference.",
       },
     ],
-    cta: "The speed-test reading guide is in my bio if you want a copy beside you.",
-    caption: `Read a speed test in plain English: download is data coming in, upload is data going out, and latency is response delay. Compare beside the router with the slow room to spot a coverage problem. Guide: __LINK__`,
+    cta: "Open my bio for the written speed-test guide and keep it beside your results.",
+    caption: `Read a speed test in plain English: download is data coming in, upload is data going out, and latency is response delay. Compare beside the router with the slow room to spot a coverage problem. Full speed-test walkthrough: __LINK__`,
     hashtags: ["speedtest", "wifi", "internettips", "homenetwork", "techhelp"],
     visualStyle:
       "Faceless screen demo. Crop names and ads from the test page. Enlarge each result and burn in a one-line definition.",
@@ -220,7 +220,7 @@ export const TECH_GADGETS_SHORTS: ShortsScript[] = [
     title: "The Same Room Before And After Moving The Router",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 35,
-    hook: "Same room. Same internet plan. One router move changes the entire Wi-Fi test.",
+    hook: "Same room. Same plan. No new gear. Watch what changes when the router moves out of one bad hiding place.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -255,8 +255,8 @@ export const TECH_GADGETS_SHORTS: ShortsScript[] = [
           "Before-and-after result cards appear side by side, followed by a generic menu showing the longer-range Wi-Fi band.",
       },
     ],
-    cta: "The router placement map is in my bio if you want to test your rooms one by one.",
-    caption: `Before buying anything, move the same router from a low hidden corner to an open central shelf. Test from the same room before and after. If the result improves, placement was the bottleneck. Placement map: __LINK__`,
+    cta: "Get the written router-placement map from my bio and test your rooms one by one.",
+    caption: `Before buying anything, move the same router from a low hidden corner to an open central shelf. Test from the same room before and after. If the result improves, placement was likely the bottleneck. Full placement map: __LINK__`,
     hashtags: ["routerplacement", "wifi", "beforeandafter", "homenetwork"],
     visualStyle:
       "Faceless. Match the before and after camera angles, use generic test screens, and show only hands when moving the router.",

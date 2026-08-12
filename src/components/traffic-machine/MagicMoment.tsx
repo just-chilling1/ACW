@@ -4,10 +4,10 @@ import { GenerationProgress } from "@/components/ui/generation-progress";
 
 const BUILD_MESSAGES = [
   "Analyzing your offer…",
-  "Finding matching opportunities…",
-  "Ranking traffic sources…",
-  "Preparing your promotion plan…",
-  "Building your Traffic Machine…",
+  "Matching traffic sources…",
+  "Ranking the best places to submit…",
+  "Preparing ready-to-paste content…",
+  "Almost ready…",
 ];
 
 interface MagicMomentProps {
@@ -19,7 +19,7 @@ export function MagicMoment({ active }: MagicMomentProps) {
     <GenerationProgress
       active={active}
       showBanner={false}
-      label="Building your Traffic Machine…"
+      label="Building your traffic list…"
       statusMessages={BUILD_MESSAGES}
       statusIntervalMs={2800}
       scrollOnComplete={false}

@@ -1,9 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { RefreshCw } from "lucide-react";
-import { PageHeader } from "@/components/ui/page-header";
 import { TutorialVideoSection } from "@/components/ui/tutorial-video-section";
 import { useSearch } from "@/context/SearchContext";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
@@ -11,8 +9,12 @@ import type { HotThreadItem, HotThreadPackResponse } from "@/lib/hot-threads/typ
 import { NichePicker } from "@/components/ui/niche-picker";
 import { RefreshCountdown } from "@/components/hot-threads/RefreshCountdown";
 import { HotThreadCard } from "@/components/hot-threads/HotThreadCard";
-import { Skeleton } from "@/components/ui/skeleton";
-import { InlineError } from "@/components/ui/InlineError";
+import {
+  PremiumLandingShell,
+  PremiumHero,
+  PremiumSection,
+  PremiumStateBlock,
+} from "@/components/premium";
 
 const STORAGE_KEY = "acw.hot-threads.niche";
 
@@ -97,13 +99,8 @@ export default function HotThreadsPage() {
   const items: HotThreadItem[] = pack?.items || [];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 12 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="mx-auto flex w-full max-w-2xl flex-col gap-6 py-6 pb-16"
-    >
-      <PageHeader
-        eyebrow="PREMIUM"
+    <PremiumLandingShell>
+      <PremiumHero
         title={
           <>
             Hot Threads &amp; <span className="text-gradient">Offers</span>
@@ -117,18 +114,16 @@ export default function HotThreadsPage() {
         description="Learn how to pick a niche, copy a reply, and post into today’s hottest conversations."
       />
 
-      <section className="flex flex-col gap-3">
-        <h2 className="ds-h5">1. Choose your niche</h2>
+      <PremiumSection step={1} title="Choose your niche">
         <NichePicker value={niche} onChange={setNiche} disabled={loading || refreshing} />
-      </section>
+      </PremiumSection>
 
-      <section className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="ds-h5">2. Today&apos;s hot threads</h2>
-          {pack?.expiresAt && <RefreshCountdown expiresAt={pack.expiresAt} />}
-        </div>
-
-        {expiresSoon && (
+      <PremiumSection
+        step={2}
+        title="Today's hot threads"
+        meta={pack?.expiresAt ? <RefreshCountdown expiresAt={pack.expiresAt} /> : null}
+      >
+        {expiresSoon ? (
           <button
             type="button"
             disabled={refreshing}
@@ -138,39 +133,33 @@ export default function HotThreadsPage() {
             <RefreshCw size={14} className={refreshing ? "animate-spin" : undefined} />
             {refreshing ? "Refreshing…" : "Refresh threads"}
           </button>
-        )}
-
-        {error ? (
-          <div className="flex flex-col gap-3">
-            <InlineError message={error} />
-            <button type="button" className="btn-secondary w-fit" onClick={() => loadPack(niche)}>
-              Try again
-            </button>
-          </div>
         ) : null}
 
-        {loading && (
-          <div className="flex flex-col gap-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-40 w-full rounded-[var(--radius-lg)]" />
-            ))}
-          </div>
-        )}
+        {error ? (
+          <PremiumStateBlock
+            variant="error"
+            message={error}
+            onRetry={() => loadPack(niche)}
+          />
+        ) : null}
 
-        {!loading && !error && items.length === 0 && (
-          <div className="card-base p-8 text-center text-sm text-text-muted">
-            No threads yet for this niche. Try refresh in a moment.
-          </div>
-        )}
+        {loading ? <PremiumStateBlock rows={3} heightClassName="h-40" /> : null}
 
-        {!loading && items.length > 0 && (
+        {!loading && !error && items.length === 0 ? (
+          <PremiumStateBlock
+            variant="empty"
+            message="No threads yet for this niche. Try refresh in a moment."
+          />
+        ) : null}
+
+        {!loading && items.length > 0 ? (
           <div className="flex flex-col gap-4">
             {items.map((item, index) => (
               <HotThreadCard key={item.id} item={item} index={index} />
             ))}
           </div>
-        )}
-      </section>
-    </motion.div>
+        ) : null}
+      </PremiumSection>
+    </PremiumLandingShell>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Copy, ExternalLink, X } from "lucide-react";
 import { clsx } from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
@@ -10,6 +10,8 @@ interface GuidedWorkflowProps {
   opportunity: ScoredOpportunity | null;
   promotionKit: PromotionKit | null;
   loadingKit: boolean;
+  completing?: boolean;
+  error?: string | null;
   onClose: () => void;
   onGenerateKit: () => void;
   onComplete: () => void;
@@ -21,7 +23,7 @@ function CopyBtn({ text, label }: { text: string; label: string }) {
     <button
       type="button"
       onClick={() => {
-        navigator.clipboard.writeText(text);
+        void navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }}
@@ -40,11 +42,20 @@ export function GuidedWorkflow({
   opportunity,
   promotionKit,
   loadingKit,
+  completing = false,
+  error = null,
   onClose,
   onGenerateKit,
   onComplete,
 }: GuidedWorkflowProps) {
   const [step, setStep] = useState(1);
+  const [autoRequested, setAutoRequested] = useState(false);
+
+  useEffect(() => {
+    if (!opportunity || promotionKit || loadingKit || autoRequested) return;
+    setAutoRequested(true);
+    onGenerateKit();
+  }, [opportunity, promotionKit, loadingKit, autoRequested, onGenerateKit]);
 
   if (!opportunity) return null;
 
@@ -58,36 +69,81 @@ export function GuidedWorkflow({
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
-          className="card-base flex max-h-[90vh] w-full max-w-2xl flex-col gap-6 overflow-y-auto p-6 sm:p-8"
+          className="card-base flex max-h-[90vh] w-full max-w-2xl flex-col gap-5 overflow-y-auto p-5 sm:p-7"
           role="dialog"
           aria-labelledby="guided-workflow-title"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="page-eyebrow">Step {step} of 4</p>
+              <p className="page-eyebrow">Step {step} of 3</p>
               <h2 id="guided-workflow-title" className="ds-h3">
                 {source.name}
               </h2>
+              <p className="mt-1 text-sm text-text-muted">
+                {source.difficulty} · ~{source.time.replace(/minutes?/i, "min")}
+              </p>
             </div>
             <button type="button" onClick={onClose} className="btn-secondary p-2" aria-label="Close">
               <X size={18} />
             </button>
           </div>
 
+          {error ? (
+            <div className="rounded-[var(--radius-md)] border border-[var(--error-border)] bg-[var(--error-bg)] px-3 py-2 text-sm text-[var(--error)]">
+              {error}
+            </div>
+          ) : null}
+
           {step === 1 && (
             <div className="flex flex-col gap-4">
-              <h3 className="ds-h5">Here&apos;s what to do</h3>
-              <ol className="flex list-decimal flex-col gap-2 pl-5 text-sm text-text-secondary">
-                {source.instructions.map((inst, i) => (
-                  <li key={i}>{inst}</li>
-                ))}
-              </ol>
+              <div>
+                <h3 className="text-base font-semibold text-text-primary">Follow these steps</h3>
+                <ol className="mt-3 flex list-decimal flex-col gap-2 pl-5 text-sm text-text-secondary">
+                  {source.instructions.map((inst, i) => (
+                    <li key={i}>{inst}</li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="surface-well-lg flex flex-col gap-3 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                  Ready-to-paste content
+                </p>
+                {loadingKit && !promotionKit ? (
+                  <p className="text-sm text-text-muted">Preparing your promotion…</p>
+                ) : null}
+                {promotionKit ? (
+                  <>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-xs font-semibold text-text-muted">Headline</span>
+                      <p className="text-sm text-text-primary">{promotionKit.headline}</p>
+                      <CopyBtn text={promotionKit.headline} label="Copy Headline" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-xs font-semibold text-text-muted">Description</span>
+                      <p className="text-sm text-text-primary">{promotionKit.shortDescription}</p>
+                      <CopyBtn text={promotionKit.shortDescription} label="Copy Description" />
+                    </div>
+                    <CopyBtn text={promotionKit.copyAll} label="Copy Everything" />
+                  </>
+                ) : !loadingKit ? (
+                  <button type="button" onClick={onGenerateKit} className="btn-secondary w-fit text-sm">
+                    Generate promotion
+                  </button>
+                ) : null}
+              </div>
+
               <div className="flex flex-wrap gap-3">
                 <button type="button" onClick={onClose} className="btn-secondary">
-                  Back
+                  Cancel
                 </button>
-                <button type="button" onClick={() => setStep(2)} className="btn-primary">
-                  Next: Get Your Content
+                <button
+                  type="button"
+                  disabled={!promotionKit || loadingKit}
+                  onClick={() => setStep(2)}
+                  className="btn-primary"
+                >
+                  Next: Open site
                 </button>
               </div>
             </div>
@@ -95,50 +151,12 @@ export function GuidedWorkflow({
 
           {step === 2 && (
             <div className="flex flex-col gap-4">
-              <h3 className="ds-h5">Here&apos;s your ready-to-use content</h3>
-              {!promotionKit && !loadingKit && (
-                <button type="button" onClick={onGenerateKit} className="btn-primary w-fit">
-                  Generate My Promotion
-                </button>
-              )}
-              {loadingKit && <p className="text-sm text-text-muted">Preparing your promotion…</p>}
-              {promotionKit && (
-                <div className="flex flex-col gap-4">
-                  <div className="surface-well-lg flex flex-col gap-2 p-4">
-                    <span className="text-xs font-semibold text-text-muted">Headline</span>
-                    <p className="text-sm">{promotionKit.headline}</p>
-                    <CopyBtn text={promotionKit.headline} label="Copy Headline" />
-                  </div>
-                  <div className="surface-well-lg flex flex-col gap-2 p-4">
-                    <span className="text-xs font-semibold text-text-muted">Description</span>
-                    <p className="text-sm">{promotionKit.shortDescription}</p>
-                    <CopyBtn text={promotionKit.shortDescription} label="Copy Description" />
-                  </div>
-                  <CopyBtn text={promotionKit.copyAll} label="Copy Everything" />
-                </div>
-              )}
-              <div className="flex flex-wrap gap-3">
-                <button type="button" onClick={() => setStep(1)} className="btn-secondary">
-                  Back
-                </button>
-                <button
-                  type="button"
-                  disabled={!promotionKit || loadingKit}
-                  onClick={() => setStep(3)}
-                  className="btn-primary"
-                >
-                  Next: Open the Site
-                </button>
+              <div>
+                <h3 className="text-base font-semibold text-text-primary">Open {source.name}</h3>
+                <p className="mt-1 text-sm text-text-secondary">
+                  Paste your content, then come back here and mark it done.
+                </p>
               </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="flex flex-col gap-4">
-              <h3 className="ds-h5">Open the opportunity</h3>
-              <p className="text-sm text-text-secondary">
-                Paste your content on {source.name}, then come back here when you&apos;re done.
-              </p>
               <a
                 href={source.url}
                 target="_blank"
@@ -149,28 +167,33 @@ export function GuidedWorkflow({
                 <ExternalLink size={14} />
               </a>
               <div className="flex flex-wrap gap-3">
-                <button type="button" onClick={() => setStep(2)} className="btn-secondary">
+                <button type="button" onClick={() => setStep(1)} className="btn-secondary">
                   Back
                 </button>
-                <button type="button" onClick={() => setStep(4)} className="btn-primary">
-                  I&apos;ve opened it
+                <button type="button" onClick={() => setStep(3)} className="btn-primary">
+                  I&apos;ve submitted it
                 </button>
               </div>
             </div>
           )}
 
-          {step === 4 && (
+          {step === 3 && (
             <div className="flex flex-col gap-4">
-              <h3 className="ds-h5">Did you complete it?</h3>
+              <div>
+                <h3 className="text-base font-semibold text-text-primary">Mark this source done?</h3>
+                <p className="mt-1 text-sm text-text-secondary">
+                  We&apos;ll track it so you don&apos;t submit twice, and move you to the next source.
+                </p>
+              </div>
               <div className="flex flex-wrap gap-3">
-                <button type="button" onClick={() => setStep(3)} className="btn-secondary">
+                <button type="button" onClick={() => setStep(2)} className="btn-secondary" disabled={completing}>
                   Back
                 </button>
-                <button type="button" onClick={onComplete} className="btn-primary">
-                  ✓ Done
+                <button type="button" onClick={onComplete} disabled={completing} className="btn-primary">
+                  {completing ? "Saving…" : "Mark Done ✓"}
                 </button>
-                <button type="button" onClick={onClose} className="btn-secondary">
-                  Not Yet
+                <button type="button" onClick={onClose} className="btn-secondary" disabled={completing}>
+                  Not yet
                 </button>
               </div>
             </div>

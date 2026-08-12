@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/api-auth";
 import {
   activateSource,
-  deactivateSource,
-  ensureMachineForUser,
+  getMachineForUser,
   syncMachineAfterActivation,
 } from "@/lib/traffic-machine/machine-service";
 import { buildNextAction } from "@/lib/traffic-machine/rank";
@@ -17,7 +16,10 @@ export async function POST(req: Request, context: RouteContext) {
 
   try {
     const { sourceId } = await context.params;
-    const machine = await ensureMachineForUser(auth.supabase, auth.user.id);
+    const machine = await getMachineForUser(auth.supabase, auth.user.id);
+    if (!machine) {
+      return NextResponse.json({ error: "No Traffic Machine found." }, { status: 404 });
+    }
 
     const source = TRAFFIC_SOURCES.find((s) => s.id === sourceId);
     if (!source) {
@@ -25,10 +27,12 @@ export async function POST(req: Request, context: RouteContext) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const done = body.done !== false;
-    const activation = done
-      ? await activateSource(auth.supabase, machine.id, sourceId, body.promotionKit)
-      : await deactivateSource(auth.supabase, machine.id, sourceId);
+    const activation = await activateSource(
+      auth.supabase,
+      machine.id,
+      sourceId,
+      body.promotionKit,
+    );
     const synced = await syncMachineAfterActivation(auth.supabase, machine);
     const nextAction = buildNextAction(
       synced.machine,
@@ -39,7 +43,6 @@ export async function POST(req: Request, context: RouteContext) {
     return NextResponse.json({
       activation,
       machine: synced.machine,
-      activations: synced.activations,
       nextAction,
     });
   } catch {

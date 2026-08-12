@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
-import { isSafeHttpUrl } from "@/lib/safe-url";
 import {
   getActivations,
   getMachineForUser,
@@ -9,7 +8,7 @@ import {
 } from "@/lib/traffic-machine/machine-service";
 import { scoreAllOpportunities, summarizeOpportunities } from "@/lib/traffic-machine/scoring";
 import { TRAFFIC_SOURCES } from "@/lib/traffic-machine/sources";
-import type { TrafficGoal, TrafficMachineRow } from "@/lib/traffic-machine/types";
+import type { TrafficGoal } from "@/lib/traffic-machine/types";
 
 export async function GET() {
   const auth = await requireApiUser();
@@ -51,24 +50,26 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const offerUrl = clampString(body.offerUrl, 500);
+    const audienceNiche = clampString(body.audienceNiche, 40) || "not_sure";
+    const goal = (clampString(body.goal, 20) || "visitors") as TrafficGoal;
     const legacyIds = Array.isArray(body.legacyCompletedIds)
       ? body.legacyCompletedIds.filter((id: unknown): id is string => typeof id === "string").slice(0, 100)
       : [];
 
-    if (offerUrl && !isSafeHttpUrl(offerUrl)) {
-      return NextResponse.json({ error: "Please enter a valid URL." }, { status: 400 });
+    if (offerUrl) {
+      try {
+        new URL(offerUrl);
+      } catch {
+        return NextResponse.json({ error: "Please enter a valid URL." }, { status: 400 });
+      }
     }
 
-    const patch: Partial<TrafficMachineRow> = {};
-    if (offerUrl) patch.offer_url = offerUrl;
-    if (typeof body.audienceNiche === "string") {
-      patch.audience_niche = clampString(body.audienceNiche, 40) || "not_sure";
-    }
-    if (typeof body.goal === "string" && body.goal) {
-      patch.goal = clampString(body.goal, 20) as TrafficGoal;
-    }
-
-    const machine = await upsertMachine(auth.supabase, auth.user.id, patch);
+    const machine = await upsertMachine(auth.supabase, auth.user.id, {
+      offer_url: offerUrl,
+      audience_niche: audienceNiche,
+      goal,
+      status: offerUrl ? "setup" : "setup",
+    });
 
     if (legacyIds.length > 0 && !machine.meta?.legacy_migrated) {
       await importLegacyActivations(auth.supabase, machine.id, legacyIds);
@@ -93,28 +94,30 @@ export async function PATCH(req: Request) {
 
   try {
     const body = await req.json();
-    const existing = await getMachineForUser(auth.supabase, auth.user.id);
+    const machine = await getMachineForUser(auth.supabase, auth.user.id);
+    if (!machine) {
+      return NextResponse.json({ error: "No Traffic Machine found." }, { status: 404 });
+    }
 
-    const patch: Partial<TrafficMachineRow> = {};
-    if (typeof body.offerUrl === "string") {
-      const offerUrl = clampString(body.offerUrl, 500);
-      if (offerUrl && !isSafeHttpUrl(offerUrl)) {
-        return NextResponse.json({ error: "Please enter a valid URL." }, { status: 400 });
-      }
-      patch.offer_url = offerUrl;
-    }
-    if (typeof body.audienceNiche === "string") {
-      patch.audience_niche = clampString(body.audienceNiche, 40) || "not_sure";
-    }
-    if (typeof body.goal === "string") patch.goal = clampString(body.goal, 20) as TrafficGoal;
-    if (typeof body.stage === "string") patch.stage = clampString(body.stage, 20) as TrafficMachineRow["stage"];
-    if (typeof body.status === "string") patch.status = clampString(body.status, 20) as TrafficMachineRow["status"];
+    const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (body.offerUrl) patch.offer_url = clampString(body.offerUrl, 500);
+    if (body.audienceNiche) patch.audience_niche = clampString(body.audienceNiche, 40);
+    if (body.goal) patch.goal = clampString(body.goal, 20);
+    if (body.stage) patch.stage = clampString(body.stage, 20);
+    if (body.status) patch.status = clampString(body.status, 20);
     if (body.plan) patch.plan = body.plan;
     if (body.experiments) patch.experiments = body.experiments;
-    if (body.meta) patch.meta = { ...(existing?.meta || {}), ...body.meta };
+    if (body.meta) patch.meta = { ...machine.meta, ...body.meta };
 
-    const machine = await upsertMachine(auth.supabase, auth.user.id, patch);
-    return NextResponse.json({ machine });
+    const { data, error } = await auth.supabase
+      .from("traffic_machines")
+      .update(patch)
+      .eq("id", machine.id)
+      .select("*")
+      .single();
+
+    if (error) return NextResponse.json({ error: "Could not update Traffic Machine." }, { status: 500 });
+    return NextResponse.json({ machine: data });
   } catch {
     return NextResponse.json({ error: "Could not update Traffic Machine." }, { status: 500 });
   }

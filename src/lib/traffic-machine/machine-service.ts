@@ -130,12 +130,6 @@ export async function buildMachine(
   };
 }
 
-export async function ensureMachineForUser(supabase: SupabaseClient, userId: string) {
-  const existing = await getMachineForUser(supabase, userId);
-  if (existing) return existing;
-  return upsertMachine(supabase, userId, { status: "setup" });
-}
-
 export async function activateSource(
   supabase: SupabaseClient,
   machineId: string,
@@ -151,28 +145,6 @@ export async function activateSource(
         status: "active",
         activated_at: new Date().toISOString(),
         promotion_kit: promotionKit || null,
-      },
-      { onConflict: "machine_id,source_id" },
-    )
-    .select("*")
-    .single();
-  if (error) throw error;
-  return data as ActivationRow;
-}
-
-export async function deactivateSource(
-  supabase: SupabaseClient,
-  machineId: string,
-  sourceId: string,
-) {
-  const { data, error } = await supabase
-    .from("traffic_machine_activations")
-    .upsert(
-      {
-        machine_id: machineId,
-        source_id: sourceId,
-        status: "pending",
-        activated_at: null,
       },
       { onConflict: "machine_id,source_id" },
     )

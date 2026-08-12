@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, Circle, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Circle, Download, Sparkles } from "lucide-react";
 import { clsx } from "clsx";
 import type { CampaignAssetRow, CampaignOpportunityRow, CampaignRow } from "@/lib/dfy/types";
 import { CopyButton } from "./copy-button";
@@ -12,6 +12,7 @@ import {
     getOpportunityProgress,
     getWeeklyPosts,
     isAssetDone,
+    fullWeeklyPostText,
 } from "@/lib/dfy/campaign-progress";
 
 const STEPS = [
@@ -96,7 +97,16 @@ function PostCard({
             )}
         >
             <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--gold-text)]">{label}</p>
+                <p
+                    className={clsx(
+                        "text-xs font-semibold uppercase tracking-wider",
+                        done
+                            ? "text-text-muted line-through decoration-[var(--success)] decoration-2"
+                            : "text-[var(--gold-text)]",
+                    )}
+                >
+                    {label}
+                </p>
                 {done ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-[var(--success-bg-subtle)] px-2 py-0.5 text-[10px] font-semibold uppercase text-[var(--success)]">
                         <CheckCircle2 size={12} />
@@ -371,34 +381,39 @@ export function CampaignLinearFlow({
 
                     {(weekGenerated || weeklyPosts.length > 0) && (
                         <>
-                            {campaignProgress.week.total > 0 ? (
-                                <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-4 py-3">
-                                    <p className="text-sm font-semibold text-text-primary">
-                                        Week posts: {campaignProgress.week.done} of {campaignProgress.week.total} done
-                                    </p>
-                                </div>
-                            ) : null}
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                {campaignProgress.week.total > 0 ? (
+                                    <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-4 py-3 sm:flex-1">
+                                        <p className="text-sm font-semibold text-text-primary">
+                                            Week posts: {campaignProgress.week.done} of {campaignProgress.week.total} done
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div />
+                                )}
+                                {weeklyPosts.length > 0 ? (
+                                    <a
+                                        href={`/api/dfy/campaigns/${campaign.id}/export?format=week`}
+                                        className="btn-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm sm:w-auto"
+                                        download
+                                    >
+                                        <Download size={16} />
+                                        Download week plan
+                                    </a>
+                                ) : null}
+                            </div>
 
                             <div className="flex flex-col gap-4">
-                                {weeklyPosts.map((asset) => {
-                                    const fullText = [
-                                        asset.meta?.hook ? String(asset.meta.hook) : "",
-                                        asset.content,
-                                        asset.meta?.cta ? String(asset.meta.cta) : "",
-                                    ]
-                                        .filter(Boolean)
-                                        .join("\n\n");
-                                    return (
+                                {weeklyPosts.map((asset) => (
                                         <PostCard
                                             key={asset.id}
                                             label={`${String(asset.meta?.weekday || "Day")} post`}
-                                            content={fullText}
+                                            content={fullWeeklyPostText(asset)}
                                             done={isAssetDone(asset)}
                                             markingDone={markingAssetId === asset.id}
                                             onMarkDone={(doneState) => onMarkAssetDone(asset.id, doneState)}
                                         />
-                                    );
-                                })}
+                                ))}
                             </div>
 
                             {!fillingWeek && weeklyPosts.length === 0 ? (

@@ -45,11 +45,14 @@ function toThreadSeed(
 }
 
 export function fallbackReplies(topic: string): string[] {
-  const t = topic.slice(0, 60) || "this";
+  const t = (topic.slice(0, 80) || "this").trim();
   return [
-    `This is exactly what I was looking for. I've been researching "${t}" and the best thing I found was this: ${LINK_PLACEHOLDER}`,
-    `I was in the same spot. What finally helped me with "${t}" was this: ${LINK_PLACEHOLDER} — worth a look.`,
-    `Has anyone tried ${LINK_PLACEHOLDER} for "${t}"? Curious if it lives up to the hype.`,
+    `Solid thread. For "${t}", this is the clearest starting point I've seen: ${LINK_PLACEHOLDER}`,
+    `Been digging into "${t}" too. What helped most was a simple breakdown instead of jumping between random tips — this covers it cleanly: ${LINK_PLACEHOLDER}`,
+    `Has anyone compared options for "${t}"? Curious what you think of this one: ${LINK_PLACEHOLDER}`,
+    `Totally get why "${t}" is confusing — there's a lot of noise. If it helps, this walks through it in plain language: ${LINK_PLACEHOLDER}`,
+    `Quick tip on "${t}": start with one clear method and stick with it for a week before switching. This lays that out well: ${LINK_PLACEHOLDER}`,
+    `Not pushing anything hard — if you're researching "${t}", this is worth a quiet look when you have a minute: ${LINK_PLACEHOLDER}`,
   ];
 }
 
@@ -164,8 +167,21 @@ async function attachAiReplies(threads: HotThreadItem[]): Promise<HotThreadItem[
   return threads.map((t) => ({
     ...t,
     source: "live" as const,
-    replies: byId.get(t.id) || fallbackReplies(t.title || t.text),
+    replies: padReplies(byId.get(t.id), t.title || t.text),
   }));
+}
+
+function padReplies(aiReplies: string[] | undefined, topic: string): string[] {
+  const fallbacks = fallbackReplies(topic);
+  const merged = [...(aiReplies || [])].map(String).filter((r) => r.trim());
+  for (const fb of fallbacks) {
+    if (merged.length >= fallbacks.length) break;
+    const duplicate = merged.some(
+      (r) => r.toLowerCase().slice(0, 80) === fb.toLowerCase().slice(0, 80),
+    );
+    if (!duplicate) merged.push(fb);
+  }
+  return merged.slice(0, fallbacks.length);
 }
 
 async function persistPack(

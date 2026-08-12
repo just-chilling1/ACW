@@ -1,5 +1,56 @@
 import type { CampaignAssetRow, CampaignOpportunityRow, CampaignRow } from "./types";
 
+const WEEKDAY_ORDER = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+function weekdayRank(value: unknown): number {
+    const day = String(value || "");
+    const idx = WEEKDAY_ORDER.indexOf(day);
+    return idx === -1 ? 99 : idx;
+}
+
+function weeklyPostBody(asset: CampaignAssetRow): string {
+    return [
+        asset.meta?.hook ? String(asset.meta.hook) : "",
+        asset.content,
+        asset.meta?.cta ? String(asset.meta.cta) : "",
+    ]
+        .filter(Boolean)
+        .join("\n\n");
+}
+
+export function buildWeeklyPlanExport(
+    campaign: Pick<CampaignRow, "name" | "offer_url">,
+    assets: CampaignAssetRow[],
+): string {
+    const weekly = assets
+        .filter((a) => a.meta?.section === "weekly_batch")
+        .sort((a, b) => weekdayRank(a.meta?.weekday) - weekdayRank(b.meta?.weekday));
+
+    const lines: string[] = [
+        `# ${campaign.name} — Weekly Plan`,
+        "",
+        `Offer URL: ${campaign.offer_url}`,
+        "",
+        "Copy one post per weekday (Mon–Fri). Paste, publish, then mark it done in Cashwave.",
+        "",
+    ];
+
+    if (weekly.length === 0) {
+        lines.push("_No weekly posts yet. Generate Fill My Week first._");
+        return lines.join("\n");
+    }
+
+    for (const asset of weekly) {
+        const day = String(asset.meta?.weekday || "Day");
+        const angle = asset.meta?.angle ? String(asset.meta.angle) : "";
+        lines.push(`## ${day} post`);
+        if (angle) lines.push(`_Angle: ${angle}_`, "");
+        lines.push(weeklyPostBody(asset), "", "---", "");
+    }
+
+    return lines.join("\n").replace(/\n---\n\n$/, "\n");
+}
+
 export function buildMarkdownExport(
     campaign: CampaignRow,
     opportunities: CampaignOpportunityRow[],
@@ -55,6 +106,11 @@ export function buildMarkdownExport(
     lines.push("", "## 30-Day Calendar");
     for (const day of assets.filter((a) => a.meta?.section === "calendar").slice(0, 30)) {
         lines.push(`- Day ${day.meta?.day}: ${day.content}`);
+    }
+
+    if (assets.some((a) => a.meta?.section === "weekly_batch")) {
+        const weeklySection = buildWeeklyPlanExport(campaign, assets);
+        lines.push("", weeklySection.replace(/^# .+\n\n/, "## Weekly Plan\n\n"));
     }
 
     return lines.join("\n");

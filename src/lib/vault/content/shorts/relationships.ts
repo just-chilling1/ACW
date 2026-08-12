@@ -9,7 +9,7 @@ export const RELATIONSHIPS_SHORTS: ShortsScript[] = [
     title: "Why The Same Argument Keeps Coming Back",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 33,
-    hook: "The same argument keeps returning because you keep ending the fight, not solving the pattern.",
+    hook: "If the same argument keeps coming back, the problem may be the shape of the conversation—not the topic.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -44,8 +44,8 @@ export const RELATIONSHIPS_SHORTS: ShortsScript[] = [
           "Three-item checklist on a plain cream background, each line receiving a checkmark.",
       },
     ],
-    cta: "The calm-conversation checklist is in my bio if you want it written out.",
-    caption: `If the same argument keeps returning, check the structure: bad timing, a decade of evidence, and no clear request. Pick one calm time, one recent example, and one next step. Use the checklist here: __LINK__`,
+    cta: "Go to my bio for the written calm-conversation checklist before the next discussion.",
+    caption: `If the same argument keeps returning, check the structure: bad timing, a decade of evidence, and no clear request. Pick one calm time, one recent example, and one next step. Full calm-conversation checklist: __LINK__`,
     hashtags: ["relationships", "couplecommunication", "conflictresolution", "marriage"],
     visualStyle:
       "Faceless. Use object shots, simple graphics, and large burned-in captions. Keep every example neutral and free of identifiable messages.",
@@ -60,7 +60,7 @@ export const RELATIONSHIPS_SHORTS: ShortsScript[] = [
     title: "Talking More Is Not Always The Fix",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 29,
-    hook: "Talking more will not help if both of you are only preparing the next reply.",
+    hook: "More talking can make a disagreement worse when both people are silently rehearsing their defense.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -95,8 +95,8 @@ export const RELATIONSHIPS_SHORTS: ShortsScript[] = [
           "Plain text card on a muted sage background with a slow push in.",
       },
     ],
-    cta: "The short listening drill is in my bio if you want to try it tonight.",
-    caption: `Talking more is not automatically better communication. Slow the exchange down: let one person finish, repeat what you heard, and check before replying. The short listening drill is here: __LINK__`,
+    cta: "Open my bio for the written listening drill and try the three steps tonight.",
+    caption: `Talking more is not automatically better communication. Slow the exchange down: let one person finish, repeat what you heard, and check before replying. Full three-step listening drill: __LINK__`,
     hashtags: ["relationships", "communicationskills", "activelistening", "coupletips"],
     visualStyle:
       "Faceless. Use animated text, a notes-app recording, and clean cards. Burn in every spoken line for sound-off viewing.",
@@ -111,7 +111,7 @@ export const RELATIONSHIPS_SHORTS: ShortsScript[] = [
     title: "When You Two Start Feeling Like Roommates",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 37,
-    hook: "POV: you share a home, a calendar, and a bed, but nobody has asked how you are in days.",
+    hook: "POV: the house runs perfectly, but your relationship has quietly become a logistics department.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -146,8 +146,8 @@ export const RELATIONSHIPS_SHORTS: ShortsScript[] = [
           "Weekly calendar graphic adds the same twenty-minute walk on two consecutive evenings.",
       },
     ],
-    cta: "A gentle weekly reconnect plan is in my bio if you want a place to begin.",
-    caption: `Feeling like roommates can begin with ordinary weeks that contain logistics but no real contact. Try one honest bid and one repeating twenty-minute appointment. A gentle reconnect plan is here: __LINK__`,
+    cta: "Use the written weekly reconnect plan in my bio for a gentle place to begin.",
+    caption: `Feeling like roommates can begin with ordinary weeks full of logistics but little real contact. Try one honest bid and one repeating twenty-minute appointment; change may be gradual. Full gentle reconnect plan: __LINK__`,
     hashtags: ["relationships", "reconnect", "qualitytime", "longtermrelationship"],
     visualStyle:
       "Faceless. Frame hands, objects, phones, shoes, and calendar graphics only. Keep the mood quiet rather than melodramatic.",
@@ -162,7 +162,7 @@ export const RELATIONSHIPS_SHORTS: ShortsScript[] = [
     title: "A Weekly Check-In You Can Copy",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 41,
-    hook: "Copy this four-line weekly check-in before another small issue becomes the whole weekend.",
+    hook: "Four lines and twenty minutes can give small issues somewhere to go before they consume the weekend.",
     beats: [
       {
         timecode: "0:05-0:13",
@@ -205,8 +205,8 @@ export const RELATIONSHIPS_SHORTS: ShortsScript[] = [
           "A twenty-minute timer reaches zero, then the completed four-line note fills the screen.",
       },
     ],
-    cta: "The copyable check-in template is in my bio if you want all four prompts.",
-    caption: `A weekly relationship check-in can stay simple: what felt good, what felt hard, what do you need, and what will you do together? Keep it to twenty minutes. Copy the template here: __LINK__`,
+    cta: "Open my bio for the written check-in template and copy all four prompts.",
+    caption: `A weekly relationship check-in can stay simple: what felt good, what felt hard, what do you need, and what will you do together? Keep it to twenty minutes. Full four-prompt template: __LINK__`,
     hashtags: ["relationships", "weeklycheckin", "couplecommunication", "relationshiphabits"],
     visualStyle:
       "Faceless screen demo only. Hide notifications and personal details. Use a large cursor, high contrast, and burned-in captions.",
@@ -221,7 +221,7 @@ export const RELATIONSHIPS_SHORTS: ShortsScript[] = [
     title: "Week One To Week Eight Of One Small Change",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 35,
-    hook: "One small change for eight weeks: six phone-free minutes after dinner.",
+    hook: "What changes after eight weeks of six phone-free minutes? Not perfect harmony—something more believable.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -256,8 +256,8 @@ export const RELATIONSHIPS_SHORTS: ShortsScript[] = [
           "Overhead shot of two cups across a table, followed by eight completed weekly marks on a calendar.",
       },
     ],
-    cta: "The eight-week habit tracker is in my bio if you want to try the same small change.",
-    caption: `Six phone-free minutes after dinner will not create perfect harmony. It can create a reliable place for better questions and earlier conversations. Try the eight-week habit tracker here: __LINK__`,
+    cta: "Get the written eight-week habit tracker from my bio and try the same small change.",
+    caption: `Six phone-free minutes after dinner will not create perfect harmony. It can create a reliable place for better questions and earlier conversations. Full eight-week habit tracker: __LINK__`,
     hashtags: ["relationships", "relationshiphabits", "qualitytime", "couplecheckin"],
     visualStyle:
       "Faceless. Use overhead object shots, calendar graphics, and simple text cards. Avoid romantic stock footage and exaggerated transformations.",

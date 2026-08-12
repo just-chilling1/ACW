@@ -256,7 +256,7 @@ Count what you repeat. That is the number that changes your body.`,
     angle: "Supplements skepticism",
     question: "Do I need weight-loss supplements, or is that a waste of money for beginners?",
     searchQuery: "do weight loss supplements work for beginners",
-    answer: `Most weight-loss supplements are expensive hope. A few are optional extras after food, sleep, and walking are in place.
+    answer: `If a weight-loss bottle promises to replace meals, sleep, or walking, it is selling expensive hope. A few supplements can be optional extras after those basics are in place.
 
 If a bottle promises fat melting while you sleep, put it back. Fat loss is a gap between what you eat and what you use, plus enough protein and muscle so you do not just get smaller and weaker.
 
@@ -392,7 +392,7 @@ Feelings are welcome. They are not the boss. The boss is the next small action y
     nicheId: "weight_loss",
     angle: "Water before meals",
     pinTitle: "Drink a Glass of Water Before Meals (Simple Hunger Check)",
-    pinDescription: `Thirst often feels like hunger. A glass of water before lunch and dinner slows the first bites and cuts accidental extras. Pair with protein. Habit guide: __LINK__ Keywords: drink water before meals, stop overeating, simple weight loss habits.`,
+    pinDescription: `A glass of water before lunch and dinner creates a simple pause before the first bite. Pair it with a protein-rich meal to make the habit more useful. Build the routine here: __LINK__ Keywords: drink water before meals, mindful eating, simple weight loss habits.`,
     boardName: "Healthy Daily Habits",
     imageConcept: "Tall glass of water beside a plate, 9:16. Overlay: 'Before the first bite'. Soft blue-white kitchen light, gold rim on the glass.",
     keywords: ["drink water before meals", "stop overeating", "simple weight loss habits", "water for fat loss", "mindful eating beginner"],

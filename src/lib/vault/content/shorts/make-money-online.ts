@@ -9,7 +9,7 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
     title: "Three Mistakes That Keep Beginners At Zero",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 32,
-    hook: "Three reasons your side hustle is still making zero, and none of them are effort.",
+    hook: "Working harder may not fix a side hustle stuck at zero. These three mistakes hide before the first sale.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -43,8 +43,8 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
         visual: "Plain text card on a dark background with a slow zoom in.",
       },
     ],
-    cta: "The thirty-day version of this is in my bio if you want the steps written out.",
-    caption: `Three mistakes that keep beginners at zero: switching every week, building before anyone asked, and waiting until you feel ready. Pick one thing and give it thirty days. Full plan here: __LINK__`,
+    cta: "Go to my bio for the written thirty-day plan and work through it one step at a time.",
+    caption: `Three mistakes can keep beginners at zero: switching every week, building before anyone asked, and waiting until you feel ready. Pick one offer, test demand, and give the process thirty days without assuming a sale. Full thirty-day plan: __LINK__`,
     hashtags: ["sidehustle", "makemoneyonline", "beginnermistakes", "onlineincome"],
     visualStyle:
       "Faceless. Screen recordings and plain text cards only. Burn in captions so it reads with the sound off.",
@@ -59,7 +59,7 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
     title: "Passive Income Is Not Passive At The Start",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 28,
-    hook: "If it was truly passive on day one, everyone you know would already be doing it.",
+    hook: "“Passive income” has an active first chapter most screenshots leave out.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -79,7 +79,7 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
       {
         timecode: "0:18-0:24",
         voiceover:
-          "Passive comes later, if it comes at all. Search traffic and old posts can keep working after you stop typing. That is the reward for the boring stretch, not a shortcut around it.",
+          "Passive may come later, or not at all. Search traffic and old posts can keep working after you stop typing, but only the data will show whether they do.",
         onScreen: "Passive is the leftover",
         visual: "Stock clip of a published post sitting still while a view count ticks slowly upward.",
       },
@@ -90,8 +90,8 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
         visual: "Plain text card on a cream background with a slow zoom in.",
       },
     ],
-    cta: "If you want the thirty-day active plan written out, it is in my bio.",
-    caption: `Passive income is not passive at the start. The first month is answering questions and posting the same idea until you have proof anyone cares. The leftover traffic comes later. Walkthrough: __LINK__`,
+    cta: "Open my bio for the written thirty-day active plan and the tracking steps.",
+    caption: `Passive income is not passive at the start. The first month may involve answering questions, publishing useful posts, and tracking whether anyone responds. Old content might keep working later, but there is no guarantee. Full active-phase walkthrough: __LINK__`,
     hashtags: ["passiveincome", "sidehustle", "makemoneyonline", "truth"],
     visualStyle:
       "Faceless. Text cards for the myth and the truth, then a short screen recording of a checklist. Burn in captions.",
@@ -106,7 +106,7 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
     title: "Forty Hours Of Tutorials And Still Zero",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 36,
-    hook: "You have watched forty hours of how-to videos. Your balance is still zero.",
+    hook: "Forty hours of tutorials can feel productive—until you notice nothing you made is visible to a customer.",
     beats: [
       {
         timecode: "0:03-0:11",
@@ -119,7 +119,7 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
       {
         timecode: "0:11-0:19",
         voiceover:
-          "Watching feels like work. It is not. The internet does not pay you for notes. It pays when a person with a problem finds your answer.",
+          "Watching feels like progress, but notes alone cannot test demand. You learn more when a person with the problem can actually find and respond to your answer.",
         onScreen: "Watching is not posting",
         visual: "Split graphic: a full notebook on the left, an empty published-post list on the right.",
       },
@@ -139,8 +139,8 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
         visual: "Plain text card: POST MORE THAN YOU WATCH. Slow zoom.",
       },
     ],
-    cta: "The one-hour posting session is written out in my bio if you want it.",
-    caption: `Forty hours of tutorials and still zero. Watching feels like work. It is not. Pick one offer, answer three real questions, and post today. Session plan: __LINK__`,
+    cta: "Use the written one-hour posting session in my bio to turn one lesson into a real demand test.",
+    caption: `Tutorials can feel productive without testing demand. Pick one offer, find three real questions, and publish one useful answer today. Responses are evidence, not guaranteed income. Full one-hour session plan: __LINK__`,
     hashtags: ["sidehustle", "tutorials", "makemoneyonline", "beginner"],
     visualStyle:
       "Faceless. Screen recordings of a video feed and a notes app, plus two text cards. No face, no talking-head cutaways.",
@@ -155,7 +155,7 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
     title: "Find What People Already Ask For",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 40,
-    hook: "Stop guessing what to sell. Watch what people already type.",
+    hook: "Before you build another offer, open a search box. Buyers may already be writing your research for you.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -189,8 +189,8 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
         visual: "Checklist graphic with five empty boxes, then the first box getting a check.",
       },
     ],
-    cta: "The search-and-answer sequence is in my bio if you want the steps on one page.",
-    caption: `Stop guessing what to sell. Search the problem, copy a real question, answer it fully, and put your link at the end. Five of those this week is a demand test. Sequence: __LINK__`,
+    cta: "Open my bio for the written search-and-answer sequence and run the five-post demand test.",
+    caption: `Stop guessing what to sell. Search the problem, save a real question, answer it fully, and offer the longer resource at the end. Five useful answers can test interest; they do not guarantee sales. Full search-and-answer sequence: __LINK__`,
     hashtags: ["sidehustle", "affiliatemarketing", "makemoneyonline", "howto"],
     visualStyle:
       "Faceless screen recording. Crop the browser so no personal bookmarks or emails show. Large burned-in captions over the cursor.",
@@ -205,7 +205,7 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
     title: "Day 1 To Day 30 Of Posting Consistently",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 34,
-    hook: "Here is what thirty days of the same posting habit actually looks like.",
+    hook: "Thirty days of posting may end without a sale—and still give you the one thing method-hopping never will.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -237,8 +237,8 @@ export const MAKE_MONEY_ONLINE_SHORTS: ShortsScript[] = [
         visual: "Plain text card: AFTER IS EVIDENCE. Slow zoom.",
       },
     ],
-    cta: "The thirty-day posting calendar is in my bio if you want it written out.",
-    caption: `Day 1 to day 30 of posting consistently: one niche, one place, a click log, and no method-switching. The after is evidence, not a fantasy. Calendar: __LINK__`,
+    cta: "Get the written thirty-day posting calendar from my bio and log the evidence as you go.",
+    caption: `Day 1 to day 30 of consistent posting: one niche, one channel, a response log, and no method-switching. A sale may happen or may not; the useful after is evidence for your next decision. Full posting calendar: __LINK__`,
     hashtags: ["sidehustle", "consistency", "makemoneyonline", "30days"],
     visualStyle:
       "Faceless. Calendar graphics, a notes app, and a simple click-log table. No luxury B-roll. No fake dashboards with huge revenue.",

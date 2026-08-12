@@ -9,13 +9,12 @@ import { Field } from "@/components/ui/field";
 import { InlineError } from "@/components/ui/InlineError";
 import { SelectableChip } from "@/components/ui/selectable-chip";
 import { KitBuildSequence } from "@/components/instant/kit-build-sequence";
-import { CopyButton } from "@/components/dfy/copy-button";
 import type { AudienceMode, OfferSnapshot } from "@/lib/dfy/types";
-import type { KitBuildProgress, KitStats } from "@/lib/instant/types";
+import type { KitBuildProgress } from "@/lib/instant/types";
 import { APP_NICHES, detectNicheFromText } from "@/lib/niches";
 import { dedupeOffersByUrl } from "@/lib/dfy/offer-url";
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3;
 
 function BuildContent() {
     const router = useRouter();
@@ -26,10 +25,7 @@ function BuildContent() {
     const [snapshot, setSnapshot] = useState<OfferSnapshot | null>(null);
     const [analyzing, setAnalyzing] = useState(false);
     const [building, setBuilding] = useState(false);
-    const [kitId, setKitId] = useState<string | null>(null);
     const [buildProgress, setBuildProgress] = useState<KitBuildProgress>({ completedStages: [] });
-    const [kitStats, setKitStats] = useState<KitStats | null>(null);
-    const [bestPostContent, setBestPostContent] = useState("");
     const [error, setError] = useState("");
     const [savedOffers, setSavedOffers] = useState<Array<{ id: string; url: string; name: string; snapshot: OfferSnapshot }>>([]);
     const [showEdit, setShowEdit] = useState(false);
@@ -127,7 +123,6 @@ function BuildContent() {
             }
 
             const id = createData.kit.id;
-            setKitId(id);
 
             const poll = window.setInterval(async () => {
                 try {
@@ -144,13 +139,8 @@ function BuildContent() {
                 const buildData = await buildRes.json();
                 if (!buildRes.ok) throw new Error(buildData.error);
 
-                const kitRes = await fetch(`/api/instant/kits/${id}`);
-                const kitData = await kitRes.json();
-                setKitStats(kitData.kit.stats);
-                const bestId = kitData.kit.recommendations?.bestPromotionId;
-                const best = kitData.assets?.find((a: { id: string }) => a.id === bestId);
-                setBestPostContent(best?.content || kitData.assets?.find((a: { type: string }) => a.type === "post")?.content || "");
-                setStep(4);
+                router.replace(`/instant/kit/${id}`);
+                return;
             } finally {
                 window.clearInterval(poll);
                 setBuilding(false);
@@ -310,53 +300,6 @@ function BuildContent() {
 
             {step === 3 ? (
                 <KitBuildSequence progress={buildProgress} active={building} />
-            ) : null}
-
-            {step === 4 && kitId ? (
-                <div className="space-y-6">
-                    <div className="surface-panel-elevated space-y-4 p-5 sm:p-6 text-center">
-                        <h2 className="text-2xl font-bold text-text-primary">
-                            Your Promotion Kit Is Ready
-                        </h2>
-                        <p className="text-sm text-text-muted">
-                            We prepared everything you need to start promoting this offer.
-                        </p>
-
-                        {kitStats ? (
-                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                                {[
-                                    { label: "Posts", count: kitStats.postCount },
-                                    { label: "Hooks", count: kitStats.hookCount },
-                                    { label: "Replies", count: kitStats.replyCount },
-                                    { label: "CTAs", count: kitStats.ctaCount },
-                                    { label: "Angles", count: kitStats.angleCount },
-                                ].map((s) => (
-                                    <div key={s.label} className="surface-nested p-3">
-                                        <p className="text-2xl font-bold text-[var(--gold-text)]">{s.count}</p>
-                                        <p className="text-xs text-text-muted">{s.label}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : null}
-                    </div>
-
-                    {bestPostContent ? (
-                        <div className="surface-panel-elevated space-y-4 p-5 sm:p-6">
-                            <h3 className="font-semibold text-text-primary">Best Promotion To Start With</h3>
-                            <p className="whitespace-pre-wrap text-sm leading-relaxed">{bestPostContent}</p>
-                            <CopyButton text={bestPostContent} label="Copy & Use" variant="primary" />
-                        </div>
-                    ) : null}
-
-                    <button
-                        type="button"
-                        onClick={() => router.push(`/instant/kit/${kitId}`)}
-                        className="btn-primary w-full py-3"
-                    >
-                        Open Your Kit
-                        <ArrowRight size={16} />
-                    </button>
-                </div>
             ) : null}
 
             <Link href="/instant" className="btn-ghost inline-flex text-sm">

@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/api-auth";
-import { buildMarkdownExport, buildOpportunitiesCsv } from "@/lib/dfy/export";
+import { buildMarkdownExport, buildOpportunitiesCsv, buildWeeklyPlanExport } from "@/lib/dfy/export";
 import type { CampaignAssetRow, CampaignOpportunityRow, CampaignRow } from "@/lib/dfy/types";
 
 type RouteParams = { params: Promise<{ id: string }> };
+
+function safeFilename(name: string): string {
+    return name.replace(/[^a-z0-9]/gi, "-") || "campaign";
+}
 
 export async function GET(req: Request, { params }: RouteParams) {
     const auth = await requireApiUser();
@@ -26,26 +30,40 @@ export async function GET(req: Request, { params }: RouteParams) {
         auth.supabase.from("campaign_assets").select("*").eq("campaign_id", id),
     ]);
 
+    const campaignRow = campaign as CampaignRow;
+    const assetRows = (assets || []) as CampaignAssetRow[];
+    const baseName = safeFilename(campaignRow.name);
+
     if (format === "csv") {
         const csv = buildOpportunitiesCsv((opportunities || []) as CampaignOpportunityRow[]);
         return new NextResponse(csv, {
             headers: {
                 "Content-Type": "text/csv; charset=utf-8",
-                "Content-Disposition": `attachment; filename="${campaign.name.replace(/[^a-z0-9]/gi, "-")}-opportunities.csv"`,
+                "Content-Disposition": `attachment; filename="${baseName}-opportunities.csv"`,
+            },
+        });
+    }
+
+    if (format === "week") {
+        const weekly = buildWeeklyPlanExport(campaignRow, assetRows);
+        return new NextResponse(weekly, {
+            headers: {
+                "Content-Type": "text/markdown; charset=utf-8",
+                "Content-Disposition": `attachment; filename="${baseName}-weekly-plan.md"`,
             },
         });
     }
 
     const markdown = buildMarkdownExport(
-        campaign as CampaignRow,
+        campaignRow,
         (opportunities || []) as CampaignOpportunityRow[],
-        (assets || []) as CampaignAssetRow[],
+        assetRows,
     );
 
     return new NextResponse(markdown, {
         headers: {
             "Content-Type": "text/markdown; charset=utf-8",
-            "Content-Disposition": `attachment; filename="${campaign.name.replace(/[^a-z0-9]/gi, "-")}-campaign.md"`,
+            "Content-Disposition": `attachment; filename="${baseName}-campaign.md"`,
         },
     });
 }

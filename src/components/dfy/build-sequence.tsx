@@ -35,8 +35,11 @@ export function BuildSequence({ progress, active }: BuildSequenceProps) {
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-[var(--surface-2)]">
                     <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${progressPct}%`, background: "var(--grad-brand)" }}
+                        className={clsx(
+                            "h-full rounded-full transition-all duration-500",
+                            active && "progress-bar-loading",
+                        )}
+                        style={{ width: `${Math.max(progressPct, active ? 8 : 0)}%`, background: "var(--grad-brand)" }}
                     />
                 </div>
             </div>
@@ -66,7 +69,11 @@ export function BuildSequence({ progress, active }: BuildSequenceProps) {
                                             : "border-[var(--border-subtle)]",
                                 )}
                             >
-                                {done ? <Check size={12} strokeWidth={2.5} /> : current ? "…" : ""}
+                                {done ? <Check size={12} strokeWidth={2.5} /> : current ? (
+                                    <span className="animate-pulse" aria-hidden>
+                                        …
+                                    </span>
+                                ) : ""}
                             </span>
                             {stage.label}
                         </motion.li>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, Check, ExternalLink } from "lucide-react";
+import { Bookmark, Check, ExternalLink, Sparkles, Trash2 } from "lucide-react";
 import { clsx } from "clsx";
 import { CopyButton } from "@/components/dfy/copy-button";
 import type { VaultEntry } from "@/lib/vault/types";
@@ -20,13 +20,27 @@ export function VaultEntryCard({
   onToggleSaved,
   onToggleUsed,
   disabled,
+  onCustomize,
+  customizing,
+  customizeError,
+  showSavedUsed = true,
+  onDelete,
+  deleting,
+  offerLabel,
 }: {
   entry: VaultEntry;
-  saved: boolean;
-  used: boolean;
-  onToggleSaved: () => void;
-  onToggleUsed: () => void;
+  saved?: boolean;
+  used?: boolean;
+  onToggleSaved?: () => void;
+  onToggleUsed?: () => void;
   disabled?: boolean;
+  onCustomize?: () => void;
+  customizing?: boolean;
+  customizeError?: string | null;
+  showSavedUsed?: boolean;
+  onDelete?: () => void;
+  deleting?: boolean;
+  offerLabel?: string;
 }) {
   const openUrl = entry.platform === "quora" ? "https://www.quora.com" : "https://www.pinterest.com";
   const openLabel = entry.platform === "quora" ? "Open Quora" : "Open Pinterest";
@@ -52,6 +66,9 @@ export function VaultEntryCard({
       {entry.platform === "quora" ? (
         <>
           <h3 className="ds-h5 leading-snug">{entry.question}</h3>
+          {offerLabel ? (
+            <p className="text-xs font-semibold text-text-muted">Customized for {offerLabel}</p>
+          ) : null}
           <p className="text-xs text-text-muted">
             Search Quora for: <span className="text-text-secondary">{entry.searchQuery}</span>
           </p>
@@ -64,6 +81,9 @@ export function VaultEntryCard({
       ) : (
         <>
           <h3 className="ds-h5 leading-snug">{entry.pinTitle}</h3>
+          {offerLabel ? (
+            <p className="text-xs font-semibold text-text-muted">Customized for {offerLabel}</p>
+          ) : null}
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
             {entry.pinDescription}
           </p>
@@ -90,25 +110,56 @@ export function VaultEntryCard({
       )}
 
       <div className="flex flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-4">
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={onToggleSaved}
-          className={clsx("btn-secondary text-xs", saved && "btn-chip-active")}
-        >
-          <Bookmark size={14} fill={saved ? "currentColor" : "none"} />
-          {saved ? "Saved" : "Save"}
-        </button>
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={onToggleUsed}
-          className={clsx("btn-secondary text-xs", used && "btn-chip-active")}
-        >
-          <Check size={14} />
-          {used ? "Used" : "Mark used"}
-        </button>
+        {onCustomize ? (
+          <button
+            type="button"
+            disabled={disabled || customizing}
+            onClick={onCustomize}
+            className="btn-secondary text-xs"
+          >
+            <Sparkles size={14} />
+            {customizing ? "Customizing…" : "Customize to my offer"}
+          </button>
+        ) : null}
+        {showSavedUsed && onToggleSaved ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onToggleSaved}
+            className={clsx("btn-secondary text-xs", saved && "btn-chip-active")}
+          >
+            <Bookmark size={14} fill={saved ? "currentColor" : "none"} />
+            {saved ? "Saved" : "Save"}
+          </button>
+        ) : null}
+        {showSavedUsed && onToggleUsed ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onToggleUsed}
+            className={clsx("btn-secondary text-xs", used && "btn-chip-active")}
+          >
+            <Check size={14} />
+            {used ? "Used" : "Mark used"}
+          </button>
+        ) : null}
+        {onDelete ? (
+          <button
+            type="button"
+            disabled={disabled || deleting}
+            onClick={onDelete}
+            className="btn-secondary text-xs"
+          >
+            <Trash2 size={14} />
+            {deleting ? "Deleting…" : "Delete"}
+          </button>
+        ) : null}
       </div>
+      {customizeError ? (
+        <p className="text-sm text-[var(--danger)]" role="alert">
+          {customizeError}
+        </p>
+      ) : null}
     </article>
   );
 }

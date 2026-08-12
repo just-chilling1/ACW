@@ -9,7 +9,7 @@ export const WEIGHT_LOSS_SHORTS: ShortsScript[] = [
     title: "Three Mistakes Behind A Stalled Scale",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 33,
-    hook: "Three mistakes to check before you answer a stalled scale with a crash diet.",
+    hook: "A stalled scale can trigger the wrong fix. Check these three quieter causes before making the plan harsher.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -44,8 +44,8 @@ export const WEIGHT_LOSS_SHORTS: ShortsScript[] = [
           "Top-down shot of a notebook labeled Weekly trend closing beside a pen and an appointment card.",
       },
     ],
-    cta: "The one-variable plateau checklist is in my bio if you want it written out.",
-    caption: `Before you crash-diet a stalled scale, check the trend, routine drift, and how many variables you changed. Track one adjustment at a time, and consult a clinician if the stall persists or concerns you. Checklist: __LINK__`,
+    cta: "Go to my bio for the written one-variable plateau checklist and review the pattern calmly.",
+    caption: `Before making a stalled-scale plan harsher, check the trend, routine drift, and how many variables changed. Track one adjustment at a time, and consult a clinician if the stall persists or concerns you. Full plateau checklist: __LINK__`,
     hashtags: ["weightlossplateau", "healthyhabits", "scaletips", "weightloss"],
     visualStyle:
       "Faceless. Use a scale, calendar, phone logs, and plain checklist graphics. No body shots or transformation imagery. Burn in captions.",
@@ -60,7 +60,7 @@ export const WEIGHT_LOSS_SHORTS: ShortsScript[] = [
     title: "Eating After Eight Is Not The Whole Story",
     platforms: ["tiktok", "reels"],
     durationSeconds: 29,
-    hook: "Eating after eight did not automatically cause the gain. The clock is not the full story.",
+    hook: "The clock strikes eight, but your body does not flip a fat-storage switch. The full evening pattern matters more.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -95,8 +95,8 @@ export const WEIGHT_LOSS_SHORTS: ShortsScript[] = [
           "Simple notes-app screen recording typing: dinner, planned snack, unplanned grazing.",
       },
     ],
-    cta: "The evening eating audit is in my bio if you want the questions on one page.",
-    caption: `Eating after 8 p.m. is not automatically the cause of weight gain. Look at the full pattern: total food, portions, grazing, sleep, and what your evenings actually require. Evening audit: __LINK__`,
+    cta: "Open my bio for the written evening-eating audit and answer the questions without judging the clock.",
+    caption: `Eating after 8 p.m. is not automatically the cause of weight gain. Look at the full pattern: total food, portions, grazing, sleep, and what your evenings require. Individual nutrition needs vary. Full evening-eating audit: __LINK__`,
     hashtags: ["weightlossmyths", "latenighteating", "healthyeating", "nutritiontips"],
     visualStyle:
       "Faceless. Kitchen clock, overhead food shots, text cards, and a notes-app recording only. Show habits, never bodies.",
@@ -111,7 +111,7 @@ export const WEIGHT_LOSS_SHORTS: ShortsScript[] = [
     title: "You Lost Four Pounds Then Nothing Changed",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 37,
-    hook: "POV: you lost four pounds, then the scale showed the same number for a month.",
+    hook: "POV: four pounds came off, then the same number stared back for a month—and panic offered the worst next step.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -146,8 +146,8 @@ export const WEIGHT_LOSS_SHORTS: ShortsScript[] = [
           "Top-down notebook shot with one line written: Walk after lunch, followed by three empty weekly checkboxes.",
       },
     ],
-    cta: "The weekly comparison page is in my bio if you want to audit your own routine.",
-    caption: `You lost four pounds, then stalled for a month. Before making the plan harsher, compare steps, sleep, portions, and weigh-in conditions. Choose one adjustment and keep gathering evidence. Weekly page: __LINK__`,
+    cta: "Use the written weekly comparison page in my bio to audit your routine one variable at a time.",
+    caption: `After an early change, the scale may hold steady. Before making the plan harsher, compare steps, sleep, portions, and weigh-in conditions. Choose one adjustment, keep gathering evidence, and consult a clinician with concerns. Full weekly comparison page: __LINK__`,
     hashtags: ["weightlossjourney", "weightlossplateau", "habittracking", "healthyhabits"],
     visualStyle:
       "Faceless. Calendar, scale display, phone logs, and notebook close-ups. No body footage, measurements, or transformation photos.",
@@ -162,7 +162,7 @@ export const WEIGHT_LOSS_SHORTS: ShortsScript[] = [
     title: "Read A Food Label In Twenty Seconds",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 40,
-    hook: "Give me twenty seconds and one food label. You only need to check four lines.",
+    hook: "A food label can look like a wall of numbers. Four lines turn it into a twenty-second decision tool.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -205,8 +205,8 @@ export const WEIGHT_LOSS_SHORTS: ShortsScript[] = [
           "The four highlighted label areas remain on screen as a compact numbered checklist slides in.",
       },
     ],
-    cta: "The four-line label checklist is in my bio if you want it beside your shopping list.",
-    caption: `Read a food label without grading the food: serving size, calories per serving, protein and fiber, then added sugar or sodium when relevant to your needs. Ask a clinician about individual priorities. Checklist: __LINK__`,
+    cta: "Open my bio for the written four-line label checklist and keep it beside your shopping list.",
+    caption: `Read a food label without grading the food: serving size, calories per serving, protein and fiber, then added sugar or sodium when relevant to your needs. Ask a clinician about individual priorities. Full label-reading checklist: __LINK__`,
     hashtags: ["nutritionlabel", "foodlabel", "healthyeating", "nutritiontips", "weightloss"],
     visualStyle:
       "Faceless screen demo using a generic nutrition label with no visible brand or package. Use a large cursor and burned-in captions.",
@@ -221,7 +221,7 @@ export const WEIGHT_LOSS_SHORTS: ShortsScript[] = [
     title: "Week One To Week Twelve Without A Gym",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 35,
-    hook: "No body reveal. Here is what week one to week twelve can look like without a gym.",
+    hook: "No body reveal, no gym, no promised outcome—just the quiet evidence twelve weeks of repeatable habits can leave.",
     beats: [
       {
         timecode: "0:03-0:11",
@@ -256,8 +256,8 @@ export const WEIGHT_LOSS_SHORTS: ShortsScript[] = [
           "Habit calendar fills through week twelve, then a text card reads KEEP, CHANGE, REMOVE with three blank lines.",
       },
     ],
-    cta: "The twelve-week habit calendar is in my bio if you want a calm place to start.",
-    caption: `Week 1 to week 12 without a gym: repeatable meals, short walks, visible defaults, and optional home strength that suits your needs. The after is a habit record, not a body photo or promised outcome. Calendar: __LINK__`,
+    cta: "Get the written twelve-week habit calendar from my bio for a calm, flexible place to start.",
+    caption: `Week 1 to week 12 without a gym: repeatable meals, short walks, visible defaults, and optional home strength that suits your needs. The after is a habit record, not a body photo or promised outcome. Full twelve-week calendar: __LINK__`,
     hashtags: ["healthyhabits", "nogymworkout", "walkingroutine", "homefitness", "weightloss"],
     visualStyle:
       "Faceless habit timeline. Use food, shoes, an empty living room, and calendar graphics. Never show bodies or before-and-after photos.",

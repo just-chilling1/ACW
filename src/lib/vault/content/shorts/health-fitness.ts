@@ -9,7 +9,7 @@ export const HEALTH_FITNESS_SHORTS: ShortsScript[] = [
     title: "Three Reasons You Crash Every Afternoon",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 33,
-    hook: "Three mistakes that can turn 3 p.m. into a daily appointment with the couch.",
+    hook: "If 3 p.m. feels like a daily power outage, the cause may start hours before the crash.",
     beats: [
       {
         timecode: "0:04-0:11",
@@ -44,8 +44,8 @@ export const HEALTH_FITNESS_SHORTS: ShortsScript[] = [
           "Screen recording of a two-week notes grid with columns for sleep, walk, and afternoon energy.",
       },
     ],
-    cta: "The simple daytime energy checklist is in my bio if you want it written out.",
-    caption: `The afternoon crash may start the night before. Check sleep, break up the sitting after lunch, and watch the late coffee bargain. Track the pattern instead of guessing. Energy checklist: __LINK__`,
+    cta: "Go to my bio for the written two-week energy checklist and track the pattern.",
+    caption: `The afternoon crash may start the night before. Check sleep, break up sitting after lunch, and watch the late-coffee bargain. Persistent fatigue, dizziness, or chest symptoms belong with a clinician. Full two-week energy checklist: __LINK__`,
     hashtags: ["afternoonenergy", "healthhabits", "bettersleep", "dailywalking"],
     visualStyle:
       "Faceless. Use object shots, feet-only walking footage, clock graphics, and a notes-app screen recording. Burn in every caption.",
@@ -60,7 +60,7 @@ export const HEALTH_FITNESS_SHORTS: ShortsScript[] = [
     title: "You Do Not Need An Hour A Day",
     platforms: ["tiktok", "reels"],
     durationSeconds: 29,
-    hook: "The hour-long workout rule is a good way to skip movement on a busy day.",
+    hook: "The one-hour workout rule quietly turns busy days into zero-movement days. Ten minutes can break that pattern.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -95,8 +95,8 @@ export const HEALTH_FITNESS_SHORTS: ShortsScript[] = [
           "Simple cream text card with a pause icon and the words STOP AND ASK A CLINICIAN.",
       },
     ],
-    cta: "A ten-minute starter routine is in my bio if you want the moves on one page.",
-    caption: `You do not need an hour to begin. Put ten minutes on the calendar, choose simple movement, and repeat before you add more. Starter routine: __LINK__`,
+    cta: "Open my bio for the written ten-minute starter routine and choose your first moves.",
+    caption: `You do not need an hour to begin. Put ten minutes on the calendar, choose simple movement, and repeat before adding more. Stop for pain, dizziness, or chest symptoms and ask a clinician. Full ten-minute starter routine: __LINK__`,
     hashtags: ["shortworkout", "fitnessbeginner", "dailyfitness", "movement"],
     visualStyle:
       "Faceless. Text cards, object shots, simple movement graphics, and a cropped calendar screen recording. No presenter or face.",
@@ -111,7 +111,7 @@ export const HEALTH_FITNESS_SHORTS: ShortsScript[] = [
     title: "When Your Knees Complain On The Stairs",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 37,
-    hook: "POV: the stairs make your knees complain, so you quietly start avoiding them.",
+    hook: "POV: one painful flight of stairs quietly turns into a whole week of moving less.",
     beats: [
       {
         timecode: "0:03-0:11",
@@ -146,8 +146,8 @@ export const HEALTH_FITNESS_SHORTS: ShortsScript[] = [
           "Plain text card listing sharp pain, swelling, locking, and persistent pain beside a simple medical cross icon.",
       },
     ],
-    cta: "The joint-aware starter sequence is in my bio if you want a gentler place to begin.",
-    caption: `When knees complain on the stairs, do not turn one hard flight into a week of stillness. Warm up, start smaller, use the rail, and track what you feel. Joint-aware sequence: __LINK__`,
+    cta: "Find the written joint-aware starter sequence in my bio for a gentler place to begin.",
+    caption: `When knees complain on stairs, do not turn one hard flight into a week of stillness. Warm up, start smaller, use the rail, and track what you feel. Sharp pain, swelling, locking, or persistent pain needs a clinician. Full joint-aware sequence: __LINK__`,
     hashtags: ["kneemobility", "jointfriendly", "fitnessbeginner", "healthymovement"],
     visualStyle:
       "Faceless. Crop all movement footage below the shoulders. Use feet, a handrail, a chair, and plain text cards only.",
@@ -162,7 +162,7 @@ export const HEALTH_FITNESS_SHORTS: ShortsScript[] = [
     title: "Build A Ten-Minute Mobility Routine",
     platforms: ["reels", "shorts"],
     durationSeconds: 40,
-    hook: "Build a ten-minute mobility routine before another saved video disappears into your phone.",
+    hook: "Your saved mobility videos are not a routine. Build one repeatable ten-minute timer instead.",
     beats: [
       {
         timecode: "0:04-0:13",
@@ -205,8 +205,8 @@ export const HEALTH_FITNESS_SHORTS: ShortsScript[] = [
           "Plain text card with a pause symbol and a short clinician reminder.",
       },
     ],
-    cta: "The copyable ten-minute routine is in my bio if you want it ready to follow.",
-    caption: `Build a ten-minute mobility routine with three timer blocks: warm up, move, cool down. Keep the moves standing, simple, and repeatable. Copyable routine: __LINK__`,
+    cta: "Open my bio for the written ten-minute routine and copy all three timer blocks.",
+    caption: `Build a ten-minute mobility routine with three timer blocks: warm up, move, cool down. Keep the moves standing, simple, and repeatable; stop for pain or dizziness. Full copyable mobility walkthrough: __LINK__`,
     hashtags: ["mobilityroutine", "tenminuteworkout", "dailymobility", "beginnerfitness"],
     visualStyle:
       "Faceless screen demo. Hide notifications and personal details. Use simple movement diagrams instead of a presenter.",
@@ -221,7 +221,7 @@ export const HEALTH_FITNESS_SHORTS: ShortsScript[] = [
     title: "Day 1 To Day 30 Of Daily Walking",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 35,
-    hook: "Day one to day thirty of walking: the useful changes are quieter than a transformation photo.",
+    hook: "Thirty days of walking changed something a transformation photo cannot show: how little deciding the habit required.",
     beats: [
       {
         timecode: "0:03-0:11",
@@ -256,8 +256,8 @@ export const HEALTH_FITNESS_SHORTS: ShortsScript[] = [
           "Filled thirty-day calendar beside a simple notes log, ending on a plain clinician reminder card.",
       },
     ],
-    cta: "The thirty-day walking calendar is in my bio if you want each day mapped out.",
-    caption: `Day 1 to day 30 of walking is not a guaranteed transformation. It is a short loop, fewer daily decisions, and a record you can use. Walking calendar: __LINK__`,
+    cta: "Get the written thirty-day walking calendar from my bio to map out each day.",
+    caption: `Day 1 to day 30 of walking is not a guaranteed transformation. It is a manageable loop, fewer daily decisions, and a record you can use. Pain, dizziness, or chest symptoms still belong with a clinician. Full walking calendar: __LINK__`,
     hashtags: ["dailywalking", "30daywalk", "walkinghabit", "beginnerfitness"],
     visualStyle:
       "Faceless. Use route graphics, calendar animation, object shots of shoes, and walking footage cropped to the feet.",

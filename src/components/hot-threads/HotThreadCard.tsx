@@ -4,9 +4,7 @@ import { useState } from "react";
 import { Check, Copy, ExternalLink, Flame } from "lucide-react";
 import { clsx } from "clsx";
 import { PlatformBadge } from "@/components/ui/platform-badge";
-import type { HotThreadItem } from "@/lib/hot-threads/types";
-
-const REPLY_LABELS = ["Short", "Detailed", "Curiosity"] as const;
+import { HOT_THREAD_REPLY_STYLES, type HotThreadItem } from "@/lib/hot-threads/types";
 
 interface HotThreadCardProps {
   item: HotThreadItem;
@@ -17,10 +15,13 @@ interface HotThreadCardProps {
 export function HotThreadCard({ item, index, featured = false }: HotThreadCardProps) {
   const [replyIndex, setReplyIndex] = useState(0);
   const [copied, setCopied] = useState(false);
-  const [showAllReplies, setShowAllReplies] = useState(featured);
+  const [showStyles, setShowStyles] = useState(true);
 
   const replies = item.replies?.length ? item.replies : ["No reply available yet."];
-  const activeReply = replies[Math.min(replyIndex, replies.length - 1)];
+  const styles = HOT_THREAD_REPLY_STYLES.slice(0, replies.length);
+  const safeIndex = Math.min(replyIndex, replies.length - 1);
+  const activeReply = replies[safeIndex];
+  const activeStyle = styles[safeIndex] ?? HOT_THREAD_REPLY_STYLES[0];
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(activeReply);
@@ -85,42 +86,52 @@ export function HotThreadCard({ item, index, featured = false }: HotThreadCardPr
       </p>
 
       <div className="flex flex-col gap-3 border-t border-[var(--border-subtle)] pt-4">
-        {showAllReplies && replies.length > 1 && (
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--gold-text)]">
+              Your reply
+            </p>
+            <p className="text-xs text-text-muted">
+              {activeStyle.label}
+              {activeStyle.brief ? ` · ${activeStyle.brief}` : ""}
+            </p>
+          </div>
+          {replies.length > 1 ? (
+            <button
+              type="button"
+              onClick={() => setShowStyles((v) => !v)}
+              className="btn-ghost px-2 py-1 text-xs"
+            >
+              {showStyles ? "Hide styles" : "Show styles"}
+            </button>
+          ) : null}
+        </div>
+
+        {showStyles && replies.length > 1 ? (
           <div className="flex flex-wrap gap-2">
-            {REPLY_LABELS.slice(0, replies.length).map((label, i) => (
+            {styles.map((style, i) => (
               <button
-                key={label}
+                key={style.id}
                 type="button"
                 onClick={() => setReplyIndex(i)}
-                className={clsx("btn-chip text-xs", replyIndex === i && "btn-chip-active")}
+                title={style.brief}
+                className={clsx("btn-chip text-xs", safeIndex === i && "btn-chip-active")}
               >
-                {label}
+                {style.label}
               </button>
             ))}
           </div>
-        )}
-        <p
-          className={clsx(
-            "whitespace-pre-wrap text-sm leading-relaxed text-text-primary",
-            !featured && !showAllReplies && "line-clamp-3",
-          )}
-        >
-          {activeReply}
-        </p>
+        ) : null}
+
+        <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 sm:p-4">
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">{activeReply}</p>
+        </div>
+
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={handleCopy} className="btn-primary w-fit">
             {copied ? <Check size={14} /> : <Copy size={14} />}
             {copied ? "Copied!" : "Copy reply"}
           </button>
-          {!featured && replies.length > 1 && (
-            <button
-              type="button"
-              onClick={() => setShowAllReplies((v) => !v)}
-              className="btn-secondary text-xs"
-            >
-              {showAllReplies ? "Hide styles" : "More reply styles"}
-            </button>
-          )}
         </div>
       </div>
     </article>

@@ -9,7 +9,7 @@ export const PETS_SHORTS: ShortsScript[] = [
     title: "Three Reasons Your Puppy Still Bites Hands",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 33,
-    hook: "Three mistakes can turn your hands into your puppy's favorite chew toy.",
+    hook: "Your puppy may think biting hands is a game because of three reactions that feel completely natural.",
     beats: [
       {
         timecode: "0:04-0:11",
@@ -44,8 +44,8 @@ export const PETS_SHORTS: ShortsScript[] = [
           "Plain text card followed by a close shot of a puppy chewing a soft toy beside still hands.",
       },
     ],
-    cta: "The step-by-step redirect routine is in my bio if you want it written out.",
-    caption: `If your puppy still bites hands, check the game you may be teaching: moving fingers, pulling sleeves, and continuing play after teeth return to skin. Freeze, redirect to a soft toy, and use a brief calm pause. Redirect routine: __LINK__`,
+    cta: "Go to my bio for the written redirect routine and keep the steps nearby during play.",
+    caption: `If your puppy still bites hands, check the game your reactions may be teaching: moving fingers, pulling sleeves, and continuing play after teeth return to skin. Freeze, redirect to a soft toy, and use a brief calm pause. Full redirect routine: __LINK__`,
     hashtags: ["puppytraining", "puppybites", "dogtraining", "newpuppy"],
     visualStyle:
       "Faceless. Use floor-level pet footage, object shots of hands and toys, and one plain text card. Burn in every overlay.",
@@ -60,7 +60,7 @@ export const PETS_SHORTS: ShortsScript[] = [
     title: "A Crate Is A Den, Not A Punishment",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 30,
-    hook: "The crate is not cruel by default. How you use it decides what it means to your dog.",
+    hook: "The same crate can feel like a safe den or a trap. The difference starts before you ever close the door.",
     beats: [
       {
         timecode: "0:03-0:10",
@@ -95,8 +95,8 @@ export const PETS_SHORTS: ShortsScript[] = [
           "Plain safety card with three icons: pause, open door, contact a qualified trainer.",
       },
     ],
-    cta: "The gentle crate introduction is in my bio if you want the sequence.",
-    caption: `A crate can be a predictable den when choice and slow practice come first. Start with the door open, use meals or a safe chew, then practice one calm minute. Never use it as punishment, and stop if the dog panics. Gentle sequence: __LINK__`,
+    cta: "Open my bio for the written gentle-crate sequence before you close the door.",
+    caption: `A crate can become a predictable den when choice and slow practice come first. Start with the door open, use meals or a safe chew, then practice one calm minute. Never use it as punishment; stop and seek reward-based help if the dog panics. Full gentle-crate sequence: __LINK__`,
     hashtags: ["cratetraining", "puppytraining", "dogcare", "rewardbasedtraining"],
     visualStyle:
       "Faceless. Use crate object shots, floor-level dog footage, timer graphics, and text cards. Show no distressed animal footage.",
@@ -111,7 +111,7 @@ export const PETS_SHORTS: ShortsScript[] = [
     title: "Your Cat Suddenly Stopped Using The Box",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 39,
-    hook: "POV: your cat used the box yesterday, then suddenly chose the floor.",
+    hook: "POV: your cat suddenly chooses the floor—and the most dangerous mistake is assuming it is revenge.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -146,8 +146,8 @@ export const PETS_SHORTS: ShortsScript[] = [
           "Screen recording of a notes checklist labeled scoop, location, lid, and result, followed by a clean uncovered box.",
       },
     ],
-    cta: "The litter-box setup checklist is in my bio if you want it room by room.",
-    caption: `A sudden litter-box change is not revenge. Start with medical safety: sudden behavior changes warrant a vet, and a male cat straining with no output is an emergency. After medical causes are addressed, check cleanliness, cover, and location one change at a time. Setup checklist: __LINK__`,
+    cta: "After calling your vet, use the room-by-room litter-box checklist in my bio for the setup review.",
+    caption: `A sudden litter-box change is not revenge. Start with medical safety: sudden behavior changes warrant a vet, and a male cat straining with no output is an emergency. After medical causes are addressed, check cleanliness, cover, and location one change at a time. Full setup checklist: __LINK__`,
     hashtags: ["catcare", "litterbox", "catbehavior", "petsafety", "indoorcats"],
     visualStyle:
       "Faceless. Use clean object shots, simple safety graphics, and a notes-app recording. Never stage or show a distressed cat.",
@@ -162,7 +162,7 @@ export const PETS_SHORTS: ShortsScript[] = [
     title: "What A Three-Minute Training Session Looks Like",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 35,
-    hook: "A useful dog-training session can fit inside a three-minute timer.",
+    hook: "Longer dog training is not always better. Here is what fits inside three focused minutes.",
     beats: [
       {
         timecode: "0:03-0:11",
@@ -197,8 +197,8 @@ export const PETS_SHORTS: ShortsScript[] = [
           "Screen recording of a notes app filling three fields: cue, easy wins, next step; timer stops at three minutes.",
       },
     ],
-    cta: "The printable three-minute session card is in my bio if you want to follow it.",
-    caption: `Three minutes, one cue, five calm repetitions, and one small step harder. Stop before attention disappears, then log what to simplify next time. Short practice may be easier to repeat than one long lesson. Session card: __LINK__`,
+    cta: "Get the printable three-minute session card from my bio and follow it cue by cue.",
+    caption: `Three minutes, one cue, five calm repetitions, and one small step harder. Stop before attention disappears, then log what to simplify next time. Short practice may be easier to repeat than one long lesson. Full session card: __LINK__`,
     hashtags: ["dogtraining", "puppytraining", "positivereinforcement", "trainingtips"],
     visualStyle:
       "Faceless screen demo mixed with neck-down and floor-level dog footage. Keep the timer visible and burn in large captions.",
@@ -213,7 +213,7 @@ export const PETS_SHORTS: ShortsScript[] = [
     title: "Day 1 To Day 14 Of Redirect Training",
     platforms: ["tiktok", "reels", "shorts"],
     durationSeconds: 37,
-    hook: "Day one to day fourteen of redirect training is repetition, not a personality transplant.",
+    hook: "Fourteen days of redirect training will not create a new puppy—but these small signals can show whether the routine is landing.",
     beats: [
       {
         timecode: "0:04-0:12",
@@ -248,8 +248,8 @@ export const PETS_SHORTS: ShortsScript[] = [
           "Calendar reaches day fourteen, then cuts to a plain safety card and a puppy calmly chewing a soft toy.",
       },
     ],
-    cta: "The fourteen-day redirect tracker is in my bio if you want the daily steps.",
-    caption: `Day 1 to day 14 of redirect training: freeze hands, swap in a soft toy, pause the game when teeth return, and protect naps. Track small changes without promising a finish date. Sudden stiff or painful behavior needs professional help. Daily tracker: __LINK__`,
+    cta: "Open my bio for the written fourteen-day tracker and follow the daily redirect steps.",
+    caption: `Day 1 to day 14 of redirect training: freeze hands, swap in a soft toy, pause the game when teeth return, and protect naps. Track small changes without promising a finish date. Sudden stiff or painful behavior needs a vet or qualified trainer. Full daily tracker: __LINK__`,
     hashtags: ["puppytraining", "redirecttraining", "puppybites", "dogbehavior", "newpuppy"],
     visualStyle:
       "Faceless. Use calendar graphics, object shots of toys and hands, a simple tracking screen, and floor-level puppy footage.",
