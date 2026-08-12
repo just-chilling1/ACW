@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Sparkles, ArrowRight, Copy, MessageSquare, RefreshCw, CheckCircle2 } from "lucide-react";
 import { clsx } from "clsx";
 import { PageHeader } from "@/components/ui/page-header";
+import { TutorialVideoSection } from "@/components/ui/tutorial-video-section";
 import type { KitStats } from "@/lib/instant/types";
 
 type KitSummary = {
@@ -68,6 +69,11 @@ export default function InstantLandingPage() {
                 eyebrow="PREMIUM"
                 title="Instant Income"
                 subtitle="One step at a time. Copy → paste → next."
+            />
+
+            <TutorialVideoSection
+                title="How Instant Income Works"
+                description="A short walkthrough of pasting your offer, copying posts and replies, and posting with confidence."
             />
 
             {!loading && latestKit ? (

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { TutorialVideoSection } from "@/components/ui/tutorial-video-section";
 import { useSearch } from "@/context/SearchContext";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
 import type { HotThreadItem, HotThreadPackResponse } from "@/lib/hot-threads/types";
@@ -108,6 +109,11 @@ export default function HotThreadsPage() {
           </>
         }
         subtitle="Pick a niche. Copy a reply. Post it. New threads every 24 hours."
+      />
+
+      <TutorialVideoSection
+        title="How Hot Threads Works"
+        description="Learn how to pick a niche, copy a reply, and post into today’s hottest conversations."
       />
 
       <section className="flex flex-col gap-3">
