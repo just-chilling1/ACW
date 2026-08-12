@@ -1,4 +1,4 @@
-import { Scan, Sparkles, Rocket, Flame, type LucideIcon } from "lucide-react";
+import { Scan, Sparkles, Rocket, Flame, Library, Clapperboard, type LucideIcon } from "lucide-react";
 
 export type PremiumFeature = {
     path: string;
@@ -35,5 +35,17 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
         label: "Hot Threads & Offers",
         description: "Daily hot posts and replies for your niche.",
         icon: Flame,
+    },
+    {
+        path: "/vault",
+        label: "Quora + Pinterest Vault",
+        description: "160 ready-to-post answers and pins for your niche.",
+        icon: Library,
+    },
+    {
+        path: "/shorts-vault",
+        label: "Viral Shorts Vault",
+        description: "40 faceless scripts for TikTok, Reels, and Shorts.",
+        icon: Clapperboard,
     },
 ];
