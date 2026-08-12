@@ -1,0 +1,1100 @@
+# Whole-branch review package: Quora/Pinterest Vault Offer Packs
+# Note: uncommitted working tree; also includes related WIP elsewhere in repo not listed here
+# Spec: docs/superpowers/specs/2026-08-12-quora-pinterest-vault-offer-packs-design.md
+# Plan: docs/superpowers/plans/2026-08-12-quora-pinterest-vault-offer-packs.md
+# Minor ledger: bare-domain URL detection deferred; SSRF in shared analyzeOffer deferred; thin content editorial depth
+
+========== supabase/migrations/20260812190000_vault_entry_packs.sql ==========
+
+-- Per-user customized Quora/Pinterest Vault entries (single-entry packs).
+
+CREATE TABLE IF NOT EXISTS vault_entry_packs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    source_entry_id TEXT NOT NULL,
+    niche_id TEXT NOT NULL,
+    affiliate_link TEXT NOT NULL,
+    offer_snapshot JSONB NOT NULL DEFAULT '{}'::jsonb,
+    entry JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (user_id, source_entry_id, affiliate_link)
+);
+
+CREATE INDEX IF NOT EXISTS idx_vault_entry_packs_user_id
+    ON vault_entry_packs(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_vault_entry_packs_user_created
+    ON vault_entry_packs(user_id, created_at DESC);
+
+ALTER TABLE vault_entry_packs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users manage own vault entry packs" ON vault_entry_packs;
+CREATE POLICY "Users manage own vault entry packs"
+    ON vault_entry_packs FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+
+========== src/lib/vault/vault-packs.ts ==========
+
+import type { OfferSnapshot } from "@/lib/dfy/types";
+import type { NicheId } from "@/lib/niches";
+import type { PinterestEntry, QuoraEntry, VaultEntry } from "@/lib/vault/types";
+
+export type VaultEntryPack = {
+  id: string;
+  sourceEntryId: string;
+  nicheId: NicheId;
+  affiliateLink: string;
+  offerSnapshot: OfferSnapshot;
+  entry: VaultEntry;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type VaultEntryPackRow = {
+  id: string;
+  user_id: string;
+  source_entry_id: string;
+  niche_id: string;
+  affiliate_link: string;
+  offer_snapshot: OfferSnapshot;
+  entry: VaultEntry;
+  created_at: string;
+  updated_at: string;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function wordCount(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function countOccurrences(haystack: string, needle: string): number {
+  if (!needle) return 0;
+  return haystack.split(needle).length - 1;
+}
+
+const HTTP_URL_PATTERN = /https?:\/\//i;
+
+function hasHttpUrls(text: string): boolean {
+  return HTTP_URL_PATTERN.test(text);
+}
+
+/** Metadata fields must not contain placeholders or any http(s) URLs. */
+function hasForbiddenLinkContent(text: string): boolean {
+  return text.includes("__LINK__") || hasHttpUrls(text);
+}
+
+/** Body fields must include affiliateLink exactly once and no other URLs. */
+function isValidBodyWithAffiliateLink(text: string, affiliateLink: string): boolean {
+  if (text.includes("__LINK__")) return false;
+  if (countOccurrences(text, affiliateLink) !== 1) return false;
+  const remaining = text.replace(affiliateLink, "");
+  return !hasHttpUrls(remaining);
+}
+
+/** Structural check for a rewritten VaultEntry before persist. */
+export function isValidPackEntry(
+  value: unknown,
+  opts: {
+    affiliateLink: string;
+    sourceEntryId: string;
+    nicheId: NicheId;
+    minQuoraWords?: number;
+  },
+): value is VaultEntry {
+  if (!isRecord(value)) return false;
+  if (value.id !== opts.sourceEntryId) return false;
+  if (value.nicheId !== opts.nicheId) return false;
+  if (typeof value.angle !== "string" || !value.angle.trim()) return false;
+
+  if (value.platform === "quora") {
+    if (typeof value.question !== "string" || !value.question.trim()) return false;
+    if (typeof value.searchQuery !== "string" || !value.searchQuery.trim()) return false;
+    if (typeof value.answer !== "string" || !value.answer.trim()) return false;
+    if (!Array.isArray(value.topics) || value.topics.length === 0) return false;
+    if (!value.topics.every((t) => typeof t === "string" && t.trim())) return false;
+
+    if (hasForbiddenLinkContent(value.question)) return false;
+    if (hasForbiddenLinkContent(value.searchQuery)) return false;
+    if (!isValidBodyWithAffiliateLink(value.answer, opts.affiliateLink)) return false;
+
+    const minWords = opts.minQuoraWords ?? 120;
+    if (wordCount(value.answer) < minWords) return false;
+    return true;
+  }
+
+  if (value.platform === "pinterest") {
+    if (typeof value.pinTitle !== "string" || !value.pinTitle.trim()) return false;
+    if (typeof value.pinDescription !== "string" || !value.pinDescription.trim()) return false;
+    if (typeof value.boardName !== "string" || !value.boardName.trim()) return false;
+    if (typeof value.imageConcept !== "string" || !value.imageConcept.trim()) return false;
+    if (!Array.isArray(value.keywords) || value.keywords.length < 4 || value.keywords.length > 8) {
+      return false;
+    }
+    if (!value.keywords.every((k) => typeof k === "string" && k.trim())) return false;
+
+    if (value.pinTitle.length > 100) return false;
+    if (value.pinDescription.length > 500) return false;
+    if (hasForbiddenLinkContent(value.pinTitle)) return false;
+    if (hasForbiddenLinkContent(value.boardName)) return false;
+    if (hasForbiddenLinkContent(value.imageConcept)) return false;
+    if (!isValidBodyWithAffiliateLink(value.pinDescription, opts.affiliateLink)) return false;
+    return true;
+  }
+
+  return false;
+}
+
+export function mapPackRow(row: VaultEntryPackRow): VaultEntryPack {
+  return {
+    id: row.id,
+    sourceEntryId: row.source_entry_id,
+    nicheId: row.niche_id as NicheId,
+    affiliateLink: row.affiliate_link,
+    offerSnapshot: row.offer_snapshot,
+    entry: row.entry,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+export type { QuoraEntry, PinterestEntry };
+
+
+========== src/lib/vault/vault-customize.ts ==========
+
+import { analyzeOffer } from "@/lib/dfy/offer-analyze";
+import { parseJsonFromLlm } from "@/lib/dfy/parse-json";
+import type { OfferSnapshot } from "@/lib/dfy/types";
+import { callChatGPT } from "@/lib/llm";
+import type { NicheId } from "@/lib/niches";
+import { isValidPackEntry } from "@/lib/vault/vault-packs";
+import type { VaultEntry } from "@/lib/vault/types";
+
+function buildRewritePrompt(seed: VaultEntry, offer: OfferSnapshot, affiliateLink: string): string {
+  if (seed.platform === "quora") {
+    return `Rewrite this Quora answer so it promotes THIS specific offer while staying helpful and non-spammy.
+
+OFFER
+- Product: ${offer.productName}
+- Promise: ${offer.mainPromise}
+- Audience: ${offer.targetAudience}
+- Strongest angle: ${offer.strongestAngle}
+- Pain points: ${offer.painPoints.join("; ")}
+- Benefits: ${offer.primaryBenefits.join("; ")}
+- Affiliate URL (must appear exactly once in answer only): ${affiliateLink}
+
+SEED (JSON)
+${JSON.stringify(seed, null, 2)}
+
+Return ONLY JSON matching QuoraEntry shape with the same id, platform "quora", nicheId.
+Rules:
+- Keep id, platform, nicheId exactly.
+- Rewrite angle, question, searchQuery, answer, topics for this offer.
+- Answer â‰¥180 words when possible. Lead with real help; place the affiliate URL once in the last third as a resource continuation.
+- question and searchQuery must NOT contain URLs or "__LINK__".
+- answer must include the affiliate URL exactly once as plain text and no "__LINK__".
+- No fake testimonials, guarantees, or medical/income promises.
+- Do not mention AI CashWave or internal product names.
+- Plain, concrete beginner-friendly language.`;
+  }
+
+  return `Rewrite this Pinterest pin so it promotes THIS specific offer.
+
+OFFER
+- Product: ${offer.productName}
+- Promise: ${offer.mainPromise}
+- Audience: ${offer.targetAudience}
+- Strongest angle: ${offer.strongestAngle}
+- Pain points: ${offer.painPoints.join("; ")}
+- Benefits: ${offer.primaryBenefits.join("; ")}
+- Affiliate URL (must appear exactly once in pinDescription only): ${affiliateLink}
+
+SEED (JSON)
+${JSON.stringify(seed, null, 2)}
+
+Return ONLY JSON matching PinterestEntry shape with the same id, platform "pinterest", nicheId.
+Rules:
+- Keep id, platform, nicheId exactly.
+- Rewrite angle, pinTitle (â‰¤100 chars), pinDescription (â‰¤500 chars), boardName, imageConcept, keywords (4-8).
+- pinDescription must include the affiliate URL exactly once and no "__LINK__".
+- pinTitle, boardName, imageConcept must NOT contain URLs or "__LINK__".
+- Benefit-led, not clickbait. No guarantees or spam triggers.
+- Do not mention AI CashWave or internal product names.`;
+}
+
+function mergeRewrite(seed: VaultEntry, partial: Partial<VaultEntry>): VaultEntry {
+  if (seed.platform === "quora") {
+    const p = partial as Partial<Extract<VaultEntry, { platform: "quora" }>>;
+    return {
+      ...seed,
+      angle: typeof p.angle === "string" && p.angle.trim() ? p.angle.trim() : seed.angle,
+      question: typeof p.question === "string" && p.question.trim() ? p.question.trim() : seed.question,
+      searchQuery:
+        typeof p.searchQuery === "string" && p.searchQuery.trim()
+          ? p.searchQuery.trim()
+          : seed.searchQuery,
+      answer: typeof p.answer === "string" && p.answer.trim() ? p.answer.trim() : seed.answer,
+      topics:
+        Array.isArray(p.topics) && p.topics.length
+          ? p.topics.map((t) => String(t).trim()).filter(Boolean).slice(0, 8)
+          : seed.topics,
+      id: seed.id,
+      platform: "quora",
+      nicheId: seed.nicheId,
+    };
+  }
+
+  const p = partial as Partial<Extract<VaultEntry, { platform: "pinterest" }>>;
+  return {
+    ...seed,
+    angle: typeof p.angle === "string" && p.angle.trim() ? p.angle.trim() : seed.angle,
+    pinTitle: typeof p.pinTitle === "string" && p.pinTitle.trim() ? p.pinTitle.trim() : seed.pinTitle,
+    pinDescription:
+      typeof p.pinDescription === "string" && p.pinDescription.trim()
+        ? p.pinDescription.trim()
+        : seed.pinDescription,
+    boardName:
+      typeof p.boardName === "string" && p.boardName.trim() ? p.boardName.trim() : seed.boardName,
+    imageConcept:
+      typeof p.imageConcept === "string" && p.imageConcept.trim()
+        ? p.imageConcept.trim()
+        : seed.imageConcept,
+    keywords:
+      Array.isArray(p.keywords) && p.keywords.length
+        ? p.keywords.map((k) => String(k).trim()).filter(Boolean).slice(0, 8)
+        : seed.keywords,
+    id: seed.id,
+    platform: "pinterest",
+    nicheId: seed.nicheId,
+  };
+}
+
+function fallbackOfferAwareEntry(
+  seed: VaultEntry,
+  offer: OfferSnapshot,
+  affiliateLink: string,
+): VaultEntry {
+  const product = offer.productName || "this resource";
+  if (seed.platform === "quora") {
+    const withLink = seed.answer.includes("__LINK__")
+      ? seed.answer.replace("__LINK__", affiliateLink)
+      : `${seed.answer.trim()}\n\nIf you want the step-by-step version for ${product}: ${affiliateLink}`;
+    return {
+      ...seed,
+      angle: offer.strongestAngle || seed.angle,
+      answer: withLink.includes(affiliateLink) ? withLink : `${withLink} ${affiliateLink}`,
+    };
+  }
+
+  const desc = seed.pinDescription.includes("__LINK__")
+    ? seed.pinDescription.replace("__LINK__", affiliateLink)
+    : `${seed.pinDescription.trim()} Learn more: ${affiliateLink}`;
+  return {
+    ...seed,
+    angle: offer.strongestAngle || seed.angle,
+    pinTitle: `${seed.pinTitle}`.slice(0, 100),
+    pinDescription: (desc.includes(affiliateLink) ? desc : `${desc} ${affiliateLink}`).slice(0, 500),
+  };
+}
+
+function degradedOffer(nicheId: NicheId): OfferSnapshot {
+  return {
+    productName: "Your Offer",
+    category: "Digital Product",
+    mainPromise: "A practical solution for people looking for results.",
+    primaryBenefits: ["Easy to get started", "Saves time", "Beginner-friendly"],
+    secondaryBenefits: ["Flexible approach", "Step-by-step guidance"],
+    targetAudience: "People in this niche looking for a clear next step",
+    buyerIntent: "High â€” actively searching for solutions",
+    painPoints: ["Overwhelmed by options", "Unsure where to start"],
+    desiredOutcome: "Clear next steps and confidence",
+    objections: ["Is this legit?", "Will it work for me?"],
+    strongestAngle: "Simple beginner-friendly approach",
+    contentAngles: ["problem/solution", "beginner education", "tips"],
+    ctaStyle: "Educational + soft resource recommendation",
+    promotionChannels: ["Quora", "Pinterest"],
+    recommendedAudienceMode: nicheId,
+    promotionStyle: "Educational + problem/solution",
+  };
+}
+
+async function rewriteOnce(
+  seed: VaultEntry,
+  offer: OfferSnapshot,
+  affiliateLink: string,
+): Promise<VaultEntry> {
+  const raw = await callChatGPT([
+    { role: "user", content: buildRewritePrompt(seed, offer, affiliateLink) },
+  ]);
+  const parsed = parseJsonFromLlm<Partial<VaultEntry>>(raw, {});
+  return mergeRewrite(seed, parsed);
+}
+
+export async function customizeVaultEntry(opts: {
+  seed: VaultEntry;
+  affiliateLink: string;
+  nicheId: NicheId;
+}): Promise<{ entry: VaultEntry; offerSnapshot: OfferSnapshot }> {
+  const { seed, affiliateLink, nicheId } = opts;
+
+  let offer: OfferSnapshot;
+  try {
+    offer = await analyzeOffer(affiliateLink, nicheId);
+  } catch {
+    offer = degradedOffer(nicheId);
+  }
+
+  const validateStrict = (entry: VaultEntry) =>
+    isValidPackEntry(entry, {
+      affiliateLink,
+      sourceEntryId: seed.id,
+      nicheId,
+      minQuoraWords: seed.platform === "quora" ? 180 : undefined,
+    });
+
+  const validateSoft = (entry: VaultEntry) =>
+    isValidPackEntry(entry, {
+      affiliateLink,
+      sourceEntryId: seed.id,
+      nicheId,
+      minQuoraWords: seed.platform === "quora" ? 120 : undefined,
+    });
+
+  try {
+    let rewritten = await rewriteOnce(seed, offer, affiliateLink);
+    if (!validateStrict(rewritten)) {
+      rewritten = await rewriteOnce(seed, offer, affiliateLink);
+    }
+    if (validateStrict(rewritten) || validateSoft(rewritten)) {
+      return { entry: rewritten, offerSnapshot: offer };
+    }
+    const fallback = fallbackOfferAwareEntry(seed, offer, affiliateLink);
+    if (!validateSoft(fallback)) {
+      throw new Error("Customized entry failed validation");
+    }
+    return { entry: fallback, offerSnapshot: offer };
+  } catch (error) {
+    const fallback = fallbackOfferAwareEntry(seed, offer, affiliateLink);
+    if (!validateSoft(fallback)) {
+      throw error instanceof Error ? error : new Error("Customize failed");
+    }
+    return { entry: fallback, offerSnapshot: offer };
+  }
+}
+
+
+========== src/app/api/vault/customize/route.ts ==========
+
+import { NextResponse } from "next/server";
+import { clampString, requireApiUser } from "@/lib/api-auth";
+import { APP_NICHES, type NicheId } from "@/lib/niches";
+import { sanitizeExternalUrl } from "@/lib/safe-url";
+import { getVaultEntryById, isVaultEntryId } from "@/lib/vault/catalog";
+import { customizeVaultEntry } from "@/lib/vault/vault-customize";
+import { mapPackRow, type VaultEntryPackRow } from "@/lib/vault/vault-packs";
+
+function isNicheId(value: string): value is NicheId {
+  return APP_NICHES.some((niche) => niche.id === value);
+}
+
+export async function POST(req: Request) {
+  const auth = await requireApiUser();
+  if (auth.unauthorized) return auth.unauthorized;
+
+  try {
+    const body = await req.json();
+    const entryId = clampString(body.entryId, 64);
+    const nicheIdRaw = clampString(body.nicheId, 64);
+    const affiliateLink = sanitizeExternalUrl(clampString(body.affiliateLink, 2048));
+
+    if (!entryId || !isVaultEntryId(entryId)) {
+      return NextResponse.json({ error: "Valid entry required" }, { status: 400 });
+    }
+    if (!nicheIdRaw || !isNicheId(nicheIdRaw)) {
+      return NextResponse.json({ error: "Valid niche required" }, { status: 400 });
+    }
+    if (!affiliateLink) {
+      return NextResponse.json({ error: "Valid affiliate link required" }, { status: 400 });
+    }
+
+    const seed = getVaultEntryById(entryId);
+    if (!seed) {
+      return NextResponse.json({ error: "Entry not found" }, { status: 404 });
+    }
+    if (seed.nicheId !== nicheIdRaw) {
+      return NextResponse.json({ error: "Niche does not match entry" }, { status: 400 });
+    }
+
+    const { entry, offerSnapshot } = await customizeVaultEntry({
+      seed,
+      affiliateLink,
+      nicheId: nicheIdRaw,
+    });
+
+    const now = new Date().toISOString();
+    const { data, error } = await auth.supabase
+      .from("vault_entry_packs")
+      .upsert(
+        {
+          user_id: auth.user.id,
+          source_entry_id: seed.id,
+          niche_id: seed.nicheId,
+          affiliate_link: affiliateLink,
+          offer_snapshot: offerSnapshot,
+          entry,
+          updated_at: now,
+        },
+        { onConflict: "user_id,source_entry_id,affiliate_link" },
+      )
+      .select("*")
+      .single();
+
+    if (error || !data) {
+      console.error("[vault] customize upsert failed", error);
+      return NextResponse.json({ error: "Could not save customized entry." }, { status: 500 });
+    }
+
+    return NextResponse.json({ pack: mapPackRow(data as VaultEntryPackRow) });
+  } catch (error) {
+    console.error("[vault] customize failed", error);
+    return NextResponse.json(
+      { error: "Could not customize that entry. Please try again." },
+      { status: 422 },
+    );
+  }
+}
+
+
+========== src/app/api/vault/packs/route.ts ==========
+
+import { NextResponse } from "next/server";
+import { requireApiUser } from "@/lib/api-auth";
+import { mapPackRow, type VaultEntryPackRow } from "@/lib/vault/vault-packs";
+
+export async function GET() {
+  const auth = await requireApiUser();
+  if (auth.unauthorized) return auth.unauthorized;
+
+  const { data, error } = await auth.supabase
+    .from("vault_entry_packs")
+    .select("*")
+    .eq("user_id", auth.user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[vault] GET packs failed", error);
+    return NextResponse.json({ error: "Could not load your library." }, { status: 500 });
+  }
+
+  const packs = (data || []).map((row) => mapPackRow(row as VaultEntryPackRow));
+  return NextResponse.json({ packs });
+}
+
+
+========== src/app/api/vault/packs/[id]/route.ts ==========
+
+import { NextResponse } from "next/server";
+import { clampString, requireApiUser } from "@/lib/api-auth";
+
+export async function DELETE(
+  _req: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireApiUser();
+  if (auth.unauthorized) return auth.unauthorized;
+
+  const { id: rawId } = await context.params;
+  const id = clampString(rawId, 64);
+  if (!id) {
+    return NextResponse.json({ error: "Pack id required" }, { status: 400 });
+  }
+
+  const { data, error } = await auth.supabase
+    .from("vault_entry_packs")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", auth.user.id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    console.error("[vault] DELETE pack failed", error);
+    return NextResponse.json({ error: "Could not delete pack." }, { status: 500 });
+  }
+  if (!data) {
+    return NextResponse.json({ error: "Pack not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ ok: true, id });
+}
+
+
+========== src/app/vault/page.tsx ==========
+
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { PageHeader } from "@/components/ui/page-header";
+import { TutorialVideoSection } from "@/components/ui/tutorial-video-section";
+import { NichePicker } from "@/components/ui/niche-picker";
+import { Skeleton } from "@/components/ui/skeleton";
+import { InlineError } from "@/components/ui/InlineError";
+import { VaultEntryCard } from "@/components/vault/VaultEntryCard";
+import { APP_NICHES, type NicheId } from "@/lib/niches";
+import { isSafeHttpUrl } from "@/lib/safe-url";
+import { applyAffiliateLink, getVaultEntriesForNiche } from "@/lib/vault/catalog";
+import type { VaultEntryPack } from "@/lib/vault/vault-packs";
+import type { VaultStateResponse } from "@/lib/vault/types";
+
+const NICHE_KEY = "acw.vault.niche";
+const LINK_KEY = "acw.vault.affiliateLink";
+
+function isNicheId(value: string): value is NicheId {
+  return APP_NICHES.some((n) => n.id === value);
+}
+
+function readStoredNiche(): NicheId {
+  if (typeof window === "undefined") return "make_money_online";
+  try {
+    const raw = localStorage.getItem(NICHE_KEY);
+    if (raw && isNicheId(raw)) return raw;
+  } catch {
+    // ignore
+  }
+  return "make_money_online";
+}
+
+function readStoredLink(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    return localStorage.getItem(LINK_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+export default function VaultPage() {
+  const linkInputRef = useRef<HTMLInputElement>(null);
+  const [affiliateLink, setAffiliateLinkLocal] = useState("");
+  const [niche, setNiche] = useState<NicheId>("make_money_online");
+  const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [used, setUsed] = useState<Set<string>>(new Set());
+  const [packs, setPacks] = useState<VaultEntryPack[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+  const [loadingState, setLoadingState] = useState(true);
+  const [loadingPacks, setLoadingPacks] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [packsError, setPacksError] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [customizingId, setCustomizingId] = useState<string | null>(null);
+  const [customizeErrors, setCustomizeErrors] = useState<Record<string, string>>({});
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [linkHint, setLinkHint] = useState<string | null>(null);
+
+  useEffect(() => {
+    setNiche(readStoredNiche());
+    setAffiliateLinkLocal(readStoredLink());
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(NICHE_KEY, niche);
+      localStorage.setItem(LINK_KEY, affiliateLink);
+    } catch {
+      // ignore
+    }
+  }, [hydrated, niche, affiliateLink]);
+
+  const loadState = useCallback(async () => {
+    setError(null);
+    setLoadingState(true);
+    try {
+      const res = await fetch("/api/vault/state");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to load");
+      }
+      const data = (await res.json()) as VaultStateResponse;
+      setSaved(new Set(data.saved || []));
+      setUsed(new Set(data.used || []));
+    } catch {
+      setError("We couldn't load your saved and used items. You can still browse and copy.");
+    } finally {
+      setLoadingState(false);
+    }
+  }, []);
+
+  const loadPacks = useCallback(async () => {
+    setPacksError(null);
+    setLoadingPacks(true);
+    try {
+      const res = await fetch("/api/vault/packs");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to load packs");
+      }
+      const data = (await res.json()) as { packs: VaultEntryPack[] };
+      setPacks(data.packs || []);
+    } catch {
+      setPacksError("We couldn't load your customized library.");
+    } finally {
+      setLoadingPacks(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    void Promise.all([loadState(), loadPacks()]);
+  }, [hydrated, loadState, loadPacks]);
+
+  const linkValid = isSafeHttpUrl(affiliateLink.trim());
+
+  const nicheEntries = useMemo(
+    () =>
+      getVaultEntriesForNiche(niche).map((entry) =>
+        applyAffiliateLink(entry, affiliateLink.trim()),
+      ),
+    [niche, affiliateLink],
+  );
+
+  const nicheTotal = nicheEntries.length;
+  const usedCount = useMemo(
+    () => nicheEntries.filter((entry) => used.has(entry.id)).length,
+    [nicheEntries, used],
+  );
+
+  const nichePacks = useMemo(
+    () => packs.filter((pack) => pack.nicheId === niche),
+    [packs, niche],
+  );
+
+  const patchState = useCallback(
+    async (entryId: string, patch: { saved?: boolean; used?: boolean }) => {
+      const prevSaved = new Set(saved);
+      const prevUsed = new Set(used);
+
+      if (typeof patch.saved === "boolean") {
+        const next = new Set(saved);
+        if (patch.saved) next.add(entryId);
+        else next.delete(entryId);
+        setSaved(next);
+      }
+      if (typeof patch.used === "boolean") {
+        const next = new Set(used);
+        if (patch.used) next.add(entryId);
+        else next.delete(entryId);
+        setUsed(next);
+      }
+
+      setPendingId(entryId);
+      try {
+        const res = await fetch("/api/vault/state", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ entryId, ...patch }),
+        });
+        if (!res.ok) throw new Error("save failed");
+      } catch {
+        setSaved(prevSaved);
+        setUsed(prevUsed);
+        setError("We couldn't save that change. Please try again.");
+      } finally {
+        setPendingId(null);
+      }
+    },
+    [saved, used],
+  );
+
+  const handleCustomize = useCallback(
+    async (entryId: string) => {
+      if (!linkValid) {
+        setLinkHint("Paste a valid http(s) affiliate link first.");
+        linkInputRef.current?.focus();
+        return;
+      }
+      setLinkHint(null);
+      setCustomizeErrors((prev) => {
+        const next = { ...prev };
+        delete next[entryId];
+        return next;
+      });
+      setCustomizingId(entryId);
+      try {
+        const res = await fetch("/api/vault/customize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entryId,
+            nicheId: niche,
+            affiliateLink: affiliateLink.trim(),
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.error || "Customize failed");
+        }
+        const pack = data.pack as VaultEntryPack;
+        setPacks((prev) => {
+          const without = prev.filter((item) => item.id !== pack.id);
+          const alsoWithoutDuplicate = without.filter(
+            (item) =>
+              !(
+                item.sourceEntryId === pack.sourceEntryId &&
+                item.affiliateLink === pack.affiliateLink
+              ),
+          );
+          return [pack, ...alsoWithoutDuplicate];
+        });
+      } catch (err) {
+        setCustomizeErrors((prev) => ({
+          ...prev,
+          [entryId]:
+            err instanceof Error
+              ? err.message
+              : "Could not customize that post. Please try again.",
+        }));
+      } finally {
+        setCustomizingId(null);
+      }
+    },
+    [affiliateLink, linkValid, niche],
+  );
+
+  const handleDeletePack = useCallback(async (packId: string) => {
+    if (!window.confirm("Delete this customized post from your library?")) return;
+    const previous = packs;
+    setPacks((list) => list.filter((pack) => pack.id !== packId));
+    setDeletingId(packId);
+    try {
+      const res = await fetch(`/api/vault/packs/${packId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("delete failed");
+    } catch {
+      setPacks(previous);
+      setPacksError("We couldn't delete that pack. Please try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  }, [packs]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 12 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="mx-auto flex w-full max-w-2xl flex-col gap-6 py-6 pb-16"
+    >
+      <PageHeader
+        eyebrow="PREMIUM"
+        title={
+          <>
+            Quora + Pinterest <span className="text-gradient">Vault</span>
+          </>
+        }
+        subtitle="Paste your affiliate link, pick a niche, and copy ready-to-post Quora answers and Pinterest pins â€” or customize one to your offer."
+      />
+
+      <TutorialVideoSection
+        title="How the Vault Works"
+        description="Enter your link, choose a niche, copy a ready post, or customize a card so the message matches your offer."
+      />
+
+      <section className="flex flex-col gap-3">
+        <h2 className="ds-h5">1. Paste your affiliate link</h2>
+        <input
+          ref={linkInputRef}
+          type="url"
+          inputMode="url"
+          autoComplete="url"
+          placeholder="https://your-affiliate-link.com/offer"
+          value={affiliateLink}
+          onChange={(event) => {
+            setAffiliateLinkLocal(event.target.value);
+            if (linkHint) setLinkHint(null);
+          }}
+          className="input-base w-full"
+        />
+        <p className="text-sm text-text-muted">
+          Used only on this page. Posts update instantly; customize needs a valid link.
+        </p>
+        {linkHint ? (
+          <p className="text-sm text-[var(--danger)]" role="alert">
+            {linkHint}
+          </p>
+        ) : null}
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="ds-h5">2. Choose your niche</h2>
+        <NichePicker value={niche} onChange={setNiche} />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h2 className="ds-h5">3. Copy or customize</h2>
+          <p className="text-sm text-text-muted">
+            {usedCount} of {nicheTotal} used
+          </p>
+        </div>
+
+        {error ? (
+          <div className="flex flex-col gap-3">
+            <InlineError message={error} />
+            <button type="button" className="btn-secondary w-fit" onClick={loadState}>
+              Try again
+            </button>
+          </div>
+        ) : null}
+
+        {nicheEntries.length === 0 ? (
+          <div className="card-base p-8 text-center text-sm text-text-muted">
+            No posts in this niche yet.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {loadingState ? (
+              <p className="text-xs text-text-muted">Loading your saved and used marksâ€¦</p>
+            ) : null}
+            {nicheEntries.map((entry) => (
+              <VaultEntryCard
+                key={entry.id}
+                entry={entry}
+                saved={saved.has(entry.id)}
+                used={used.has(entry.id)}
+                disabled={pendingId === entry.id || customizingId === entry.id}
+                onToggleSaved={() => patchState(entry.id, { saved: !saved.has(entry.id) })}
+                onToggleUsed={() => patchState(entry.id, { used: !used.has(entry.id) })}
+                onCustomize={() => handleCustomize(entry.id)}
+                customizing={customizingId === entry.id}
+                customizeError={customizeErrors[entry.id] || null}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="ds-h5">4. My library</h2>
+        <p className="text-sm text-text-muted">
+          Offer-aware posts you customized. Showing packs for this niche.
+        </p>
+
+        {packsError ? (
+          <div className="flex flex-col gap-3">
+            <InlineError message={packsError} />
+            <button type="button" className="btn-secondary w-fit" onClick={loadPacks}>
+              Try again
+            </button>
+          </div>
+        ) : null}
+
+        {loadingPacks && (
+          <div className="flex flex-col gap-4">
+            {[1, 2].map((index) => (
+              <Skeleton key={index} className="h-32 w-full rounded-[var(--radius-lg)]" />
+            ))}
+          </div>
+        )}
+
+        {!loadingPacks && nichePacks.length === 0 && (
+          <div className="card-base p-8 text-center text-sm text-text-muted">
+            Customize a post to save it here.
+          </div>
+        )}
+
+        {!loadingPacks && nichePacks.length > 0 && (
+          <div className="flex flex-col gap-4">
+            {nichePacks.map((pack) => (
+              <VaultEntryCard
+                key={pack.id}
+                entry={pack.entry}
+                showSavedUsed={false}
+                offerLabel={pack.offerSnapshot?.productName || pack.affiliateLink}
+                onDelete={() => handleDeletePack(pack.id)}
+                deleting={deletingId === pack.id}
+                disabled={deletingId === pack.id}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    </motion.div>
+  );
+}
+
+
+========== src/components/vault/VaultEntryCard.tsx ==========
+
+"use client";
+
+import { Bookmark, Check, ExternalLink, Sparkles, Trash2 } from "lucide-react";
+import { clsx } from "clsx";
+import { CopyButton } from "@/components/dfy/copy-button";
+import type { VaultEntry } from "@/lib/vault/types";
+
+function PlatformLabel({ platform }: { platform: VaultEntry["platform"] }) {
+  return (
+    <span className="inline-flex items-center rounded-[var(--radius-sm)] border border-[var(--border-subtle)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-text-muted">
+      {platform === "quora" ? "Quora" : "Pinterest"}
+    </span>
+  );
+}
+
+export function VaultEntryCard({
+  entry,
+  saved,
+  used,
+  onToggleSaved,
+  onToggleUsed,
+  disabled,
+  onCustomize,
+  customizing,
+  customizeError,
+  showSavedUsed = true,
+  onDelete,
+  deleting,
+  offerLabel,
+}: {
+  entry: VaultEntry;
+  saved?: boolean;
+  used?: boolean;
+  onToggleSaved?: () => void;
+  onToggleUsed?: () => void;
+  disabled?: boolean;
+  onCustomize?: () => void;
+  customizing?: boolean;
+  customizeError?: string | null;
+  showSavedUsed?: boolean;
+  onDelete?: () => void;
+  deleting?: boolean;
+  offerLabel?: string;
+}) {
+  const openUrl = entry.platform === "quora" ? "https://www.quora.com" : "https://www.pinterest.com";
+  const openLabel = entry.platform === "quora" ? "Open Quora" : "Open Pinterest";
+
+  return (
+    <article className={clsx("flex flex-col gap-4 p-5 card-base", used && "opacity-80")}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <PlatformLabel platform={entry.platform} />
+          <span className="text-xs font-semibold text-text-muted">{entry.angle}</span>
+        </div>
+        <a
+          href={openUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-secondary shrink-0 px-3 py-1.5 text-xs"
+        >
+          {openLabel}
+          <ExternalLink size={12} />
+        </a>
+      </div>
+
+      {entry.platform === "quora" ? (
+        <>
+          <h3 className="ds-h5 leading-snug">{entry.question}</h3>
+          {offerLabel ? (
+            <p className="text-xs font-semibold text-text-muted">Customized for {offerLabel}</p>
+          ) : null}
+          <p className="text-xs text-text-muted">
+            Search Quora for: <span className="text-text-secondary">{entry.searchQuery}</span>
+          </p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">{entry.answer}</p>
+          <div className="flex flex-wrap gap-2">
+            <CopyButton text={entry.answer} label="Copy answer" variant="primary" />
+            <CopyButton text={entry.searchQuery} label="Copy search" />
+          </div>
+        </>
+      ) : (
+        <>
+          <h3 className="ds-h5 leading-snug">{entry.pinTitle}</h3>
+          {offerLabel ? (
+            <p className="text-xs font-semibold text-text-muted">Customized for {offerLabel}</p>
+          ) : null}
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
+            {entry.pinDescription}
+          </p>
+          <dl className="grid gap-2 text-sm">
+            <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+                Board
+              </dt>
+              <dd className="text-text-secondary">{entry.boardName}</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+                Image concept
+              </dt>
+              <dd className="text-text-secondary">{entry.imageConcept}</dd>
+            </div>
+          </dl>
+          <div className="flex flex-wrap gap-2">
+            <CopyButton text={entry.pinDescription} label="Copy description" variant="primary" />
+            <CopyButton text={entry.pinTitle} label="Copy title" />
+            <CopyButton text={entry.boardName} label="Copy board" />
+          </div>
+        </>
+      )}
+
+      <div className="flex flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-4">
+        {onCustomize ? (
+          <button
+            type="button"
+            disabled={disabled || customizing}
+            onClick={onCustomize}
+            className="btn-secondary text-xs"
+          >
+            <Sparkles size={14} />
+            {customizing ? "Customizingâ€¦" : "Customize to my offer"}
+          </button>
+        ) : null}
+        {showSavedUsed && onToggleSaved ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onToggleSaved}
+            className={clsx("btn-secondary text-xs", saved && "btn-chip-active")}
+          >
+            <Bookmark size={14} fill={saved ? "currentColor" : "none"} />
+            {saved ? "Saved" : "Save"}
+          </button>
+        ) : null}
+        {showSavedUsed && onToggleUsed ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onToggleUsed}
+            className={clsx("btn-secondary text-xs", used && "btn-chip-active")}
+          >
+            <Check size={14} />
+            {used ? "Used" : "Mark used"}
+          </button>
+        ) : null}
+        {onDelete ? (
+          <button
+            type="button"
+            disabled={disabled || deleting}
+            onClick={onDelete}
+            className="btn-secondary text-xs"
+          >
+            <Trash2 size={14} />
+            {deleting ? "Deletingâ€¦" : "Delete"}
+          </button>
+        ) : null}
+      </div>
+      {customizeError ? (
+        <p className="text-sm text-[var(--danger)]" role="alert">
+          {customizeError}
+        </p>
+      ) : null}
+    </article>
+  );
+}
+

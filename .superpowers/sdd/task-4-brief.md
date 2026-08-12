@@ -1,95 +1,93 @@
-﻿### Task 4: Migrate custom error banners to `InlineError`
+﻿### Task 4: Card + page workflow UX
 
 **Files:**
-- Modify: `src/app/autopilot/page.tsx`
-- Modify: `src/app/hot-threads/page.tsx`
-- Modify: `src/app/login/page.tsx`
-- Modify: `src/app/signup/page.tsx`
-- Modify: `src/app/forgot-password/page.tsx`
-- Modify: `src/app/reset-password/page.tsx`
+- Modify: `src/components/vault/VaultEntryCard.tsx`
+- Modify: `src/app/vault/page.tsx`
 
 **Interfaces:**
-- Consumes: `InlineError` from Task 3
-- Produces: no custom inline error markup left on these pages (auth may keep `motion` wrapper around `InlineError` if desired, but prefer plain `InlineError`)
+- Consumes: `VaultEntryPack`, `/api/vault/customize`, `/api/vault/packs`, `isSafeHttpUrl`, `getVaultEntriesForNiche`, `applyAffiliateLink`
+- Produces: page steps 1â€“4; card customize/delete modes
 
-- [ ] **Step 1: Autopilot**
+- [ ] **Step 1: Extend `VaultEntryCard`**
 
-Import `InlineError`. Replace:
+Add optional props matching Shorts card patterns:
+
+- `onCustomize?: () => void`
+- `customizing?: boolean`
+- `customizeError?: string | null`
+- `showSavedUsed?: boolean` (default `true`)
+- `onDelete?: () => void`
+- `deleting?: boolean`
+- `offerLabel?: string`
+
+UI changes:
+
+1. When `offerLabel` set, show `Customized for {offerLabel}` under the title area.
+2. In the bottom action row (before or after Save/Used): if `onCustomize`, render a button with Sparkles icon: label `Customize to my offer` / `Customizingâ€¦` when `customizing`. Show `customizeError` as `role="alert"` text under the row.
+3. If `showSavedUsed === false`, hide Save/Used buttons.
+4. If `onDelete`, render a destructive/secondary Delete button with Trash2; disable while `deleting`.
+
+Import `Sparkles` and `Trash2` from `lucide-react`.
+
+- [ ] **Step 2: Rebuild `/vault` page**
+
+Rewrite `src/app/vault/page.tsx` to mirror `src/app/shorts-vault/page.tsx` with these substitutions:
+
+| Shorts | Vault |
+|---|---|
+| `acw.shorts-vault.*` | `acw.vault.niche`, `acw.vault.affiliateLink` |
+| Remove `PLATFORM_KEY` / platform / savedOnly / hideUsed | Gone |
+| `useSearch` affiliate | Remove; page-local only |
+| `getShortsForNiche` / `applyAffiliateLinkToScript` | `getVaultEntriesForNiche(niche)` / `applyAffiliateLink` |
+| `/api/shorts-vault/*` | `/api/vault/customize`, `/api/vault/packs` |
+| body `scriptId` | body `entryId` |
+| `ShortsScriptPack` / `sourceScriptId` | `VaultEntryPack` / `sourceEntryId` |
+| `ShortsScriptCard` | `VaultEntryCard` |
+
+Page sections:
+
+1. Paste affiliate link (input + hint + `linkInputRef`)
+2. Choose niche
+3. Copy or customize â€” curated list; quiet `{usedCount} of {nicheTotal} used`; no Filter section; do not gate curated list on `loading` skeletons for the whole list (saved/used can show a small loading note like Shorts)
+4. My library â€” niche-filtered packs; skeletons only here; empty: â€œCustomize a post to save it here.â€‌
+
+Subtitle/tutorial: link â†’ niche â†’ posts â†’ optional customize.
+
+Pack card usage:
 
 ```tsx
-{error && (
-  <div className="rounded-[var(--radius-lg)] border border-[var(--error-border)] bg-[var(--error-bg)] p-4 text-sm text-[var(--error)]">
-    {error}
-  </div>
-)}
+<VaultEntryCard
+  key={pack.id}
+  entry={pack.entry}
+  showSavedUsed={false}
+  offerLabel={pack.offerSnapshot?.productName || pack.affiliateLink}
+  onDelete={() => handleDeletePack(pack.id)}
+  deleting={deletingId === pack.id}
+  disabled={deletingId === pack.id}
+/>
 ```
 
-with:
+Curated card usage:
 
 ```tsx
-{error ? <InlineError message={error} /> : null}
+<VaultEntryCard
+  key={entry.id}
+  entry={entry}
+  saved={saved.has(entry.id)}
+  used={used.has(entry.id)}
+  disabled={pendingId === entry.id || customizingId === entry.id}
+  onToggleSaved={() => patchState(entry.id, { saved: !saved.has(entry.id) })}
+  onToggleUsed={() => patchState(entry.id, { used: !used.has(entry.id) })}
+  onCustomize={() => handleCustomize(entry.id)}
+  customizing={customizingId === entry.id}
+  customizeError={customizeErrors[entry.id] || null}
+/>
 ```
 
-- [ ] **Step 2: Hot Threads**
+`handleCustomize` must focus the link field and set hint when `!isSafeHttpUrl(affiliateLink.trim())`.
 
-Replace the custom error `<div>` the same way. Keep any retry button **below** the `InlineError`, not inside it:
+- [ ] **Step 3: Manual UX smoke (no LLM required)**
 
-```tsx
-{error ? (
-  <div className="flex flex-col gap-3">
-    <InlineError message={error} />
-    <button type="button" className="btn-secondary w-fit" onClick={() => loadPack(niche)}>
-      Try again
-    </button>
-  </div>
-) : null}
-```
-
-(Match the existing button label/handlers already on the page.)
-
-- [ ] **Step 3: Login**
-
-Import `InlineError`. Replace the `motion.div.error-banner` block with:
-
-```tsx
-{error ? <InlineError message={error} /> : null}
-```
-
-Remove unused `ShieldAlert` import if nothing else uses it.
-
-- [ ] **Step 4: Signup**
-
-Same replacement as login. Remove unused `ShieldAlert` if applicable.
-
-- [ ] **Step 5: Forgot password**
-
-Same: `{error ? <InlineError message={error} /> : null}`
-
-- [ ] **Step 6: Reset password**
-
-Same for the form error banner. Leave any full-page expired-link messaging as-is unless it is also a simple inline banner that can use `InlineError`.
-
-- [ ] **Step 7: Lint changed pages**
-
-Run:
-
-```bash
-npx eslint src/app/autopilot/page.tsx src/app/hot-threads/page.tsx src/app/login/page.tsx src/app/signup/page.tsx src/app/forgot-password/page.tsx src/app/reset-password/page.tsx
-```
-
-Expected: no errors.
-
-- [ ] **Step 8: Manual smoke**
-
-1. Autopilot / Hot Threads â€” force an error; confirm `InlineError` styling and scroll.
-2. Login with bad credentials â€” error appears and scrolls into view if needed.
-
-- [ ] **Step 9: Commit**
-
-```bash
-git add src/app/autopilot/page.tsx src/app/hot-threads/page.tsx src/app/login/page.tsx src/app/signup/page.tsx src/app/forgot-password/page.tsx src/app/reset-password/page.tsx
-git commit -m "refactor: route inline errors through InlineError for scroll"
-```
+Open `/vault`: Filter section gone; link field present; niche changes entries; empty link still shows posts; Customize without valid link focuses input.
 
 ---
-

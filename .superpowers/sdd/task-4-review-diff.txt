@@ -1,0 +1,561 @@
+# Task 4 review package
+=== src/app/vault/page.tsx ===
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { PageHeader } from "@/components/ui/page-header";
+import { TutorialVideoSection } from "@/components/ui/tutorial-video-section";
+import { NichePicker } from "@/components/ui/niche-picker";
+import { Skeleton } from "@/components/ui/skeleton";
+import { InlineError } from "@/components/ui/InlineError";
+import { VaultEntryCard } from "@/components/vault/VaultEntryCard";
+import { APP_NICHES, type NicheId } from "@/lib/niches";
+import { isSafeHttpUrl } from "@/lib/safe-url";
+import { applyAffiliateLink, getVaultEntriesForNiche } from "@/lib/vault/catalog";
+import type { VaultEntryPack } from "@/lib/vault/vault-packs";
+import type { VaultStateResponse } from "@/lib/vault/types";
+
+const NICHE_KEY = "acw.vault.niche";
+const LINK_KEY = "acw.vault.affiliateLink";
+
+function isNicheId(value: string): value is NicheId {
+  return APP_NICHES.some((n) => n.id === value);
+}
+
+function readStoredNiche(): NicheId {
+  if (typeof window === "undefined") return "make_money_online";
+  try {
+    const raw = localStorage.getItem(NICHE_KEY);
+    if (raw && isNicheId(raw)) return raw;
+  } catch {
+    // ignore
+  }
+  return "make_money_online";
+}
+
+function readStoredLink(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    return localStorage.getItem(LINK_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+export default function VaultPage() {
+  const linkInputRef = useRef<HTMLInputElement>(null);
+  const [affiliateLink, setAffiliateLinkLocal] = useState("");
+  const [niche, setNiche] = useState<NicheId>("make_money_online");
+  const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [used, setUsed] = useState<Set<string>>(new Set());
+  const [packs, setPacks] = useState<VaultEntryPack[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+  const [loadingState, setLoadingState] = useState(true);
+  const [loadingPacks, setLoadingPacks] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [packsError, setPacksError] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [customizingId, setCustomizingId] = useState<string | null>(null);
+  const [customizeErrors, setCustomizeErrors] = useState<Record<string, string>>({});
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [linkHint, setLinkHint] = useState<string | null>(null);
+
+  useEffect(() => {
+    setNiche(readStoredNiche());
+    setAffiliateLinkLocal(readStoredLink());
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(NICHE_KEY, niche);
+      localStorage.setItem(LINK_KEY, affiliateLink);
+    } catch {
+      // ignore
+    }
+  }, [hydrated, niche, affiliateLink]);
+
+  const loadState = useCallback(async () => {
+    setError(null);
+    setLoadingState(true);
+    try {
+      const res = await fetch("/api/vault/state");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to load");
+      }
+      const data = (await res.json()) as VaultStateResponse;
+      setSaved(new Set(data.saved || []));
+      setUsed(new Set(data.used || []));
+    } catch {
+      setError("We couldn't load your saved and used items. You can still browse and copy.");
+    } finally {
+      setLoadingState(false);
+    }
+  }, []);
+
+  const loadPacks = useCallback(async () => {
+    setPacksError(null);
+    setLoadingPacks(true);
+    try {
+      const res = await fetch("/api/vault/packs");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to load packs");
+      }
+      const data = (await res.json()) as { packs: VaultEntryPack[] };
+      setPacks(data.packs || []);
+    } catch {
+      setPacksError("We couldn't load your customized library.");
+    } finally {
+      setLoadingPacks(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    void Promise.all([loadState(), loadPacks()]);
+  }, [hydrated, loadState, loadPacks]);
+
+  const linkValid = isSafeHttpUrl(affiliateLink.trim());
+
+  const nicheEntries = useMemo(
+    () =>
+      getVaultEntriesForNiche(niche).map((entry) =>
+        applyAffiliateLink(entry, affiliateLink.trim()),
+      ),
+    [niche, affiliateLink],
+  );
+
+  const nicheTotal = nicheEntries.length;
+  const usedCount = useMemo(
+    () => nicheEntries.filter((entry) => used.has(entry.id)).length,
+    [nicheEntries, used],
+  );
+
+  const nichePacks = useMemo(
+    () => packs.filter((pack) => pack.nicheId === niche),
+    [packs, niche],
+  );
+
+  const patchState = useCallback(
+    async (entryId: string, patch: { saved?: boolean; used?: boolean }) => {
+      const prevSaved = new Set(saved);
+      const prevUsed = new Set(used);
+
+      if (typeof patch.saved === "boolean") {
+        const next = new Set(saved);
+        if (patch.saved) next.add(entryId);
+        else next.delete(entryId);
+        setSaved(next);
+      }
+      if (typeof patch.used === "boolean") {
+        const next = new Set(used);
+        if (patch.used) next.add(entryId);
+        else next.delete(entryId);
+        setUsed(next);
+      }
+
+      setPendingId(entryId);
+      try {
+        const res = await fetch("/api/vault/state", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ entryId, ...patch }),
+        });
+        if (!res.ok) throw new Error("save failed");
+      } catch {
+        setSaved(prevSaved);
+        setUsed(prevUsed);
+        setError("We couldn't save that change. Please try again.");
+      } finally {
+        setPendingId(null);
+      }
+    },
+    [saved, used],
+  );
+
+  const handleCustomize = useCallback(
+    async (entryId: string) => {
+      if (!linkValid) {
+        setLinkHint("Paste a valid http(s) affiliate link first.");
+        linkInputRef.current?.focus();
+        return;
+      }
+      setLinkHint(null);
+      setCustomizeErrors((prev) => {
+        const next = { ...prev };
+        delete next[entryId];
+        return next;
+      });
+      setCustomizingId(entryId);
+      try {
+        const res = await fetch("/api/vault/customize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entryId,
+            nicheId: niche,
+            affiliateLink: affiliateLink.trim(),
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.error || "Customize failed");
+        }
+        const pack = data.pack as VaultEntryPack;
+        setPacks((prev) => {
+          const without = prev.filter((item) => item.id !== pack.id);
+          const alsoWithoutDuplicate = without.filter(
+            (item) =>
+              !(
+                item.sourceEntryId === pack.sourceEntryId &&
+                item.affiliateLink === pack.affiliateLink
+              ),
+          );
+          return [pack, ...alsoWithoutDuplicate];
+        });
+      } catch (err) {
+        setCustomizeErrors((prev) => ({
+          ...prev,
+          [entryId]:
+            err instanceof Error
+              ? err.message
+              : "Could not customize that post. Please try again.",
+        }));
+      } finally {
+        setCustomizingId(null);
+      }
+    },
+    [affiliateLink, linkValid, niche],
+  );
+
+  const handleDeletePack = useCallback(async (packId: string) => {
+    if (!window.confirm("Delete this customized post from your library?")) return;
+    const previous = packs;
+    setPacks((list) => list.filter((pack) => pack.id !== packId));
+    setDeletingId(packId);
+    try {
+      const res = await fetch(`/api/vault/packs/${packId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("delete failed");
+    } catch {
+      setPacks(previous);
+      setPacksError("We couldn't delete that pack. Please try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  }, [packs]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 12 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="mx-auto flex w-full max-w-2xl flex-col gap-6 py-6 pb-16"
+    >
+      <PageHeader
+        eyebrow="PREMIUM"
+        title={
+          <>
+            Quora + Pinterest <span className="text-gradient">Vault</span>
+          </>
+        }
+        subtitle="Paste your affiliate link, pick a niche, and copy ready-to-post Quora answers and Pinterest pins â€” or customize one to your offer."
+      />
+
+      <TutorialVideoSection
+        title="How the Vault Works"
+        description="Enter your link, choose a niche, copy a ready post, or customize a card so the message matches your offer."
+      />
+
+      <section className="flex flex-col gap-3">
+        <h2 className="ds-h5">1. Paste your affiliate link</h2>
+        <input
+          ref={linkInputRef}
+          type="url"
+          inputMode="url"
+          autoComplete="url"
+          placeholder="https://your-affiliate-link.com/offer"
+          value={affiliateLink}
+          onChange={(event) => {
+            setAffiliateLinkLocal(event.target.value);
+            if (linkHint) setLinkHint(null);
+          }}
+          className="input-base w-full"
+        />
+        <p className="text-sm text-text-muted">
+          Used only on this page. Posts update instantly; customize needs a valid link.
+        </p>
+        {linkHint ? (
+          <p className="text-sm text-[var(--danger)]" role="alert">
+            {linkHint}
+          </p>
+        ) : null}
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="ds-h5">2. Choose your niche</h2>
+        <NichePicker value={niche} onChange={setNiche} />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h2 className="ds-h5">3. Copy or customize</h2>
+          <p className="text-sm text-text-muted">
+            {usedCount} of {nicheTotal} used
+          </p>
+        </div>
+
+        {error ? (
+          <div className="flex flex-col gap-3">
+            <InlineError message={error} />
+            <button type="button" className="btn-secondary w-fit" onClick={loadState}>
+              Try again
+            </button>
+          </div>
+        ) : null}
+
+        {nicheEntries.length === 0 ? (
+          <div className="card-base p-8 text-center text-sm text-text-muted">
+            No posts in this niche yet.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {loadingState ? (
+              <p className="text-xs text-text-muted">Loading your saved and used marksâ€¦</p>
+            ) : null}
+            {nicheEntries.map((entry) => (
+              <VaultEntryCard
+                key={entry.id}
+                entry={entry}
+                saved={saved.has(entry.id)}
+                used={used.has(entry.id)}
+                disabled={pendingId === entry.id || customizingId === entry.id}
+                onToggleSaved={() => patchState(entry.id, { saved: !saved.has(entry.id) })}
+                onToggleUsed={() => patchState(entry.id, { used: !used.has(entry.id) })}
+                onCustomize={() => handleCustomize(entry.id)}
+                customizing={customizingId === entry.id}
+                customizeError={customizeErrors[entry.id] || null}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="ds-h5">4. My library</h2>
+        <p className="text-sm text-text-muted">
+          Offer-aware posts you customized. Showing packs for this niche.
+        </p>
+
+        {packsError ? (
+          <div className="flex flex-col gap-3">
+            <InlineError message={packsError} />
+            <button type="button" className="btn-secondary w-fit" onClick={loadPacks}>
+              Try again
+            </button>
+          </div>
+        ) : null}
+
+        {loadingPacks && (
+          <div className="flex flex-col gap-4">
+            {[1, 2].map((index) => (
+              <Skeleton key={index} className="h-32 w-full rounded-[var(--radius-lg)]" />
+            ))}
+          </div>
+        )}
+
+        {!loadingPacks && nichePacks.length === 0 && (
+          <div className="card-base p-8 text-center text-sm text-text-muted">
+            Customize a post to save it here.
+          </div>
+        )}
+
+        {!loadingPacks && nichePacks.length > 0 && (
+          <div className="flex flex-col gap-4">
+            {nichePacks.map((pack) => (
+              <VaultEntryCard
+                key={pack.id}
+                entry={pack.entry}
+                showSavedUsed={false}
+                offerLabel={pack.offerSnapshot?.productName || pack.affiliateLink}
+                onDelete={() => handleDeletePack(pack.id)}
+                deleting={deletingId === pack.id}
+                disabled={deletingId === pack.id}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    </motion.div>
+  );
+}
+
+=== src/components/vault/VaultEntryCard.tsx ===
+"use client";
+
+import { Bookmark, Check, ExternalLink, Sparkles, Trash2 } from "lucide-react";
+import { clsx } from "clsx";
+import { CopyButton } from "@/components/dfy/copy-button";
+import type { VaultEntry } from "@/lib/vault/types";
+
+function PlatformLabel({ platform }: { platform: VaultEntry["platform"] }) {
+  return (
+    <span className="inline-flex items-center rounded-[var(--radius-sm)] border border-[var(--border-subtle)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-text-muted">
+      {platform === "quora" ? "Quora" : "Pinterest"}
+    </span>
+  );
+}
+
+export function VaultEntryCard({
+  entry,
+  saved,
+  used,
+  onToggleSaved,
+  onToggleUsed,
+  disabled,
+  onCustomize,
+  customizing,
+  customizeError,
+  showSavedUsed = true,
+  onDelete,
+  deleting,
+  offerLabel,
+}: {
+  entry: VaultEntry;
+  saved?: boolean;
+  used?: boolean;
+  onToggleSaved?: () => void;
+  onToggleUsed?: () => void;
+  disabled?: boolean;
+  onCustomize?: () => void;
+  customizing?: boolean;
+  customizeError?: string | null;
+  showSavedUsed?: boolean;
+  onDelete?: () => void;
+  deleting?: boolean;
+  offerLabel?: string;
+}) {
+  const openUrl = entry.platform === "quora" ? "https://www.quora.com" : "https://www.pinterest.com";
+  const openLabel = entry.platform === "quora" ? "Open Quora" : "Open Pinterest";
+
+  return (
+    <article className={clsx("flex flex-col gap-4 p-5 card-base", used && "opacity-80")}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <PlatformLabel platform={entry.platform} />
+          <span className="text-xs font-semibold text-text-muted">{entry.angle}</span>
+        </div>
+        <a
+          href={openUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-secondary shrink-0 px-3 py-1.5 text-xs"
+        >
+          {openLabel}
+          <ExternalLink size={12} />
+        </a>
+      </div>
+
+      {entry.platform === "quora" ? (
+        <>
+          <h3 className="ds-h5 leading-snug">{entry.question}</h3>
+          {offerLabel ? (
+            <p className="text-xs font-semibold text-text-muted">Customized for {offerLabel}</p>
+          ) : null}
+          <p className="text-xs text-text-muted">
+            Search Quora for: <span className="text-text-secondary">{entry.searchQuery}</span>
+          </p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">{entry.answer}</p>
+          <div className="flex flex-wrap gap-2">
+            <CopyButton text={entry.answer} label="Copy answer" variant="primary" />
+            <CopyButton text={entry.searchQuery} label="Copy search" />
+          </div>
+        </>
+      ) : (
+        <>
+          <h3 className="ds-h5 leading-snug">{entry.pinTitle}</h3>
+          {offerLabel ? (
+            <p className="text-xs font-semibold text-text-muted">Customized for {offerLabel}</p>
+          ) : null}
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
+            {entry.pinDescription}
+          </p>
+          <dl className="grid gap-2 text-sm">
+            <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+                Board
+              </dt>
+              <dd className="text-text-secondary">{entry.boardName}</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+                Image concept
+              </dt>
+              <dd className="text-text-secondary">{entry.imageConcept}</dd>
+            </div>
+          </dl>
+          <div className="flex flex-wrap gap-2">
+            <CopyButton text={entry.pinDescription} label="Copy description" variant="primary" />
+            <CopyButton text={entry.pinTitle} label="Copy title" />
+            <CopyButton text={entry.boardName} label="Copy board" />
+          </div>
+        </>
+      )}
+
+      <div className="flex flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-4">
+        {onCustomize ? (
+          <button
+            type="button"
+            disabled={disabled || customizing}
+            onClick={onCustomize}
+            className="btn-secondary text-xs"
+          >
+            <Sparkles size={14} />
+            {customizing ? "Customizingâ€¦" : "Customize to my offer"}
+          </button>
+        ) : null}
+        {showSavedUsed && onToggleSaved ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onToggleSaved}
+            className={clsx("btn-secondary text-xs", saved && "btn-chip-active")}
+          >
+            <Bookmark size={14} fill={saved ? "currentColor" : "none"} />
+            {saved ? "Saved" : "Save"}
+          </button>
+        ) : null}
+        {showSavedUsed && onToggleUsed ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onToggleUsed}
+            className={clsx("btn-secondary text-xs", used && "btn-chip-active")}
+          >
+            <Check size={14} />
+            {used ? "Used" : "Mark used"}
+          </button>
+        ) : null}
+        {onDelete ? (
+          <button
+            type="button"
+            disabled={disabled || deleting}
+            onClick={onDelete}
+            className="btn-secondary text-xs"
+          >
+            <Trash2 size={14} />
+            {deleting ? "Deletingâ€¦" : "Delete"}
+          </button>
+        ) : null}
+      </div>
+      {customizeError ? (
+        <p className="text-sm text-[var(--danger)]" role="alert">
+          {customizeError}
+        </p>
+      ) : null}
+    </article>
+  );
+}
+

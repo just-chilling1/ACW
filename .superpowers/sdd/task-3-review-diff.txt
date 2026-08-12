@@ -1,19 +1,5 @@
-﻿### Task 3: Customize + packs APIs
-
-**Files:**
-- Create: `src/app/api/vault/customize/route.ts`
-- Create: `src/app/api/vault/packs/route.ts`
-- Create: `src/app/api/vault/packs/[id]/route.ts`
-
-**Interfaces:**
-- Consumes: `requireApiUser`, `clampString`, `sanitizeExternalUrl`, `getVaultEntryById`, `isVaultEntryId`, `customizeVaultEntry`, `mapPackRow`
-- Produces: `POST /api/vault/customize`, `GET /api/vault/packs`, `DELETE /api/vault/packs/[id]`
-
-- [ ] **Step 1: Customize route**
-
-Create `src/app/api/vault/customize/route.ts` (mirror shorts; body uses `entryId`):
-
-```ts
+﻿# Task 3 review package
+=== customize/route.ts ===
 import { NextResponse } from "next/server";
 import { clampString, requireApiUser } from "@/lib/api-auth";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
@@ -92,13 +78,8 @@ export async function POST(req: Request) {
     );
   }
 }
-```
 
-- [ ] **Step 2: List packs route**
-
-Create `src/app/api/vault/packs/route.ts`:
-
-```ts
+=== packs/route.ts ===
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/api-auth";
 import { mapPackRow, type VaultEntryPackRow } from "@/lib/vault/vault-packs";
@@ -121,47 +102,6 @@ export async function GET() {
   const packs = (data || []).map((row) => mapPackRow(row as VaultEntryPackRow));
   return NextResponse.json({ packs });
 }
-```
 
-- [ ] **Step 3: Delete pack route**
+=== packs/[id]/route.ts ===
 
-Create `src/app/api/vault/packs/[id]/route.ts`:
-
-```ts
-import { NextResponse } from "next/server";
-import { clampString, requireApiUser } from "@/lib/api-auth";
-
-export async function DELETE(
-  _req: Request,
-  context: { params: Promise<{ id: string }> },
-) {
-  const auth = await requireApiUser();
-  if (auth.unauthorized) return auth.unauthorized;
-
-  const { id: rawId } = await context.params;
-  const id = clampString(rawId, 64);
-  if (!id) {
-    return NextResponse.json({ error: "Pack id required" }, { status: 400 });
-  }
-
-  const { data, error } = await auth.supabase
-    .from("vault_entry_packs")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", auth.user.id)
-    .select("id")
-    .maybeSingle();
-
-  if (error) {
-    console.error("[vault] DELETE pack failed", error);
-    return NextResponse.json({ error: "Could not delete pack." }, { status: 500 });
-  }
-  if (!data) {
-    return NextResponse.json({ error: "Pack not found" }, { status: 404 });
-  }
-
-  return NextResponse.json({ ok: true, id });
-}
-```
-
----

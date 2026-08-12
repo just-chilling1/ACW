@@ -1,3 +1,44 @@
+# Task 5 Report: Curated Quora/Pinterest Vault Posts
+
+## Status
+
+PASS
+
+## Files changed
+
+- `src/lib/vault/content/make-money-online.ts`
+- `src/lib/vault/content/weight-loss.ts`
+- `src/lib/vault/content/health-fitness.ts`
+- `src/lib/vault/content/beauty-skincare.ts`
+- `src/lib/vault/content/relationships.ts`
+- `src/lib/vault/content/tech-gadgets.ts`
+- `src/lib/vault/content/pets.ts`
+- `src/lib/vault/content/home-garden.ts`
+
+## Editorial work
+
+- Tightened weaker Quora openers with specific beginner problems.
+- Strengthened Pinterest benefit framing and calls to action.
+- Corrected grammar and clarified VPN claims without changing entry IDs, platforms, counts, or link placement.
+- Left already-strong entries intact and did not edit content under `shorts/`.
+
+## Validation
+
+Command:
+
+`npm run validate:vault`
+
+Output:
+
+`Vault validation passed: 160 entries across 8 niches.`
+
+Exit code: `0`
+
+IDE lint check: no errors in the eight edited niche files.
+
+## Commits
+
+None.
 # Task 5 Report: Final verification
 
 ## Status

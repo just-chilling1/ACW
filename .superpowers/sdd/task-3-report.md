@@ -1,49 +1,66 @@
-# Task 3 Report: Auto-scroll in InlineError
+# Task 3 Report: Customize + packs APIs (Quora/Pinterest Vault)
 
-## Status
+**Status:** DONE  
+**Date:** 2026-08-12  
+**Scope:** Task 3 only — vault API routes (no UI)
 
-**DONE**
+---
 
 ## Summary
 
-Updated `InlineError` so that when `message` transitions from empty to non-empty, the alert banner scrolls into view with smooth behavior via `scrollIntoView({ behavior: "smooth", block: "nearest" })`. A `prevMessage` ref tracks prior state so re-renders with an already-visible message do not re-scroll; clearing the message resets the ref.
+Created three API routes mirroring `shorts-vault` patterns for Quora/Pinterest vault entry packs: customize (POST), list packs (GET), delete pack (DELETE).
 
-## Files
+---
 
-- `src/components/ui/InlineError.tsx` — added `useRef` + `useEffect` scroll-on-appear logic per brief.
+## Files Created
 
-Note: Git tracks the file as `InlineError.tsx` (PascalCase). On Windows this is the same path as the brief's `inlineError.tsx`.
+| File | Endpoint |
+|------|----------|
+| `src/app/api/vault/customize/route.ts` | `POST /api/vault/customize` |
+| `src/app/api/vault/packs/route.ts` | `GET /api/vault/packs` |
+| `src/app/api/vault/packs/[id]/route.ts` | `DELETE /api/vault/packs/[id]` |
 
-## Verification
+No other files modified. No git commit (per instructions).
 
-Ran:
+---
 
-```text
-npx eslint src/components/ui/inlineError.tsx
-```
+## Dependencies
 
-Result: exit code 0, no errors or warnings.
+- `requireApiUser`, `clampString` — `@/lib/api-auth`
+- `sanitizeExternalUrl` — `@/lib/safe-url`
+- `getVaultEntryById`, `isVaultEntryId` — `@/lib/vault/catalog`
+- `customizeVaultEntry` — `@/lib/vault/vault-customize`
+- `mapPackRow`, `VaultEntryPackRow` — `@/lib/vault/vault-packs`
+- Supabase table: `vault_entry_packs`
 
-Static review confirms:
+---
 
-- Scroll fires only on empty → non-empty transition (including first mount with a message).
-- `requestAnimationFrame` defers scroll until after paint; cleanup cancels the frame.
-- Public API unchanged: `{ message: string; className?: string }`.
-- Early return when `!message` preserved; `role="alert"` and styling unchanged.
+## Typecheck
 
-Manual browser smoke was not run — no interactive browser session in this agent environment. Recommended check: on `/instant/build` (or `/search` / `/dfy/new`), scroll away from the form, trigger validation, confirm smooth scroll to the alert.
+**Command:** `npx tsc --noEmit`
 
-## Commit
+**Result:** No errors in new vault API routes (grep `api/vault` — no matches).
 
-- `d6cf640 feat: scroll InlineError into view when it appears`
+**Note:** Pre-existing project error in `src/lib/dfy/content-engine.ts` (unrelated).
 
-## Self-Review
+**Linter:** No diagnostics on the three route files.
 
-- Implementation matches the task brief exactly.
-- Only `InlineError.tsx` was staged and committed; unrelated hot-threads changes remain unstaged.
-- ESLint clean; no new dependencies.
-- `block: "nearest"` avoids unnecessary full-page jumps when the banner is already partially visible.
+---
+
+## Verification Checklist
+
+- [x] `POST /api/vault/customize` — validates entry/niche/link, calls `customizeVaultEntry`, upserts pack
+- [x] `GET /api/vault/packs` — lists user packs ordered by `created_at` desc
+- [x] `DELETE /api/vault/packs/[id]` — scoped delete by user + id
+- [x] Imports resolve; typecheck clean for these files
+- [x] No git commit
+- [ ] UI wiring (Task 4)
+- [ ] Remote migration apply (if not already done)
+
+---
 
 ## Concerns
 
-None blocking. Browser smoke not performed; lint + static review only.
+1. **Migration dependency:** Routes assume `vault_entry_packs` table exists (Task 1 migration). Runtime 500s if migration not applied.
+2. **Customize failures:** Task 2 noted fallback validation edge cases; customize route returns 422 on thrown errors — acceptable but users may see generic message.
+3. **No integration tests:** Static typecheck/lint only; manual API smoke recommended after migration + auth setup.

@@ -1,16 +1,20 @@
 ﻿# SDD Progress Ledger
-Plan: docs/superpowers/plans/2026-08-12-viral-shorts-vault.md
-Branch: optimize/instant-income-speed
-Workspace: in-place (existing feature branch; not a linked worktree)
-Task 1: complete (commits be43913..8ee1d58, validator 48 expected-count errors, validate:vault 160)
-Task 2: complete (e16622e, make_money_online clean)
-Task 3: complete (247a5fa, weight_loss)
-Task 4: complete (c5edac2, health_fitness)
-Task 5: complete (a30e107, beauty_skincare)
-Task 6: complete (021a8d4, relationships)
-Task 7: complete (751c360, tech_gadgets)
-Task 8: complete (b470cf7, pets)
-Task 9: complete (5a6267c, home_garden)
-Task 10: complete (56018ab, ShortsScriptCard)
-Task 11: complete (8e338bf, page + nav + state API)
-Task 12: complete (no new commits; validate:shorts 40/8; validate:vault 160/8; tsc clean; lint has no new shorts-file errors; next compile succeeded; prerender failed on /analysis due to missing NEXT_PUBLIC_SUPABASE_* — no .env.local. Interactive browser smoke deferred for human.)
+Plan: docs/superpowers/plans/2026-08-12-quora-pinterest-vault-offer-packs.md
+Branch: main
+Workspace: in-place (related uncommitted Shorts Vault WIP; vault packs mirrors those patterns)
+BASE_BEFORE_TASK1: f4d1b746e3374ddb16a599417fede4f71485034d
+
+Task 1: complete (uncommitted; review clean after http(s) URL fix; bare-domain URL detection deferred as Minor/out-of-scope)
+
+Task 2: complete (uncommitted; review clean; minor fallback notes)
+
+Task 3: complete (uncommitted; review approved; SSRF in shared analyzeOffer deferred as pre-existing)
+
+Task 4: complete (uncommitted; review clean)
+
+Task 5: complete (uncommitted; validate:vault PASS 160; controller re-ran validator)
+
+Task 6: complete (uncommitted; static verify PASS; migration not applied remotely)
+
+Final review: migration vault_entry_packs applied (20260812151933); I2/I3/I4 + packs order fixed; SSRF deferred
+All tasks complete.

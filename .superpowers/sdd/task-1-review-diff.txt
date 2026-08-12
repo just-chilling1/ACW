@@ -1,18 +1,5 @@
-﻿### Task 1: Migration + pack types/mappers
-
-**Files:**
-- Create: `supabase/migrations/20260812190000_vault_entry_packs.sql`
-- Create: `src/lib/vault/vault-packs.ts`
-- Test: manual typecheck / node assert on `isValidPackEntry` (no dedicated test runner required; use a small inline check script or `npx tsc --noEmit` after Task 2)
-
-**Interfaces:**
-- Produces: `VaultEntryPack`, `VaultEntryPackRow`, `mapPackRow`, `isValidPackEntry(value, opts): value is VaultEntry`
-
-- [ ] **Step 1: Add migration**
-
-Create `supabase/migrations/20260812190000_vault_entry_packs.sql`:
-
-```sql
+﻿# Review package Task 1 (post-fix)
+--- BEGIN migration ---
 -- Per-user customized Quora/Pinterest Vault entries (single-entry packs).
 
 CREATE TABLE IF NOT EXISTS vault_entry_packs (
@@ -41,15 +28,9 @@ CREATE POLICY "Users manage own vault entry packs"
     ON vault_entry_packs FOR ALL
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
-```
 
-Apply locally/remotely with the project's usual Supabase migration flow (CLI or MCP `apply_migration` only if the user asks for remote apply).
-
-- [ ] **Step 2: Add `vault-packs.ts`**
-
-Create `src/lib/vault/vault-packs.ts`:
-
-```ts
+--- END migration ---
+--- BEGIN vault-packs.ts ---
 import type { OfferSnapshot } from "@/lib/dfy/types";
 import type { NicheId } from "@/lib/niches";
 import type { PinterestEntry, QuoraEntry, VaultEntry } from "@/lib/vault/types";
@@ -90,8 +71,23 @@ function countOccurrences(haystack: string, needle: string): number {
   return haystack.split(needle).length - 1;
 }
 
-function hasBannedLinkTokens(text: string, affiliateLink: string): boolean {
-  return text.includes("__LINK__") || (affiliateLink.length > 0 && text.includes(affiliateLink));
+const HTTP_URL_PATTERN = /https?:\/\//i;
+
+function hasHttpUrls(text: string): boolean {
+  return HTTP_URL_PATTERN.test(text);
+}
+
+/** Metadata fields must not contain placeholders or any http(s) URLs. */
+function hasForbiddenLinkContent(text: string): boolean {
+  return text.includes("__LINK__") || hasHttpUrls(text);
+}
+
+/** Body fields must include affiliateLink exactly once and no other URLs. */
+function isValidBodyWithAffiliateLink(text: string, affiliateLink: string): boolean {
+  if (text.includes("__LINK__")) return false;
+  if (countOccurrences(text, affiliateLink) !== 1) return false;
+  const remaining = text.replace(affiliateLink, "");
+  return !hasHttpUrls(remaining);
 }
 
 /** Structural check for a rewritten VaultEntry before persist. */
@@ -116,10 +112,9 @@ export function isValidPackEntry(
     if (!Array.isArray(value.topics) || value.topics.length === 0) return false;
     if (!value.topics.every((t) => typeof t === "string" && t.trim())) return false;
 
-    if (hasBannedLinkTokens(value.question, opts.affiliateLink)) return false;
-    if (hasBannedLinkTokens(value.searchQuery, opts.affiliateLink)) return false;
-    if (value.answer.includes("__LINK__")) return false;
-    if (countOccurrences(value.answer, opts.affiliateLink) !== 1) return false;
+    if (hasForbiddenLinkContent(value.question)) return false;
+    if (hasForbiddenLinkContent(value.searchQuery)) return false;
+    if (!isValidBodyWithAffiliateLink(value.answer, opts.affiliateLink)) return false;
 
     const minWords = opts.minQuoraWords ?? 120;
     if (wordCount(value.answer) < minWords) return false;
@@ -138,11 +133,10 @@ export function isValidPackEntry(
 
     if (value.pinTitle.length > 100) return false;
     if (value.pinDescription.length > 500) return false;
-    if (hasBannedLinkTokens(value.pinTitle, opts.affiliateLink)) return false;
-    if (hasBannedLinkTokens(value.boardName, opts.affiliateLink)) return false;
-    if (hasBannedLinkTokens(value.imageConcept, opts.affiliateLink)) return false;
-    if (value.pinDescription.includes("__LINK__")) return false;
-    if (countOccurrences(value.pinDescription, opts.affiliateLink) !== 1) return false;
+    if (hasForbiddenLinkContent(value.pinTitle)) return false;
+    if (hasForbiddenLinkContent(value.boardName)) return false;
+    if (hasForbiddenLinkContent(value.imageConcept)) return false;
+    if (!isValidBodyWithAffiliateLink(value.pinDescription, opts.affiliateLink)) return false;
     return true;
   }
 
@@ -163,10 +157,5 @@ export function mapPackRow(row: VaultEntryPackRow): VaultEntryPack {
 }
 
 export type { QuoraEntry, PinterestEntry };
-```
 
-- [ ] **Step 3: Sanity-check mapper/validator mentally with fixtures**
-
-Expected: Quora fixture with link once in answer passes at `minQuoraWords: 120`; Pinterest with title >100 fails; answer with `__LINK__` fails.
-
----
+--- END vault-packs.ts ---

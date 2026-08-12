@@ -1,53 +1,118 @@
-# Task 2 Report: Mount Tutorials on Premium Landings
+# Task 2 Report: Customize server module (Quora/Pinterest Vault Offer Packs)
 
-## Status
+**Status:** DONE  
+**Date:** 2026-08-12  
+**Scope:** Task 2 only — `vault-customize.ts` (no API routes)
 
-**DONE**
+---
 
 ## Summary
 
-Mounted the shared tutorial section directly below the main `PageHeader` on Instant Income, Automated Profits, and Hot Threads using the exact titles and descriptions from the task brief. Confirmed DFY already had exactly one `DfyVideoSection` immediately below its hero, so no DFY source change was needed.
+Created `src/lib/vault/vault-customize.ts` per the task brief. The module rewrites Quora/Pinterest vault seed entries for a user’s affiliate link using offer analysis + LLM rewrite, with strict/soft validation via `isValidPackEntry` and an offer-aware fallback path. Patterns mirror `shorts-customize.ts` but use Vault-specific prompts and merge logic.
 
-## Files
+---
 
-- `src/app/instant/page.tsx` — imported and mounted the Instant Income placeholder tutorial.
-- `src/app/autopilot/page.tsx` — imported and mounted the Automated Profits placeholder tutorial in the loaded return only.
-- `src/app/hot-threads/page.tsx` — imported and mounted the Hot Threads placeholder tutorial.
-- `src/app/dfy/page.tsx` — inspected; existing placement already matched the brief and remained unchanged.
+## Files Created
 
-No tutorial placeholder receives a `videoId`. DFY continues to use the existing `DfyVideoSection` wrapper and has one instance.
+| File | Purpose |
+|------|---------|
+| `src/lib/vault/vault-customize.ts` | `customizeVaultEntry` export and helpers |
 
-## Verification
+No other files were modified. No git commit (per instructions).
 
-Ran:
+---
 
-```text
-npx eslint "src/app/dfy/page.tsx" "src/app/instant/page.tsx" "src/app/autopilot/page.tsx" "src/app/hot-threads/page.tsx"
-```
+## Public API
 
-Result: exit code 0 with no errors or warnings.
+### `customizeVaultEntry(opts)`
 
-Also verified:
+**Input:** `{ seed: VaultEntry; affiliateLink: string; nicheId: NicheId }`
 
-- JSX placement by reading all four page returns.
-- Exact copy and omission of `videoId`.
-- Autopilot tutorial is absent from the loading return.
-- `git diff --cached --check` and `git diff HEAD^ HEAD --check` both passed.
-- Commit contains only the three necessary page changes; DFY had no diff.
+**Output:** `Promise<{ entry: VaultEntry; offerSnapshot: OfferSnapshot }>`
 
-Manual browser smoke was not run because this agent environment did not provide an interactive browser session. JSX placement and placeholder behavior were verified statically.
+**Flow:**
 
-## Commit
+1. **`analyzeOffer(affiliateLink, nicheId)`** — on failure, uses **`degradedOffer(nicheId)`** (generic snapshot with Quora/Pinterest promotion channels).
+2. **`rewriteOnce`** — `callChatGPT` + `parseJsonFromLlm` + **`mergeRewrite`** (platform-specific field merge, preserves id/platform/nicheId).
+3. **Validation** — **`isValidPackEntry`** from `vault-packs.ts`:
+   - **Strict:** Quora min 180 words; Pinterest default rules.
+   - **Soft:** Quora min 120 words (validator default).
+4. Retries rewrite once if strict fails; accepts strict **or** soft pass.
+5. **`fallbackOfferAwareEntry`** — replaces `__LINK__` or appends affiliate URL in answer/pinDescription; updates angle from offer.
+6. On LLM/validation failure, returns fallback if soft validation passes; otherwise rethrows.
 
-- `cbba7ce feat: add tutorial slots to premium landing pages`
+---
 
-## Self-Review
+## Platform-Specific Behavior
 
-- Instant, Autopilot, and Hot Threads each mount one `TutorialVideoSection` directly after their loaded header.
-- Copy matches the brief, including the curly apostrophe in “today’s”.
-- DFY retains one wrapper directly below the hero and before “My Campaigns.”
-- Existing unrelated Hot Threads work was present before this task. Only the tutorial import and tutorial block were staged from that file; all unrelated edits remain unstaged.
+### Quora
 
-## Concerns
+- Prompt: helpful rewrite, affiliate URL once in answer (last third), no URLs in question/searchQuery.
+- **`mergeRewrite`:** angle, question, searchQuery, answer, topics (max 8).
+- **Fallback:** inject link into answer; preserve seed metadata.
 
-None blocking. Runtime interaction was not browser-smoked; verification was lint plus direct JSX and commit review.
+### Pinterest
+
+- Prompt: benefit-led pin rewrite; affiliate URL once in pinDescription only.
+- **`mergeRewrite`:** angle, pinTitle, pinDescription, boardName, imageConcept, keywords (max 8).
+- **Fallback:** inject link into pinDescription; truncate title/description to 100/500 chars.
+
+---
+
+## Dependencies
+
+| Import | Module |
+|--------|--------|
+| `analyzeOffer` | `@/lib/dfy/offer-analyze` |
+| `parseJsonFromLlm` | `@/lib/dfy/parse-json` |
+| `OfferSnapshot` | `@/lib/dfy/types` |
+| `callChatGPT` | `@/lib/llm` |
+| `NicheId` | `@/lib/niches` |
+| `isValidPackEntry` | `@/lib/vault/vault-packs` |
+| `VaultEntry` | `@/lib/vault/types` |
+
+---
+
+## Typecheck
+
+**Command:** `npx tsc --noEmit`
+
+**Result:** No errors in `vault-customize.ts` or `vault-packs.ts`.
+
+**Note:** One pre-existing project error in `src/lib/dfy/content-engine.ts` (unrelated `meta` optional vs required). Filtered grep for `vault` in tsc output returned no matches.
+
+**Linter:** No diagnostics on `vault-customize.ts`.
+
+---
+
+## Deviations from Brief
+
+- Fixed mojibake in prompt strings from brief (`≥`, `≤`, `—`) to proper Unicode (matches `shorts-customize.ts` style).
+- No functional changes to logic or `isValidPackEntry` call signature.
+
+---
+
+## Out of Scope (Task 3+)
+
+- API routes (`/api/vault/.../customize`, pack CRUD)
+- UI wiring on vault pages
+- Remote migration apply
+
+---
+
+## Concerns / Follow-ups
+
+1. **Fallback Quora word count:** `fallbackOfferAwareEntry` only swaps the link/angle; short seed answers may still fail soft validation (<120 words). Same class of risk as shorts fallback — API layer should surface errors clearly.
+2. **Double affiliate URL in fallback:** If seed answer already contains the raw affiliate link, fallback append logic could duplicate it and fail `isValidPackEntry` (exactly-once rule). Seeds should use `__LINK__` placeholder in vault content.
+3. **Pinterest keywords:** Fallback does not adjust keyword count (4–8 required); invalid seed keywords could fail soft validation even after link injection.
+
+---
+
+## Verification Checklist
+
+- [x] `vault-customize.ts` created per brief
+- [x] Uses `isValidPackEntry` with `affiliateLink`, `sourceEntryId`, `nicheId`, `minQuoraWords`
+- [x] Exports `customizeVaultEntry`
+- [x] Typecheck clean for vault modules
+- [x] No git commit
+- [ ] API routes (Task 3)

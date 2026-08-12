@@ -1,17 +1,5 @@
-﻿### Task 2: Customize server module
-
-**Files:**
-- Create: `src/lib/vault/vault-customize.ts`
-
-**Interfaces:**
-- Consumes: `analyzeOffer`, `parseJsonFromLlm`, `callChatGPT`, `isValidPackEntry`
-- Produces: `customizeVaultEntry({ seed, affiliateLink, nicheId }) => Promise<{ entry: VaultEntry; offerSnapshot: OfferSnapshot }>`
-
-- [ ] **Step 1: Implement `vault-customize.ts`**
-
-Mirror `src/lib/vault/shorts-customize.ts` with Vault-specific prompts:
-
-```ts
+﻿# Review package Task 2
+--- BEGIN vault-customize.ts ---
 import { analyzeOffer } from "@/lib/dfy/offer-analyze";
 import { parseJsonFromLlm } from "@/lib/dfy/parse-json";
 import type { OfferSnapshot } from "@/lib/dfy/types";
@@ -231,10 +219,5 @@ export async function customizeVaultEntry(opts: {
     return { entry: fallback, offerSnapshot: offer };
   }
 }
-```
 
-- [ ] **Step 2: Confirm exports compile**
-
-Run: `npx tsc --noEmit` (or project equivalent). Expected: no errors from `vault-customize.ts` / `vault-packs.ts` (routes come in Task 3).
-
----
+--- END ---
