@@ -91,6 +91,10 @@ export function detectOfferNiche(snapshot: OfferSnapshot, audienceMode?: string)
     return detectNicheFromText(combined);
 }
 
+export function getFallbackPostsForNiche(nicheId: NicheId): SocialPost[] {
+    return FALLBACK_POSTS[nicheId] || FALLBACK_POSTS.make_money_online;
+}
+
 export function getFallbackPostsForOffer(snapshot: OfferSnapshot, audienceMode?: string): SocialPost[] {
     const nicheId = detectOfferNiche(snapshot, audienceMode);
     const nichePosts = FALLBACK_POSTS[nicheId] || [];

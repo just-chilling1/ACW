@@ -1,4 +1,4 @@
-import { Scan, Sparkles, Rocket, type LucideIcon } from "lucide-react";
+import { Scan, Sparkles, Rocket, Flame, type LucideIcon } from "lucide-react";
 
 export type PremiumFeature = {
     path: string;
@@ -29,5 +29,11 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
         label: "Automated Profits",
         description: "Build your Traffic Machine — we tell you what to do next.",
         icon: Rocket,
+    },
+    {
+        path: "/hot-threads",
+        label: "Hot Threads & Offers",
+        description: "Daily hot posts and replies for your niche.",
+        icon: Flame,
     },
 ];
