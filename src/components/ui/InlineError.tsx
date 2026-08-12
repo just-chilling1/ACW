@@ -25,7 +25,12 @@ export function InlineError({
     if (!appeared) return;
 
     const id = window.requestAnimationFrame(() => {
-      ref.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      ref.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "center",
+      });
     });
     return () => window.cancelAnimationFrame(id);
   }, [message]);
