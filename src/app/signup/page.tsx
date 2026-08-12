@@ -4,11 +4,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { Mail, UserPlus, ShieldAlert, User, Eye, EyeOff } from "lucide-react";
+import { Mail, UserPlus, User, Eye, EyeOff } from "lucide-react";
 import { AuthPageLayout } from "@/components/layout/AuthPageLayout";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
+import { InlineError } from "@/components/ui/InlineError";
 
 export default function SignupPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -59,7 +60,7 @@ export default function SignupPage() {
                     window.location.href = "/login";
                 }
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Unexpected signup failure:", err);
             setError("An unexpected system error occurred.");
             setLoading(false);
@@ -80,16 +81,7 @@ export default function SignupPage() {
                     </div>
 
                     <form onSubmit={handleSignup} className="flex flex-col gap-5">
-                        {error && (
-                            <motion.div
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="error-banner"
-                            >
-                                <ShieldAlert size={18} />
-                                <span>{error}</span>
-                            </motion.div>
-                        )}
+                        {error ? <InlineError message={error} /> : null}
 
                         <div className="flex flex-col gap-2">
                             <label className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted ml-1">Full Name</label>

@@ -10,6 +10,7 @@ import { BrandLogo } from "@/components/ui/brand-logo";
 import { AuthPageLayout } from "@/components/layout/AuthPageLayout";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
+import { InlineError } from "@/components/ui/InlineError";
 
 export default function ResetPasswordPage() {
     const [password, setPassword] = useState("");
@@ -206,15 +207,7 @@ export default function ResetPasswordPage() {
 
         return (
             <form onSubmit={handleUpdate} className="flex flex-col gap-5">
-                {error && (
-                    <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="error-banner"
-                    >
-                        <span>{error}</span>
-                    </motion.div>
-                )}
+                {error ? <InlineError message={error} /> : null}
 
                 <Field
                     label="New Password"

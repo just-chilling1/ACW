@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { TutorialVideoSection } from "@/components/ui/tutorial-video-section";
+import { InlineError } from "@/components/ui/InlineError";
 import { useSearch } from "@/context/SearchContext";
 import { SetupWizard } from "@/components/traffic-machine/SetupWizard";
 import { MagicMoment } from "@/components/traffic-machine/MagicMoment";
@@ -311,11 +312,7 @@ export default function AutomatedProfitsPage() {
         description="See how to set up your Traffic Machine and follow each step one click at a time."
       />
 
-      {error && (
-        <div className="rounded-[var(--radius-lg)] border border-[var(--error-border)] bg-[var(--error-bg)] p-4 text-sm text-[var(--error)]">
-          {error}
-        </div>
-      )}
+      {error ? <InlineError message={error} /> : null}
 
       <MagicMoment active={building} />
 

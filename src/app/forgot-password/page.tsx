@@ -8,6 +8,7 @@ import { Mail, ArrowLeft, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { AuthPageLayout } from "@/components/layout/AuthPageLayout";
 import { BrandLogo } from "@/components/ui/brand-logo";
+import { InlineError } from "@/components/ui/InlineError";
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState("");
@@ -83,15 +84,7 @@ export default function ForgotPasswordPage() {
                         </motion.div>
                     ) : (
                         <form onSubmit={handleReset} className="flex flex-col gap-5">
-                            {error && (
-                                <motion.div
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                className="error-banner"
-                                >
-                                    <span>{error}</span>
-                                </motion.div>
-                            )}
+                            {error ? <InlineError message={error} /> : null}
 
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted ml-1">Email Address</label>
