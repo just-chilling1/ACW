@@ -34,11 +34,12 @@ function measure() {
         /insert\(\s*\[[\s\S]*?\]/.test(kitEngine) ||
         /insert\(rows\)/.test(kitEngine) ||
         /insert\(payload\)/.test(kitEngine) ||
+        /\.insert\(payload\)/.test(kitEngine) ||
         /BATCH_INSERT|insertAssetsBatch|bulkInsert/i.test(kitEngine);
 
     const sequentialInsertLoop =
         /for\s*\(\s*const\s+asset\s+of\s+assets\s*\)/.test(kitEngine) &&
-        /from\("promotion_assets"\)\s*\n?\s*\.insert\(/.test(kitEngine);
+        !hasBatchInsert;
 
     // Content generation calls that typically need LLM
     const contentGenerators = [

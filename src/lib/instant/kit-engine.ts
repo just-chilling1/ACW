@@ -8,9 +8,9 @@ import {
     generatePromotionHooks,
     generatePromotionPosts,
     generatePromotionReplies,
-    generateQuickPlan,
     selectPlatforms,
 } from "./content-engine";
+import { buildFallbackQuickPlan } from "./fallbacks";
 import type {
     KitBuildProgress,
     KitStage,
@@ -18,7 +18,19 @@ import type {
     PromotionAssetRow,
     PromotionKitRow,
 } from "./types";
-import { DEFAULT_CHECKLIST, KIT_STAGES } from "./types";
+import { DEFAULT_CHECKLIST } from "./types";
+
+type AssetInsert = {
+    type: string;
+    platform?: string;
+    title?: string;
+    content: string;
+    angle?: string;
+    cta?: string;
+    why?: string;
+    include_link?: boolean;
+    meta?: Record<string, unknown>;
+};
 
 export async function updateKitProgress(
     supabase: SupabaseClient,
@@ -35,39 +47,44 @@ export async function updateKitProgress(
 async function insertAssets(
     supabase: SupabaseClient,
     kitId: string,
-    assets: Array<{
-        type: string;
-        platform?: string;
-        title?: string;
-        content: string;
-        angle?: string;
-        cta?: string;
-        why?: string;
-        include_link?: boolean;
-        meta?: Record<string, unknown>;
-    }>,
+    assets: AssetInsert[],
 ): Promise<PromotionAssetRow[]> {
-    const rows: PromotionAssetRow[] = [];
-    for (const asset of assets) {
-        const { data, error } = await supabase
-            .from("promotion_assets")
-            .insert({
-                kit_id: kitId,
-                type: asset.type,
-                platform: asset.platform || "General",
-                title: asset.title || "",
-                content: asset.content,
-                angle: asset.angle || "",
-                cta: asset.cta || "",
-                why: asset.why || "",
-                include_link: asset.include_link ?? true,
-                meta: asset.meta || {},
-            })
-            .select("*")
-            .single();
-        if (!error && data) rows.push(data as PromotionAssetRow);
-    }
-    return rows;
+    if (!assets.length) return [];
+
+    const payload = assets.map((asset) => ({
+        kit_id: kitId,
+        type: asset.type,
+        platform: asset.platform || "General",
+        title: asset.title || "",
+        content: asset.content,
+        angle: asset.angle || "",
+        cta: asset.cta || "",
+        why: asset.why || "",
+        include_link: asset.include_link ?? true,
+        meta: asset.meta || {},
+    }));
+
+    const { data, error } = await supabase
+        .from("promotion_assets")
+        .insert(payload)
+        .select("*");
+
+    if (error || !data) return [];
+    return data as PromotionAssetRow[];
+}
+
+async function markStagesComplete(
+    supabase: SupabaseClient,
+    kitId: string,
+    completed: KitStage[],
+    currentStage?: KitStage,
+) {
+    const progress: KitBuildProgress = {
+        completedStages: completed,
+        currentStage,
+    };
+    await updateKitProgress(supabase, kitId, progress);
+    return progress;
 }
 
 export async function runKitStage(
@@ -170,41 +187,7 @@ export async function runKitStage(
                 .eq("kit_id", kit.id);
 
             const assets = (allAssets || []) as PromotionAssetRow[];
-            const posts = assets.filter((a) => a.type === "post");
-            const hooks = assets.filter((a) => a.type === "hook");
-            const replies = assets.filter((a) => a.type === "reply");
-            const ctas = assets.filter((a) => a.type === "cta");
-            const angles = assets.filter((a) => a.type === "angle");
-
-            const stats: KitStats = {
-                postCount: posts.length,
-                hookCount: hooks.length,
-                replyCount: replies.length,
-                ctaCount: ctas.length,
-                angleCount: angles.length,
-            };
-
-            const recommendations = buildRecommendations(
-                posts.map((p) => ({ id: p.id, content: p.content, platform: p.platform, cta: p.cta, why: p.why, meta: p.meta as Record<string, unknown> })),
-                hooks.map((h) => ({ id: h.id, content: h.content, meta: h.meta as Record<string, unknown> })),
-                replies.map((r) => ({ id: r.id, content: r.content })),
-                ctas.map((c) => ({ id: c.id, content: c.content, meta: c.meta as Record<string, unknown> })),
-            );
-
-            const quickPlan = await generateQuickPlan(
-                snapshot,
-                posts.map((p) => p.id),
-                hooks.map((h) => h.id),
-                replies.map((r) => r.id),
-            );
-
-            await supabase.from("promotion_kits").update({
-                recommendations,
-                quick_plan: quickPlan,
-                checklist: DEFAULT_CHECKLIST,
-                stats,
-                status: "ready",
-            }).eq("id", kit.id);
+            await finalizeKit(supabase, kit, assets, snapshot);
             break;
         }
     }
@@ -217,36 +200,187 @@ export async function runKitStage(
     return progress;
 }
 
+async function finalizeKit(
+    supabase: SupabaseClient,
+    kit: PromotionKitRow,
+    assets: PromotionAssetRow[],
+    snapshot: OfferSnapshot,
+) {
+    const posts = assets.filter((a) => a.type === "post");
+    const hooks = assets.filter((a) => a.type === "hook");
+    const replies = assets.filter((a) => a.type === "reply");
+    const ctas = assets.filter((a) => a.type === "cta");
+    const angles = assets.filter((a) => a.type === "angle");
+
+    const stats: KitStats = {
+        postCount: posts.length,
+        hookCount: hooks.length,
+        replyCount: replies.length,
+        ctaCount: ctas.length,
+        angleCount: angles.length,
+    };
+
+    const recommendations = buildRecommendations(
+        posts.map((p) => ({
+            id: p.id,
+            content: p.content,
+            platform: p.platform,
+            cta: p.cta,
+            why: p.why,
+            meta: p.meta as Record<string, unknown>,
+        })),
+        hooks.map((h) => ({ id: h.id, content: h.content, meta: h.meta as Record<string, unknown> })),
+        replies.map((r) => ({ id: r.id, content: r.content })),
+        ctas.map((c) => ({ id: c.id, content: c.content, meta: c.meta as Record<string, unknown> })),
+    );
+
+    // Deterministic plan avoids an extra LLM round-trip at the end of build.
+    const quickPlan = buildFallbackQuickPlan(snapshot);
+    if (posts[0]) quickPlan[0].actions[0].assetId = posts[0].id;
+    if (hooks[0] && quickPlan[0].actions[1]) quickPlan[0].actions[1].assetId = hooks[0].id;
+    if (replies[0] && quickPlan[1]?.actions?.[1]) quickPlan[1].actions[1].assetId = replies[0].id;
+
+    await supabase.from("promotion_kits").update({
+        recommendations,
+        quick_plan: quickPlan,
+        checklist: DEFAULT_CHECKLIST,
+        stats,
+        status: "ready",
+    }).eq("id", kit.id);
+}
+
+/**
+ * Optimized kit build: one parallel LLM wave for content assets + batch inserts.
+ * Progress stages still update so the build UI stays informative.
+ */
 export async function runKitBuild(supabase: SupabaseClient, kitId: string): Promise<void> {
     await supabase.from("promotion_kits").update({
         status: "building",
         updated_at: new Date().toISOString(),
     }).eq("id", kitId);
 
-    const { data: kit, error } = await supabase
+    const { data: kitRow, error } = await supabase
         .from("promotion_kits")
         .select("*")
         .eq("id", kitId)
         .single();
 
-    if (error || !kit) throw new Error("Kit not found");
+    if (error || !kitRow) throw new Error("Kit not found");
 
-    const stages = KIT_STAGES.map((s) => s.key);
-    for (const stage of stages) {
-        try {
-            const { data: fresh } = await supabase.from("promotion_kits").select("*").eq("id", kitId).single();
-            if (!fresh) break;
-            await runKitStage(supabase, fresh as PromotionKitRow, stage);
-        } catch (e) {
-            await supabase.from("promotion_kits").update({
-                status: "failed",
-                build_progress: {
-                    ...(kit.build_progress as KitBuildProgress),
-                    error: e instanceof Error ? e.message : "Build failed",
-                },
-            }).eq("id", kitId);
-            throw e;
-        }
+    const kit = kitRow as PromotionKitRow;
+    const completed: KitStage[] = [];
+
+    try {
+        await markStagesComplete(supabase, kitId, completed, "understand_offer");
+        await runKitStage(supabase, kit, "understand_offer");
+        completed.push("understand_offer");
+
+        await markStagesComplete(supabase, kitId, completed, "identify_audience");
+        completed.push("identify_audience");
+        await markStagesComplete(supabase, kitId, completed, "find_angles");
+
+        const snapshot = kit.offer_snapshot as OfferSnapshot;
+        const offerUrl = kit.offer_url;
+        const platforms = selectPlatforms(snapshot);
+
+        // Single parallel LLM wave for independent content types.
+        const [angles, hooks, posts, replies, ctas] = await Promise.all([
+            generatePromotionAngles(snapshot),
+            generatePromotionHooks(snapshot),
+            generatePromotionPosts(snapshot, offerUrl, platforms),
+            generatePromotionReplies(snapshot, offerUrl),
+            generatePromotionCtas(snapshot, offerUrl),
+        ]);
+
+        await supabase
+            .from("promotion_assets")
+            .delete()
+            .eq("kit_id", kitId)
+            .in("type", ["angle", "hook", "post", "reply", "cta"]);
+
+        const angleRows = await insertAssets(
+            supabase,
+            kitId,
+            angles.map((a) => ({
+                type: "angle",
+                title: a.title,
+                content: a.content,
+                angle: a.angle,
+                why: a.why,
+                meta: a.meta,
+            })),
+        );
+        completed.push("find_angles");
+        await markStagesComplete(supabase, kitId, completed, "write_hooks");
+
+        const hookRows = await insertAssets(
+            supabase,
+            kitId,
+            hooks.map((h) => ({
+                type: "hook",
+                content: h.content,
+                meta: h.meta,
+            })),
+        );
+        completed.push("write_hooks");
+        await markStagesComplete(supabase, kitId, completed, "create_posts");
+
+        const postRows = await insertAssets(
+            supabase,
+            kitId,
+            posts.map((p) => ({
+                type: "post",
+                platform: p.platform,
+                title: p.title,
+                content: p.content,
+                angle: p.angle,
+                cta: p.cta,
+                why: p.why,
+                include_link: p.include_link,
+                meta: p.meta,
+            })),
+        );
+        completed.push("create_posts");
+        await markStagesComplete(supabase, kitId, completed, "prepare_replies");
+
+        const replyRows = await insertAssets(
+            supabase,
+            kitId,
+            replies.map((r) => ({
+                type: "reply",
+                title: r.title,
+                content: r.content,
+                meta: r.meta,
+            })),
+        );
+        completed.push("prepare_replies");
+        await markStagesComplete(supabase, kitId, completed, "create_ctas");
+
+        const ctaRows = await insertAssets(
+            supabase,
+            kitId,
+            ctas.map((c) => ({
+                type: "cta",
+                content: c.content,
+                meta: c.meta,
+            })),
+        );
+        completed.push("create_ctas");
+        await markStagesComplete(supabase, kitId, completed, "build_plan");
+
+        const allAssets = [...angleRows, ...hookRows, ...postRows, ...replyRows, ...ctaRows];
+        await finalizeKit(supabase, kit, allAssets, snapshot);
+        completed.push("build_plan", "finalize");
+        await markStagesComplete(supabase, kitId, completed);
+    } catch (e) {
+        await supabase.from("promotion_kits").update({
+            status: "failed",
+            build_progress: {
+                completedStages: completed,
+                error: e instanceof Error ? e.message : "Build failed",
+            },
+        }).eq("id", kitId);
+        throw e;
     }
 }
 

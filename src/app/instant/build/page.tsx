@@ -298,7 +298,7 @@ function BuildContent() {
                             Create My Promotion Kit
                         </button>
                         <p className="text-center text-xs text-text-muted">
-                            We&apos;ll prepare ready-to-use content for your offer in seconds.
+                            We write posts, replies, and hooks together so your kit is ready faster.
                         </p>
                         <button type="button" onClick={() => setStep(1)} className="btn-ghost w-full text-sm">
                             <ArrowLeft size={14} />

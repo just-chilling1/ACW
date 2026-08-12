@@ -36,8 +36,8 @@ const FLOW_STEPS = [
     },
     {
         id: 4,
-        label: "You're done",
-        help: "Come back anytime for more.",
+        label: "Next step / All done",
+        help: "Reuse unused posts, then finish when the kit is empty.",
         icon: CheckCircle2,
     },
 ] as const;
@@ -55,6 +55,12 @@ export default function InstantLandingPage() {
     }, []);
 
     const latestKit = kits.find((k) => k.status === "ready") || kits[0];
+    const continueLabel =
+        latestKit?.status === "building"
+            ? "Continue — kit is still building"
+            : latestKit?.status === "failed"
+              ? "Retry this kit"
+              : "Continue your kit";
 
     return (
         <div className="mx-auto max-w-2xl space-y-6 pb-12">
@@ -80,7 +86,7 @@ export default function InstantLandingPage() {
                         href={`/instant/kit/${latestKit.id}`}
                         className="btn-primary flex w-full items-center justify-center gap-2 py-4 text-base"
                     >
-                        Continue — Step 1: Post this
+                        {continueLabel}
                         <ArrowRight size={18} />
                     </Link>
 
@@ -93,7 +99,7 @@ export default function InstantLandingPage() {
                 <div className="surface-panel-elevated space-y-5 p-5 sm:p-6 text-center">
                     <h2 className="text-xl font-semibold text-text-primary">Start here</h2>
                     <p className="text-sm text-text-muted">
-                        Paste your offer link. We&apos;ll write your posts and replies. You just copy and paste.
+                        Paste your offer link. We prepare posts and replies in moments — you just copy and paste.
                     </p>
                     <Link href="/instant/build" className="btn-primary flex w-full items-center justify-center gap-2 py-4 text-base">
                         <Sparkles size={18} />
