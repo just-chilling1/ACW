@@ -25,17 +25,18 @@ const STEPS = [
     { id: 1, label: "Post this" },
     { id: 2, label: "Reply with this" },
     { id: 3, label: "Post again" },
-    { id: 4, label: "You're done" },
+    { id: 4, label: "Next step" },
 ] as const;
 
 type Step = 1 | 2 | 3 | 4;
 
-function StepRail({ step }: { step: Step }) {
+function StepRail({ step, allDone }: { step: Step; allDone: boolean }) {
     return (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {STEPS.map((s) => {
+                const label = s.id === 4 && allDone ? "You're done" : s.label;
                 const active = s.id === step;
-                const done = s.id < step;
+                const done = s.id < step || (s.id === 4 && allDone && step === 4);
                 return (
                     <div
                         key={s.id}
@@ -57,7 +58,7 @@ function StepRail({ step }: { step: Step }) {
                                 active ? "text-text-primary" : done ? "text-[var(--success)]" : "text-text-muted",
                             )}
                         >
-                            {s.label}
+                            {label}
                         </p>
                     </div>
                 );
@@ -116,7 +117,7 @@ function ActionCard({
                     <button
                         type="button"
                         onClick={onMarkDone}
-                        disabled={marking}
+                        disabled={marking || done}
                         className={clsx(
                             "inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold",
                             done ? "btn-secondary" : "btn-primary",
@@ -145,12 +146,10 @@ function ActionCard({
 }
 
 function StepNav({
-    step,
     onBack,
     onNext,
     nextLabel,
 }: {
-    step: Step;
     onBack?: () => void;
     onNext?: () => void;
     nextLabel?: string;
@@ -167,7 +166,7 @@ function StepNav({
             )}
             {onNext ? (
                 <button type="button" onClick={onNext} className="btn-primary w-full py-4 text-base sm:w-auto sm:min-w-[220px]">
-                    {nextLabel ?? `Next: ${STEPS.find((s) => s.id === step + 1)?.label ?? "Continue"}`}
+                    {nextLabel ?? "Continue"}
                     <ArrowRight size={18} />
                 </button>
             ) : null}
@@ -190,6 +189,11 @@ export default function KitDashboardPage() {
     const [smartReply, setSmartReply] = useState<string | null>(null);
     const [smartLoading, setSmartLoading] = useState(false);
     const [showMore, setShowMore] = useState(false);
+    const [cyclePostAId, setCyclePostAId] = useState<string | null>(null);
+    const [cyclePostBId, setCyclePostBId] = useState<string | null>(null);
+    const [cycleReplyId, setCycleReplyId] = useState<string | null>(null);
+    const [allDone, setAllDone] = useState(false);
+    const [cycleReady, setCycleReady] = useState(false);
 
     const loadKit = useCallback(async () => {
         try {
@@ -216,21 +220,65 @@ export default function KitDashboardPage() {
     const replies = useMemo(() => assets.filter((a) => a.type === "reply"), [assets]);
     const hooks = useMemo(() => assets.filter((a) => a.type === "hook"), [assets]);
 
-    const bestPost = posts.find((p) => p.id === kit?.recommendations?.bestPostId) || posts[0];
-    const bestReply = replies.find((r) => r.id === kit?.recommendations?.bestReplyId) || replies[0];
-    const secondPost =
-        posts.find((p) => p.id !== bestPost?.id && p.status !== "used") ||
-        posts.find((p) => p.id !== bestPost?.id) ||
-        null;
+    const pickCycle = useCallback(
+        (sourcePosts: PromotionAssetRow[], sourceReplies: PromotionAssetRow[], kitRow: PromotionKitRow | null) => {
+            const unusedPosts = sourcePosts.filter((p) => p.status !== "used");
+            if (unusedPosts.length === 0) {
+                setCyclePostAId(null);
+                setCyclePostBId(null);
+                setCycleReplyId(null);
+                setAllDone(true);
+                setStep(4);
+                setCycleReady(true);
+                return;
+            }
+
+            const preferred =
+                unusedPosts.find((p) => p.id === kitRow?.recommendations?.bestPostId) || unusedPosts[0];
+            const second =
+                unusedPosts.find((p) => p.id !== preferred.id) ||
+                sourcePosts.find((p) => p.id !== preferred.id) ||
+                null;
+            const unusedReplies = sourceReplies.filter((r) => r.status !== "used");
+            const reply =
+                unusedReplies.find((r) => r.id === kitRow?.recommendations?.bestReplyId) ||
+                unusedReplies[0] ||
+                sourceReplies[0] ||
+                null;
+
+            setCyclePostAId(preferred.id);
+            setCyclePostBId(second?.id ?? null);
+            setCycleReplyId(reply?.id ?? null);
+            setAllDone(false);
+            setStep(1);
+            setSmartComment("");
+            setSmartReply(null);
+            setCycleReady(true);
+        },
+        [],
+    );
+
+    useEffect(() => {
+        if (loading || cycleReady || !kit) return;
+        pickCycle(posts, replies, kit);
+    }, [loading, cycleReady, kit, posts, replies, pickCycle]);
+
+    const postA = posts.find((p) => p.id === cyclePostAId) || null;
+    const postB = posts.find((p) => p.id === cyclePostBId) || null;
+    const cycleReply = replies.find((r) => r.id === cycleReplyId) || null;
+    const unusedRemaining = posts.filter(
+        (p) => p.status !== "used" && p.id !== cyclePostAId && p.id !== cyclePostBId,
+    );
+    const hasMoreCycles = unusedRemaining.length > 0;
 
     const markUsed = async (asset: PromotionAssetRow) => {
+        if (asset.status === "used") return;
         setMarkingId(asset.id);
         try {
-            const nextStatus = asset.status === "used" ? "ready" : "used";
             const res = await fetch(`/api/instant/kits/${kitId}/assets/${asset.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: nextStatus }),
+                body: JSON.stringify({ status: "used" }),
             });
             const data = await res.json();
             if (data.asset) {
@@ -241,13 +289,37 @@ export default function KitDashboardPage() {
         }
     };
 
+    const markCycleAssetsUsed = async () => {
+        const ids = [cyclePostAId, cyclePostBId, cycleReplyId].filter(Boolean) as string[];
+        for (const id of ids) {
+            const asset = assets.find((a) => a.id === id);
+            if (asset && asset.status !== "used") {
+                await markUsed(asset);
+            }
+        }
+    };
+
     const handleRotate = async () => {
         setRotating(true);
         try {
             const res = await fetch(`/api/instant/kits/${kitId}/rotate`, { method: "POST" });
             const data = await res.json();
             if (data.asset) {
-                setAssets((prev) => [...prev, data.asset]);
+                setAssets((prev) => [...prev, data.asset as PromotionAssetRow]);
+                // Pin the newly generated post so the UI actually switches.
+                if (step === 3) {
+                    setCyclePostBId(data.asset.id);
+                } else if (step === 1) {
+                    setCyclePostAId(data.asset.id);
+                } else if (step === 4 && allDone) {
+                    // New asset after finishing — reopen the workflow with it.
+                    setAllDone(false);
+                    setCyclePostAId(data.asset.id);
+                    setCyclePostBId(null);
+                    setSmartComment("");
+                    setSmartReply(null);
+                    setStep(1);
+                }
             }
         } finally {
             setRotating(false);
@@ -257,6 +329,7 @@ export default function KitDashboardPage() {
     const handleSmartReply = async () => {
         if (!smartComment.trim()) return;
         setSmartLoading(true);
+        setSmartReply(null);
         try {
             const res = await fetch(`/api/instant/kits/${kitId}/reply`, {
                 method: "POST",
@@ -268,6 +341,37 @@ export default function KitDashboardPage() {
         } finally {
             setSmartLoading(false);
         }
+    };
+
+    const goToNextStepPage = async () => {
+        await markCycleAssetsUsed();
+        const remaining = posts.filter(
+            (p) =>
+                p.status !== "used" &&
+                p.id !== cyclePostAId &&
+                p.id !== cyclePostBId,
+        );
+        // After marking, remaining may still include unmarked posts outside this cycle.
+        setAllDone(remaining.length === 0);
+        setStep(4);
+    };
+
+    const startNextCycle = async () => {
+        // Ensure current cycle assets are marked before picking the next set.
+        await markCycleAssetsUsed();
+        const freshPosts = assets.map((a) => {
+            if (a.id === cyclePostAId || a.id === cyclePostBId || a.id === cycleReplyId) {
+                return { ...a, status: "used" as const };
+            }
+            return a;
+        });
+        setAssets(freshPosts);
+        setCycleReady(false);
+        pickCycle(
+            freshPosts.filter((a) => a.type === "post"),
+            freshPosts.filter((a) => a.type === "reply"),
+            kit,
+        );
     };
 
     const copyFullKit = async () => {
@@ -285,7 +389,7 @@ export default function KitDashboardPage() {
         );
     }
 
-    const stepPost = step === 3 ? secondPost || bestPost : bestPost;
+    const stepPost = step === 3 ? postB || postA : postA;
 
     return (
         <div className="mx-auto max-w-2xl space-y-5 pb-24">
@@ -305,33 +409,33 @@ export default function KitDashboardPage() {
                 totalSteps={4}
             />
 
-            <StepRail step={step} />
+            <StepRail step={step} allDone={allDone && step === 4} />
 
-            {step === 1 && bestPost ? (
+            {step === 1 && postA ? (
                 <div className="space-y-4">
                     <ActionCard
                         eyebrow="Step 1 of 4"
                         title="Copy this post"
                         help="Paste it where you promote (Facebook, Reddit, groups, etc.). Then tap Next."
-                        content={bestPost.content}
+                        content={postA.content}
                         platform={
                             kit.recommendations?.bestPromotionPlatform ||
-                            (bestPost.platform !== "General" ? bestPost.platform : undefined)
+                            (postA.platform !== "General" ? postA.platform : undefined)
                         }
-                        done={bestPost.status === "used"}
-                        marking={markingId === bestPost.id}
-                        onMarkDone={() => markUsed(bestPost)}
+                        done={postA.status === "used"}
+                        marking={markingId === postA.id}
+                        onMarkDone={() => markUsed(postA)}
                     />
                     {kit.recommendations?.bestPromotionWhy ? (
                         <p className="text-xs text-text-muted">
                             Why this one: {kit.recommendations.bestPromotionWhy}
                         </p>
                     ) : null}
-                    <StepNav step={1} onNext={() => setStep(2)} nextLabel="Next: Reply with this" />
+                    <StepNav onNext={() => setStep(2)} nextLabel="Next: Reply with this" />
                 </div>
             ) : null}
 
-            {step === 1 && !bestPost ? (
+            {step === 1 && !postA ? (
                 <div className="surface-panel-elevated space-y-4 p-5 sm:p-6">
                     <h2 className="text-xl font-semibold">No posts yet</h2>
                     <p className="text-sm text-text-muted">Something went wrong building this kit.</p>
@@ -343,15 +447,15 @@ export default function KitDashboardPage() {
 
             {step === 2 ? (
                 <div className="space-y-4">
-                    {bestReply ? (
+                    {cycleReply ? (
                         <ActionCard
                             eyebrow="Step 2 of 4"
                             title="Copy this reply"
                             help="When someone comments or asks a question, paste this as your answer."
-                            content={bestReply.content}
-                            done={bestReply.status === "used"}
-                            marking={markingId === bestReply.id}
-                            onMarkDone={() => markUsed(bestReply)}
+                            content={cycleReply.content}
+                            done={cycleReply.status === "used"}
+                            marking={markingId === cycleReply.id}
+                            onMarkDone={() => markUsed(cycleReply)}
                         />
                     ) : (
                         <div className="surface-panel-elevated space-y-3 p-5 sm:p-6">
@@ -393,7 +497,6 @@ export default function KitDashboardPage() {
                     </details>
 
                     <StepNav
-                        step={2}
                         onBack={() => setStep(1)}
                         onNext={() => setStep(3)}
                         nextLabel="Next: Post again"
@@ -441,22 +544,43 @@ export default function KitDashboardPage() {
                     )}
 
                     <StepNav
-                        step={3}
                         onBack={() => setStep(2)}
-                        onNext={() => setStep(4)}
-                        nextLabel="Next: You're done"
+                        onNext={goToNextStepPage}
+                        nextLabel={hasMoreCycles ? "Next: Next step" : "Next: You're done"}
                     />
                 </div>
             ) : null}
 
-            {step === 4 ? (
+            {step === 4 && !allDone ? (
+                <div className="space-y-4">
+                    <div className="surface-panel-elevated space-y-4 p-5 sm:p-6 text-center">
+                        <Sparkles className="mx-auto text-[var(--gold-text)]" size={36} />
+                        <h2 className="text-2xl font-bold text-text-primary">Next step</h2>
+                        <p className="text-sm text-text-muted">
+                            You’ve got more unused posts in this kit. Run the workflow again with different
+                            assets until everything is used.
+                        </p>
+                        <p className="text-xs text-text-muted">
+                            {unusedRemaining.length} post{unusedRemaining.length === 1 ? "" : "s"} still ready.
+                        </p>
+                    </div>
+
+                    <StepNav
+                        onBack={() => setStep(3)}
+                        onNext={startNextCycle}
+                        nextLabel="Use next assets →"
+                    />
+                </div>
+            ) : null}
+
+            {step === 4 && allDone ? (
                 <div className="space-y-4">
                     <div className="surface-panel-elevated space-y-4 p-5 sm:p-6 text-center">
                         <CheckCircle2 className="mx-auto text-[var(--success)]" size={40} />
-                        <h2 className="text-2xl font-bold text-text-primary">You’re ready</h2>
+                        <h2 className="text-2xl font-bold text-text-primary">All done</h2>
                         <p className="text-sm text-text-muted">
-                            You posted once, you have a reply ready, and you have another post for later.
-                            Come back anytime for more.
+                            You’ve worked through the posts in this kit. Come back anytime to generate more,
+                            or start a new kit with another offer.
                         </p>
                     </div>
 
@@ -484,6 +608,15 @@ export default function KitDashboardPage() {
                         <Link href="/instant/kits" className="btn-ghost">
                             All my kits
                         </Link>
+                        <button
+                            type="button"
+                            onClick={handleRotate}
+                            disabled={rotating}
+                            className="btn-ghost"
+                        >
+                            <RefreshCw size={14} />
+                            {rotating ? "Making a new one…" : "Generate another post"}
+                        </button>
                     </div>
 
                     {showMore ? (
@@ -498,14 +631,6 @@ export default function KitDashboardPage() {
                                     <p className="whitespace-pre-wrap text-sm leading-relaxed">{post.content}</p>
                                     <div className="flex flex-wrap gap-2">
                                         <CopyButton text={post.content} label="Copy" />
-                                        <button
-                                            type="button"
-                                            onClick={() => markUsed(post)}
-                                            disabled={markingId === post.id}
-                                            className="btn-ghost text-xs"
-                                        >
-                                            {post.status === "used" ? "Undo used" : "Mark used"}
-                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -517,7 +642,7 @@ export default function KitDashboardPage() {
                         <p>{PLATFORM_SAFETY_TIP}</p>
                     </div>
 
-                    <StepNav step={4} onBack={() => setStep(3)} />
+                    <StepNav onBack={() => setStep(3)} />
                 </div>
             ) : null}
         </div>

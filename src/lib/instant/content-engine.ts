@@ -352,19 +352,69 @@ ${SAFETY_RULES_PROMPT}`;
     }
 }
 
+function detectCommentIntent(comment: string): "price" | "skeptical" | "learn_more" | "beginner" | "how" | "generic" {
+    const c = comment.toLowerCase();
+    if (/\b(cost|price|how much|\$|expensive|cheap|afford|pricing)\b/.test(c)) return "price";
+    if (/\b(scam|legit|fake|trust|worth it|really work|does it work|skeptic)\b/.test(c)) return "skeptical";
+    if (/\b(learn more|more info|details|link|where|website|tell me more)\b/.test(c)) return "learn_more";
+    if (/\b(beginner|new to|start|starting|newbie)\b/.test(c)) return "beginner";
+    if (/\b(how|work|works|what is|what's included|include)\b/.test(c)) return "how";
+    return "generic";
+}
+
+function buildCommentAwareFallbackReply(
+    snapshot: OfferSnapshot,
+    offerUrl: string,
+    comment: string,
+): { recommended: string; alternatives: Array<{ style: string; text: string }> } {
+    const intent = detectCommentIntent(comment);
+    const product = snapshot.productName;
+    const promise = snapshot.mainPromise.toLowerCase();
+    const audience = snapshot.targetAudience.toLowerCase();
+    const benefit = snapshot.primaryBenefits[0]?.toLowerCase() || "practical guidance";
+
+    const byIntent: Record<typeof intent, string> = {
+        price: `Good question about cost — pricing is listed on the official page for ${product}. It focuses on ${promise}. You can check the details here: ${offerUrl}`,
+        skeptical: `Fair to ask. ${product} is a resource for ${audience} and focuses on ${benefit}. Best to review the page yourself and decide: ${offerUrl}`,
+        learn_more: `Happy to share more. ${product} covers ${promise}. Full details are here: ${offerUrl}`,
+        beginner: `Yes — ${product} is geared toward ${audience}. It walks through ${promise} in a simple way. More here: ${offerUrl}`,
+        how: `It works like this: ${product} helps with ${promise}, especially around ${benefit}. Here's the breakdown: ${offerUrl}`,
+        generic: `Thanks for asking about that. For "${comment.slice(0, 120)}", ${product} is a useful resource for ${audience} — it covers ${promise}. Details: ${offerUrl}`,
+    };
+
+    return {
+        recommended: byIntent[intent],
+        alternatives: [
+            { style: "Shorter", text: `Quick answer: check ${product} here — ${offerUrl}` },
+            { style: "More casual", text: `Yeah, for that question I'd point you to ${product}. It covers ${promise}. Link: ${offerUrl}` },
+            {
+                style: "More helpful",
+                text: `Addressing your comment ("${comment.slice(0, 80)}"): ${product} is built for ${audience} and focuses on ${benefit}. See: ${offerUrl}`,
+            },
+        ],
+    };
+}
+
 export async function generateSmartReply(
     snapshot: OfferSnapshot,
     offerUrl: string,
     comment: string,
 ): Promise<{ recommended: string; alternatives: Array<{ style: string; text: string }> }> {
-    const prompt = `Someone commented: "${comment}"
+    const prompt = `Someone left this exact comment under a post:
+"""
+${comment}
+"""
 
-Generate a helpful reply promoting "${snapshot.productName}" as a resource.
+Write a reply that DIRECTLY answers that comment (price, skepticism, how-it-works, beginners, etc.).
+Do NOT use a generic template. Mirror the question's intent.
+Promote "${snapshot.productName}" only as a helpful resource after answering.
 Offer URL: ${offerUrl}
 Target audience: ${snapshot.targetAudience}
+Main promise: ${snapshot.mainPromise}
+Benefits: ${snapshot.primaryBenefits.join(", ")}
 
 Return ONLY JSON:
-{"recommended":"best reply","alternatives":[{"style":"Shorter","text":"..."},{"style":"More casual","text":"..."},{"style":"More helpful","text":"..."},{"style":"More persuasive","text":"..."}]}
+{"recommended":"best reply that answers the comment","alternatives":[{"style":"Shorter","text":"..."},{"style":"More casual","text":"..."},{"style":"More helpful","text":"..."},{"style":"More persuasive","text":"..."}]}
 
 ${SAFETY_RULES_PROMPT}`;
 
@@ -385,13 +435,7 @@ ${SAFETY_RULES_PROMPT}`;
         }
     } catch { /* fallback */ }
 
-    return {
-        recommended: `Thanks for asking! ${snapshot.productName} is a resource for ${snapshot.targetAudience.toLowerCase()} — it covers ${snapshot.mainPromise.toLowerCase()}. More details here: ${offerUrl}`,
-        alternatives: [
-            { style: "Shorter", text: `Good question — here's the resource: ${offerUrl}` },
-            { style: "More casual", text: `Yeah, ${snapshot.productName} breaks this down pretty well. Worth a look: ${offerUrl}` },
-        ],
-    };
+    return buildCommentAwareFallbackReply(snapshot, offerUrl, comment);
 }
 
 export async function generatePostFromAngle(
@@ -420,20 +464,37 @@ ${SAFETY_RULES_PROMPT}`;
         }
     } catch { /* fallback */ }
 
-    const fallback = buildFallbackPosts(snapshot, offerUrl)[0];
-    return { ...fallback, angle: angleTitle, platform, meta: { fromAngle: angleTitle } };
+    const fallbacks = buildFallbackPosts(snapshot, offerUrl);
+    const match =
+        fallbacks.find((p) => p.angle.toLowerCase() === angleTitle.toLowerCase()) ||
+        fallbacks.find((p) => angleTitle.toLowerCase().includes(p.angle.toLowerCase())) ||
+        fallbacks[Math.floor(Math.random() * fallbacks.length)] ||
+        fallbacks[0];
+    return { ...match, angle: angleTitle, platform, meta: { fromAngle: angleTitle } };
 }
 
 export async function rotateContent(
     snapshot: OfferSnapshot,
     offerUrl: string,
     usedAngles: string[],
+    existingContents: string[] = [],
 ): Promise<GeneratedPost> {
     const unusedAngles = ["problem/solution", "educational", "beginner", "curiosity", "mistake", "checklist", "comparison", "FAQ", "resource"]
-        .filter((a) => !usedAngles.includes(a));
-    const angle = unusedAngles[0] || "educational";
+        .filter((a) => !usedAngles.map((x) => x.toLowerCase()).includes(a.toLowerCase()));
+    const angle = unusedAngles[Math.floor(Math.random() * Math.max(unusedAngles.length, 1))] || "educational";
     const platforms = selectPlatforms(snapshot);
     const platform = platforms[Math.floor(Math.random() * platforms.length)];
 
-    return generatePostFromAngle(snapshot, offerUrl, angle, `Fresh ${angle} approach`, platform);
+    const post = await generatePostFromAngle(snapshot, offerUrl, angle, `Fresh ${angle} approach`, platform);
+    const normalizedExisting = new Set(existingContents.map((c) => c.trim().toLowerCase()));
+    if (!normalizedExisting.has(post.content.trim().toLowerCase())) {
+        return post;
+    }
+
+    // If AI/fallback repeated an existing post, pick a different fallback angle.
+    const fallbacks = buildFallbackPosts(snapshot, offerUrl).filter(
+        (p) => !normalizedExisting.has(p.content.trim().toLowerCase()),
+    );
+    const alt = fallbacks[0] || post;
+    return { ...alt, platform, meta: { ...alt.meta, rotated: true } };
 }

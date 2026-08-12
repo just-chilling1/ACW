@@ -4,7 +4,12 @@ import { APP_NICHES } from "@/lib/niches";
 import { detectOfferNiche } from "./search-fallbacks";
 import type { AudienceMode, CampaignStrategy, OfferSnapshot } from "./types";
 
-async function fetchPageSignals(url: string): Promise<{ title: string; description: string; hostname: string }> {
+async function fetchPageSignals(url: string): Promise<{
+    title: string;
+    description: string;
+    hostname: string;
+    pageText: string;
+}> {
     try {
         const parsed = new URL(url);
         const hostname = parsed.hostname.replace(/^www\./, "");
@@ -20,10 +25,21 @@ async function fetchPageSignals(url: string): Promise<{ title: string; descripti
         const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
         const descMatch = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)
             || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']description["']/i);
+        const ogTitle = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i);
+        const h1Match = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+        const stripped = html
+            .replace(/<script[\s\S]*?<\/script>/gi, " ")
+            .replace(/<style[\s\S]*?<\/style>/gi, " ")
+            .replace(/<[^>]+>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 1800);
+        const h1 = (h1Match?.[1] || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
         return {
-            title: titleMatch?.[1]?.trim() || hostname,
+            title: titleMatch?.[1]?.trim() || ogTitle?.[1]?.trim() || h1 || hostname,
             description: descMatch?.[1]?.trim() || "",
             hostname,
+            pageText: [h1, stripped].filter(Boolean).join(" ").slice(0, 2000),
         };
     } catch {
         try {
@@ -32,9 +48,10 @@ async function fetchPageSignals(url: string): Promise<{ title: string; descripti
                 title: parsed.hostname.replace(/^www\./, ""),
                 description: "",
                 hostname: parsed.hostname.replace(/^www\./, ""),
+                pageText: "",
             };
         } catch {
-            return { title: "Your Offer", description: "", hostname: "unknown" };
+            return { title: "Your Offer", description: "", hostname: "unknown", pageText: "" };
         }
     }
 }
@@ -60,13 +77,20 @@ const DEFAULT_SNAPSHOT: OfferSnapshot = {
 
 export async function analyzeOffer(url: string, audienceMode: AudienceMode = "auto"): Promise<OfferSnapshot> {
     const signals = await fetchPageSignals(url);
-    const prompt = `Analyze this product/affiliate offer for a beginner-friendly promotional campaign.
+    const modeHint =
+        audienceMode && audienceMode !== "auto"
+            ? `User-selected niche hint (only use if it fits the page): ${audienceMode}`
+            : "No niche selected yet — infer the best niche ONLY from the affiliate/product page content.";
+
+    const prompt = `Analyze this affiliate/product page BEFORE choosing audience and angle.
+Base targetAudience and strongestAngle on the page content below — do not use generic beginner filler.
 
 URL: ${url}
 Page title: ${signals.title}
 Meta description: ${signals.description}
 Domain: ${signals.hostname}
-Preferred audience mode: ${audienceMode}
+Page text excerpt: ${signals.pageText || "(unavailable — infer carefully from title/domain)"}
+${modeHint}
 Available niche audiences: ${APP_NICHES.map((n) => n.id).join(", ")}
 
 Return ONLY JSON with these keys:
@@ -90,6 +114,8 @@ Return ONLY JSON with these keys:
 }
 
 Rules:
+- targetAudience must name who actually buys this offer (specific, not "beginners looking for a simple way to get started" unless that truly fits).
+- strongestAngle must be a concrete promotion angle for THIS product.
 - Be specific to the offer signals when available.
 - Do not invent fake testimonials, stats, or personal experiences.
 - Keep language simple for non-marketers.`;
@@ -97,30 +123,53 @@ Rules:
     try {
         const result = await callChatGPT([{ role: "user", content: prompt }]);
         const parsed = parseJsonFromLlm<Partial<OfferSnapshot>>(result, {});
-        return {
+        const productName = parsed.productName || signals.title || DEFAULT_SNAPSHOT.productName;
+        const fromSignals = Boolean(signals.title || signals.description || signals.pageText);
+        const snapshot: OfferSnapshot = {
             ...DEFAULT_SNAPSHOT,
             ...parsed,
-            productName: parsed.productName || signals.title || DEFAULT_SNAPSHOT.productName,
+            productName,
+            mainPromise:
+                parsed.mainPromise && parsed.mainPromise !== DEFAULT_SNAPSHOT.mainPromise
+                    ? parsed.mainPromise
+                    : signals.description || parsed.mainPromise || DEFAULT_SNAPSHOT.mainPromise,
+            targetAudience:
+                parsed.targetAudience && parsed.targetAudience !== DEFAULT_SNAPSHOT.targetAudience
+                    ? parsed.targetAudience
+                    : fromSignals
+                      ? `People interested in ${productName}`
+                      : DEFAULT_SNAPSHOT.targetAudience,
+            strongestAngle:
+                parsed.strongestAngle && parsed.strongestAngle !== DEFAULT_SNAPSHOT.strongestAngle
+                    ? parsed.strongestAngle
+                    : fromSignals
+                      ? `Helpful ${productName} resource recommendation`
+                      : DEFAULT_SNAPSHOT.strongestAngle,
             primaryBenefits: parsed.primaryBenefits?.length ? parsed.primaryBenefits : DEFAULT_SNAPSHOT.primaryBenefits,
             secondaryBenefits: parsed.secondaryBenefits?.length ? parsed.secondaryBenefits : DEFAULT_SNAPSHOT.secondaryBenefits,
             painPoints: parsed.painPoints?.length ? parsed.painPoints : DEFAULT_SNAPSHOT.painPoints,
             objections: parsed.objections?.length ? parsed.objections : DEFAULT_SNAPSHOT.objections,
             contentAngles: parsed.contentAngles?.length ? parsed.contentAngles : DEFAULT_SNAPSHOT.contentAngles,
             promotionChannels: parsed.promotionChannels?.length ? parsed.promotionChannels : DEFAULT_SNAPSHOT.promotionChannels,
-            recommendedAudienceMode: parsed.recommendedAudienceMode || detectOfferNiche({
-                ...DEFAULT_SNAPSHOT,
-                ...parsed,
-                productName: parsed.productName || signals.title || DEFAULT_SNAPSHOT.productName,
-            }, audienceMode),
+            recommendedAudienceMode: "auto",
         };
+        snapshot.recommendedAudienceMode = detectOfferNiche(snapshot, audienceMode === "auto" ? "auto" : audienceMode);
+        return snapshot;
     } catch {
-        const partial = {
+        const productName = signals.title || DEFAULT_SNAPSHOT.productName;
+        const partial: OfferSnapshot = {
             ...DEFAULT_SNAPSHOT,
-            productName: signals.title || DEFAULT_SNAPSHOT.productName,
+            productName,
+            mainPromise: signals.description || DEFAULT_SNAPSHOT.mainPromise,
+            targetAudience: signals.pageText || signals.description
+                ? `People interested in ${productName}`
+                : DEFAULT_SNAPSHOT.targetAudience,
+            strongestAngle: `Helpful ${productName} resource recommendation`,
+            category: signals.hostname !== "unknown" ? signals.hostname : DEFAULT_SNAPSHOT.category,
         };
         return {
             ...partial,
-            recommendedAudienceMode: detectOfferNiche(partial, audienceMode),
+            recommendedAudienceMode: detectOfferNiche(partial, audienceMode === "auto" ? "auto" : audienceMode),
         };
     }
 }

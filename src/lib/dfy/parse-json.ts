@@ -1,10 +1,32 @@
 export function parseJsonFromLlm<T>(raw: string, fallback: T): T {
+    if (!raw || typeof raw !== "string") return fallback;
+
+    const cleaned = raw.replace(/```json|```/g, "").trim();
     try {
-        const cleaned = raw.replace(/```json|```/g, "").trim();
         return JSON.parse(cleaned) as T;
     } catch {
-        return fallback;
+        /* fall through — extract embedded JSON */
     }
+
+    const objectMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (objectMatch) {
+        try {
+            return JSON.parse(objectMatch[0]) as T;
+        } catch {
+            /* try array next */
+        }
+    }
+
+    const arrayMatch = cleaned.match(/\[[\s\S]*\]/);
+    if (arrayMatch) {
+        try {
+            return JSON.parse(arrayMatch[0]) as T;
+        } catch {
+            /* give up */
+        }
+    }
+
+    return fallback;
 }
 
 export function clampScore(value: unknown, min = 0, max = 100): number {

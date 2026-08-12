@@ -13,6 +13,7 @@ import { CopyButton } from "@/components/dfy/copy-button";
 import type { AudienceMode, OfferSnapshot } from "@/lib/dfy/types";
 import type { KitBuildProgress, KitStats } from "@/lib/instant/types";
 import { APP_NICHES, detectNicheFromText } from "@/lib/niches";
+import { dedupeOffersByUrl } from "@/lib/dfy/offer-url";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -35,12 +36,12 @@ function BuildContent() {
     const [editName, setEditName] = useState("");
     const [editPromise, setEditPromise] = useState("");
     const [editAudience, setEditAudience] = useState("");
-    const [audienceMode, setAudienceMode] = useState<AudienceMode>("weight_loss");
+    const [audienceMode, setAudienceMode] = useState<AudienceMode>("auto");
 
     useEffect(() => {
         fetch("/api/dfy/offers")
             .then((r) => r.json())
-            .then((d) => setSavedOffers(d.offers || []))
+            .then((d) => setSavedOffers(dedupeOffersByUrl(d.offers || [])))
             .catch(() => setSavedOffers([]));
     }, []);
 
@@ -68,7 +69,8 @@ function BuildContent() {
                 body: JSON.stringify({
                     url: offerUrl.trim(),
                     manualDescription: manualDescription.trim(),
-                    audienceMode,
+                    // Analyze the link first; niche chips are chosen after analysis.
+                    audienceMode: "auto",
                 }),
             });
             const data = await res.json();
@@ -85,6 +87,9 @@ function BuildContent() {
             setEditName(data.snapshot.productName);
             setEditPromise(data.snapshot.mainPromise);
             setEditAudience(data.snapshot.targetAudience);
+            if (data.snapshot.recommendedAudienceMode && data.snapshot.recommendedAudienceMode !== "auto") {
+                setAudienceMode(data.snapshot.recommendedAudienceMode);
+            }
             setStep(2);
         } catch {
             setError("Something went wrong. Please try again.");

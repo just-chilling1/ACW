@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
 import { analyzeOffer } from "@/lib/dfy/offer-analyze";
+import type { AudienceMode } from "@/lib/dfy/types";
 import { buildManualOfferSnapshot } from "@/lib/instant/fallbacks";
 
 export async function POST(req: Request) {
@@ -11,7 +12,8 @@ export async function POST(req: Request) {
         const body = await req.json();
         const url = clampString(body.url, 500);
         const manualDescription = clampString(body.manualDescription, 2000);
-        const audienceMode = clampString(body.audienceMode, 30) || "auto";
+        // Prefer auto so audience/angle come from the affiliate page, not a pre-selected niche.
+        const audienceMode = (clampString(body.audienceMode, 30) || "auto") as AudienceMode;
 
         if (!url && !manualDescription) {
             return NextResponse.json(
@@ -26,7 +28,7 @@ export async function POST(req: Request) {
         }
 
         try {
-            const snapshot = await analyzeOffer(url, audienceMode as "auto");
+            const snapshot = await analyzeOffer(url, audienceMode);
             return NextResponse.json({ snapshot, source: "url", url });
         } catch {
             if (manualDescription) {

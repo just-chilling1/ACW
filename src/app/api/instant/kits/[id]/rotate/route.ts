@@ -21,17 +21,20 @@ export async function POST(_req: Request, { params }: RouteParams) {
     if (!kit) return NextResponse.json({ error: "Kit not found." }, { status: 404 });
 
     try {
-        const { data: usedPosts } = await auth.supabase
+        const { data: existingPosts } = await auth.supabase
             .from("promotion_assets")
-            .select("angle")
+            .select("angle, content, status")
             .eq("kit_id", kitId)
-            .eq("type", "post")
-            .eq("status", "used");
+            .eq("type", "post");
 
-        const usedAngles = (usedPosts || []).map((p) => p.angle).filter(Boolean);
+        const usedAngles = (existingPosts || [])
+            .filter((p) => p.status === "used" || Boolean(p.angle))
+            .map((p) => p.angle)
+            .filter(Boolean);
+        const existingContents = (existingPosts || []).map((p) => p.content).filter(Boolean);
         const snapshot = kit.offer_snapshot as OfferSnapshot;
 
-        const post = await rotateContent(snapshot, kit.offer_url, usedAngles);
+        const post = await rotateContent(snapshot, kit.offer_url, usedAngles, existingContents);
 
         const { data: created, error } = await auth.supabase
             .from("promotion_assets")

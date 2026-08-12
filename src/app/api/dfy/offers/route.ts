@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
+import { dedupeOffersByUrl, normalizeOfferUrlKey } from "@/lib/dfy/offer-url";
 
 export async function GET() {
     const auth = await requireApiUser();
@@ -11,7 +12,7 @@ export async function GET() {
         .order("updated_at", { ascending: false });
 
     if (error) return NextResponse.json({ error: "Could not load saved offers." }, { status: 500 });
-    return NextResponse.json({ offers: data || [] });
+    return NextResponse.json({ offers: dedupeOffersByUrl(data || []) });
 }
 
 export async function POST(req: Request) {
@@ -25,6 +26,30 @@ export async function POST(req: Request) {
         const snapshot = body.snapshot || {};
 
         if (!url) return NextResponse.json({ error: "URL required" }, { status: 400 });
+
+        const { data: existingRows } = await auth.supabase
+            .from("dfy_offers")
+            .select("id, url")
+            .eq("user_id", auth.user.id);
+
+        const key = normalizeOfferUrlKey(url);
+        const existing = (existingRows || []).find((row) => normalizeOfferUrlKey(row.url) === key);
+
+        if (existing) {
+            const { data, error } = await auth.supabase
+                .from("dfy_offers")
+                .update({
+                    url,
+                    name,
+                    snapshot,
+                    updated_at: new Date().toISOString(),
+                })
+                .eq("id", existing.id)
+                .select("*")
+                .single();
+            if (error) return NextResponse.json({ error: "Could not save offer." }, { status: 500 });
+            return NextResponse.json({ offer: data });
+        }
 
         const { data, error } = await auth.supabase
             .from("dfy_offers")

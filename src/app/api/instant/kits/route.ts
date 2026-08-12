@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
+import { normalizeOfferUrlKey } from "@/lib/dfy/offer-url";
 
 export async function GET() {
     const auth = await requireApiUser();
@@ -23,8 +24,10 @@ export async function POST(req: Request) {
         const offerUrl = clampString(body.offerUrl, 500);
         const name = clampString(body.name, 120);
         const offerSnapshot = body.offerSnapshot || {};
+        const productName =
+            typeof offerSnapshot.productName === "string" ? offerSnapshot.productName : "";
 
-        if (!offerUrl && !offerSnapshot?.productName) {
+        if (!offerUrl && !productName) {
             return NextResponse.json({ error: "Please provide your offer details." }, { status: 400 });
         }
 
@@ -32,7 +35,7 @@ export async function POST(req: Request) {
             .from("promotion_kits")
             .insert({
                 user_id: auth.user.id,
-                name: name || offerSnapshot.productName || "New Promotion Kit",
+                name: name || productName || "New Promotion Kit",
                 offer_url: offerUrl,
                 offer_snapshot: offerSnapshot,
                 status: "draft",
@@ -45,14 +48,37 @@ export async function POST(req: Request) {
 
         if (offerUrl && offerSnapshot && Object.keys(offerSnapshot).length > 0) {
             try {
-                await auth.supabase.from("dfy_offers").insert({
-                    user_id: auth.user.id,
-                    url: offerUrl,
-                    name: offerSnapshot.productName || name || "Saved Offer",
-                    snapshot: offerSnapshot,
-                });
+                const { data: existingRows } = await auth.supabase
+                    .from("dfy_offers")
+                    .select("id, url")
+                    .eq("user_id", auth.user.id);
+
+                const key = normalizeOfferUrlKey(offerUrl);
+                const existing = (existingRows || []).find(
+                    (row) => normalizeOfferUrlKey(row.url) === key,
+                );
+                const offerName = productName || name || "Saved Offer";
+
+                if (existing) {
+                    await auth.supabase
+                        .from("dfy_offers")
+                        .update({
+                            url: offerUrl,
+                            name: offerName,
+                            snapshot: offerSnapshot,
+                            updated_at: new Date().toISOString(),
+                        })
+                        .eq("id", existing.id);
+                } else {
+                    await auth.supabase.from("dfy_offers").insert({
+                        user_id: auth.user.id,
+                        url: offerUrl,
+                        name: offerName,
+                        snapshot: offerSnapshot,
+                    });
+                }
             } catch {
-                /* offer may already exist */
+                /* non-fatal */
             }
         }
 
