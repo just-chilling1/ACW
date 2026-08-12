@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
-import { getHotThreadPack, loadExistingPack } from "@/lib/hot-threads/get-pack";
+import { enrichHotThreadPack, getHotThreadPack, loadExistingPack } from "@/lib/hot-threads/get-pack";
 import { sanitizeExternalUrl } from "@/lib/safe-url";
 import { isStale } from "@/lib/hot-threads/ttl";
 
@@ -11,7 +11,7 @@ function isNicheId(value: string): value is NicheId {
   return APP_NICHES.some((n) => n.id === value);
 }
 
-/** Force rebuild only when pack is missing or expired (prevents spam rebuilds). */
+/** Force rebuild only when pack is missing or expired. */
 export async function POST(req: Request) {
   const auth = await requireApiUser();
   if (auth.unauthorized) return auth.unauthorized;
@@ -33,8 +33,18 @@ export async function POST(req: Request) {
   try {
     const existing = await loadExistingPack(auth.supabase, niche);
     const force = !existing || isStale(existing.refreshed_at);
-    const pack = await getHotThreadPack(auth.supabase, niche, affiliateLink, { force });
-    return NextResponse.json(pack);
+    const { response, shouldEnrich } = await getHotThreadPack(auth.supabase, niche, affiliateLink, {
+      force,
+    });
+
+    if (shouldEnrich) {
+      const supabase = auth.supabase;
+      after(async () => {
+        await enrichHotThreadPack(supabase, niche);
+      });
+    }
+
+    return NextResponse.json(response);
   } catch (e) {
     console.error("[hot-threads] refresh failed", e);
     return NextResponse.json(

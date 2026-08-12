@@ -1,0 +1,74 @@
+spec: instant-income-speed
+run_id: instant-income-speed-20260812
+started_at: "2026-08-12T09:47:00.000Z"
+
+baseline:
+  timestamp: "2026-08-12T09:47:30.000Z"
+  gates:
+    structural_ok: 1
+    min_posts: 8
+    min_replies: 6
+    llm_waves: 6
+  diagnostics:
+    estimated_wall_seconds: 49.72
+    llm_waves: 6
+    db_insert_round_trips: 43
+    parallel_content_stages: 0
+    redundant_analyze_risk: 0
+    ux_step_count: 12
+
+experiments:
+  - iteration: 1
+    hypothesis: "Parallelize angles/hooks/posts/replies/ctas with Promise.all, batch-insert assets, skip final plan LLM wave, UX continue CTA"
+    category: architecture
+    outcome: kept
+    timestamp: "2026-08-12T09:55:00.000Z"
+    metrics:
+      estimated_wall_seconds: 8.2
+      structural_ok: 1
+      min_posts: 8
+      min_replies: 6
+      llm_waves: 1
+      db_insert_round_trips: 5
+      parallel_content_stages: 5
+      redundant_analyze_risk: 0
+      ux_step_count: 12
+    learnings: >
+      Parallel content generation collapsed 6 sequential LLM waves to 1.
+      Batch insert cut DB round trips from 43 to 5.
+      Deterministic quick plan removed a trailing LLM call without blocking the copy/paste flow.
+
+best:
+  iteration: 1
+  hypothesis: "Parallelize angles/hooks/posts/replies/ctas with Promise.all, batch-insert assets, skip final plan LLM wave, UX continue CTA"
+  outcome: kept
+  metrics:
+    estimated_wall_seconds: 8.2
+    structural_ok: 1
+    min_posts: 8
+    min_replies: 6
+    llm_waves: 1
+    db_insert_round_trips: 5
+    parallel_content_stages: 5
+
+hypothesis_backlog:
+  - description: "Skip per-stage kit re-fetch; keep kit in memory during build"
+    category: "data-handling"
+    priority: high
+    dep_status: approved
+    required_deps: []
+    note: "Absorbed into iteration 1 runKitBuild rewrite"
+  - description: "Use deterministic fallback quick plan to remove final LLM wave"
+    category: "algorithm"
+    priority: medium
+    dep_status: approved
+    required_deps: []
+    note: "Absorbed into iteration 1"
+  - description: "UX: Instant landing Continue CTA reflects real next step; tighten build wait copy"
+    category: "architecture"
+    priority: medium
+    dep_status: approved
+    required_deps: []
+    note: "Absorbed into iteration 1"
+
+stopping_reason: "target_reached (estimated_wall_seconds 8.2 <= 25)"

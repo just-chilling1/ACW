@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
-import { getHotThreadPack } from "@/lib/hot-threads/get-pack";
+import { enrichHotThreadPack, getHotThreadPack } from "@/lib/hot-threads/get-pack";
 import { sanitizeExternalUrl } from "@/lib/safe-url";
 
 const MAX_AFFILIATE_LINK_LENGTH = 2048;
@@ -25,8 +25,16 @@ export async function GET(req: Request) {
   }
 
   try {
-    const pack = await getHotThreadPack(auth.supabase, niche, affiliateLink);
-    return NextResponse.json(pack);
+    const { response, shouldEnrich } = await getHotThreadPack(auth.supabase, niche, affiliateLink);
+
+    if (shouldEnrich) {
+      const supabase = auth.supabase;
+      after(async () => {
+        await enrichHotThreadPack(supabase, niche);
+      });
+    }
+
+    return NextResponse.json(response);
   } catch (e) {
     console.error("[hot-threads] GET failed", e);
     return NextResponse.json(

@@ -8,7 +8,7 @@ import { TutorialVideoSection } from "@/components/ui/tutorial-video-section";
 import { useSearch } from "@/context/SearchContext";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
 import type { HotThreadItem, HotThreadPackResponse } from "@/lib/hot-threads/types";
-import { NichePicker } from "@/components/hot-threads/NichePicker";
+import { NichePicker } from "@/components/ui/niche-picker";
 import { RefreshCountdown } from "@/components/hot-threads/RefreshCountdown";
 import { HotThreadCard } from "@/components/hot-threads/HotThreadCard";
 import { Skeleton } from "@/components/ui/skeleton";
