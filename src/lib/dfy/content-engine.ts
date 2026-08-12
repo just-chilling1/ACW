@@ -205,7 +205,12 @@ Rules:
         const raw = await callChatGPT([{ role: "user", content: prompt }]);
         const parsed = parseJsonFromLlm<Array<{ kind: "post" | "comment" | "submission_copy"; channel: string; content: string; meta?: Record<string, unknown> }>>(raw, []);
         if (parsed.length >= 6) {
-            const unique: typeof parsed = [];
+            const unique: Array<{
+                kind: "post" | "comment" | "submission_copy";
+                channel: string;
+                content: string;
+                meta: Record<string, unknown>;
+            }> = [];
             for (const [idx, item] of parsed.entries()) {
                 if (!item.content?.trim()) continue;
                 const duplicate = unique.some((kept) => isNearDuplicateGenerated(kept.content, item.content));
