@@ -1,7 +1,20 @@
 import { callChatGPT } from "@/lib/llm";
+import { buildFallbackPostContent, isAngleLabelStub } from "@/lib/instant/fallbacks";
 import { parseJsonFromLlm, clampScore, opportunityLabel } from "./parse-json";
 import { scoreOfferRelevance } from "./search-fallbacks";
 import type { OfferSnapshot, ScoreBreakdown, SocialPost } from "./types";
+
+function naturalHook(snapshot: OfferSnapshot, index: number): string {
+    const pain = snapshot.painPoints[index % Math.max(snapshot.painPoints.length, 1)] || "getting started";
+    const hooks = [
+        `What if ${pain.toLowerCase()} had a clearer next step?`,
+        `A practical look at ${snapshot.mainPromise.toLowerCase()}`,
+        `For ${snapshot.targetAudience.toLowerCase()}: a simpler starting point`,
+        `Most people overcomplicate ${snapshot.category.toLowerCase()} — here's a cleaner approach`,
+        `If ${pain.toLowerCase()} sounds familiar, this is worth a look`,
+    ];
+    return hooks[index % hooks.length];
+}
 
 export interface ScoredOpportunity {
     post: SocialPost;
@@ -199,6 +212,7 @@ Rules:
 - Ready to copy, natural, non-spammy.
 - EVERY item must be unique — different angle, opening, and wording. Do not repeat or lightly rephrase another item.
 - Vary angles and CTAs.
+- Put the angle ONLY in meta.angle — NEVER write labels like "Problem/solution angle for…" or "educational angle" inside content.
 - No fake testimonials or invented personal experiences.`;
 
     try {
@@ -213,24 +227,33 @@ Rules:
             }> = [];
             for (const [idx, item] of parsed.entries()) {
                 if (!item.content?.trim()) continue;
-                const duplicate = unique.some((kept) => isNearDuplicateGenerated(kept.content, item.content));
+                const angle = String(item.meta?.angle || snapshot.contentAngles[idx % snapshot.contentAngles.length] || "problem/solution");
+                let content = item.content.trim();
+                if (isAngleLabelStub(content)) {
+                    content = buildFallbackPostContent(snapshot, angle, offerUrl, idx);
+                }
+                const duplicate = unique.some((kept) => isNearDuplicateGenerated(kept.content, content));
                 if (duplicate) continue;
                 unique.push({
                     ...item,
                     kind: item.kind,
                     channel: item.channel || "Social",
-                    content: item.content,
-                    meta: { ...(item.meta || {}), angle: item.meta?.angle || snapshot.contentAngles[idx % snapshot.contentAngles.length], day: unique.length + 1 },
+                    content,
+                    meta: { ...(item.meta || {}), angle, day: unique.length + 1 },
                 });
             }
             if (unique.length >= 6) return unique.slice(0, 12);
         }
     } catch { /* fallback below */ }
 
-    return snapshot.contentAngles.slice(0, 8).map((angle, idx) => ({
-        kind: idx % 3 === 0 ? "post" as const : idx % 3 === 1 ? "comment" as const : "submission_copy" as const,
+    const angles = snapshot.contentAngles.length
+        ? snapshot.contentAngles
+        : ["problem/solution", "educational", "beginner", "curiosity", "mistake", "checklist", "comparison", "FAQ"];
+
+    return angles.slice(0, 8).map((angle, idx) => ({
+        kind: (idx % 3 === 0 ? "post" : idx % 3 === 1 ? "comment" : "submission_copy") as "post" | "comment" | "submission_copy",
         channel: ["Facebook", "Reddit", "Blog", "Q&A"][idx % 4],
-        content: `${angle.charAt(0).toUpperCase() + angle.slice(1)} angle for ${snapshot.productName}: ${snapshot.mainPromise}. Learn more: ${offerUrl}`,
+        content: buildFallbackPostContent(snapshot, angle, offerUrl, idx),
         meta: { angle, day: idx + 1 },
     }));
 }
@@ -286,13 +309,12 @@ Rules:
     } catch { /* fallback */ }
 
     const categories = ["Curiosity", "Problem", "Benefit", "Question", "Beginner", "Contrarian", "Story", "Mistake"];
-    const angles = snapshot.contentAngles.length ? snapshot.contentAngles : [snapshot.mainPromise, snapshot.strongestAngle];
     return Array.from({ length: 15 }, (_, i) => ({
-        content: `${categories[i % categories.length]}: What if ${angles[i % angles.length].toLowerCase()} with ${snapshot.productName} was simpler than you think?`,
+        content: naturalHook(snapshot, i),
         meta: {
             category: categories[i % categories.length],
-            bestForAngle: snapshot.contentAngles[i % snapshot.contentAngles.length],
-            recommended: snapshot.contentAngles[i % snapshot.contentAngles.length] === snapshot.contentAngles[0],
+            bestForAngle: snapshot.contentAngles[i % Math.max(snapshot.contentAngles.length, 1)] || "problem/solution",
+            recommended: i === 0,
         },
     }));
 }
@@ -337,14 +359,17 @@ export async function generateCalendar(
     offerUrl: string,
 ): Promise<Array<{ kind: "post"; channel: string; content: string; meta: { day: number; weekday: string; angle: string; section?: string } }>> {
     const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const angles = snapshot.contentAngles.length
+        ? snapshot.contentAngles
+        : ["problem/solution", "educational", "beginner", "curiosity", "tips"];
     const items: Array<{ kind: "post"; channel: string; content: string; meta: { day: number; weekday: string; angle: string; section?: string } }> = [];
 
     for (let day = 1; day <= 30; day++) {
-        const angle = snapshot.contentAngles[(day - 1) % snapshot.contentAngles.length];
+        const angle = angles[(day - 1) % angles.length];
         items.push({
             kind: "post",
             channel: day % 2 === 0 ? "Reddit" : "Facebook",
-            content: `Day ${day} (${weekdays[(day - 1) % 7]}): ${angle} — ${snapshot.mainPromise}. Resource: ${offerUrl}`,
+            content: buildFallbackPostContent(snapshot, angle, offerUrl, day - 1),
             meta: { day, weekday: weekdays[(day - 1) % 7], angle, section: "calendar" },
         });
     }
@@ -401,9 +426,13 @@ CRITICAL RULES:
         for (const [i, item] of items.entries()) {
             const weekday = item.weekday || weekdays[i] || "Mon";
             const angle = item.meta?.angle || snapshot.contentAngles[i % snapshot.contentAngles.length];
-            let hook = (item.hook || dayHooks?.[weekday] || `${angle}: A practical look at ${snapshot.mainPromise.toLowerCase()}`).trim();
+            let hook = (item.hook || dayHooks?.[weekday] || naturalHook(snapshot, i)).trim();
             let cta = (item.cta || dayCtas?.[weekday] || `Learn more about ${snapshot.productName}: ${offerUrl}`).trim();
             let content = stripHookAndCtaFromBody(item.content, hook, cta);
+            if (isAngleLabelStub(content) || isAngleLabelStub(hook)) {
+                if (isAngleLabelStub(hook)) hook = naturalHook(snapshot, i);
+                content = buildDetailedPostBody(snapshot, angle, keyword, weekday, i);
+            }
 
             const hookKey = normalizeLoose(hook);
             const ctaKey = normalizeLoose(cta);
@@ -455,12 +484,12 @@ CRITICAL RULES:
                 for (let i = filled.length; i < 5; i++) {
                     const weekday = weekdays[i];
                     const angle = snapshot.contentAngles[i % snapshot.contentAngles.length];
-                    const hook = dayHooks?.[weekday] || `${angle}: What most people get wrong about ${snapshot.category.toLowerCase()}`;
+                    const hook = dayHooks?.[weekday] || naturalHook(snapshot, i);
                     const cta = dayCtas?.[weekday] || `If ${snapshot.productName} fits what you're looking for, see the full breakdown here: ${offerUrl}`;
                     filled.push({
                         kind: "post" as const,
                         channel: i % 2 === 0 ? "Facebook" : "Reddit",
-                        content: buildDetailedPostBody(snapshot, `${angle}-extra`, keyword, weekday, i + 7),
+                        content: buildDetailedPostBody(snapshot, angle, keyword, weekday, i + 7),
                         meta: { weekday, angle, section: "weekly_batch", hook, cta },
                     });
                 }
@@ -470,8 +499,8 @@ CRITICAL RULES:
     } catch { /* fallback below */ }
 
     return weekdays.map((weekday, i) => {
-        const angle = snapshot.contentAngles[i % snapshot.contentAngles.length];
-        const hook = dayHooks?.[weekday] || `${angle}: What most people get wrong about ${snapshot.category.toLowerCase()}`;
+        const angle = snapshot.contentAngles[i % Math.max(snapshot.contentAngles.length, 1)] || "problem/solution";
+        const hook = dayHooks?.[weekday] || naturalHook(snapshot, i);
         const cta = dayCtas?.[weekday] || `If ${snapshot.productName} fits what you're looking for, see the full breakdown here: ${offerUrl}`;
         const content = buildDetailedPostBody(snapshot, angle, keyword, weekday, i);
         return {
@@ -504,15 +533,32 @@ function stripHookAndCtaFromBody(body: string, hook: string, cta: string): strin
 }
 
 function buildDetailedPostBody(snapshot: OfferSnapshot, angle: string, keyword: string, weekday: string, dayIndex = 0): string {
-    const benefit = snapshot.primaryBenefits[dayIndex % snapshot.primaryBenefits.length] || snapshot.mainPromise;
-    const pain = snapshot.painPoints[0] || "getting started";
+    const benefit = snapshot.primaryBenefits[dayIndex % Math.max(snapshot.primaryBenefits.length, 1)] || snapshot.mainPromise;
+    const pain = snapshot.painPoints[dayIndex % Math.max(snapshot.painPoints.length, 1)] || "getting started";
+    const angleKey = angle.toLowerCase().replace(/-extra$/, "").split("-")[0];
+
+    const openers: Record<string, string> = {
+        "problem/solution": `When it comes to ${keyword}, one of the biggest challenges is ${pain.toLowerCase()}.`,
+        educational: `A useful way to think about ${keyword}: start with clarity, then take one practical step.`,
+        beginner: `If you're newer to ${snapshot.category.toLowerCase()}, ${weekday} is a good day to keep things simple.`,
+        curiosity: `There's a quieter approach to ${keyword} that a lot of people overlook.`,
+        mistake: `A common misstep with ${keyword} is trying to do everything at once.`,
+        checklist: `A simple checklist for ${keyword} can save a lot of wasted effort.`,
+        comparison: `If you've been comparing options around ${keyword}, focus on what actually moves the needle.`,
+        tips: `A few practical tips for ${keyword} — especially if ${pain.toLowerCase()} sounds familiar.`,
+        FAQ: `Quick answers people usually want about ${keyword} before they decide what to try next.`,
+    };
+
+    const opener =
+        openers[angleKey] ||
+        openers["problem/solution"] ||
+        `When it comes to ${keyword}, one of the biggest challenges is ${pain.toLowerCase()}.`;
+
     return [
-        `When it comes to ${keyword}, one of the biggest challenges is ${pain.toLowerCase()}.`,
-        `That's why I wanted to share a ${angle} perspective on ${snapshot.productName}.`,
-        `Instead of jumping between random tips, it helps to focus on ${benefit.toLowerCase()} — especially if you're ${snapshot.targetAudience.toLowerCase()}.`,
-        `${snapshot.productName} is built around ${snapshot.mainPromise.toLowerCase()}, which makes it easier to understand what to do next without feeling overwhelmed.`,
-        `On ${weekday}, this angle works well because people are actively looking for practical guidance they can use right away — not hype.`,
-        `If you've been comparing options, look at whether the solution actually addresses ${pain.toLowerCase()} and gives you clear next steps.`,
+        opener,
+        `${snapshot.productName} focuses on ${benefit.toLowerCase()} for ${snapshot.targetAudience.toLowerCase()}.`,
+        `Instead of jumping between random tips, it helps to focus on ${snapshot.mainPromise.toLowerCase()} — so you know what to do next without feeling overwhelmed.`,
+        `If you've been comparing options, look at whether the approach actually addresses ${pain.toLowerCase()} and gives you clear next steps.`,
     ].join("\n\n");
 }
 

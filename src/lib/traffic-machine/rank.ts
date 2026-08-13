@@ -1,52 +1,70 @@
 import type { NextAction, ScoredOpportunity, TrafficMachineRow } from "./types";
 
-export function pickNextOpportunity(scored: ScoredOpportunity[]): ScoredOpportunity | null {
-  return scored.find((s) => !s.activated) || null;
+export function pickNextOpportunity(
+  scored: ScoredOpportunity[],
+  dismissedIds?: Set<string>,
+): ScoredOpportunity | null {
+  return (
+    scored.find(
+      (s) =>
+        !s.activated &&
+        s.activationStatus !== "dismissed" &&
+        !(dismissedIds && dismissedIds.has(s.source.id)),
+    ) || null
+  );
 }
 
 export function buildNextAction(
   machine: TrafficMachineRow | null,
   scored: ScoredOpportunity[],
   activatedCount: number,
+  dismissedIds?: Set<string>,
 ): NextAction {
   if (!machine || machine.status === "setup") {
     return {
       type: "setup",
-      title: "Build Your Traffic Machine",
-      description: "Tell us what you're promoting and who you want to reach. We'll build your plan.",
-      ctaLabel: "Start Setup",
+      title: "Build your traffic machine",
+      description: "Paste your link once — we write every submission for you.",
+      ctaLabel: "Build my traffic machine",
     };
   }
 
   if (machine.status === "building") {
     return {
       type: "build",
-      title: "Building your Traffic Machine",
-      description: "We're analyzing your offer and ranking opportunities.",
+      title: "Writing your submissions",
+      description: "We're matching channels and preparing ready-to-paste packs.",
       ctaLabel: "Please wait…",
     };
   }
 
-  const next = pickNextOpportunity(scored);
+  const next = pickNextOpportunity(scored, dismissedIds);
   if (next) {
     return {
       type: "activate",
-      title: `Activate ${next.source.name}`,
+      title: next.source.name,
       description: next.reasons[0]
-        ? `${next.reasons[0]}. This opportunity is easy to start and matches your goal.`
-        : "People in your audience are active here — this is a strong place to start.",
+        ? `${next.reasons[0]}. Copy the pack, open the site, paste, and mark done.`
+        : "Copy the pack we wrote, open the site, paste, and mark done.",
       sourceId: next.source.id,
-      ctaLabel: "Start This Opportunity",
+      ctaLabel: "Start this source",
     };
   }
 
   const currentDay = machine.plan?.days?.find((d) => d.status === "current");
-  if (currentDay && currentDay.sourceIds.some((id) => !scored.find((s) => s.source.id === id && s.activated))) {
+  if (
+    currentDay &&
+    currentDay.sourceIds.some(
+      (id) =>
+        !scored.find((s) => s.source.id === id && s.activated) &&
+        !(dismissedIds && dismissedIds.has(id)),
+    )
+  ) {
     return {
       type: "plan_day",
       title: currentDay.title,
       description: currentDay.description,
-      ctaLabel: "Start Today's Tasks",
+      ctaLabel: "Continue today's plan",
     };
   }
 
@@ -54,15 +72,16 @@ export function buildNextAction(
     return {
       type: "complete",
       title: "You're on a roll",
-      description: "Every source you finished can keep sending visitors. Browse below or change niche to unlock more.",
-      ctaLabel: "Browse sources",
+      description:
+        "Every source you finished can keep sending visitors. Rebuild with a new niche anytime for more channels.",
+      ctaLabel: "Change niche",
     };
   }
 
   return {
     type: "complete",
     title: "All matched sources done",
-    description: "Browse your completed list below, or rebuild with a different niche for more sources.",
-    ctaLabel: "Browse sources",
+    description: "Nice work. Rebuild with a different niche to unlock more submission packs.",
+    ctaLabel: "Change niche",
   };
 }

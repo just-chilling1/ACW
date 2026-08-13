@@ -6,14 +6,6 @@ import { clsx } from "clsx";
 import { Field } from "@/components/ui/field";
 import { SelectableChip } from "@/components/ui/selectable-chip";
 import { APP_NICHES } from "@/lib/niches";
-import type { TrafficGoal } from "@/lib/traffic-machine/types";
-
-const GOAL_OPTIONS: { id: TrafficGoal; label: string; hint: string }[] = [
-  { id: "visitors", label: "More visitors", hint: "Steady traffic to your page" },
-  { id: "clicks", label: "More clicks", hint: "People who click your link" },
-  { id: "sales", label: "More sales", hint: "Buyers ready to convert" },
-  { id: "passive", label: "Passive traffic", hint: "Listings that keep working" },
-];
 
 function normalizeUrl(raw: string): string | null {
   const trimmed = raw.trim();
@@ -31,11 +23,16 @@ function normalizeUrl(raw: string): string | null {
 interface SetupWizardProps {
   initialUrl?: string;
   recommendedAudience?: string;
-  onComplete: (data: { offerUrl: string; audienceNiche: string; goal: TrafficGoal }) => void;
+  onComplete: (data: { offerUrl: string; audienceNiche: string; goal: "passive" }) => void;
   loading?: boolean;
 }
 
-export function SetupWizard({ initialUrl = "", recommendedAudience, onComplete, loading }: SetupWizardProps) {
+export function SetupWizard({
+  initialUrl = "",
+  recommendedAudience,
+  onComplete,
+  loading,
+}: SetupWizardProps) {
   const [step, setStep] = useState(1);
   const [offerUrl, setOfferUrl] = useState(initialUrl);
   const [audience, setAudience] = useState(
@@ -43,7 +40,6 @@ export function SetupWizard({ initialUrl = "", recommendedAudience, onComplete, 
       ? recommendedAudience
       : "make_money_online",
   );
-  const [goal, setGoal] = useState<TrafficGoal>("visitors");
   const [urlError, setUrlError] = useState<string | null>(null);
 
   const handleUrlNext = () => {
@@ -60,7 +56,7 @@ export function SetupWizard({ initialUrl = "", recommendedAudience, onComplete, 
   return (
     <section className="flex flex-col gap-6">
       <div className="flex items-center gap-2">
-        {[1, 2, 3].map((s) => (
+        {[1, 2].map((s) => (
           <div
             key={s}
             className={clsx(
@@ -76,7 +72,7 @@ export function SetupWizard({ initialUrl = "", recommendedAudience, onComplete, 
           </div>
         ))}
         <p className="ml-2 text-sm text-text-muted">
-          {step === 1 ? "Your link" : step === 2 ? "Your niche" : "Your goal"}
+          {step === 1 ? "Your link" : "Your niche"}
         </p>
       </div>
 
@@ -84,7 +80,9 @@ export function SetupWizard({ initialUrl = "", recommendedAudience, onComplete, 
         <div className="surface-panel-elevated flex flex-col gap-4 p-5 sm:p-6">
           <div>
             <h3 className="text-lg font-semibold text-text-primary">What are you promoting?</h3>
-            <p className="mt-1 text-sm text-text-muted">Paste your page or affiliate link once — we use it in every submission.</p>
+            <p className="mt-1 text-sm text-text-muted">
+              Paste your page or affiliate link once — we use it in every submission pack.
+            </p>
           </div>
           <Field
             type="url"
@@ -103,7 +101,12 @@ export function SetupWizard({ initialUrl = "", recommendedAudience, onComplete, 
             }}
           />
           {urlError ? <p className="text-sm text-[var(--error)]">{urlError}</p> : null}
-          <button type="button" onClick={handleUrlNext} disabled={!offerUrl.trim()} className="btn-primary w-fit">
+          <button
+            type="button"
+            onClick={handleUrlNext}
+            disabled={!offerUrl.trim()}
+            className="btn-primary w-fit"
+          >
             Continue
             <ArrowRight size={14} />
           </button>
@@ -114,7 +117,9 @@ export function SetupWizard({ initialUrl = "", recommendedAudience, onComplete, 
         <div className="surface-panel-elevated flex flex-col gap-4 p-5 sm:p-6">
           <div>
             <h3 className="text-lg font-semibold text-text-primary">Who do you want to reach?</h3>
-            <p className="mt-1 text-sm text-text-muted">We rank traffic sources that match this niche.</p>
+            <p className="mt-1 text-sm text-text-muted">
+              We match traffic channels and write packs for this niche.
+            </p>
           </div>
           {recommendedAudience && APP_NICHES.some((n) => n.id === recommendedAudience) ? (
             <p className="text-sm text-[var(--gold-text)]">
@@ -135,49 +140,15 @@ export function SetupWizard({ initialUrl = "", recommendedAudience, onComplete, 
             <button type="button" onClick={() => setStep(1)} className="btn-secondary">
               Back
             </button>
-            <button type="button" onClick={() => setStep(3)} className="btn-primary">
-              Continue
-              <ArrowRight size={14} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="surface-panel-elevated flex flex-col gap-4 p-5 sm:p-6">
-          <div>
-            <h3 className="text-lg font-semibold text-text-primary">What&apos;s your goal?</h3>
-            <p className="mt-1 text-sm text-text-muted">We prioritize sources that fit how you want to grow.</p>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {GOAL_OPTIONS.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => setGoal(option.id)}
-                className={clsx(
-                  "rounded-[var(--radius-md)] border px-4 py-3 text-left transition-colors",
-                  goal === option.id
-                    ? "border-[var(--accent-border-strong)] bg-[var(--accent-bg-subtle)]"
-                    : "border-[var(--border-subtle)] hover:border-[var(--border-strong)]",
-                )}
-              >
-                <span className="block text-sm font-semibold text-text-primary">{option.label}</span>
-                <span className="mt-0.5 block text-xs text-text-muted">{option.hint}</span>
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={() => setStep(2)} className="btn-secondary">
-              Back
-            </button>
             <button
               type="button"
               disabled={loading}
-              onClick={() => onComplete({ offerUrl, audienceNiche: audience, goal })}
+              onClick={() =>
+                onComplete({ offerUrl, audienceNiche: audience, goal: "passive" })
+              }
               className="btn-primary"
             >
-              {loading ? "Building…" : "Build my traffic list"}
+              {loading ? "Writing submissions…" : "Write my submissions"}
               <ArrowRight size={14} />
             </button>
           </div>

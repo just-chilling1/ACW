@@ -36,7 +36,7 @@
 | CashTap / cashtapai / 1-Tap Cashflow | **AI CashWave** |
 | Charge HQ (voice-reference only) | **Home** (dashboard) |
 | Instant Access (FAQ) | **Instant Income** (sidebar) |
-| Automated Income (page H1) vs sidebar | Sidebar: **Automated Profits** → page H1: **Automated Income — Traffic On Autopilot** |
+| Automated Income (page H1) vs sidebar | Sidebar: **Automated Profits** → page H1: **Automated Profits** (we write the submissions) |
 | BatteryProfits / Profit Loop (other products) | Never use in AI CashWave scripts |
 
 ---
@@ -91,7 +91,7 @@
 |---|---|---|
 | Done-For-You | Done-For-You **Vault** | 5 proven search angles and keywords — pick one, add your link, get ready-made replies |
 | Instant Income | Instant Income: **Facebook Posts** | 200+ ready-to-post messages for Facebook groups |
-| Automated Profits | Automated Income — Traffic On **Autopilot** | 100+ free traffic sources — submit once and get ongoing visitors automatically |
+| Automated Profits | We write the submissions. You paste them. | Ready-made packs for 100+ free traffic sources — copy → open → mark done |
 
 ---
 
@@ -138,7 +138,7 @@ Banner sits **below** the progress bar during active loading; persists after run
 | **Curiosity Hook** | One of three AI reply styles designed for clicks | FAQ says it tends to get the most clicks |
 | **Commission** | Your cut when someone buys through your link | Often $20–$100+ per sale depending on product |
 | **Niche** | Category like Weight Loss, Make Money Online | Instant Income & Automated Profits filter by niche |
-| **Traffic source** | A site where you submit your link once for ongoing visitors | Automated Profits library |
+| **Traffic source** | A site where you submit your link once for ongoing visitors | Automated Profits mission packs |
 | **Done-For-You Vault** | Pre-picked keywords with instant replies | Skips Steps 1–3 for speed |
 
 ---

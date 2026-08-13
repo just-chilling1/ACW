@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
 import {
+  estimateMonthlyVisitors,
   getActivations,
+  getBuildProgressFromMachine,
   getMachineForUser,
   importLegacyActivations,
   upsertMachine,
@@ -17,12 +19,22 @@ export async function GET() {
   try {
     const machine = await getMachineForUser(auth.supabase, auth.user.id);
     if (!machine) {
-      return NextResponse.json({ machine: null, activations: [], summary: null });
+      return NextResponse.json({
+        machine: null,
+        activations: [],
+        summary: null,
+        activatedCount: 0,
+        estimatedMonthlyVisitors: 0,
+        buildProgress: { completedStages: [] },
+      });
     }
 
     const activations = await getActivations(auth.supabase, machine.id);
     const activatedIds = new Set(
       activations.filter((a) => a.status === "active").map((a) => a.source_id),
+    );
+    const dismissedIds = new Set(
+      activations.filter((a) => a.status === "dismissed").map((a) => a.source_id),
     );
     const scored = scoreAllOpportunities(
       TRAFFIC_SOURCES,
@@ -30,13 +42,23 @@ export async function GET() {
       machine.goal,
       activatedIds,
       machine.offer_snapshot,
-    );
+    ).map((o) => ({
+      ...o,
+      activationStatus: dismissedIds.has(o.source.id)
+        ? ("dismissed" as const)
+        : o.activated
+          ? ("active" as const)
+          : activations.find((a) => a.source_id === o.source.id)?.status,
+    }));
 
     return NextResponse.json({
       machine,
       activations,
       summary: summarizeOpportunities(scored),
       activatedCount: activatedIds.size,
+      estimatedMonthlyVisitors: estimateMonthlyVisitors([...activatedIds]),
+      buildProgress: getBuildProgressFromMachine(machine),
+      scored,
     });
   } catch {
     return NextResponse.json({ error: "Could not load Traffic Machine." }, { status: 500 });
@@ -51,7 +73,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const offerUrl = clampString(body.offerUrl, 500);
     const audienceNiche = clampString(body.audienceNiche, 40) || "not_sure";
-    const goal = (clampString(body.goal, 20) || "visitors") as TrafficGoal;
+    const goal = (clampString(body.goal, 20) || "passive") as TrafficGoal;
     const legacyIds = Array.isArray(body.legacyCompletedIds)
       ? body.legacyCompletedIds.filter((id: unknown): id is string => typeof id === "string").slice(0, 100)
       : [];
@@ -68,7 +90,7 @@ export async function POST(req: Request) {
       offer_url: offerUrl,
       audience_niche: audienceNiche,
       goal,
-      status: offerUrl ? "setup" : "setup",
+      status: "setup",
     });
 
     if (legacyIds.length > 0 && !machine.meta?.legacy_migrated) {

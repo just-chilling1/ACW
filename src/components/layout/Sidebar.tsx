@@ -13,6 +13,7 @@ import { useSearch } from "@/context/SearchContext";
 import { clsx } from "clsx";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { PREMIUM_FEATURES } from "@/lib/premium-features";
+import { isNavPathActive } from "@/lib/nav-active";
 import {
   getWorkflowProgress,
   isWorkflowStepCompleted,
@@ -105,7 +106,7 @@ export function Sidebar({
 
   const renderStepLink = useCallback(
     (step: NavItem, collapsedView: boolean) => {
-      const isActive = pathname === step.path;
+      const isActive = isNavPathActive(pathname, step.path);
       const Icon = step.icon;
       const locked = isWorkflowStepLocked(step.requiresWorkflowStep, workflowProgress);
       const completed =
@@ -255,7 +256,7 @@ export function Sidebar({
                 </div>
                 <div className="flex flex-col gap-0.5">
                   {PREMIUM_FEATURES.map((step) => {
-                    const isActive = pathname === step.path;
+                    const isActive = isNavPathActive(pathname, step.path);
                     const Icon = step.icon;
                     return (
                       <Link
@@ -309,7 +310,7 @@ export function Sidebar({
         {collapsed && (
           <div className="premium-nav-section mt-2 flex shrink-0 flex-col gap-1 p-1">
             {PREMIUM_FEATURES.map((step) => {
-              const isActive = pathname === step.path;
+              const isActive = isNavPathActive(pathname, step.path);
               const Icon = step.icon;
               return (
                 <Link

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { PREMIUM_FEATURES } from "@/lib/premium-features";
+import { isNavPathActive } from "@/lib/nav-active";
 import { clsx } from "clsx";
 
 export function PremiumUpgradesWidget() {
@@ -23,7 +24,7 @@ export function PremiumUpgradesWidget() {
 
       <div className="space-y-2">
         {PREMIUM_FEATURES.map((feature) => {
-          const isActive = pathname === feature.path;
+          const isActive = isNavPathActive(pathname, feature.path);
           const Icon = feature.icon;
 
           return (

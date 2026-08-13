@@ -1,5 +1,5 @@
 import type { OfferSnapshot } from "@/lib/dfy/types";
-import type { TrafficSource } from "./sources";
+import type { SourceType, TrafficSource } from "./sources";
 
 export type TrafficGoal = "visitors" | "clicks" | "sales" | "passive";
 export type MachineStage = "discover" | "activate" | "grow" | "optimize";
@@ -8,6 +8,45 @@ export type ActivationStatus = "pending" | "active" | "needs_attention" | "dismi
 export type ScoreLabel = "Excellent" | "Strong" | "Good" | "Fair";
 export type OpportunityBucket = "quick_win" | "long_term" | "high_potential" | "content";
 
+export type MachineBuildStage =
+  | "understand_offer"
+  | "match_channels"
+  | "write_submissions"
+  | "build_plan"
+  | "finalize";
+
+export const MACHINE_BUILD_STAGES: { key: MachineBuildStage; label: string }[] = [
+  { key: "understand_offer", label: "Understanding your offer" },
+  { key: "match_channels", label: "Matching traffic channels" },
+  { key: "write_submissions", label: "Writing your first week of submissions" },
+  { key: "build_plan", label: "Building your daily plan" },
+  { key: "finalize", label: "Ready" },
+];
+
+export interface MachineBuildProgress {
+  currentStage?: MachineBuildStage;
+  completedStages: MachineBuildStage[];
+  error?: string;
+}
+
+export interface SubmissionPackField {
+  key: string;
+  label: string;
+  value: string;
+}
+
+export interface SubmissionPack {
+  version: 2;
+  sourceType: SourceType;
+  fields: SubmissionPackField[];
+  copyAll: string;
+  whyThisSource: string;
+  tips: string[];
+  estimatedTraffic: string;
+  generatedBy?: "ai" | "fallback";
+}
+
+/** @deprecated Use SubmissionPack — kept for reading legacy activation rows */
 export interface PromotionKit {
   headline: string;
   shortDescription: string;
@@ -93,7 +132,7 @@ export interface ActivationRow {
   source_id: string;
   status: ActivationStatus;
   activated_at: string | null;
-  promotion_kit: PromotionKit | null;
+  promotion_kit: SubmissionPack | PromotionKit | null;
   notes: string | null;
 }
 

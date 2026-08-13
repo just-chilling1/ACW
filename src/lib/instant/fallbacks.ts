@@ -38,9 +38,10 @@ export function buildFallbackPosts(snapshot: OfferSnapshot, offerUrl: string) {
     }));
 }
 
-function buildFallbackPostContent(snapshot: OfferSnapshot, angle: string, offerUrl: string, index: number): string {
-    const pain = snapshot.painPoints[index % snapshot.painPoints.length];
-    const benefit = snapshot.primaryBenefits[index % snapshot.primaryBenefits.length];
+/** Natural ready-to-copy post body. Angle is used only to pick tone — never printed as a label. */
+export function buildFallbackPostContent(snapshot: OfferSnapshot, angle: string, offerUrl: string, index: number): string {
+    const pain = snapshot.painPoints[index % Math.max(snapshot.painPoints.length, 1)] || "getting started";
+    const benefit = snapshot.primaryBenefits[index % Math.max(snapshot.primaryBenefits.length, 1)] || snapshot.mainPromise;
     switch (angle) {
         case "problem/solution":
             return `Many people struggle with ${pain.toLowerCase()}. One approach worth exploring: ${snapshot.productName} focuses on ${benefit.toLowerCase()}. If you're interested in ${snapshot.mainPromise.toLowerCase()}, it may be worth a look: ${offerUrl}`;
@@ -55,6 +56,30 @@ function buildFallbackPostContent(snapshot: OfferSnapshot, angle: string, offerU
         default:
             return `${snapshot.productName} may help with ${pain.toLowerCase()} through ${benefit.toLowerCase()}. ${index % 2 === 0 ? `Resource: ${offerUrl}` : "Happy to share more if anyone's interested."}`;
     }
+}
+
+/** Detects stub copy that leaked angle labels into the post body (not ready to publish). */
+export function isAngleLabelStub(content: string): boolean {
+    const t = content.trim();
+    if (/\bangle for\b/i.test(t)) return true;
+    if (/^(problem\/solution|educational|beginner|curiosity|mistake|checklist|comparison|faq|story-style|resource)\b/i.test(t)) {
+        return true;
+    }
+    // Legacy calendar stubs: "Day 3 (Wed): problem/solution — ..."
+    if (/^day\s+\d+\s*\([^)]+\):\s*[a-z0-9 /_-]+\s+[—-]/i.test(t)) return true;
+    return false;
+}
+
+/** Prefer stored content; rewrite known stubs into natural ready-to-copy posts. */
+export function resolveReadyPostContent(
+    snapshot: OfferSnapshot,
+    offerUrl: string,
+    content: string,
+    angle: string | null | undefined,
+    index: number,
+): string {
+    if (!isAngleLabelStub(content)) return content;
+    return buildFallbackPostContent(snapshot, angle || "problem/solution", offerUrl, index);
 }
 
 export function buildFallbackHooks(snapshot: OfferSnapshot) {

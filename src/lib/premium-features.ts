@@ -27,7 +27,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     {
         path: "/autopilot",
         label: "Automated Profits",
-        description: "Build your Traffic Machine — we tell you what to do next.",
+        description: "We write every submission — you copy, paste, and mark done.",
         icon: Rocket,
     },
     {

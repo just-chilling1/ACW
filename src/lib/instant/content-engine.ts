@@ -5,9 +5,11 @@ import {
     buildFallbackAngles,
     buildFallbackCtas,
     buildFallbackHooks,
+    buildFallbackPostContent,
     buildFallbackPosts,
     buildFallbackQuickPlan,
     buildFallbackReplies,
+    isAngleLabelStub,
 } from "./fallbacks";
 import { sanitizeContent, SAFETY_RULES_PROMPT, validateAssetContent } from "./safety";
 import type { KitRecommendations, QuickPlanDay } from "./types";
@@ -99,6 +101,7 @@ Main promise: ${snapshot.mainPromise}
 Benefits: ${snapshot.primaryBenefits.join(", ")}
 Pain points: ${snapshot.painPoints.join(", ")}
 Angles to use: problem/solution, educational, beginner, curiosity, mistake, checklist, comparison, FAQ, story-style, resource
+Put the angle ONLY in metadata — never write labels like "Problem/solution angle for…" inside the post content.
 Platforms to rotate: ${platforms.join(", ")}
 
 Return ONLY JSON array:
@@ -114,12 +117,18 @@ ${SAFETY_RULES_PROMPT}`;
         const raw = await callChatGPT([{ role: "user", content: prompt }]);
         const parsed = parseJsonFromLlm<Array<GeneratedPost>>(raw, []);
         if (parsed.length >= 8) {
-            return parsed.slice(0, 12).map((p, i) => ({
-                ...p,
-                content: safeContent(p.content),
-                include_link: p.include_link ?? i % 3 !== 2,
-                meta: { style: p.angle, recommended: i === 0 },
-            }));
+            return parsed.slice(0, 12).map((p, i) => {
+                const angle = p.angle || "problem/solution";
+                const content = isAngleLabelStub(p.content)
+                    ? buildFallbackPostContent(snapshot, angle, offerUrl, i)
+                    : safeContent(p.content);
+                return {
+                    ...p,
+                    content,
+                    include_link: p.include_link ?? i % 3 !== 2,
+                    meta: { style: angle, recommended: i === 0 },
+                };
+            });
         }
     } catch { /* fallback */ }
 

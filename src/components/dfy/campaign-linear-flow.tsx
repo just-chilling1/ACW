@@ -12,8 +12,8 @@ import {
     getOpportunityProgress,
     getWeeklyPosts,
     isAssetDone,
-    fullWeeklyPostText,
 } from "@/lib/dfy/campaign-progress";
+import { resolveReadyPostContent, isAngleLabelStub } from "@/lib/instant/fallbacks";
 
 const STEPS = [
     { id: 1, label: "Reply to people" },
@@ -79,12 +79,14 @@ function CampaignProgressBar({
 function PostCard({
     label,
     content,
+    angle,
     done,
     markingDone,
     onMarkDone,
 }: {
     label: string;
     content: string;
+    angle?: string | null;
     done: boolean;
     markingDone?: boolean;
     onMarkDone?: (done: boolean) => void;
@@ -97,16 +99,23 @@ function PostCard({
             )}
         >
             <div className="flex items-center justify-between gap-2">
-                <p
-                    className={clsx(
-                        "text-xs font-semibold uppercase tracking-wider",
-                        done
-                            ? "text-text-muted line-through decoration-[var(--success)] decoration-2"
-                            : "text-[var(--gold-text)]",
-                    )}
-                >
-                    {label}
-                </p>
+                <div className="min-w-0">
+                    <p
+                        className={clsx(
+                            "text-xs font-semibold uppercase tracking-wider",
+                            done
+                                ? "text-text-muted line-through decoration-[var(--success)] decoration-2"
+                                : "text-[var(--gold-text)]",
+                        )}
+                    >
+                        {label}
+                    </p>
+                    {angle ? (
+                        <p className="mt-0.5 text-[11px] text-text-muted">
+                            Angle: {angle}
+                        </p>
+                    ) : null}
+                </div>
                 {done ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-[var(--success-bg-subtle)] px-2 py-0.5 text-[10px] font-semibold uppercase text-[var(--success)]">
                         <CheckCircle2 size={12} />
@@ -334,16 +343,27 @@ export function CampaignLinearFlow({
                         </div>
                     ) : (
                         <div className="flex flex-col gap-4">
-                            {posts.map((asset, i) => (
+                            {posts.map((asset, i) => {
+                                const angle = asset.meta?.angle ? String(asset.meta.angle) : null;
+                                const content = resolveReadyPostContent(
+                                    campaign.offer_snapshot,
+                                    campaign.offer_url,
+                                    asset.content,
+                                    angle,
+                                    i,
+                                );
+                                return (
                                 <PostCard
                                     key={asset.id}
                                     label={`Post ${i + 1}`}
-                                    content={asset.content}
+                                    angle={angle}
+                                    content={content}
                                     done={isAssetDone(asset)}
                                     markingDone={markingAssetId === asset.id}
                                     onMarkDone={(doneState) => onMarkAssetDone(asset.id, doneState)}
                                 />
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
 
@@ -404,16 +424,31 @@ export function CampaignLinearFlow({
                             </div>
 
                             <div className="flex flex-col gap-4">
-                                {weeklyPosts.map((asset) => (
+                                {weeklyPosts.map((asset, i) => {
+                                    const angle = asset.meta?.angle ? String(asset.meta.angle) : null;
+                                    const body = resolveReadyPostContent(
+                                        campaign.offer_snapshot,
+                                        campaign.offer_url,
+                                        asset.content,
+                                        angle,
+                                        i,
+                                    );
+                                    const hookRaw = asset.meta?.hook ? String(asset.meta.hook) : "";
+                                    const hook = hookRaw && !isAngleLabelStub(hookRaw) ? hookRaw : "";
+                                    const cta = asset.meta?.cta ? String(asset.meta.cta) : "";
+                                    const content = [hook, body, cta].filter(Boolean).join("\n\n");
+                                    return (
                                         <PostCard
                                             key={asset.id}
                                             label={`${String(asset.meta?.weekday || "Day")} post`}
-                                            content={fullWeeklyPostText(asset)}
+                                            angle={angle}
+                                            content={content}
                                             done={isAssetDone(asset)}
                                             markingDone={markingAssetId === asset.id}
                                             onMarkDone={(doneState) => onMarkAssetDone(asset.id, doneState)}
                                         />
-                                ))}
+                                    );
+                                })}
                             </div>
 
                             {!fillingWeek && weeklyPosts.length === 0 ? (

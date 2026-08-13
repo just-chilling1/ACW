@@ -94,7 +94,7 @@ const FAQ_SECTIONS = [
         items: [
             {
                 q: "How do I actually earn money with this?",
-                a: "AI CashWave gives you multiple ways to earn. The core 4-step system finds real conversations online, then our AI writes replies that include your affiliate link. When someone clicks and buys, you earn a commission. You also get Done-For-You keywords with pre-made replies, 200+ ready-to-post Facebook posts via Instant Income, and 100+ traffic sources through Automated Profits. Just copy, paste, and earn.",
+                a: "AI CashWave gives you multiple ways to earn. The core 4-step system finds real conversations online, then our AI writes replies that include your affiliate link. When someone clicks and buys, you earn a commission. You also get Done-For-You campaigns, Instant Income promotion kits, and Automated Profits — ready-made submission packs for 100+ traffic sources. Just copy, paste, and earn.",
             },
             {
                 q: "Do I need any experience or technical skills?",
@@ -219,11 +219,11 @@ const FAQ_SECTIONS = [
         items: [
             {
                 q: "What is Automated Profits?",
-                a: "Automated Profits gives you 100+ free traffic sources across 9 niches — forums, social media platforms, directories, Q&A sites, blogs, and classifieds. Each source comes with step-by-step instructions, a pre-written description, and a direct link to the site. Just enter your page URL, follow the instructions for each source, and submit your link. The traffic keeps coming in on autopilot.",
+                a: "Automated Profits writes ready-to-paste submission packs for 100+ free traffic sources across 9 niches — forums, social platforms, directories, Q&A sites, blogs, and classifieds. Paste your page URL once, pick your niche, and we prepare the copy. Then finish one source at a time: copy the pack, open the site, paste, and mark done. The traffic can keep coming on autopilot.",
             },
             {
                 q: "How do I use Automated Profits?",
-                a: "Enter your affiliate link or page URL at the top. Pick your niche to filter the relevant traffic sources. Open any source card to see the step-by-step instructions. Follow the instructions to submit your link to that site. Use the \"Copy Description\" button to copy a pre-written submission text with your link already included. Mark each source as complete to track your progress.",
+                a: "Open Automated Profits and tap Build my traffic machine. Paste your affiliate link, pick your niche, and wait while we write your first week of submission packs. Then tap Continue — next source ready. Follow the three steps: Copy this → Open site → Mark done. Skip any source you don't want. Your progress shows channels live and estimated monthly visitors.",
             },
             {
                 q: "What types of traffic sources are included?",
@@ -269,7 +269,7 @@ const FAQ_SECTIONS = [
         items: [
             {
                 q: "What's the best strategy to maximize my income?",
-                a: "Use ALL the features together: (1) Start with Done-For-You for instant results with proven keywords. (2) Post 3-5 Facebook posts daily via Instant Income. (3) Submit to 3-5 traffic sources daily via Automated Profits. (4) Use the core 4-step system to discover new keywords and reply to fresh ads. Combining all four creates multiple income streams that compound over time.",
+                a: "Use ALL the features together: (1) Start with Done-For-You for a full campaign. (2) Post daily via Instant Income. (3) Submit 3–5 sources via Automated Profits with the ready-made packs. (4) Use the core 4-step system for fresh conversations. Combining all four creates multiple income streams that compound over time.",
             },
             {
                 q: "Which reply style gets the most clicks?",
@@ -285,7 +285,7 @@ const FAQ_SECTIONS = [
             },
             {
                 q: "How often should I use the app?",
-                a: "For best results, use it daily. Even 30 minutes a day can produce significant income if you're consistent. A typical daily routine: spend 10 minutes on Done-For-You replies, 10 minutes posting Facebook posts from Instant Income, and 10 minutes submitting to new traffic sources in Automated Profits. That's $200-$500+/day potential with just 30 minutes of work.",
+                a: "For best results, use it daily. Even 30 minutes a day can produce significant income if you're consistent. A typical daily routine: spend 10 minutes on Done-For-You, 10 minutes posting from Instant Income, and 10 minutes finishing Automated Profits missions (copy → open → mark done). That's $200-$500+/day potential with just 30 minutes of work.",
             },
         ],
     },
@@ -294,7 +294,7 @@ const FAQ_SECTIONS = [
 
 const PREMIUM_VIDEOS = [
     { id: "1214651948", badge: "Premium Feature 1", title: "Done For You", desc: "Learn how to use the Done-For-You feature to pick a keyword, add your link, and get ready-made replies to post and earn." },
-    { id: "1214661265", badge: "Premium Feature 2", title: "Automated Profits", desc: "Learn how to use the Automated Profits feature to submit your link to 100+ traffic sources and get automated traffic forever." },
+    { id: "1214661265", badge: "Premium Feature 2", title: "Automated Profits", desc: "Learn how Automated Profits writes submission packs for 100+ traffic sources so you can copy, paste, and build passive traffic." },
     { id: "1214657449", badge: "Premium Feature 3", title: "Instant Income", desc: "Learn how to use the Instant Income feature to copy proven Facebook posts and start earning commissions right away." },
 ];
 

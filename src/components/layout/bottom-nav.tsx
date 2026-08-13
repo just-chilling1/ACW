@@ -11,6 +11,7 @@ import {
 import { clsx } from "clsx";
 import { useSearch } from "@/context/SearchContext";
 import { PREMIUM_FEATURES } from "@/lib/premium-features";
+import { isNavPathActive } from "@/lib/nav-active";
 import { getWorkflowProgress, isWorkflowStepLocked } from "@/lib/workflow-progress";
 import { EXCLUSIVE_OFFERS } from "@/lib/exclusive-offers";
 
@@ -61,8 +62,8 @@ export function BottomNav() {
         };
     }, [moreOpen]);
 
-    const isMoreActive = MORE_NAV.some((item) => pathname === item.path)
-        || PREMIUM_FEATURES.some((item) => pathname === item.path);
+    const isMoreActive = MORE_NAV.some((item) => isNavPathActive(pathname, item.path))
+        || PREMIUM_FEATURES.some((item) => isNavPathActive(pathname, item.path));
 
     return (
         <>
@@ -73,7 +74,7 @@ export function BottomNav() {
                 <div className="grid grid-cols-5 h-16">
                     {MAIN_TABS.map((tab) => {
                         const Icon = tab.icon;
-                        const active = pathname === tab.path;
+                        const active = isNavPathActive(pathname, tab.path);
                         const locked = isWorkflowStepLocked(tab.requiresWorkflowStep, workflowProgress);
 
                         if (locked) {
@@ -167,7 +168,7 @@ export function BottomNav() {
                                 </span>
                                 {MORE_NAV.map((item) => {
                                     const Icon = item.icon;
-                                    const active = pathname === item.path;
+                                    const active = isNavPathActive(pathname, item.path);
                                     const locked = isWorkflowStepLocked(item.requiresWorkflowStep, workflowProgress);
 
                                     if (locked) {
@@ -208,7 +209,7 @@ export function BottomNav() {
                                 </span>
                                 {PREMIUM_FEATURES.map((item) => {
                                     const Icon = item.icon;
-                                    const active = pathname === item.path;
+                                    const active = isNavPathActive(pathname, item.path);
                                     return (
                                         <Link
                                             key={item.path}

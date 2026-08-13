@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/api-auth";
 import {
-  activateSource,
+  dismissSource,
   getMachineForUser,
   syncMachineAfterActivation,
 } from "@/lib/traffic-machine/machine-service";
@@ -10,7 +10,7 @@ import { TRAFFIC_SOURCES } from "@/lib/traffic-machine/sources";
 
 type RouteContext = { params: Promise<{ sourceId: string }> };
 
-export async function POST(req: Request, context: RouteContext) {
+export async function POST(_req: Request, context: RouteContext) {
   const auth = await requireApiUser();
   if (auth.unauthorized) return auth.unauthorized;
 
@@ -26,28 +26,21 @@ export async function POST(req: Request, context: RouteContext) {
       return NextResponse.json({ error: "Opportunity not found." }, { status: 404 });
     }
 
-    const body = await req.json().catch(() => ({}));
-    const activation = await activateSource(
-      auth.supabase,
-      machine.id,
-      sourceId,
-      body.submissionPack || body.promotionKit,
-    );
+    const activation = await dismissSource(auth.supabase, machine.id, sourceId);
     const synced = await syncMachineAfterActivation(auth.supabase, machine);
     const dismissedIds = new Set(
       synced.activations.filter((a) => a.status === "dismissed").map((a) => a.source_id),
     );
-    const scored = synced.scored.map((o) => ({
-      ...o,
-      activationStatus: dismissedIds.has(o.source.id)
-        ? ("dismissed" as const)
-        : o.activated
-          ? ("active" as const)
-          : undefined,
-    }));
     const nextAction = buildNextAction(
       synced.machine,
-      scored,
+      synced.scored.map((o) => ({
+        ...o,
+        activationStatus: dismissedIds.has(o.source.id)
+          ? ("dismissed" as const)
+          : o.activated
+            ? ("active" as const)
+            : undefined,
+      })),
       synced.activations.filter((a) => a.status === "active").length,
       dismissedIds,
     );
@@ -58,6 +51,6 @@ export async function POST(req: Request, context: RouteContext) {
       nextAction,
     });
   } catch {
-    return NextResponse.json({ error: "Could not activate opportunity." }, { status: 500 });
+    return NextResponse.json({ error: "Could not skip this source." }, { status: 500 });
   }
 }
