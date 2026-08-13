@@ -2,19 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
 import { ReplyCard, type ReplyCardData } from "@/components/dfy/reply-card";
-import {
-    PremiumLandingShell,
-    PremiumHero,
-} from "@/components/premium";
+import { PremiumLandingShell } from "@/components/premium";
 import { Field } from "@/components/ui/field";
 import { InlineError } from "@/components/ui/inlineError";
 import { SelectableChip } from "@/components/ui/selectable-chip";
-import { clsx } from "clsx";
-
-type Step = 1 | 2 | 3 | 4;
 
 type GeneratedReply = {
     platform: string;
@@ -25,15 +19,7 @@ type GeneratedReply = {
     style: string;
 };
 
-const STEP_LABELS: Record<Step, string> = {
-    1: "Your niche",
-    2: "Ideal customer",
-    3: "Problem solved",
-    4: "Offer link",
-};
-
 export default function DfyCustomReplyPage() {
-    const [step, setStep] = useState<Step>(1);
     const [niche, setNiche] = useState<NicheId>("make_money_online");
     const [idealCustomer, setIdealCustomer] = useState("");
     const [problemSolved, setProblemSolved] = useState("");
@@ -42,14 +28,14 @@ export default function DfyCustomReplyPage() {
     const [error, setError] = useState("");
     const [replies, setReplies] = useState<GeneratedReply[] | null>(null);
 
-    const canNext =
-        (step === 1 && !!niche) ||
-        (step === 2 && idealCustomer.trim().length >= 8) ||
-        (step === 3 && problemSolved.trim().length >= 8) ||
-        (step === 4 && offerUrl.trim().length >= 8);
+    const canGenerate =
+        !!niche &&
+        idealCustomer.trim().length >= 8 &&
+        problemSolved.trim().length >= 8 &&
+        offerUrl.trim().length >= 8;
 
     const handleGenerate = async () => {
-        if (!canNext) return;
+        if (!canGenerate) return;
         setError("");
         setGenerating(true);
         setReplies(null);
@@ -86,19 +72,10 @@ export default function DfyCustomReplyPage() {
 
     return (
         <PremiumLandingShell className="dfy-theme" width="narrow">
-            <Link
-                href="/dfy"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
-            >
+            <Link href="/dfy" className="btn-secondary w-fit gap-1.5 text-sm">
                 <ArrowLeft size={14} />
                 Back to DFY Replies
             </Link>
-
-            <PremiumHero
-                eyebrow="CUSTOM REPLY"
-                title="Create a custom reply"
-                subtitle="Answer a few questions. We'll analyze your offer, find real posts, and write humanized replies."
-            />
 
             {replies ? (
                 <div className="space-y-4">
@@ -108,11 +85,8 @@ export default function DfyCustomReplyPage() {
                         </p>
                         <button
                             type="button"
-                            className="btn-secondary text-xs"
-                            onClick={() => {
-                                setReplies(null);
-                                setStep(1);
-                            }}
+                            className="btn-secondary text-sm"
+                            onClick={() => setReplies(null)}
                         >
                             Start over
                         </button>
@@ -122,128 +96,89 @@ export default function DfyCustomReplyPage() {
                     ))}
                 </div>
             ) : (
-                <div className="dfy-wizard-panel p-5 sm:p-6">
-                    <div className="mb-5 flex flex-wrap gap-2">
-                        {([1, 2, 3, 4] as Step[]).map((s) => (
-                            <span
-                                key={s}
-                                className={clsx(
-                                    "dfy-step-pill",
-                                    s === step && "is-active",
-                                    s < step && "is-done",
-                                )}
-                            >
-                                {s}. {STEP_LABELS[s]}
-                            </span>
-                        ))}
+                <div className="dfy-wizard-panel space-y-6 p-5 sm:p-7">
+                    <header className="space-y-2">
+                        <h1 className="ds-h1">Create a custom reply</h1>
+                        <p className="ds-subtitle max-w-xl">
+                            Answer 4 short questions. We write the replies.
+                        </p>
+                    </header>
+
+                    <div className="space-y-2">
+                        <p className="dfy-question-label">1. Pick your niche</p>
+                        <div className="dfy-niche-grid">
+                            {APP_NICHES.map((n) => (
+                                <SelectableChip
+                                    key={n.id}
+                                    label={n.label}
+                                    selected={niche === n.id}
+                                    onClick={() => setNiche(n.id)}
+                                />
+                            ))}
+                        </div>
                     </div>
 
-                    {step === 1 && (
-                        <div className="space-y-3">
-                            <p className="text-sm text-text-secondary">
-                                What niche are you promoting in?
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                                {APP_NICHES.map((n) => (
-                                    <SelectableChip
-                                        key={n.id}
-                                        label={n.label}
-                                        selected={niche === n.id}
-                                        onClick={() => setNiche(n.id)}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {step === 2 && (
+                    <div className="space-y-2">
+                        <p className="dfy-question-label">2. Who are you helping?</p>
                         <Field
                             as="textarea"
-                            label="Who is your ideal customer?"
                             placeholder="e.g. Busy parents who want to lose weight without strict diets"
                             value={idealCustomer}
                             onChange={(e) => setIdealCustomer(e.target.value)}
                             hint="Be specific — age, situation, goals."
                         />
-                    )}
+                    </div>
 
-                    {step === 3 && (
+                    <div className="space-y-2">
+                        <p className="dfy-question-label">3. What problem do they have?</p>
                         <Field
                             as="textarea"
-                            label="What problem do they need solved?"
                             placeholder="e.g. They keep quitting diets because of late-night cravings"
                             value={problemSolved}
                             onChange={(e) => setProblemSolved(e.target.value)}
                             hint="Describe the pain in their words."
                         />
-                    )}
+                    </div>
 
-                    {step === 4 && (
+                    <div className="space-y-2">
+                        <p className="dfy-question-label">4. Paste your offer link</p>
                         <Field
-                            label="Offer / affiliate URL"
                             type="url"
                             placeholder="https://your-offer-link.com"
                             value={offerUrl}
                             onChange={(e) => setOfferUrl(e.target.value)}
                             hint="We'll analyze the page and weave the link into each reply."
                         />
-                    )}
-
-                    {error ? (
-                        <div className="mt-4">
-                            <InlineError message={error} />
-                        </div>
-                    ) : null}
-
-                    <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <button
-                            type="button"
-                            className="btn-secondary w-full sm:w-auto"
-                            disabled={step === 1 || generating}
-                            onClick={() => setStep((s) => (s > 1 ? ((s - 1) as Step) : s))}
-                        >
-                            <ArrowLeft size={14} />
-                            Back
-                        </button>
-
-                        {step < 4 ? (
-                            <button
-                                type="button"
-                                className="btn-primary w-full sm:w-auto"
-                                disabled={!canNext}
-                                onClick={() => setStep((s) => ((s + 1) as Step))}
-                            >
-                                Next
-                                <ArrowRight size={14} />
-                            </button>
-                        ) : (
-                            <button
-                                type="button"
-                                className="btn-primary w-full sm:w-auto sm:min-w-[12rem]"
-                                disabled={!canNext || generating}
-                                onClick={() => void handleGenerate()}
-                            >
-                                {generating ? (
-                                    <>
-                                        <Loader2 size={16} className="animate-spin" />
-                                        Finding posts & writing replies…
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles size={16} />
-                                        Generate replies
-                                    </>
-                                )}
-                            </button>
-                        )}
                     </div>
 
-                    {generating ? (
-                        <p className="mt-4 text-xs text-text-muted">
-                            Analyzing your offer, searching for real threads, and humanizing
-                            replies. This can take up to a minute.
-                        </p>
-                    ) : null}
+                    {error ? <InlineError message={error} /> : null}
+
+                    <div className="space-y-3 pt-1">
+                        <button
+                            type="button"
+                            className="btn-primary w-full"
+                            disabled={!canGenerate || generating}
+                            onClick={() => void handleGenerate()}
+                        >
+                            {generating ? (
+                                <>
+                                    <Loader2 size={16} className="animate-spin" />
+                                    Finding posts & writing replies…
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles size={16} />
+                                    Generate replies
+                                </>
+                            )}
+                        </button>
+                        {generating ? (
+                            <p className="text-xs text-text-muted">
+                                Analyzing your offer, searching for real threads, and
+                                humanizing replies. This can take up to a minute.
+                            </p>
+                        ) : null}
+                    </div>
                 </div>
             )}
         </PremiumLandingShell>

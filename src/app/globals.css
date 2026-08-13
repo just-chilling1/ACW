@@ -1599,58 +1599,58 @@ html[data-sidebar="collapsed"] {
   }
 }
 
-/* ── DFY dark espresso theme (scoped; does not change global :root) ── */
+/* ── DFY quiet luxury theme (scoped; does not change global :root) ── */
 .dfy-theme {
-  /* Surfaces */
-  --bg-app: #120e0b;
-  --bg-app-2: #1a1410;
-  --bg-page: #120e0b;
-  --surface-1: #1a1410;
-  --surface-2: rgba(247, 240, 232, 0.05);
-  --surface-3: #241c15;
-  --bg-panel: #1a1410;
-  --bg-glass: rgba(26, 20, 16, 0.88);
+  /* Surfaces — cool charcoal */
+  --bg-app: #0c0c0c;
+  --bg-app-2: #141414;
+  --bg-page: #0c0c0c;
+  --surface-1: #141414;
+  --surface-2: rgba(255, 255, 255, 0.04);
+  --surface-3: #1a1a1a;
+  --bg-panel: #141414;
+  --bg-glass: rgba(20, 20, 20, 0.9);
 
-  /* Borders — stronger warm bronze */
-  --border-subtle: rgba(196, 154, 108, 0.42);
-  --border-strong: rgba(196, 154, 108, 0.58);
-  --border-secondary-hover: #6b4f35;
-  --bg-border: #3d2c1c;
-  --card-border: #2a2018;
-  --card-border-hover: #4a3724;
+  /* Borders — thin, readable on dark */
+  --border-subtle: rgba(196, 165, 116, 0.28);
+  --border-strong: rgba(196, 165, 116, 0.48);
+  --border-secondary-hover: #c4a574;
+  --bg-border: #2a2a2a;
+  --card-border: #222222;
+  --card-border-hover: #3a3a3a;
 
-  /* Text — higher contrast parchment */
-  --text-primary: #f7f0e8;
-  --text-secondary: #d8c9b5;
-  --text-tertiary: #c9b89e;
-  --text-muted: #c9b89e;
-  --text-on-accent: #1a1208;
+  /* Text — off-white + warm gray */
+  --text-primary: #f5f2eb;
+  --text-secondary: #c8c2b6;
+  --text-tertiary: #a39e93;
+  --text-muted: #a39e93;
+  --text-on-accent: #12100c;
 
-  /* Accent — burnished bronze (not bright gold) */
-  --gold: #b8956c;
+  /* Accent — muted champagne (used sparingly) */
+  --gold: #c4a574;
   --gold-text: #d4b896;
-  --gold-hover: #a07d55;
+  --gold-hover: #b8956c;
   --gold-light: #d4b896;
-  --gold-dim: #8f6e48;
-  --copper: #9a6b42;
-  --brand-primary: #b8956c;
-  --brand-secondary: #9a6b42;
-  --brand-tint: rgba(184, 149, 108, 0.14);
-  --grad-brand: linear-gradient(90deg, #b8956c 0%, #9a6b42 100%);
-  --grad-brand-alt: linear-gradient(90deg, #c4a35a 0%, #9a6b42 100%);
+  --gold-dim: #9a7d52;
+  --copper: #a8885a;
+  --brand-primary: #c4a574;
+  --brand-secondary: #a8885a;
+  --brand-tint: rgba(196, 165, 116, 0.12);
+  --grad-brand: linear-gradient(90deg, #c4a574 0%, #a8885a 100%);
+  --grad-brand-alt: linear-gradient(90deg, #d4b896 0%, #a8885a 100%);
 
-  --accent-bg-faint: rgba(184, 149, 108, 0.12);
-  --accent-bg-subtle: rgba(184, 149, 108, 0.18);
-  --accent-bg-medium: rgba(184, 149, 108, 0.24);
-  --accent-bg-hover: rgba(184, 149, 108, 0.28);
-  --accent-border-soft: rgba(196, 154, 108, 0.5);
-  --accent-border: rgba(196, 154, 108, 0.55);
-  --accent-border-strong: rgba(196, 154, 108, 0.68);
-  --accent-border-emphasis: rgba(196, 154, 108, 0.68);
-  --accent-focus-ring: rgba(184, 149, 108, 0.28);
-  --accent-glow: rgba(184, 149, 108, 0.32);
+  --accent-bg-faint: rgba(196, 165, 116, 0.08);
+  --accent-bg-subtle: rgba(196, 165, 116, 0.14);
+  --accent-bg-medium: rgba(196, 165, 116, 0.2);
+  --accent-bg-hover: rgba(196, 165, 116, 0.24);
+  --accent-border-soft: rgba(196, 165, 116, 0.4);
+  --accent-border: rgba(196, 165, 116, 0.5);
+  --accent-border-strong: rgba(196, 165, 116, 0.62);
+  --accent-border-emphasis: rgba(196, 165, 116, 0.62);
+  --accent-focus-ring: rgba(196, 165, 116, 0.26);
+  --accent-glow: rgba(196, 165, 116, 0.22);
 
-  --shadow-gold: 0 8px 24px rgba(184, 149, 108, 0.22);
+  --shadow-gold: 0 8px 24px rgba(196, 165, 116, 0.16);
 
   /* Softer, more premium corners (scoped) */
   --radius-sm: 8px;
@@ -1662,8 +1662,8 @@ html[data-sidebar="collapsed"] {
 
 .dfy-theme .btn-secondary {
   color: var(--text-primary);
-  border-color: var(--border-strong);
-  background: color-mix(in srgb, var(--surface-3) 55%, transparent);
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface-3) 70%, transparent);
 }
 
 .dfy-theme .btn-secondary:hover:not(:disabled) {
@@ -1673,15 +1673,21 @@ html[data-sidebar="collapsed"] {
 
 .dfy-theme .btn-chip {
   border-radius: var(--radius-pill);
-  border-color: var(--border-strong);
+  border: 1px solid var(--border-strong);
   color: var(--text-secondary);
   background: var(--surface-2);
 }
 
 .dfy-theme .btn-chip-active {
-  background: var(--gold);
-  color: var(--text-on-accent);
+  background: var(--accent-bg-subtle);
+  color: var(--gold-text);
   border-color: var(--gold);
+}
+
+.dfy-theme .dfy-niche-grid .btn-chip {
+  justify-content: center;
+  width: 100%;
+  text-align: center;
 }
 
 .dfy-theme .premium-landing-hero {
@@ -1690,10 +1696,14 @@ html[data-sidebar="collapsed"] {
   background:
     linear-gradient(
       145deg,
-      color-mix(in srgb, var(--surface-3) 70%, transparent) 0%,
-      var(--surface-1) 52%,
-      #14100c 100%
+      color-mix(in srgb, var(--surface-3) 80%, transparent) 0%,
+      var(--surface-1) 55%,
+      #0c0c0c 100%
     );
+}
+
+.dfy-theme .premium-landing-hero__glow {
+  display: none;
 }
 
 .dfy-theme .dfy-setup-panel {
@@ -1723,15 +1733,15 @@ html[data-sidebar="collapsed"] {
 }
 
 .dfy-theme .dfy-step-pill.is-active {
-  color: var(--text-on-accent);
-  background: var(--gold);
+  color: var(--gold-text);
+  background: var(--accent-bg-subtle);
   border-color: var(--gold);
 }
 
 .dfy-theme .dfy-step-pill.is-done {
   color: var(--text-primary);
   border-color: var(--accent-border);
-  background: var(--accent-bg-subtle);
+  background: var(--accent-bg-faint);
 }
 
 .dfy-theme .dfy-reply-card {
@@ -1743,7 +1753,7 @@ html[data-sidebar="collapsed"] {
 .dfy-theme .dfy-reply-body {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
-  background: color-mix(in srgb, var(--surface-3) 80%, #0e0a08);
+  background: color-mix(in srgb, var(--surface-3) 85%, #0a0a0a);
 }
 
 .dfy-theme .dfy-platform-badge {
@@ -1773,9 +1783,28 @@ html[data-sidebar="collapsed"] {
   background: var(--surface-1);
 }
 
+.dfy-theme .dfy-question-label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+.dfy-theme .dfy-niche-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .dfy-theme .dfy-niche-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .dfy-theme .input-base {
   border-color: var(--border-strong);
-  background: color-mix(in srgb, var(--surface-3) 65%, #0e0a08);
+  background: color-mix(in srgb, var(--surface-3) 70%, #0a0a0a);
   border-radius: var(--radius-md);
 }
 
