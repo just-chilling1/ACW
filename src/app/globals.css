@@ -1598,3 +1598,200 @@ html[data-sidebar="collapsed"] {
     animation: none !important;
   }
 }
+
+/* ── DFY dark espresso theme (scoped; does not change global :root) ── */
+.dfy-theme {
+  /* Surfaces */
+  --bg-app: #120e0b;
+  --bg-app-2: #1a1410;
+  --bg-page: #120e0b;
+  --surface-1: #1a1410;
+  --surface-2: rgba(247, 240, 232, 0.05);
+  --surface-3: #241c15;
+  --bg-panel: #1a1410;
+  --bg-glass: rgba(26, 20, 16, 0.88);
+
+  /* Borders — stronger warm bronze */
+  --border-subtle: rgba(196, 154, 108, 0.42);
+  --border-strong: rgba(196, 154, 108, 0.58);
+  --border-secondary-hover: #6b4f35;
+  --bg-border: #3d2c1c;
+  --card-border: #2a2018;
+  --card-border-hover: #4a3724;
+
+  /* Text — higher contrast parchment */
+  --text-primary: #f7f0e8;
+  --text-secondary: #d8c9b5;
+  --text-tertiary: #c9b89e;
+  --text-muted: #c9b89e;
+  --text-on-accent: #1a1208;
+
+  /* Accent — burnished bronze (not bright gold) */
+  --gold: #b8956c;
+  --gold-text: #d4b896;
+  --gold-hover: #a07d55;
+  --gold-light: #d4b896;
+  --gold-dim: #8f6e48;
+  --copper: #9a6b42;
+  --brand-primary: #b8956c;
+  --brand-secondary: #9a6b42;
+  --brand-tint: rgba(184, 149, 108, 0.14);
+  --grad-brand: linear-gradient(90deg, #b8956c 0%, #9a6b42 100%);
+  --grad-brand-alt: linear-gradient(90deg, #c4a35a 0%, #9a6b42 100%);
+
+  --accent-bg-faint: rgba(184, 149, 108, 0.12);
+  --accent-bg-subtle: rgba(184, 149, 108, 0.18);
+  --accent-bg-medium: rgba(184, 149, 108, 0.24);
+  --accent-bg-hover: rgba(184, 149, 108, 0.28);
+  --accent-border-soft: rgba(196, 154, 108, 0.5);
+  --accent-border: rgba(196, 154, 108, 0.55);
+  --accent-border-strong: rgba(196, 154, 108, 0.68);
+  --accent-border-emphasis: rgba(196, 154, 108, 0.68);
+  --accent-focus-ring: rgba(184, 149, 108, 0.28);
+  --accent-glow: rgba(184, 149, 108, 0.32);
+
+  --shadow-gold: 0 8px 24px rgba(184, 149, 108, 0.22);
+
+  /* Softer, more premium corners (scoped) */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+}
+
+.dfy-theme .btn-secondary {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: color-mix(in srgb, var(--surface-3) 55%, transparent);
+}
+
+.dfy-theme .btn-secondary:hover:not(:disabled) {
+  background: var(--surface-3);
+  border-color: var(--gold-light);
+}
+
+.dfy-theme .btn-chip {
+  border-radius: var(--radius-pill);
+  border-color: var(--border-strong);
+  color: var(--text-secondary);
+  background: var(--surface-2);
+}
+
+.dfy-theme .btn-chip-active {
+  background: var(--gold);
+  color: var(--text-on-accent);
+  border-color: var(--gold);
+}
+
+.dfy-theme .premium-landing-hero {
+  border-radius: var(--radius-xl);
+  border-color: var(--border-strong);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--surface-3) 70%, transparent) 0%,
+      var(--surface-1) 52%,
+      #14100c 100%
+    );
+}
+
+.dfy-theme .dfy-setup-panel {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-1);
+  box-shadow: var(--elevation-1);
+  padding: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .dfy-theme .dfy-setup-panel {
+    padding: 1.5rem 1.75rem;
+  }
+}
+
+.dfy-theme .dfy-step-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  background: var(--surface-2);
+}
+
+.dfy-theme .dfy-step-pill.is-active {
+  color: var(--text-on-accent);
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.dfy-theme .dfy-step-pill.is-done {
+  color: var(--text-primary);
+  border-color: var(--accent-border);
+  background: var(--accent-bg-subtle);
+}
+
+.dfy-theme .dfy-reply-card {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-1);
+}
+
+.dfy-theme .dfy-reply-body {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--surface-3) 80%, #0e0a08);
+}
+
+.dfy-theme .dfy-platform-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  background: var(--accent-bg-subtle);
+  border: 1px solid var(--accent-border-soft);
+}
+
+.dfy-theme .dfy-wizard-panel {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-1);
+  box-shadow: var(--elevation-1);
+}
+
+.dfy-theme .dfy-state-box {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-1);
+}
+
+.dfy-theme .input-base {
+  border-color: var(--border-strong);
+  background: color-mix(in srgb, var(--surface-3) 65%, #0e0a08);
+  border-radius: var(--radius-md);
+}
+
+.dfy-theme .input-base::placeholder {
+  color: color-mix(in srgb, var(--text-tertiary) 85%, transparent);
+}
+
+.dfy-theme .error-banner {
+  border-radius: var(--radius-lg);
+}
+
+.dfy-theme .dfy-video-wrap {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.dfy-theme .dfy-video-wrap .surface-panel {
+  border-radius: var(--radius-xl);
+}

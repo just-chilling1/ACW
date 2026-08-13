@@ -4,10 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
-import { PageHeader } from "@/components/ui/page-header";
-import { Field } from "@/components/ui/field";
-import { InlineError } from "@/components/ui/InlineError";
 import { ReplyCard, type ReplyCardData } from "@/components/dfy/reply-card";
+import {
+    PremiumLandingShell,
+    PremiumHero,
+} from "@/components/premium";
+import { Field } from "@/components/ui/field";
+import { InlineError } from "@/components/ui/inlineError";
+import { SelectableChip } from "@/components/ui/selectable-chip";
+import { clsx } from "clsx";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -80,24 +85,25 @@ export default function DfyCustomReplyPage() {
     }));
 
     return (
-        <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+        <PremiumLandingShell className="dfy-theme" width="narrow">
             <Link
                 href="/dfy"
-                className="mb-4 inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
             >
                 <ArrowLeft size={14} />
                 Back to DFY Replies
             </Link>
 
-            <PageHeader
+            <PremiumHero
+                eyebrow="CUSTOM REPLY"
                 title="Create a custom reply"
                 subtitle="Answer a few questions. We'll analyze your offer, find real posts, and write humanized replies."
             />
 
             {replies ? (
-                <div className="mt-6 space-y-4">
-                    <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm text-text-muted">
+                <div className="space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-sm text-text-secondary">
                             {cards.length} replies ready — copy, open the post, and paste.
                         </p>
                         <button
@@ -116,18 +122,16 @@ export default function DfyCustomReplyPage() {
                     ))}
                 </div>
             ) : (
-                <div className="mt-6 rounded-[var(--radius-lg)] border border-border bg-surface p-5 sm:p-6">
+                <div className="dfy-wizard-panel p-5 sm:p-6">
                     <div className="mb-5 flex flex-wrap gap-2">
                         {([1, 2, 3, 4] as Step[]).map((s) => (
                             <span
                                 key={s}
-                                className={
-                                    s === step
-                                        ? "rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent"
-                                        : s < step
-                                          ? "rounded-full bg-bg px-3 py-1 text-xs font-medium text-text"
-                                          : "rounded-full bg-bg px-3 py-1 text-xs text-text-muted"
-                                }
+                                className={clsx(
+                                    "dfy-step-pill",
+                                    s === step && "is-active",
+                                    s < step && "is-done",
+                                )}
                             >
                                 {s}. {STEP_LABELS[s]}
                             </span>
@@ -136,21 +140,17 @@ export default function DfyCustomReplyPage() {
 
                     {step === 1 && (
                         <div className="space-y-3">
-                            <p className="text-sm text-text-muted">What niche are you promoting in?</p>
+                            <p className="text-sm text-text-secondary">
+                                What niche are you promoting in?
+                            </p>
                             <div className="flex flex-wrap gap-2">
                                 {APP_NICHES.map((n) => (
-                                    <button
+                                    <SelectableChip
                                         key={n.id}
-                                        type="button"
+                                        label={n.label}
+                                        selected={niche === n.id}
                                         onClick={() => setNiche(n.id)}
-                                        className={
-                                            niche === n.id
-                                                ? "btn-primary px-3 py-2 text-xs sm:text-sm"
-                                                : "btn-secondary px-3 py-2 text-xs sm:text-sm"
-                                        }
-                                    >
-                                        {n.label}
-                                    </button>
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -189,12 +189,16 @@ export default function DfyCustomReplyPage() {
                         />
                     )}
 
-                    {error ? <div className="mt-4"><InlineError message={error} /></div> : null}
+                    {error ? (
+                        <div className="mt-4">
+                            <InlineError message={error} />
+                        </div>
+                    ) : null}
 
-                    <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                    <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <button
                             type="button"
-                            className="btn-secondary"
+                            className="btn-secondary w-full sm:w-auto"
                             disabled={step === 1 || generating}
                             onClick={() => setStep((s) => (s > 1 ? ((s - 1) as Step) : s))}
                         >
@@ -205,7 +209,7 @@ export default function DfyCustomReplyPage() {
                         {step < 4 ? (
                             <button
                                 type="button"
-                                className="btn-primary"
+                                className="btn-primary w-full sm:w-auto"
                                 disabled={!canNext}
                                 onClick={() => setStep((s) => ((s + 1) as Step))}
                             >
@@ -215,7 +219,7 @@ export default function DfyCustomReplyPage() {
                         ) : (
                             <button
                                 type="button"
-                                className="btn-primary"
+                                className="btn-primary w-full sm:w-auto sm:min-w-[12rem]"
                                 disabled={!canNext || generating}
                                 onClick={() => void handleGenerate()}
                             >
@@ -236,11 +240,12 @@ export default function DfyCustomReplyPage() {
 
                     {generating ? (
                         <p className="mt-4 text-xs text-text-muted">
-                            Analyzing your offer, searching for real threads, and humanizing replies. This can take up to a minute.
+                            Analyzing your offer, searching for real threads, and humanizing
+                            replies. This can take up to a minute.
                         </p>
                     ) : null}
                 </div>
             )}
-        </div>
+        </PremiumLandingShell>
     );
 }
