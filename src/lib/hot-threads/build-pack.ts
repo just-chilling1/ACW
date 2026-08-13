@@ -3,6 +3,8 @@ import { getNicheById, type NicheId } from "@/lib/niches";
 import { searchSocialData, sanitizePosts } from "@/lib/rapidapi";
 import { generateReplies } from "@/lib/llm";
 import { getFallbackPostsForNiche } from "@/lib/dfy/search-fallbacks";
+import { fetchSeedPostsForNiche } from "@/lib/dfy/seed-posts";
+import { isRealPostUrl } from "@/lib/dfy/post-url";
 import {
   LINK_PLACEHOLDER,
   MIN_PACK_SIZE,
@@ -109,8 +111,19 @@ async function discoverFromAnalysisCache(
   return collected.slice(0, TARGET_PACK_SIZE);
 }
 
-function discoverFromNicheFallbacks(nicheId: NicheId): HotThreadItem[] {
+async function discoverFromNicheFallbacks(
+  supabase: SupabaseClient,
+  nicheId: NicheId,
+): Promise<HotThreadItem[]> {
+  const seeded = await fetchSeedPostsForNiche(supabase, nicheId, TARGET_PACK_SIZE);
+  if (seeded.length > 0) {
+    return seeded
+      .slice(0, TARGET_PACK_SIZE)
+      .map((p) => toThreadSeed(p as unknown as Record<string, unknown>, "quick"));
+  }
+
   return getFallbackPostsForNiche(nicheId)
+    .filter((p) => isRealPostUrl(p.url))
     .slice(0, TARGET_PACK_SIZE)
     .map((p) => toThreadSeed(p as unknown as Record<string, unknown>, "quick"));
 }
@@ -227,7 +240,7 @@ export async function buildQuickHotThreadPack(
   let seeds = await discoverFromAnalysisCache(supabase, nicheId);
 
   if (seeds.length < MIN_PACK_SIZE) {
-    seeds = mergePosts(seeds, discoverFromNicheFallbacks(nicheId)).slice(0, TARGET_PACK_SIZE);
+    seeds = mergePosts(seeds, await discoverFromNicheFallbacks(supabase, nicheId)).slice(0, TARGET_PACK_SIZE);
   }
 
   const items = withFallbackReplies(seeds.slice(0, TARGET_PACK_SIZE));
@@ -247,7 +260,7 @@ export async function enrichHotThreadPack(
 
     let seeds = mergePosts(live, cached);
     if (seeds.length < MIN_PACK_SIZE) {
-      seeds = mergePosts(seeds, discoverFromNicheFallbacks(nicheId));
+      seeds = mergePosts(seeds, await discoverFromNicheFallbacks(supabase, nicheId));
     }
     seeds = seeds.slice(0, TARGET_PACK_SIZE).map((s) => ({ ...s, source: "live" as const, id: s.id.replace(QUICK_PACK_MARKER, "") }));
 

@@ -14,8 +14,8 @@ export type PremiumFeature = {
 export const PREMIUM_FEATURES: PremiumFeature[] = [
     {
         path: "/dfy",
-        label: "DFY Campaign Builder",
-        description: "Your complete promotional campaign — built for you.",
+        label: "DFY Replies",
+        description: "60 ready replies per niche — or create custom ones for your offer.",
         icon: Scan,
     },
     {
@@ -27,7 +27,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     {
         path: "/autopilot",
         label: "Automated Profits",
-        description: "We write every submission — you copy, paste, and mark done.",
+        description: "Build your Traffic Machine — we tell you what to do next.",
         icon: Rocket,
     },
     {

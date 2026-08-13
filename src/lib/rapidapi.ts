@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import { sanitizeExternalUrl } from '@/lib/safe-url';
+import { isRealPostUrl, normalizePostUrl } from '@/lib/dfy/post-url';
 
 /**
  * Generates a stable ID from a string (usually a URL).
@@ -68,7 +69,8 @@ async function fetchViaScraperAPI(keyword: string): Promise<any[]> {
     if (!scraperKey) throw new Error("Missing SCRAPERAPI_KEY / SCRAPER_API_KEY");
 
     console.log(`[SEARCH] Strategy 1: ScraperAPI for "${keyword}"`);
-    const targetUrl = `https://www.google.com/search?q=site%3Areddit.com+OR+site%3Ayoutube.com+${encodeURIComponent(keyword)}+after%3A2024-01-01`;
+    // Prefer real Reddit threads (/comments/) and YouTube watch pages — not category/subreddit roots.
+    const targetUrl = `https://www.google.com/search?q=${encodeURIComponent(`site:reddit.com/r/*/comments/ OR site:youtube.com/watch ${keyword} after:2024-01-01`)}`;
     const scraperUrl = `https://api.scraperapi.com/?api_key=${scraperKey}&url=${encodeURIComponent(targetUrl)}&render=true&premium=true`;
 
     const response = await fetch(scraperUrl, { cache: "no-store" });
@@ -89,12 +91,14 @@ async function fetchViaScraperAPI(keyword: string): Promise<any[]> {
             if (!snippet || snippet.length < 20) snippet = $(el).text().trim().substring(0, 200);
 
             if (url && title && (url.includes('reddit.com') || url.includes('youtube.com'))) {
-                if (!results.find(r => r.url === url)) {
+                const normalized = normalizePostUrl(url);
+                if (!isRealPostUrl(normalized)) return;
+                if (!results.find(r => r.url === normalized)) {
                     results.push({
-                        id: generateStableId(url, Math.random().toString(36).substring(2, 10)),
-                        platform: url.includes('reddit.com') ? 'Reddit' : 'YouTube',
-                        title, text: snippet, url,
-                        engagement: Math.floor(Math.random() * (url.includes('reddit.com') ? 200 : 500)) + 10
+                        id: generateStableId(normalized, Math.random().toString(36).substring(2, 10)),
+                        platform: normalized.includes('reddit.com') ? 'Reddit' : 'YouTube',
+                        title, text: snippet, url: normalized,
+                        engagement: Math.floor(Math.random() * (normalized.includes('reddit.com') ? 200 : 500)) + 10
                     });
                 }
             }
@@ -134,27 +138,35 @@ async function fetchRedditViaRapidAPI(keyword: string): Promise<any[]> {
         // Standard Reddit-like API
         posts = data.data.children.map((child: any) => {
             const d = child.data || child;
+            const permalink = d.permalink
+                ? (String(d.permalink).startsWith("http") ? d.permalink : `https://www.reddit.com${d.permalink}`)
+                : (d.url || "");
+            const url = normalizePostUrl(permalink);
             return {
-                id: generateStableId(d.url || d.permalink || '', Math.random().toString(36).substring(2, 10)),
+                id: generateStableId(url || '', Math.random().toString(36).substring(2, 10)),
                 platform: 'Reddit',
                 title: d.title || '',
                 text: d.selftext || d.body || d.title || '',
-                url: d.url || d.permalink ? `https://reddit.com${d.permalink}` : '',
+                url,
                 engagement: d.score || d.ups || Math.floor(Math.random() * 200) + 10,
             };
         });
     } else if (Array.isArray(data.results || data.posts || data)) {
         const items = data.results || data.posts || data;
-        posts = items.map((item: any) => ({
-            id: generateStableId(item.url || item.link || '', Math.random().toString(36).substring(2, 10)),
-            platform: 'Reddit',
-            title: item.title || '',
-            text: item.text || item.selftext || item.body || item.title || '',
-            url: item.url || item.link || '',
-            engagement: item.score || item.ups || Math.floor(Math.random() * 200) + 10,
-        }));
+        posts = items.map((item: any) => {
+            const url = normalizePostUrl(item.url || item.link || item.permalink || '');
+            return {
+                id: generateStableId(url || '', Math.random().toString(36).substring(2, 10)),
+                platform: 'Reddit',
+                title: item.title || '',
+                text: item.text || item.selftext || item.body || item.title || '',
+                url,
+                engagement: item.score || item.ups || Math.floor(Math.random() * 200) + 10,
+            };
+        });
     }
 
+    posts = posts.filter((p) => isRealPostUrl(p.url));
     if (posts.length === 0) throw new Error("RapidAPI Reddit: 0 results");
     return posts.slice(0, 20);
 }
@@ -183,17 +195,21 @@ async function fetchYouTubeViaRapidAPI(keyword: string): Promise<any[]> {
     if (Array.isArray(items)) {
         videos = items.map((item: any) => {
             const video = item.video || item.snippet || item;
+            const url = video.videoId
+                ? `https://www.youtube.com/watch?v=${video.videoId}`
+                : normalizePostUrl(video.url || video.link || '');
             return {
-                id: generateStableId(video.videoId || video.url || video.link || '', Math.random().toString(36).substring(2, 10)),
+                id: generateStableId(video.videoId || url || '', Math.random().toString(36).substring(2, 10)),
                 platform: 'YouTube',
                 title: video.title || '',
                 text: video.description || video.descriptionSnippet || video.title || '',
-                url: video.videoId ? `https://www.youtube.com/watch?v=${video.videoId}` : (video.url || video.link || ''),
+                url,
                 engagement: video.viewCount || video.views || Math.floor(Math.random() * 500) + 10,
             };
         });
     }
 
+    videos = videos.filter((v) => isRealPostUrl(v.url));
     if (videos.length === 0) throw new Error("RapidAPI YouTube: 0 results");
     return videos.slice(0, 15);
 }
@@ -203,9 +219,9 @@ export async function searchSocialData(keyword: string) {
     // Strategy 1: ScraperAPI (Google scrape)
     try {
         const results = await fetchViaScraperAPI(keyword);
-        const sanitized = sanitizePosts(results);
+        const sanitized = sanitizePosts(results).filter((p) => isRealPostUrl(p.url));
         if (sanitized.length > 0) {
-            console.log(`[SEARCH] ✅ ScraperAPI returned ${sanitized.length} results`);
+            console.log(`[SEARCH] ✅ ScraperAPI returned ${sanitized.length} real posts`);
             return sanitized.sort((a, b) => b.engagement - a.engagement);
         }
     } catch (e: any) {
@@ -239,6 +255,9 @@ export async function searchSocialData(keyword: string) {
         throw new Error("All search strategies failed. No results available.");
     }
 
-    const sanitized = sanitizePosts(combined);
+    const sanitized = sanitizePosts(combined).filter((p) => isRealPostUrl(p.url));
+    if (sanitized.length === 0) {
+        throw new Error("All search strategies failed. No real post URLs available.");
+    }
     return sanitized.sort((a, b) => b.engagement - a.engagement);
 }

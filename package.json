@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "validate:vault": "node scripts/validate-vault.mjs",
-    "validate:shorts": "node scripts/validate-shorts.mjs"
+    "validate:shorts": "node scripts/validate-shorts.mjs",
+    "seed:dfy": "tsx --tsconfig tsconfig.json scripts/seed-dfy-replies.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
@@ -27,9 +28,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^16.6.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "openai": "^4.104.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "5.9.3"
   }
 }

@@ -20,7 +20,7 @@ const FAQS = [
   {
     question: "How do I actually earn money with AI CashWave?",
     answer:
-      "The core 4-step system finds real conversations online, then our AI writes replies that include your affiliate link. When someone clicks and buys, you earn a commission. You also get Done-For-You campaigns, Instant Income promotion kits, and Automated Profits — ready-made submission packs for 100+ traffic sources. Just copy, paste, and earn.",
+      "The core 4-step system finds real conversations online, then our AI writes replies that include your affiliate link. When someone clicks and buys, you earn a commission. You also get Done-For-You keywords with pre-made replies, 200+ ready-to-post Facebook posts via Instant Income, and 100+ traffic sources through Automated Profits.",
   },
   {
     question: "Do I need any experience or technical skills?",
@@ -55,7 +55,7 @@ const FAQS = [
   {
     question: "What is Automated Profits?",
     answer:
-      "Automated Profits writes ready-to-paste submission packs for 100+ free traffic sources across 9 niches — forums, directories, Q&A sites, and more. Paste your URL once, pick your niche, then follow one source at a time: copy the pack, open the site, paste, and mark done. Traffic can keep coming after you submit.",
+      "Automated Profits gives you 100+ free traffic sources across 9 niches — forums, directories, Q&A sites, and more. Enter your URL once, follow each source’s instructions, copy the pre-written submission text, and mark sources done as you go. Traffic keeps coming after you submit.",
   },
   {
     question: "How many replies should I post per day?",

@@ -1,4 +1,5 @@
 import { APP_NICHES, detectNicheFromText, type NicheId } from "@/lib/niches";
+import { isRealPostUrl } from "./post-url";
 import type { OfferSnapshot, SocialPost } from "./types";
 
 const FALLBACK_POSTS: Record<NicheId, SocialPost[]> = {
@@ -92,7 +93,11 @@ export function detectOfferNiche(snapshot: OfferSnapshot, audienceMode?: string)
 }
 
 export function getFallbackPostsForNiche(nicheId: NicheId): SocialPost[] {
-    return FALLBACK_POSTS[nicheId] || FALLBACK_POSTS.make_money_online;
+    // Prefer real comment permalinks only. Category/subreddit roots are filtered out.
+    // Primary source at runtime is dfy_seed_posts via fetchSeedPostsForNiche().
+    const posts = FALLBACK_POSTS[nicheId] || FALLBACK_POSTS.make_money_online;
+    const real = posts.filter((p) => isRealPostUrl(p.url));
+    return real.length > 0 ? real : posts;
 }
 
 export function getFallbackPostsForOffer(snapshot: OfferSnapshot, audienceMode?: string): SocialPost[] {

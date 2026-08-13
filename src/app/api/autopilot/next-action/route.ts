@@ -21,26 +21,16 @@ export async function GET() {
     const activatedIds = new Set(
       activations.filter((a) => a.status === "active").map((a) => a.source_id),
     );
-    const dismissedIds = new Set(
-      activations.filter((a) => a.status === "dismissed").map((a) => a.source_id),
-    );
     const scored = scoreAllOpportunities(
       TRAFFIC_SOURCES,
       machine.audience_niche,
       machine.goal,
       activatedIds,
       machine.offer_snapshot,
-    ).map((o) => ({
-      ...o,
-      activationStatus: dismissedIds.has(o.source.id)
-        ? ("dismissed" as const)
-        : o.activated
-          ? ("active" as const)
-          : undefined,
-    }));
+    );
 
     return NextResponse.json({
-      nextAction: buildNextAction(machine, scored, activatedIds.size, dismissedIds),
+      nextAction: buildNextAction(machine, scored, activatedIds.size),
     });
   } catch {
     return NextResponse.json({ error: "Could not determine next action." }, { status: 500 });

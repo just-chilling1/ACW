@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const offerUrl = clampString(body.offerUrl, 500);
     const audienceNiche = clampString(body.audienceNiche, 40) || "not_sure";
-    const goal = (clampString(body.goal, 20) || "passive") as TrafficGoal;
+    const goal = (clampString(body.goal, 20) || "visitors") as TrafficGoal;
 
     if (!offerUrl) {
       return NextResponse.json({ error: "Please paste your page or affiliate link." }, { status: 400 });
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     return NextResponse.json(result);
   } catch {
     return NextResponse.json(
-      { error: "We couldn't build your traffic machine right now. Please try again." },
+      { error: "We couldn't build your Traffic Machine right now. Please try again." },
       { status: 500 },
     );
   }

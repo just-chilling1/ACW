@@ -385,6 +385,7 @@ ${SAFETY_RULES_PROMPT}`;
 }
 
 type CommentIntent =
+    | "side_effects"
     | "price"
     | "skeptical"
     | "learn_more"
@@ -392,14 +393,23 @@ type CommentIntent =
     | "frequency"
     | "whats_included"
     | "how"
+    | "shipping"
+    | "results_timeline"
+    | "who_for"
+    | "comparison"
     | "generic";
 
 function detectCommentIntent(comment: string): CommentIntent {
     const c = comment.toLowerCase().trim();
 
-    // More specific patterns first — "how often" must not fall through to generic "how".
-    if (/\b(how often|how many times|how frequently|how long|dosage|dose|schedule|per day|per week|daily|weekly|times a (day|week)|frequency)\b/.test(c)) {
+    if (/\b(side effects?|adverse|allergic|allergy|safe(?:ty)?|reaction|interact|contraindic|harmful|risk(?:y)?|negative effects?|bad for|make (me )?sick|nausea|headache)\b/.test(c)) {
+        return "side_effects";
+    }
+    if (/\b(how often|how many times|how frequently|dosage|dose|schedule|per day|per week|daily|weekly|times a (day|week)|frequency)\b/.test(c)) {
         return "frequency";
+    }
+    if (/\b(how long|when will|how soon|time to see|see results|start working|how fast|weeks?|months?)\b/.test(c) && /\b(result|work|notice|effect|change)\b/.test(c)) {
+        return "results_timeline";
     }
     if (/\b(cost|price|how much|\$|expensive|cheap|afford|pricing|free trial|subscription)\b/.test(c)) {
         return "price";
@@ -407,7 +417,16 @@ function detectCommentIntent(comment: string): CommentIntent {
     if (/\b(scam|legit|fake|trust|worth it|really work|does it work|does this work|skeptic|real)\b/.test(c)) {
         return "skeptical";
     }
-    if (/\b(what'?s included|what is included|what do (i|you) get|what'?s in|includes?|package|kit contain)\b/.test(c)) {
+    if (/\b(ship|shipping|deliver|delivery|arrive|return policy|refund|money back|guarantee)\b/.test(c)) {
+        return "shipping";
+    }
+    if (/\b(vs\.?|versus|compared to|better than|alternative|instead of|difference between)\b/.test(c)) {
+        return "comparison";
+    }
+    if (/\b(right for me|for me|my age|pregnant|diabetes|condition|who is this for|is this for)\b/.test(c)) {
+        return "who_for";
+    }
+    if (/\b(what'?s included|what is included|what do (i|you) get|what'?s in|includes?|package|kit contain|ingredients?)\b/.test(c)) {
         return "whats_included";
     }
     if (/\b(learn more|more info|details|where (can|do)|website|tell me more|link please)\b/.test(c)) {
@@ -419,10 +438,73 @@ function detectCommentIntent(comment: string): CommentIntent {
     if (/\b(how does|how do|how it works|how this works|what is this|what's this|explain)\b/.test(c)) {
         return "how";
     }
-    if (/^(how|what|why|where|when|who)\b/.test(c)) {
-        return "generic";
-    }
     return "generic";
+}
+
+function cleanSnapshotPhrase(text: string, fallback: string): string {
+    const trimmed = text.replace(/[.]+$/, "").trim();
+    if (!trimmed) return fallback;
+    if (/people looking for results.*people interested in/i.test(trimmed)) return fallback;
+    if (trimmed.length > 100) return trimmed.slice(0, 100).trim().toLowerCase() + "…";
+    return trimmed.toLowerCase();
+}
+
+function summarizeCommentTopic(comment: string): string {
+    const topic = comment.trim().replace(/\?+$/, "").replace(/^["']|["']$/g, "");
+    if (topic.length <= 90) return topic;
+    return topic.slice(0, 90).trim() + "…";
+}
+
+function getIntentAnswerGuidance(intent: CommentIntent, product: string): string {
+    const guidance: Record<CommentIntent, string> = {
+        side_effects:
+            `Acknowledge that reactions vary by person. Do NOT claim "no side effects." Say to check ingredients/cautions on the official page and consult a doctor if they have health conditions or take medication.`,
+        frequency:
+            `Say the recommended schedule is on the product page — do not invent a dosage or frequency.`,
+        price:
+            `Say pricing is on the official page and may vary by package — do not invent a dollar amount.`,
+        skeptical:
+            `Validate their skepticism. Explain what the product is for in plain terms without hype. Invite them to review the page themselves.`,
+        shipping:
+            `Say shipping times and return/refund terms are listed on the official checkout page — do not invent delivery dates.`,
+        results_timeline:
+            `Say timelines vary by person and the product page may note typical expectations — do not promise specific results in X days.`,
+        who_for:
+            `Say who the product is generally aimed at, but recommend they check suitability on the official page and with a professional if health-related.`,
+        comparison:
+            `Do not trash competitors. Briefly note what this product focuses on and suggest they compare details on the official page.`,
+        whats_included:
+            `Say exact contents/ingredients are listed on the official page and can vary by package.`,
+        how:
+            `Give a plain 1-sentence explanation of what the product does, then point to the page for the full walkthrough.`,
+        learn_more:
+            `Briefly say what the product helps with, then share the link.`,
+        beginner:
+            `Confirm whether it's beginner-friendly based on the audience info, without overpromising.`,
+        generic:
+            `Restate their question in your own words in the first sentence, then give a direct helpful answer before mentioning the link.`,
+    };
+    return guidance[intent];
+}
+
+function isDeflectiveReply(reply: string, comment: string): boolean {
+    const r = reply.toLowerCase();
+    const deflectivePatterns = [
+        /clearest answer is on the .* page/,
+        /the details are on the .* page/,
+        /covers a practical solution for people looking for results/,
+        /for people interested in/,
+        /since it covers .* for .*:/,
+    ];
+    if (deflectivePatterns.some((p) => p.test(r))) return true;
+
+    const commentWords = comment.toLowerCase().match(/\b[a-z]{4,}\b/g) || [];
+    const keyWords = [...new Set(commentWords)].filter(
+        (w) => !["does", "have", "what", "this", "that", "with", "about", "any", "there", "they", "your", "from"].includes(w),
+    );
+    if (keyWords.length === 0) return false;
+    const matched = keyWords.filter((w) => r.includes(w));
+    return matched.length === 0;
 }
 
 function buildCommentAwareFallbackReply(
@@ -432,57 +514,86 @@ function buildCommentAwareFallbackReply(
 ): { recommended: string; alternatives: Array<{ style: string; text: string }> } {
     const intent = detectCommentIntent(comment);
     const product = snapshot.productName;
-    const promise = snapshot.mainPromise.replace(/[.]+$/, "").toLowerCase();
+    const topic = summarizeCommentTopic(comment);
     const audience = snapshot.targetAudience.toLowerCase();
-    const benefit = (snapshot.primaryBenefits[0] || "a practical, beginner-friendly approach").replace(/[.]+$/, "").toLowerCase();
-    const pain = (snapshot.painPoints[0] || "getting started").replace(/[.]+$/, "").toLowerCase();
+    const benefit = cleanSnapshotPhrase(
+        snapshot.primaryBenefits[0] || "",
+        "the main benefits listed on the site",
+    );
+    const pain = cleanSnapshotPhrase(snapshot.painPoints[0] || "", "getting started");
     const category = snapshot.category.toLowerCase();
+    const isHealth = /\b(supplement|health|fitness|nutrition|vitamin|amino|weight|muscle|skin|wellness)\b/i.test(category + " " + product);
 
     const byIntent: Record<CommentIntent, string> = {
+        side_effects: isHealth
+            ? `Side effects depend on the person — I can't speak to your specific health situation from a comment. ${product} lists its ingredients and any cautions on the official page; if you're on medication, pregnant, or have allergies, run it by your doctor first. Full details here: ${offerUrl}`
+            : `Good question on safety. I haven't seen widespread issues reported, but everyone's situation is different. Check the official ${product} page for any listed cautions or terms before trying it: ${offerUrl}`,
         frequency:
-            `Great question — the best schedule depends on your setup, and the ${product} page usually spells out the recommended cadence clearly. I wouldn't guess from memory; check the instructions there so you follow what matches the kit: ${offerUrl}`,
+            `For how often to use it, I'd follow whatever schedule ${product} lists on the official page rather than guessing — that's the accurate source for dosage/cadence: ${offerUrl}`,
         price:
-            `Pricing is listed on the official ${product} page (it can change, so the site is the source of truth). It's aimed at ${audience} who want help with ${promise}. Details: ${offerUrl}`,
+            `Pricing can change and may vary by package, so the official ${product} page is the source of truth. It's aimed at ${audience}. Current details: ${offerUrl}`,
         skeptical:
-            `Totally fair to question it. ${product} is a ${category} resource focused on ${benefit} for people dealing with ${pain}. Best move is to skim the page yourself and decide if it fits: ${offerUrl}`,
+            `Fair to be skeptical. ${product} is a ${category} offer focused on ${benefit}. I'd skim the official page yourself and decide if it fits your situation: ${offerUrl}`,
+        shipping:
+            `Shipping times and any return/refund policy are spelled out on the official ${product} checkout page — I wouldn't guess delivery dates from memory: ${offerUrl}`,
+        results_timeline:
+            `Results timing varies a lot person to person, so I wouldn't promise a specific timeline. The ${product} page may note what to expect; worth reading before you commit: ${offerUrl}`,
+        who_for:
+            `${product} is generally aimed at ${audience}, especially if you're dealing with ${pain}. Whether it's right for your specific situation is something the official page (and your doctor, if health-related) can help you judge: ${offerUrl}`,
+        comparison:
+            `Hard to compare without knowing what you're weighing it against. ${product} focuses on ${benefit} — I'd compare the specifics on the official page side by side with whatever else you're considering: ${offerUrl}`,
         learn_more:
-            `Happy to point you in the right direction. ${product} focuses on ${promise} for ${audience}. Here's the full breakdown: ${offerUrl}`,
+            `${product} is built around ${benefit} for ${audience}. Here's the full breakdown on the official page: ${offerUrl}`,
         beginner:
-            `Yes — it's geared toward ${audience}, especially if you're still figuring out ${pain}. ${product} keeps the focus on ${benefit}. More here: ${offerUrl}`,
+            `Yes — it's geared toward ${audience}, especially if you're still figuring out ${pain}. ${product} keeps things focused on ${benefit}. More here: ${offerUrl}`,
         whats_included:
-            `What's inside is listed on the official page (ingredients/modules can vary by package). ${product} is built around ${promise}. See the current contents here: ${offerUrl}`,
+            `Exact contents and ingredients are listed on the official ${product} page (they can vary by package). That's the best place to see what's included: ${offerUrl}`,
         how:
-            `Short version: ${product} is set up to help with ${promise}, with an emphasis on ${benefit}. If you want the step-by-step, the page walks through it here: ${offerUrl}`,
+            `In short, ${product} is designed to help with ${benefit} for ${audience}. The official page walks through how it works step by step: ${offerUrl}`,
         generic:
-            `Good question. On "${comment.slice(0, 100).trim()}${comment.length > 100 ? "…" : ""}" — the clearest answer is on the ${product} page, since it covers ${promise} for ${audience}: ${offerUrl}`,
+            `On "${topic}" — I don't want to guess wrong from a comment. The official ${product} page has the most accurate answer for that, especially around ${benefit}. Check here: ${offerUrl}`,
     };
 
+    const recommended = polishReplyText(byIntent[intent]);
+
     return {
-        recommended: polishReplyText(byIntent[intent]),
+        recommended,
         alternatives: [
             {
                 style: "Shorter",
                 text: polishReplyText(
-                    intent === "frequency"
-                        ? `Check the recommended schedule on the ${product} page — that's the accurate source: ${offerUrl}`
-                        : `Quick answer for that: the details are on the ${product} page → ${offerUrl}`,
+                    intent === "side_effects"
+                        ? `Reactions vary — check ingredients/cautions on the ${product} page and ask your doctor if unsure: ${offerUrl}`
+                        : intent === "frequency"
+                          ? `Follow the schedule on the ${product} page — that's the accurate source: ${offerUrl}`
+                          : `Best answer for that is on the official ${product} page: ${offerUrl}`,
                 ),
             },
             {
                 style: "More casual",
                 text: polishReplyText(
-                    intent === "frequency"
-                        ? `Honestly I'd follow whatever cadence they list for ${product} rather than guessing. It's here: ${offerUrl}`
-                        : `Yeah — for that, ${product} is the resource I'd check. It covers ${promise}. Link: ${offerUrl}`,
+                    intent === "side_effects"
+                        ? `Honestly everyone's different with this stuff — I'd read the ingredients/cautions on ${product}'s page and check with your doc if you have health concerns: ${offerUrl}`
+                        : `Yeah, for that I'd just check the ${product} page directly rather than guessing: ${offerUrl}`,
                 ),
             },
             {
                 style: "More helpful",
-                text: polishReplyText(
-                    `Direct answer to your comment: ${byIntent[intent]}`,
-                ),
+                text: polishReplyText(recommended),
             },
         ],
+    };
+}
+
+function formatSmartReplyResult(
+    recommended: string,
+    alternatives: Array<{ style: string; text: string }>,
+): { recommended: string; alternatives: Array<{ style: string; text: string }> } {
+    return {
+        recommended: safeContent(recommended),
+        alternatives: alternatives
+            .map((a) => ({ style: a.style, text: safeContent(a.text || "") }))
+            .filter((a) => a.text),
     };
 }
 
@@ -492,37 +603,50 @@ export async function generateSmartReply(
     comment: string,
 ): Promise<{ recommended: string; alternatives: Array<{ style: string; text: string }> }> {
     const intent = detectCommentIntent(comment);
-    const prompt = `You are helping an affiliate marketer reply to a real comment under their promotional post.
+    const intentGuidance = getIntentAnswerGuidance(intent, snapshot.productName);
+    const objections = snapshot.objections?.length
+        ? snapshot.objections.join("; ")
+        : "None listed";
 
-THEIR COMMENT (answer this exactly):
+    const prompt = `You are writing a helpful reply to a REAL comment on a social post. Your job is to ANSWER THE QUESTION first — not deflect to a link.
+
+COMMENT TO ANSWER:
 """
 ${comment}
 """
 
-Detected intent: ${intent}
+Question type: ${intent}
+How to answer this type: ${intentGuidance}
 
-Product context (use only as support AFTER answering):
+Product context (supporting info only — answer the comment FIRST):
 - Product: ${snapshot.productName}
 - Category: ${snapshot.category}
 - Audience: ${snapshot.targetAudience}
-- Promise: ${snapshot.mainPromise}
-- Benefits: ${snapshot.primaryBenefits.join("; ")}
-- Pain points: ${snapshot.painPoints.join("; ")}
+- Key benefits: ${snapshot.primaryBenefits.slice(0, 3).join("; ")}
+- Common objections: ${objections}
 - Offer URL: ${offerUrl}
 
-Reply requirements:
-1. First sentence must answer the commenter's question or concern. Do not pitch first.
-2. If you do not know a precise product fact (dosage, exact price, exact contents), say so honestly and point them to the official page — never invent numbers or schedules.
-3. Sound like a helpful peer in a Facebook/Reddit thread: 2–4 short sentences, natural tone.
-4. Mention the product only as a useful resource after the answer, then include the URL once.
-5. Ban generic filler such as "practical solution for people looking for results" or "easy to get started" as empty phrases.
-6. Clean grammar and punctuation. No doubled punctuation like "results.,".
+STRICT RULES:
+1. Sentence 1 MUST directly address their question or concern. Never open with "Good question" followed only by a link.
+2. If you lack a specific fact (exact price, dosage, side effects, shipping time), say so honestly — then tell them where to find it on the official page.
+3. Never invent statistics, testimonials, medical claims, or guaranteed outcomes.
+4. 2–4 sentences total. Sound like a helpful peer on Reddit/Facebook, not a sales bot.
+5. Include the URL once, naturally, at the end.
+6. BANNED phrases: "clearest answer is on the page", "practical solution for people looking for results", "for people interested in", empty marketing filler.
 
-Example quality bar for "How often should I use it?":
-"I'd follow the schedule on the product page rather than guessing — it usually lists the recommended cadence clearly. For ${snapshot.productName}, check here: ${offerUrl}"
+EXAMPLES (match this quality):
+
+Q: "does it have any side effects?"
+A: "Side effects can vary — some people tolerate it fine, others may not. I wouldn't guess on your situation; the official page lists ingredients and any cautions, and your doctor knows your history best if you're on meds. Details here: ${offerUrl}"
+
+Q: "How much does it cost?"
+A: "Pricing depends on the package and can change, so I wouldn't quote a number from memory. The current price is on the official checkout page here: ${offerUrl}"
+
+Q: "Is this a scam?"
+A: "Totally fair to ask — I'd be skeptical too. It's a ${snapshot.category} product aimed at ${snapshot.targetAudience.toLowerCase()}. Worth reading the official page yourself and deciding if it fits: ${offerUrl}"
 
 Return ONLY JSON:
-{"recommended":"best reply that answers the comment","alternatives":[{"style":"Shorter","text":"..."},{"style":"More casual","text":"..."},{"style":"More helpful","text":"..."},{"style":"More persuasive","text":"..."}]}
+{"recommended":"...","alternatives":[{"style":"Shorter","text":"..."},{"style":"More casual","text":"..."},{"style":"More helpful","text":"..."}]}
 
 ${SAFETY_RULES_PROMPT}`;
 
@@ -532,14 +656,25 @@ ${SAFETY_RULES_PROMPT}`;
             recommended: "",
             alternatives: [],
         });
-        if (parsed.recommended?.trim()) {
-            return {
-                recommended: safeContent(parsed.recommended),
-                alternatives: (parsed.alternatives || []).map((a) => ({
-                    style: a.style,
-                    text: safeContent(a.text || ""),
-                })).filter((a) => a.text),
-            };
+        const recommended = parsed.recommended?.trim() || "";
+        if (recommended && !isDeflectiveReply(recommended, comment)) {
+            return formatSmartReplyResult(recommended, parsed.alternatives || []);
+        }
+    } catch { /* retry below */ }
+
+    try {
+        const retryPrompt = `Write a 2–4 sentence reply to this comment: "${comment}"
+
+Product: ${snapshot.productName} (${snapshot.category})
+URL: ${offerUrl}
+
+Rules: Answer their question in the FIRST sentence. If unsure of exact facts, say so honestly. Include URL once at end. No marketing filler.
+
+Return ONLY the reply text, no JSON.`;
+        const raw = await callChatGPT([{ role: "user", content: retryPrompt }]);
+        const text = raw.trim();
+        if (text && !isDeflectiveReply(text, comment)) {
+            return formatSmartReplyResult(text, []);
         }
     } catch { /* fallback */ }
 

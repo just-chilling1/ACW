@@ -31,25 +31,13 @@ export async function POST(req: Request, context: RouteContext) {
       auth.supabase,
       machine.id,
       sourceId,
-      body.submissionPack || body.promotionKit,
+      body.promotionKit,
     );
     const synced = await syncMachineAfterActivation(auth.supabase, machine);
-    const dismissedIds = new Set(
-      synced.activations.filter((a) => a.status === "dismissed").map((a) => a.source_id),
-    );
-    const scored = synced.scored.map((o) => ({
-      ...o,
-      activationStatus: dismissedIds.has(o.source.id)
-        ? ("dismissed" as const)
-        : o.activated
-          ? ("active" as const)
-          : undefined,
-    }));
     const nextAction = buildNextAction(
       synced.machine,
-      scored,
+      synced.scored,
       synced.activations.filter((a) => a.status === "active").length,
-      dismissedIds,
     );
 
     return NextResponse.json({
