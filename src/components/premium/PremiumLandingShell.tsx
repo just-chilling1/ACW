@@ -9,7 +9,10 @@ export type PremiumLandingWidth = "narrow" | "wide";
 type PremiumLandingShellProps = {
   children: ReactNode;
   className?: string;
-  /** narrow = max-w-2xl (tools); wide = max-w-5xl (DFY library) */
+  /**
+   * narrow = max-w-2xl (rare constrained tools)
+   * wide = fill Shell content area with only page margins (default; DFY + all premium landings)
+   */
   width?: PremiumLandingWidth;
   /** Disable entrance motion when nested or already animating */
   animate?: boolean;
@@ -17,17 +20,19 @@ type PremiumLandingShellProps = {
 
 const WIDTH: Record<PremiumLandingWidth, string> = {
   narrow: "max-w-2xl",
-  wide: "max-w-5xl",
+  // Shell already provides max-w-6xl + horizontal padding — don't nest another width/padding island
+  wide: "max-w-none",
 };
 
 export function PremiumLandingShell({
   children,
   className,
-  width = "narrow",
+  width = "wide",
   animate = true,
 }: PremiumLandingShellProps) {
   const classes = clsx(
-    "premium-landing mx-auto flex w-full flex-col gap-6 px-4 py-6 pb-16 sm:px-6 sm:py-8",
+    // Horizontal padding comes from Shell; keep vertical rhythm + bottom clearance for bottom nav
+    "premium-landing mx-auto flex w-full flex-col gap-6 py-0 pb-10 sm:pb-12",
     WIDTH[width],
     className,
   );

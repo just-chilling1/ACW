@@ -40,7 +40,7 @@ export default function DfyLandingPage() {
   };
 
   return (
-    <PremiumLandingShell width="wide">
+    <PremiumLandingShell>
       <PremiumHero
         title={
           <>
