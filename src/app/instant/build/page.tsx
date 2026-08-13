@@ -164,7 +164,7 @@ function BuildContent() {
     };
 
     return (
-        <div className="mx-auto max-w-2xl space-y-6 pb-12">
+        <div className="mx-auto flex w-full max-w-none flex-col gap-6 pb-10 sm:pb-12">
             <PageHeader
                 eyebrow="PREMIUM"
                 title="Create Promotion Kit"

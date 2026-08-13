@@ -32,8 +32,8 @@ export default function ExampleCampaignPage() {
     };
 
     return (
-        <div className="mx-auto max-w-3xl px-4 pb-24 pt-6 sm:px-6 sm:pt-8">
-            <Link href="/dfy" className="mb-4 inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary">
+        <div className="mx-auto flex w-full max-w-none flex-col gap-6 pb-10 sm:pb-12">
+            <Link href="/dfy" className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary">
                 <ArrowLeft size={16} />
                 Back
             </Link>

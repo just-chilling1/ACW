@@ -118,16 +118,16 @@ export default function CampaignWorkspacePage() {
 
     if (!campaign) {
         return (
-            <div className="mx-auto max-w-3xl p-8 text-center">
-                <p className="mb-4 text-text-secondary">Campaign not found.</p>
+            <div className="mx-auto flex w-full max-w-none flex-col items-center gap-4 p-8 text-center">
+                <p className="text-text-secondary">Campaign not found.</p>
                 <Link href="/dfy" className="btn-primary">Back to DFY</Link>
             </div>
         );
     }
 
     return (
-        <div className="mx-auto max-w-3xl px-4 pb-24 pt-6 sm:px-6 sm:pt-8">
-            <Link href="/dfy" className="mb-4 inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary">
+        <div className="mx-auto flex w-full max-w-none flex-col gap-6 pb-10 sm:pb-12">
+            <Link href="/dfy" className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary">
                 <ArrowLeft size={16} />
                 My Campaigns
             </Link>

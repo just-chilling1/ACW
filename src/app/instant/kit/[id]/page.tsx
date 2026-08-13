@@ -392,7 +392,7 @@ export default function KitDashboardPage() {
     const stepPost = step === 3 ? postB || postA : postA;
 
     return (
-        <div className="mx-auto max-w-2xl space-y-5 pb-24">
+        <div className="mx-auto flex w-full max-w-none flex-col gap-5 pb-10 sm:pb-12">
             <Link
                 href="/instant"
                 className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary"
