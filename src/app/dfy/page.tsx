@@ -6,6 +6,8 @@ import { CheckCircle2, Link2, Wand2 } from "lucide-react";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
 import { injectLink } from "@/lib/dfy/humanize";
 import { ReplyCard, type ReplyCardData } from "@/components/dfy/reply-card";
+import { ReplyViewModal } from "@/components/dfy/reply-view-modal";
+import { LinkCombobox } from "@/components/dfy/link-combobox";
 import { DfyVideoSection } from "@/components/dfy/dfy-video-section";
 import {
     PremiumLandingShell,
@@ -46,12 +48,12 @@ const HOW_TO_STEPS = [
     {
         num: "2",
         title: "Pick a niche",
-        desc: "Choose the niche that matches your offer. You’ll get 60 ready replies split into two batches of 30.",
+        desc: "Choose the niche that matches your offer. You’ll get 60 ready replies with varied tones, split into batches of 30.",
     },
     {
         num: "3",
-        title: "Copy and post",
-        desc: "Open the real Reddit thread, paste the reply, and move to the next one. Switch batches when you need fresh copy.",
+        title: "View, copy, mark done",
+        desc: "Open a card, copy the reply into the real Reddit thread, then mark it done so you don’t repeat work.",
     },
 ] as const;
 
@@ -62,8 +64,10 @@ export default function DfyHybridPage() {
     const [selectedLinkId, setSelectedLinkId] = useState<string>("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [seeded, setSeeded] = useState<SeededApiReply[]>([]);
+    const [byNiche, setByNiche] = useState<Partial<Record<NicheId, SeededApiReply[]>>>({});
+    const [doneIds, setDoneIds] = useState<Set<string>>(new Set());
     const [batch, setBatch] = useState(0);
+    const [viewing, setViewing] = useState<ReplyCardData | null>(null);
 
     const loadLinks = useCallback(async () => {
         try {
@@ -81,17 +85,24 @@ export default function DfyHybridPage() {
         }
     }, []);
 
-    const load = useCallback(async (nicheId: NicheId) => {
+    const loadLibrary = useCallback(async () => {
         setLoading(true);
         setError(null);
-        setBatch(0);
         try {
-            const res = await fetch(`/api/dfy/replies/seeded?niche=${encodeURIComponent(nicheId)}&limit=60`);
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Could not load replies.");
-            setSeeded(data.replies || []);
+            const [seedRes, doneRes] = await Promise.all([
+                fetch("/api/dfy/replies/seeded?all=1&limit=60"),
+                fetch("/api/dfy/replies/completions"),
+            ]);
+            const seedData = await seedRes.json();
+            if (!seedRes.ok) throw new Error(seedData.error || "Could not load replies.");
+            setByNiche((seedData.byNiche || {}) as Partial<Record<NicheId, SeededApiReply[]>>);
+
+            if (doneRes.ok) {
+                const doneData = await doneRes.json();
+                setDoneIds(new Set((doneData.replyIds || []) as string[]));
+            }
         } catch (err) {
-            setSeeded([]);
+            setByNiche({});
             setError(err instanceof Error ? err.message : "Could not load replies.");
         } finally {
             setLoading(false);
@@ -100,11 +111,15 @@ export default function DfyHybridPage() {
 
     useEffect(() => {
         void loadLinks();
-    }, [loadLinks]);
+        void loadLibrary();
+    }, [loadLinks, loadLibrary]);
 
     useEffect(() => {
-        void load(niche);
-    }, [niche, load]);
+        setBatch(0);
+    }, [niche]);
+
+    const nicheLabel = APP_NICHES.find((n) => n.id === niche)?.label || "Niche";
+    const seeded = byNiche[niche] || [];
 
     const cards: ReplyCardData[] = useMemo(
         () =>
@@ -116,8 +131,9 @@ export default function DfyHybridPage() {
                 url: row.post.url,
                 body: injectLink(row.body, affiliateLink),
                 style: row.style,
+                nicheLabel,
             })),
-        [seeded, affiliateLink],
+        [seeded, affiliateLink, nicheLabel],
     );
 
     const totalBatches = Math.max(1, Math.ceil(cards.length / PAGE_SIZE));
@@ -126,12 +142,44 @@ export default function DfyHybridPage() {
     const rangeStart = cards.length === 0 ? 0 : safeBatch * PAGE_SIZE + 1;
     const rangeEnd = Math.min((safeBatch + 1) * PAGE_SIZE, cards.length);
 
-    const nicheLabel = APP_NICHES.find((n) => n.id === niche)?.label || "Niche";
-
     const applySavedLink = (linkId: string) => {
         setSelectedLinkId(linkId);
+        if (!linkId) return;
         const match = savedLinks.find((link) => link.id === linkId);
         if (match) setAffiliateLink(match.url);
+    };
+
+    const toggleDone = async (replyId: string) => {
+        const wasDone = doneIds.has(replyId);
+        setDoneIds((prev) => {
+            const next = new Set(prev);
+            if (wasDone) next.delete(replyId);
+            else next.add(replyId);
+            return next;
+        });
+
+        try {
+            const res = wasDone
+                ? await fetch(`/api/dfy/replies/completions?replyId=${encodeURIComponent(replyId)}`, {
+                      method: "DELETE",
+                  })
+                : await fetch("/api/dfy/replies/completions", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ replyId }),
+                  });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error || "Could not update done state.");
+            }
+        } catch {
+            setDoneIds((prev) => {
+                const next = new Set(prev);
+                if (wasDone) next.add(replyId);
+                else next.delete(replyId);
+                return next;
+            });
+        }
     };
 
     return (
@@ -167,7 +215,7 @@ export default function DfyHybridPage() {
 
             <PremiumSection
                 title="Setup"
-                description="Add your link, then pick a niche. Replies update below."
+                description="Add your link, then pick a niche. Switching niches is instant after the first load."
             >
                 <div className="dfy-setup-panel space-y-5">
                     <div className="space-y-2">
@@ -185,24 +233,11 @@ export default function DfyHybridPage() {
                         </div>
 
                         {savedLinks.length > 0 ? (
-                            <div className="space-y-1.5">
-                                <label className="text-sm font-medium text-text-primary" htmlFor="dfy-saved-link">
-                                    Use a saved link
-                                </label>
-                                <select
-                                    id="dfy-saved-link"
-                                    className="input-base w-full"
-                                    value={selectedLinkId}
-                                    onChange={(e) => applySavedLink(e.target.value)}
-                                >
-                                    <option value="">Paste manually below…</option>
-                                    {savedLinks.map((link) => (
-                                        <option key={link.id} value={link.id}>
-                                            {link.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                            <LinkCombobox
+                                links={savedLinks}
+                                value={selectedLinkId}
+                                onChange={applySavedLink}
+                            />
                         ) : null}
 
                         <Field
@@ -240,7 +275,7 @@ export default function DfyHybridPage() {
                 title={`${nicheLabel} replies`}
                 description={
                     loading
-                        ? "Loading…"
+                        ? "Loading library…"
                         : cards.length === 0
                           ? "No replies yet."
                           : `Showing ${rangeStart}–${rangeEnd} of ${cards.length}`
@@ -260,9 +295,15 @@ export default function DfyHybridPage() {
                         <p>Prefer something tailored? Create a custom reply below.</p>
                     </div>
                 ) : (
-                    <div className="grid gap-4">
+                    <div className="dfy-reply-grid">
                         {visibleCards.map((card) => (
-                            <ReplyCard key={card.id} reply={card} />
+                            <ReplyCard
+                                key={card.id}
+                                reply={card}
+                                done={doneIds.has(card.id)}
+                                onView={setViewing}
+                                onToggleDone={toggleDone}
+                            />
                         ))}
                     </div>
                 )}
@@ -291,6 +332,13 @@ export default function DfyHybridPage() {
                     </Link>
                 </div>
             </PremiumSection>
+
+            <ReplyViewModal
+                reply={viewing}
+                done={viewing ? doneIds.has(viewing.id) : false}
+                onClose={() => setViewing(null)}
+                onToggleDone={toggleDone}
+            />
         </PremiumLandingShell>
     );
 }

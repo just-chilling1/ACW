@@ -1792,6 +1792,24 @@ html[data-sidebar="collapsed"] {
   background: var(--accent-bg-subtle);
 }
 
+.dfy-theme .dfy-reply-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .dfy-theme .dfy-reply-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .dfy-theme .dfy-reply-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .dfy-theme .dfy-reply-card {
   border-radius: var(--radius-2xl);
   border: 1px solid var(--border-strong);
@@ -1802,6 +1820,12 @@ html[data-sidebar="collapsed"] {
       var(--surface-1) 100%
     );
   box-shadow: var(--elevation-1);
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.dfy-theme .dfy-reply-card--done {
+  opacity: 0.55;
+  border-color: color-mix(in srgb, var(--gold-text) 35%, var(--border-strong));
 }
 
 .dfy-theme .dfy-reply-body {

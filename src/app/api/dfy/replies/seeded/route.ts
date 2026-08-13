@@ -1,16 +1,31 @@
 import { NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
-import { fetchSeededReplies } from "@/lib/dfy/seed-posts";
+import { fetchAllSeededReplies, fetchSeededReplies } from "@/lib/dfy/seed-posts";
 
 export async function GET(req: Request) {
     const auth = await requireApiUser();
     if (auth.unauthorized) return auth.unauthorized;
 
     const { searchParams } = new URL(req.url);
-    const niche = clampString(searchParams.get("niche"), 64) as NicheId;
+    const all = searchParams.get("all") === "1" || searchParams.get("all") === "true";
     const limitRaw = Number(searchParams.get("limit") || 60);
     const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 60) : 60;
+
+    if (all) {
+        const byNiche = await fetchAllSeededReplies(auth.supabase, limit);
+        const counts = Object.fromEntries(
+            APP_NICHES.map((n) => [n.id, byNiche[n.id]?.length || 0]),
+        );
+        return NextResponse.json({
+            all: true,
+            limitPerNiche: limit,
+            counts,
+            byNiche,
+        });
+    }
+
+    const niche = clampString(searchParams.get("niche"), 64) as NicheId;
 
     if (!APP_NICHES.some((n) => n.id === niche)) {
         return NextResponse.json({ error: "Invalid niche." }, { status: 400 });

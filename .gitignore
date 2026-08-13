@@ -47,3 +47,7 @@ next-env.d.ts
 # macOS AppleDouble files
 ._*
 **/._*
+
+# Generated DFY seed SQL (local only)
+scripts/.tmp-dfy-seed-sql/
+scripts/.tmp-dfy-batches/

@@ -1,7 +1,22 @@
 export function parseJsonFromLlm<T>(raw: string, fallback: T): T {
     if (!raw || typeof raw !== "string") return fallback;
 
-    const cleaned = raw.replace(/```json|```/g, "").trim();
+    let cleaned = raw.replace(/```json|```/g, "").trim();
+
+    // RapidAPI chatgpt-42 often wraps JSON as {"result":"{...}"} or a stringified JSON blob.
+    try {
+        const outer = JSON.parse(cleaned) as unknown;
+        if (outer && typeof outer === "object" && "result" in (outer as object)) {
+            const result = (outer as { result: unknown }).result;
+            if (typeof result === "string") cleaned = result.replace(/```json|```/g, "").trim();
+            else if (result && typeof result === "object") return result as T;
+        } else if (outer && typeof outer === "object") {
+            return outer as T;
+        }
+    } catch {
+        /* fall through — extract embedded JSON */
+    }
+
     try {
         return JSON.parse(cleaned) as T;
     } catch {

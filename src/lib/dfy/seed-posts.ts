@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { NicheId } from "@/lib/niches";
+import { APP_NICHES, type NicheId } from "@/lib/niches";
 import { isRealPostUrl, normalizePostUrl } from "./post-url";
 import type { SocialPost } from "./types";
 
@@ -139,4 +139,20 @@ export async function fetchSeededReplies(
     }
 
     return rows.slice(0, limit);
+}
+
+/** Load seeded replies for every app niche (browse preload). */
+export async function fetchAllSeededReplies(
+    supabase: SupabaseClient,
+    limitPerNiche = 60,
+): Promise<Record<NicheId, SeededReplyRow[]>> {
+    const out = {} as Record<NicheId, SeededReplyRow[]>;
+
+    await Promise.all(
+        APP_NICHES.map(async (niche) => {
+            out[niche.id] = await fetchSeededReplies(supabase, niche.id, limitPerNiche);
+        }),
+    );
+
+    return out;
 }
