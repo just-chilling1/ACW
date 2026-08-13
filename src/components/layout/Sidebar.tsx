@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   LayoutGrid, Radar, LogOut, ChevronRight, GraduationCap, Sparkles,
-  Search, MessageSquare, Brain, ExternalLink,
+  Search, MessageSquare, Brain, ExternalLink, Link2,
   PanelLeftClose, PanelLeftOpen, Lock, Check, HelpCircle,
   type LucideIcon,
 } from "lucide-react";
@@ -37,7 +37,10 @@ type NavSection = {
 const NAV_SECTIONS: NavSection[] = [
   {
     label: "Dashboard",
-    items: [{ path: "/dashboard", label: "Home", icon: LayoutGrid }],
+    items: [
+      { path: "/dashboard", label: "Home", icon: LayoutGrid },
+      { path: "/links", label: "Links Library", icon: Link2 },
+    ],
   },
   {
     label: "Generate",

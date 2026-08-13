@@ -7,6 +7,7 @@ import { BottomNav } from "./bottom-nav";
 import { SupportBanner } from "../dashboard/SupportBanner";
 import { SpecialistWelcomePopup } from "../ui/specialist-welcome-popup";
 import { BrandLogo } from "@/components/ui/brand-logo";
+import { clsx } from "clsx";
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -18,6 +19,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/dev/") ||
     pathname.startsWith("/embed/");
+  const isDfyPage = pathname.startsWith("/dfy");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
@@ -59,7 +61,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <BrandLogo variant="wordmark" size="xs" priority />
         </div>
 
-        <div className="mx-auto flex min-h-full w-full min-w-0 max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-16 lg:pt-10">
+        <div
+          className={clsx(
+            "mx-auto flex min-h-full w-full min-w-0 max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-16 lg:pt-10",
+            isDfyPage && "dfy-theme",
+          )}
+        >
           {children}
           <div className="mt-auto pt-12">
             <SupportBanner />

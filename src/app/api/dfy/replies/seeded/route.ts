@@ -21,5 +21,9 @@ export async function GET(req: Request) {
         niche,
         count: replies.length,
         replies,
+        emptyHint:
+            replies.length === 0
+                ? "No seeded replies for this niche yet. Seed dfy_seed_replies (not only posts), and ensure SUPABASE_SERVICE_ROLE_KEY matches NEXT_PUBLIC_SUPABASE_URL."
+                : undefined,
     });
 }

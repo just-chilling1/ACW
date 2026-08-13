@@ -9,6 +9,30 @@ import { createClient } from "@supabase/supabase-js";
 config({ path: resolve(process.cwd(), ".env.local") });
 config({ path: resolve(process.cwd(), ".env") });
 
+function assertSupabaseServiceRoleMatchesUrl(url, serviceKey) {
+  let urlRef = "";
+  try {
+    urlRef = new URL(url).hostname.split(".")[0] || "";
+  } catch {
+    throw new Error(`Invalid NEXT_PUBLIC_SUPABASE_URL: ${url}`);
+  }
+
+  let serviceRef = "";
+  try {
+    const payload = JSON.parse(Buffer.from(serviceKey.split(".")[1] || "", "base64url").toString("utf8"));
+    serviceRef = typeof payload.ref === "string" ? payload.ref : "";
+  } catch {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY is not a valid JWT");
+  }
+
+  if (!urlRef || !serviceRef || urlRef !== serviceRef) {
+    throw new Error(
+      `Supabase project mismatch: URL is "${urlRef}" but SUPABASE_SERVICE_ROLE_KEY is for "${serviceRef || "unknown"}". ` +
+        `Update SUPABASE_SERVICE_ROLE_KEY in .env.local to the service_role key from the same project as NEXT_PUBLIC_SUPABASE_URL (${urlRef}).`,
+    );
+  }
+}
+
 // Inline curated real Reddit permalinks for bootstrap.
 const rows = [
   // weight_loss
@@ -90,6 +114,13 @@ async function main() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (!url || !key) {
     console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+    process.exit(1);
+  }
+
+  try {
+    assertSupabaseServiceRoleMatchesUrl(url, key);
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : err);
     process.exit(1);
   }
 

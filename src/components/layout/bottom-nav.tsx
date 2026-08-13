@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     LayoutGrid, Search, Radar, MessageSquare, MoreHorizontal,
-    Brain, GraduationCap, Sparkles,
+    Brain, GraduationCap, Sparkles, Link2,
     LogOut, ExternalLink, X, Headphones, ChevronRight, Lock
 } from "lucide-react";
 import { clsx } from "clsx";
@@ -24,6 +24,7 @@ const MAIN_TABS = [
 
 const MORE_NAV = [
     { path: "/analysis", label: "Step 2: Check Demand", icon: Brain, requiresWorkflowStep: 1 },
+    { path: "/links", label: "Links Library", icon: Link2 },
     { path: "/training", label: "Training", icon: GraduationCap },
     { path: "/support", label: "Support", icon: Headphones },
 ];

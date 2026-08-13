@@ -13,8 +13,8 @@ export function DfyVideoSection({ className, compact }: DfyVideoSectionProps) {
   return (
     <TutorialVideoSection
       videoId={DFY_VIDEO_ID}
-      title="How to Build Your Campaign"
-      description="Watch this quick walkthrough to paste your offer, pick your niche audience, and let Cashwave build your full promotional campaign."
+      title="How to Use DFY Replies"
+      description="Watch this quick walkthrough to save your offer link, pick your niche, and copy ready-made replies onto real Reddit threads."
       className={className}
       compact={compact}
     />
