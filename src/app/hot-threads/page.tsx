@@ -1,13 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { RefreshCw } from "lucide-react";
 import { TutorialVideoSection } from "@/components/ui/tutorial-video-section";
-import { useSearch } from "@/context/SearchContext";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
 import type { HotThreadItem, HotThreadPackResponse } from "@/lib/hot-threads/types";
 import { NichePicker } from "@/components/ui/niche-picker";
-import { RefreshCountdown } from "@/components/hot-threads/RefreshCountdown";
 import { HotThreadCard } from "@/components/hot-threads/HotThreadCard";
 import {
   PremiumLandingShell,
@@ -30,11 +27,9 @@ function readStoredNiche(): NicheId {
 }
 
 export default function HotThreadsPage() {
-  const { affiliateLink } = useSearch();
   const [niche, setNiche] = useState<NicheId>("make_money_online");
   const [pack, setPack] = useState<HotThreadPackResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
@@ -43,45 +38,28 @@ export default function HotThreadsPage() {
     setHydrated(true);
   }, []);
 
-  const loadPack = useCallback(
-    async (nextNiche: NicheId, opts?: { force?: boolean }) => {
-      setError(null);
-      if (opts?.force) setRefreshing(true);
-      else setLoading(true);
+  const loadPack = useCallback(async (nextNiche: NicheId) => {
+    setError(null);
+    setLoading(true);
 
-      try {
-        const params = new URLSearchParams({ niche: nextNiche });
-        if (affiliateLink) params.set("affiliateLink", affiliateLink);
+    try {
+      const params = new URLSearchParams({ niche: nextNiche });
+      const res = await fetch(`/api/hot-threads?${params.toString()}`);
 
-        const url = opts?.force
-          ? "/api/hot-threads/refresh"
-          : `/api/hot-threads?${params.toString()}`;
-
-        const res = opts?.force
-          ? await fetch(url, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ niche: nextNiche, affiliateLink: affiliateLink || "" }),
-            })
-          : await fetch(url);
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "Failed to load");
-        }
-
-        const data = (await res.json()) as HotThreadPackResponse;
-        setPack(data);
-      } catch {
-        setError("We couldn't load today's hot threads. Please try again.");
-        setPack(null);
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to load");
       }
-    },
-    [affiliateLink],
-  );
+
+      const data = (await res.json()) as HotThreadPackResponse;
+      setPack(data);
+    } catch {
+      setError("We couldn't load today's hot threads. Please try again.");
+      setPack(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -92,9 +70,6 @@ export default function HotThreadsPage() {
     }
     loadPack(niche);
   }, [hydrated, niche, loadPack]);
-
-  const expiresSoon =
-    pack?.expiresAt && new Date(pack.expiresAt).getTime() - Date.now() <= 0;
 
   const items: HotThreadItem[] = pack?.items || [];
 
@@ -115,26 +90,10 @@ export default function HotThreadsPage() {
       />
 
       <PremiumSection step={1} title="Choose your niche">
-        <NichePicker value={niche} onChange={setNiche} disabled={loading || refreshing} />
+        <NichePicker value={niche} onChange={setNiche} disabled={loading} />
       </PremiumSection>
 
-      <PremiumSection
-        step={2}
-        title="Today's hot threads"
-        meta={pack?.expiresAt ? <RefreshCountdown expiresAt={pack.expiresAt} /> : null}
-      >
-        {expiresSoon ? (
-          <button
-            type="button"
-            disabled={refreshing}
-            onClick={() => loadPack(niche, { force: true })}
-            className="btn-secondary w-fit"
-          >
-            <RefreshCw size={14} className={refreshing ? "animate-spin" : undefined} />
-            {refreshing ? "Refreshing…" : "Refresh threads"}
-          </button>
-        ) : null}
-
+      <PremiumSection step={2} title="Today's hot threads">
         {error ? (
           <PremiumStateBlock
             variant="error"
@@ -148,7 +107,7 @@ export default function HotThreadsPage() {
         {!loading && !error && items.length === 0 ? (
           <PremiumStateBlock
             variant="empty"
-            message="No threads yet for this niche. Try refresh in a moment."
+            message="No threads yet for this niche. Try again in a moment."
           />
         ) : null}
 

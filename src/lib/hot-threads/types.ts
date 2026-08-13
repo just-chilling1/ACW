@@ -1,6 +1,8 @@
 import type { NicheId } from "@/lib/niches";
 
 export const LINK_PLACEHOLDER = "__LINK__";
+/** Visible cue in replies — user pastes their affiliate URL when posting. */
+export const DISPLAY_LINK_LABEL = "Your link";
 export const TARGET_PACK_SIZE = 5;
 export const MIN_PACK_SIZE = 4;
 export const PACK_TTL_MS = 24 * 60 * 60 * 1000;

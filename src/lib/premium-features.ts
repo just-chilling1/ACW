@@ -39,7 +39,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     {
         path: "/vault",
         label: "Quora + Pinterest Vault",
-        description: "160 ready-to-post answers and pins for your niche.",
+        description: "Generate Quora answers and Pinterest pins for your offer.",
         icon: Library,
     },
     {

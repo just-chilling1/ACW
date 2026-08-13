@@ -1,15 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Check, Copy, ExternalLink, Flame } from "lucide-react";
 import { clsx } from "clsx";
 import { PlatformBadge } from "@/components/ui/platform-badge";
-import { HOT_THREAD_REPLY_STYLES, type HotThreadItem } from "@/lib/hot-threads/types";
+import {
+  DISPLAY_LINK_LABEL,
+  HOT_THREAD_REPLY_STYLES,
+  LINK_PLACEHOLDER,
+  type HotThreadItem,
+} from "@/lib/hot-threads/types";
 
 interface HotThreadCardProps {
   item: HotThreadItem;
   index: number;
   featured?: boolean;
+}
+
+function normalizeReplyForDisplay(reply: string): string {
+  return reply.split(LINK_PLACEHOLDER).join(DISPLAY_LINK_LABEL);
+}
+
+function renderReplyWithLinkCue(reply: string): ReactNode {
+  const text = normalizeReplyForDisplay(reply);
+  const parts = text.split(DISPLAY_LINK_LABEL);
+  if (parts.length === 1) return text;
+
+  return parts.map((part, i) => (
+    <span key={i}>
+      {part}
+      {i < parts.length - 1 ? (
+        <mark className="rounded-[var(--radius-sm)] bg-[var(--accent-bg-faint)] px-1 py-0.5 font-semibold text-[var(--gold-text)] not-italic">
+          {DISPLAY_LINK_LABEL}
+        </mark>
+      ) : null}
+    </span>
+  ));
 }
 
 export function HotThreadCard({ item, index, featured = false }: HotThreadCardProps) {
@@ -20,8 +46,9 @@ export function HotThreadCard({ item, index, featured = false }: HotThreadCardPr
   const replies = item.replies?.length ? item.replies : ["No reply available yet."];
   const styles = HOT_THREAD_REPLY_STYLES.slice(0, replies.length);
   const safeIndex = Math.min(replyIndex, replies.length - 1);
-  const activeReply = replies[safeIndex];
+  const activeReply = normalizeReplyForDisplay(replies[safeIndex]);
   const activeStyle = styles[safeIndex] ?? HOT_THREAD_REPLY_STYLES[0];
+  const hasLinkCue = activeReply.includes(DISPLAY_LINK_LABEL);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(activeReply);
@@ -123,9 +150,19 @@ export function HotThreadCard({ item, index, featured = false }: HotThreadCardPr
           </div>
         ) : null}
 
-        <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 sm:p-4">
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">{activeReply}</p>
+        <div className="rounded-[var(--radius-md)] border border-[var(--accent-border-soft)] bg-[var(--surface-2)] p-3 sm:p-4">
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
+            {renderReplyWithLinkCue(replies[safeIndex])}
+          </p>
         </div>
+
+        {hasLinkCue ? (
+          <p className="text-xs text-text-muted">
+            When you post, replace{" "}
+            <span className="font-semibold text-[var(--gold-text)]">{DISPLAY_LINK_LABEL}</span> with
+            your affiliate URL.
+          </p>
+        ) : null}
 
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={handleCopy} className="btn-primary w-fit">

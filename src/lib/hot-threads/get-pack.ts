@@ -1,7 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getNicheById, type NicheId } from "@/lib/niches";
 import { buildQuickHotThreadPack, enrichHotThreadPack } from "./build-pack";
-import { isQuickPack, type HotThreadPackResponse, type HotThreadPackRow } from "./types";
+import {
+  DISPLAY_LINK_LABEL,
+  isQuickPack,
+  type HotThreadPackResponse,
+  type HotThreadPackRow,
+} from "./types";
 import { expiresAtFrom, isStale, substituteLinksInItems } from "./ttl";
 
 function asPackRow(row: {
@@ -20,13 +25,14 @@ function asPackRow(row: {
   };
 }
 
-function toResponse(pack: HotThreadPackRow, affiliateLink: string, upgrading?: boolean): HotThreadPackResponse {
+function toResponse(pack: HotThreadPackRow, _affiliateLink?: string, upgrading?: boolean): HotThreadPackResponse {
   return {
     nicheId: String(pack.niche_id),
     packDate: pack.pack_date,
     refreshedAt: pack.refreshed_at,
     expiresAt: expiresAtFrom(pack.refreshed_at),
-    items: substituteLinksInItems(pack.items, affiliateLink),
+    // Always surface a manual paste cue — users add their URL when posting.
+    items: substituteLinksInItems(pack.items, DISPLAY_LINK_LABEL),
     ...(upgrading ? { upgrading: true } : {}),
   };
 }
