@@ -7,7 +7,7 @@ import { APP_NICHES, type NicheId } from "@/lib/niches";
 import { ReplyCard, type ReplyCardData } from "@/components/dfy/reply-card";
 import { PremiumLandingShell } from "@/components/premium";
 import { Field } from "@/components/ui/field";
-import { InlineError } from "@/components/ui/inlineError";
+import { InlineError } from "@/components/ui/InlineError";
 import { SelectableChip } from "@/components/ui/selectable-chip";
 
 type GeneratedReply = {
