@@ -63,6 +63,29 @@ export function sanitizePosts(posts: any[]): any[] {
     });
 }
 
+/** After RapidAPI 429/401/403, skip paid Reddit/YouTube so we don't keep hammering a dead quota. */
+let rapidApiCooldownUntil = 0;
+
+function markRapidApiUnavailable(source: string, status: number) {
+    // 401/403 usually won't recover in-process; 429 gets a cooldown window.
+    const ms = status === 429 ? 10 * 60 * 1000 : 60 * 60 * 1000;
+    rapidApiCooldownUntil = Date.now() + ms;
+    console.warn(`[SEARCH] RapidAPI unavailable via ${source} (HTTP ${status}); skipping paid search for ${Math.round(ms / 60000)}m`);
+}
+
+function isRapidApiCoolingDown(): boolean {
+    return Date.now() < rapidApiCooldownUntil;
+}
+
+function keywordMatchesPost(keyword: string, title: string, text: string): boolean {
+    const needle = keyword.toLowerCase().trim();
+    if (!needle) return true;
+    const titleL = title.toLowerCase();
+    // Multi-word queries must hit the title — body-only phrase matches are usually incidental.
+    if (/\s/.test(needle)) return titleL.includes(needle);
+    return titleL.includes(needle) || text.toLowerCase().includes(needle);
+}
+
 // ─── Strategy 1: ScraperAPI (Google scrape) ─────────────────────────
 async function fetchViaScraperAPI(keyword: string): Promise<any[]> {
     const scraperKey = (process.env.SCRAPERAPI_KEY || process.env.SCRAPER_API_KEY)?.trim();
@@ -119,6 +142,10 @@ async function fetchRedditViaRapidAPI(keyword: string): Promise<any[]> {
     const host = process.env.RAPIDAPI_HOST_REDDIT?.trim();
     if (!key || !host) throw new Error("Missing RapidAPI Reddit credentials");
 
+    if (isRapidApiCoolingDown()) {
+        throw new Error("RapidAPI Reddit skipped (cooling down after 429)");
+    }
+
     console.log(`[SEARCH] Strategy 2: RapidAPI Reddit for "${keyword}"`);
     const url = `https://${host}/search?query=${encodeURIComponent(keyword)}&sort=relevance&time=year`;
     const response = await fetch(url, {
@@ -129,6 +156,10 @@ async function fetchRedditViaRapidAPI(keyword: string): Promise<any[]> {
         cache: "no-store",
     });
 
+    if (response.status === 401 || response.status === 403 || response.status === 429) {
+        markRapidApiUnavailable("Reddit", response.status);
+        throw new Error(`RapidAPI Reddit status: ${response.status}`);
+    }
     if (!response.ok) throw new Error(`RapidAPI Reddit status: ${response.status}`);
     const data = await response.json();
 
@@ -177,6 +208,10 @@ async function fetchYouTubeViaRapidAPI(keyword: string): Promise<any[]> {
     const host = process.env.RAPIDAPI_HOST_YOUTUBE?.trim();
     if (!key || !host) throw new Error("Missing RapidAPI YouTube credentials");
 
+    if (isRapidApiCoolingDown()) {
+        throw new Error("RapidAPI YouTube skipped (cooling down after 429)");
+    }
+
     console.log(`[SEARCH] Strategy 3: RapidAPI YouTube for "${keyword}"`);
     const url = `https://${host}/search?query=${encodeURIComponent(keyword)}&sort=relevance`;
     const response = await fetch(url, {
@@ -187,6 +222,10 @@ async function fetchYouTubeViaRapidAPI(keyword: string): Promise<any[]> {
         cache: "no-store",
     });
 
+    if (response.status === 401 || response.status === 403 || response.status === 429) {
+        markRapidApiUnavailable("YouTube", response.status);
+        throw new Error(`RapidAPI YouTube status: ${response.status}`);
+    }
     if (!response.ok) throw new Error(`RapidAPI YouTube status: ${response.status}`);
     const data = await response.json();
 
@@ -214,50 +253,133 @@ async function fetchYouTubeViaRapidAPI(keyword: string): Promise<any[]> {
     return videos.slice(0, 15);
 }
 
+// ─── Strategy 4: PullPush (free Reddit archive — no API key) ────────
+async function pullPushQuery(q: string): Promise<any[]> {
+    const url =
+        `https://api.pullpush.io/reddit/search/submission/` +
+        `?q=${encodeURIComponent(q)}&size=50&sort=desc&sort_type=score`;
+
+    const response = await fetch(url, {
+        headers: {
+            Accept: "application/json",
+            "User-Agent": "AICashWave/1.0 (local search; support@reliteagency.com)",
+        },
+        cache: "no-store",
+    });
+
+    if (!response.ok) throw new Error(`PullPush status: ${response.status}`);
+    const data = await response.json();
+    return Array.isArray(data?.data) ? data.data : [];
+}
+
+async function fetchRedditViaPullPush(keyword: string): Promise<any[]> {
+    console.log(`[SEARCH] Strategy 4: PullPush Reddit for "${keyword}"`);
+    const trimmed = keyword.trim();
+    // Quote multi-word queries first so PullPush prefers phrase matches.
+    const primaryQ = /\s/.test(trimmed) ? `"${trimmed}"` : trimmed;
+    let items = await pullPushQuery(primaryQ);
+    if (items.length < 5 && primaryQ !== trimmed) {
+        items = [...items, ...(await pullPushQuery(trimmed))];
+    }
+
+    const seen = new Set<string>();
+    const posts = items
+        .filter((d: any) => !d?.over_18)
+        .map((d: any) => {
+            const permalink = d.permalink
+                ? (String(d.permalink).startsWith("http")
+                    ? d.permalink
+                    : `https://www.reddit.com${d.permalink}`)
+                : "";
+            const postUrl = normalizePostUrl(permalink || "");
+            const title = String(d.title || "");
+            const text = String(d.selftext || d.title || "");
+            return {
+                id: generateStableId(postUrl || String(d.id || ""), Math.random().toString(36).substring(2, 10)),
+                platform: "Reddit",
+                title,
+                text,
+                url: postUrl,
+                engagement: Number(d.score || d.ups) || Math.floor(Math.random() * 200) + 10,
+            };
+        })
+        .filter((p: any) => {
+            if (!isRealPostUrl(p.url) || !keywordMatchesPost(keyword, p.title, p.text)) return false;
+            if (seen.has(p.url)) return false;
+            seen.add(p.url);
+            return true;
+        });
+
+    if (posts.length === 0) throw new Error("PullPush Reddit: 0 relevant results");
+    return posts.slice(0, 20);
+}
+
 // ─── Main: Try all strategies with graceful fallback ────────────────
 export async function searchSocialData(keyword: string) {
-    // Strategy 1: ScraperAPI (Google scrape)
+    const hasScraperKey = Boolean(
+        (process.env.SCRAPERAPI_KEY || process.env.SCRAPER_API_KEY)?.trim()
+    );
+
+    // Strategy 1: ScraperAPI (Google scrape) — only when keyed
+    if (hasScraperKey) {
+        try {
+            const results = await fetchViaScraperAPI(keyword);
+            const sanitized = sanitizePosts(results).filter((p) => isRealPostUrl(p.url));
+            if (sanitized.length > 0) {
+                console.log(`[SEARCH] ✅ ScraperAPI returned ${sanitized.length} real posts`);
+                return sanitized.sort((a, b) => b.engagement - a.engagement);
+            }
+        } catch (e: any) {
+            console.warn(`[SEARCH] ⚠️ ScraperAPI failed: ${e.message}`);
+        }
+    } else {
+        console.log(`[SEARCH] Skipping ScraperAPI (no SCRAPERAPI_KEY)`);
+    }
+
+    // Strategy 2+3: RapidAPI Reddit + YouTube (skip while cooling down after 429)
+    const combined: any[] = [];
+    if (!isRapidApiCoolingDown()) {
+        console.log(`[SEARCH] Falling back to RapidAPI direct search...`);
+        const [redditResult, youtubeResult] = await Promise.allSettled([
+            fetchRedditViaRapidAPI(keyword),
+            fetchYouTubeViaRapidAPI(keyword),
+        ]);
+
+        if (redditResult.status === "fulfilled") {
+            combined.push(...redditResult.value);
+            console.log(`[SEARCH] ✅ Reddit returned ${redditResult.value.length} results`);
+        } else {
+            console.warn(`[SEARCH] ⚠️ Reddit failed: ${(redditResult as any).reason?.message}`);
+        }
+
+        if (youtubeResult.status === "fulfilled") {
+            combined.push(...youtubeResult.value);
+            console.log(`[SEARCH] ✅ YouTube returned ${youtubeResult.value.length} results`);
+        } else {
+            console.warn(`[SEARCH] ⚠️ YouTube failed: ${(youtubeResult as any).reason?.message}`);
+        }
+    } else {
+        console.log(`[SEARCH] Skipping RapidAPI (unavailable / cooling down)`);
+    }
+
+    if (combined.length > 0) {
+        const sanitized = sanitizePosts(combined).filter((p) => isRealPostUrl(p.url));
+        if (sanitized.length > 0) {
+            return sanitized.sort((a, b) => b.engagement - a.engagement);
+        }
+    }
+
+    // Strategy 4: free PullPush archive when paid APIs are missing/throttled
     try {
-        const results = await fetchViaScraperAPI(keyword);
+        const results = await fetchRedditViaPullPush(keyword);
         const sanitized = sanitizePosts(results).filter((p) => isRealPostUrl(p.url));
         if (sanitized.length > 0) {
-            console.log(`[SEARCH] ✅ ScraperAPI returned ${sanitized.length} real posts`);
+            console.log(`[SEARCH] ✅ PullPush returned ${sanitized.length} real posts`);
             return sanitized.sort((a, b) => b.engagement - a.engagement);
         }
     } catch (e: any) {
-        console.warn(`[SEARCH] ⚠️ ScraperAPI failed: ${e.message}`);
+        console.warn(`[SEARCH] ⚠️ PullPush failed: ${e.message}`);
     }
 
-    // Strategy 2: RapidAPI Reddit + YouTube in parallel
-    console.log(`[SEARCH] Falling back to RapidAPI direct search...`);
-    const combined: any[] = [];
-
-    const [redditResult, youtubeResult] = await Promise.allSettled([
-        fetchRedditViaRapidAPI(keyword),
-        fetchYouTubeViaRapidAPI(keyword),
-    ]);
-
-    if (redditResult.status === "fulfilled") {
-        combined.push(...redditResult.value);
-        console.log(`[SEARCH] ✅ Reddit returned ${redditResult.value.length} results`);
-    } else {
-        console.warn(`[SEARCH] ⚠️ Reddit failed: ${(redditResult as any).reason?.message}`);
-    }
-
-    if (youtubeResult.status === "fulfilled") {
-        combined.push(...youtubeResult.value);
-        console.log(`[SEARCH] ✅ YouTube returned ${youtubeResult.value.length} results`);
-    } else {
-        console.warn(`[SEARCH] ⚠️ YouTube failed: ${(youtubeResult as any).reason?.message}`);
-    }
-
-    if (combined.length === 0) {
-        throw new Error("All search strategies failed. No results available.");
-    }
-
-    const sanitized = sanitizePosts(combined).filter((p) => isRealPostUrl(p.url));
-    if (sanitized.length === 0) {
-        throw new Error("All search strategies failed. No real post URLs available.");
-    }
-    return sanitized.sort((a, b) => b.engagement - a.engagement);
+    throw new Error("All search strategies failed. No real post URLs available.");
 }

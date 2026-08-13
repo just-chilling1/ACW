@@ -12,6 +12,7 @@ import {
     humanizeText,
     injectLink,
 } from "./humanize";
+import { getFallbackPostsForNiche } from "./search-fallbacks";
 import { fetchSeedPostsForNiche } from "./seed-posts";
 import type { OfferSnapshot, SocialPost } from "./types";
 
@@ -92,6 +93,18 @@ async function discoverRealPosts(
             if (seen.has(post.url)) continue;
             seen.add(post.url);
             collected.push(post);
+            if (collected.length >= limit) break;
+        }
+    }
+
+    // Last resort: curated real permalinks so custom generation never hard-fails
+    // when live search and DB seeds are empty (common on fresh deploys).
+    if (collected.length < limit) {
+        for (const post of getFallbackPostsForNiche(nicheId)) {
+            const url = normalizePostUrl(post.url);
+            if (!isRealPostUrl(url) || seen.has(url)) continue;
+            seen.add(url);
+            collected.push({ ...post, url });
             if (collected.length >= limit) break;
         }
     }
