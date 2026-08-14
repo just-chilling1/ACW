@@ -103,17 +103,17 @@ export function InstantPostViewModal({
                     </div>
                 </div>
 
-                <div className="flex shrink-0 flex-col gap-2 border-t border-[var(--border-subtle)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:px-5">
+                <div className="instant-post-modal__actions flex shrink-0 flex-col gap-2 border-t border-[var(--border-subtle)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:px-5">
                     <CopyButton
                         text={post.body}
                         label="Copy Post"
                         variant="primary"
-                        className="min-h-[44px] flex-1"
+                        className="instant-post-modal__cta min-h-[44px] flex-1"
                     />
                     <button
                         type="button"
                         className={`min-h-[44px] flex-1 px-4 py-2 text-sm font-semibold ${
-                            done ? "instant-undo-done-btn" : "btn-primary"
+                            done ? "instant-undo-done-btn" : "instant-mark-done-btn"
                         }`}
                         onClick={() => onToggleDone(post.id)}
                         aria-label={done ? "Mark this post as not done" : "Mark this post as done"}

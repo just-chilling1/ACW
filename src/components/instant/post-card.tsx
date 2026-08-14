@@ -111,7 +111,7 @@ export function InstantPostCard({
                     <button
                         type="button"
                         className={`flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[var(--radius-xl)] px-4 py-2.5 text-sm font-semibold transition ${
-                            done ? "instant-undo-done-btn" : "btn-primary"
+                            done ? "instant-undo-done-btn" : "instant-mark-done-btn"
                         }`}
                         onClick={() => onToggleDone(post.id)}
                         aria-label={done ? "Mark this post as not done" : "Mark this post as done"}
