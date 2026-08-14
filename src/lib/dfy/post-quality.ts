@@ -28,7 +28,7 @@ const KNOWN_DEAD_REDDIT_IDS = new Set([
 const REDDIT_ID_CALIBRATION: Array<[number, number]> = [
     [parseInt("1nd8t83", 36), Date.UTC(2025, 7, 14) / 1000], // ~1y ago as of 2026-08-14
     [parseInt("1q4p1lx", 36), Date.UTC(2026, 0, 14) / 1000], // ~7mo ago as of 2026-08-14
-].sort((a, b) => a[0] - b[0]);
+].sort((a, b) => a[0] - b[0]) as Array<[number, number]>;
 
 export type PostQualityFields = {
     title?: string | null;
