@@ -56,7 +56,7 @@ export function InstantPostViewModal({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="instant-post-modal-title"
-                className="dfy-theme dfy-reply-modal relative z-10 flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden border border-[var(--border-strong)] bg-[var(--surface-1)] shadow-[var(--elevation-3)] sm:rounded-[var(--radius-2xl)]"
+                className="dfy-theme instant-theme dfy-reply-modal relative z-10 flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden border border-[var(--border-strong)] bg-[var(--surface-1)] shadow-[var(--elevation-3)] sm:rounded-[var(--radius-2xl)]"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--border-subtle)] px-4 py-3 sm:px-5">

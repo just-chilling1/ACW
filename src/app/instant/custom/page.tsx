@@ -67,7 +67,7 @@ export default function InstantCustomPostPage() {
     }));
 
     return (
-        <PremiumLandingShell className="dfy-theme" width="narrow">
+        <PremiumLandingShell className="dfy-theme instant-theme" width="narrow">
             <Link href="/instant" className="btn-secondary w-fit gap-1.5 text-sm">
                 <ArrowLeft size={14} />
                 Back to Instant Income

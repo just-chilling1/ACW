@@ -19,8 +19,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/dev/") ||
     pathname.startsWith("/embed/");
-  const isDfyThemePage =
-    pathname.startsWith("/dfy") || pathname.startsWith("/instant");
+  const isDfyPage = pathname.startsWith("/dfy");
+  const isInstantPage = pathname.startsWith("/instant");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
@@ -57,7 +57,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
         onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
       />
 
-      <main className="relative min-h-0 min-w-0 w-full flex-1 overflow-x-hidden overflow-y-auto scroll-smooth transition-[padding] duration-300 lg:pl-[var(--sidebar-w)]">
+      <main
+        className={clsx(
+          "relative min-h-0 min-w-0 w-full flex-1 overflow-x-hidden overflow-y-auto scroll-smooth transition-[padding] duration-300 lg:pl-[var(--sidebar-w)]",
+          isInstantPage && "instant-page-main",
+        )}
+      >
         <div className="sticky top-0 z-30 flex h-14 items-center justify-center border-b border-[var(--border-subtle)] bg-[var(--chrome-bg)] px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
           <BrandLogo variant="wordmark" size="xs" priority />
         </div>
@@ -65,7 +70,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <div
           className={clsx(
             "mx-auto flex min-h-full w-full min-w-0 max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-16 lg:pt-10",
-            isDfyThemePage && "dfy-theme",
+            isDfyPage && "dfy-theme",
+            isInstantPage && "dfy-theme instant-theme",
           )}
         >
           {children}

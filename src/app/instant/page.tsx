@@ -159,7 +159,7 @@ export default function InstantLandingPage() {
     };
 
     return (
-        <PremiumLandingShell className="dfy-theme">
+        <PremiumLandingShell className="dfy-theme instant-theme">
             <PremiumHero
                 eyebrow="INSTANT INCOME"
                 title={
