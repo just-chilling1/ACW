@@ -77,7 +77,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           className={clsx(
             "mx-auto flex min-h-full w-full min-w-0 max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-16 lg:pt-10",
             isDfyPage && "dfy-theme",
-            isInstantPage && "dfy-theme instant-theme",
+            isInstantPage && "instant-theme",
           )}
         >
           {children}
