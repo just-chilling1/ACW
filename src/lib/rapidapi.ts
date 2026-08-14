@@ -1,6 +1,12 @@
 import * as cheerio from 'cheerio';
 import { sanitizeExternalUrl } from '@/lib/safe-url';
 import { isRealPostUrl, normalizePostUrl } from '@/lib/dfy/post-url';
+import {
+    googleAfterDate,
+    isUsableReplyTarget,
+    minCreatedUtc,
+    toCreatedUtcSeconds,
+} from '@/lib/dfy/post-quality';
 
 /**
  * Generates a stable ID from a string (usually a URL).
@@ -14,6 +20,12 @@ function generateStableId(input: string, fallback: string): string {
         hash |= 0;
     }
     return Math.abs(hash).toString(36);
+}
+
+function keepSearchPost(post: any): boolean {
+    if (!post) return false;
+    if (!isRealPostUrl(post.url)) return false;
+    return isUsableReplyTarget(post);
 }
 
 /**
@@ -35,7 +47,9 @@ export function sanitizePosts(posts: any[]): any[] {
             (text.includes('.js') && text.includes('script')) ||
             text.length < 15; // Too short to be meaningful
 
-        return !isCode;
+        if (isCode) return false;
+        // Drop deleted / archived / too-old Reddit threads (cannot accept replies).
+        return isUsableReplyTarget(post);
     }).map(post => {
         let text = post.text || post.title || "";
 
@@ -93,7 +107,9 @@ async function fetchViaScraperAPI(keyword: string): Promise<any[]> {
 
     console.log(`[SEARCH] Strategy 1: ScraperAPI for "${keyword}"`);
     // Prefer real Reddit threads (/comments/) and YouTube watch pages — not category/subreddit roots.
-    const targetUrl = `https://www.google.com/search?q=${encodeURIComponent(`site:reddit.com/r/*/comments/ OR site:youtube.com/watch ${keyword} after:2024-01-01`)}`;
+    // Rolling after: window keeps results inside Reddit's commentable age (~6 months).
+    const after = googleAfterDate();
+    const targetUrl = `https://www.google.com/search?q=${encodeURIComponent(`site:reddit.com/r/*/comments/ OR site:youtube.com/watch ${keyword} after:${after}`)}`;
     const scraperUrl = `https://api.scraperapi.com/?api_key=${scraperKey}&url=${encodeURIComponent(targetUrl)}&render=true&premium=true`;
 
     const response = await fetch(scraperUrl, { cache: "no-store" });
@@ -116,6 +132,7 @@ async function fetchViaScraperAPI(keyword: string): Promise<any[]> {
             if (url && title && (url.includes('reddit.com') || url.includes('youtube.com'))) {
                 const normalized = normalizePostUrl(url);
                 if (!isRealPostUrl(normalized)) return;
+                if (!isUsableReplyTarget({ title, text: snippet, url: normalized })) return;
                 if (!results.find(r => r.url === normalized)) {
                     results.push({
                         id: generateStableId(normalized, Math.random().toString(36).substring(2, 10)),
@@ -147,7 +164,8 @@ async function fetchRedditViaRapidAPI(keyword: string): Promise<any[]> {
     }
 
     console.log(`[SEARCH] Strategy 2: RapidAPI Reddit for "${keyword}"`);
-    const url = `https://${host}/search?query=${encodeURIComponent(keyword)}&sort=relevance&time=year`;
+    // Prefer month over year — year-old threads are often archived (no new comments).
+    const url = `https://${host}/search?query=${encodeURIComponent(keyword)}&sort=relevance&time=month`;
     const response = await fetch(url, {
         headers: {
             'x-rapidapi-key': key,
@@ -180,6 +198,11 @@ async function fetchRedditViaRapidAPI(keyword: string): Promise<any[]> {
                 text: d.selftext || d.body || d.title || '',
                 url,
                 engagement: d.score || d.ups || Math.floor(Math.random() * 200) + 10,
+                author: d.author || '',
+                archived: Boolean(d.archived),
+                locked: Boolean(d.locked),
+                removed_by_category: d.removed_by_category || null,
+                created_utc: toCreatedUtcSeconds(d),
             };
         });
     } else if (Array.isArray(data.results || data.posts || data)) {
@@ -193,12 +216,17 @@ async function fetchRedditViaRapidAPI(keyword: string): Promise<any[]> {
                 text: item.text || item.selftext || item.body || item.title || '',
                 url,
                 engagement: item.score || item.ups || Math.floor(Math.random() * 200) + 10,
+                author: item.author || '',
+                archived: Boolean(item.archived),
+                locked: Boolean(item.locked),
+                removed_by_category: item.removed_by_category || null,
+                created_utc: toCreatedUtcSeconds(item),
             };
         });
     }
 
-    posts = posts.filter((p) => isRealPostUrl(p.url));
-    if (posts.length === 0) throw new Error("RapidAPI Reddit: 0 results");
+    posts = posts.filter(keepSearchPost);
+    if (posts.length === 0) throw new Error("RapidAPI Reddit: 0 usable (non-deleted/recent) results");
     return posts.slice(0, 20);
 }
 
@@ -255,9 +283,10 @@ async function fetchYouTubeViaRapidAPI(keyword: string): Promise<any[]> {
 
 // ─── Strategy 4: PullPush (free Reddit archive — no API key) ────────
 async function pullPushQuery(q: string): Promise<any[]> {
+    const after = minCreatedUtc();
     const url =
         `https://api.pullpush.io/reddit/search/submission/` +
-        `?q=${encodeURIComponent(q)}&size=50&sort=desc&sort_type=score`;
+        `?q=${encodeURIComponent(q)}&size=50&sort=desc&sort_type=score&after=${after}`;
 
     const response = await fetch(url, {
         headers: {
@@ -301,16 +330,21 @@ async function fetchRedditViaPullPush(keyword: string): Promise<any[]> {
                 text,
                 url: postUrl,
                 engagement: Number(d.score || d.ups) || Math.floor(Math.random() * 200) + 10,
+                author: d.author || "",
+                archived: Boolean(d.archived),
+                locked: Boolean(d.locked),
+                removed_by_category: d.removed_by_category || null,
+                created_utc: toCreatedUtcSeconds(d),
             };
         })
         .filter((p: any) => {
-            if (!isRealPostUrl(p.url) || !keywordMatchesPost(keyword, p.title, p.text)) return false;
+            if (!keepSearchPost(p) || !keywordMatchesPost(keyword, p.title, p.text)) return false;
             if (seen.has(p.url)) return false;
             seen.add(p.url);
             return true;
         });
 
-    if (posts.length === 0) throw new Error("PullPush Reddit: 0 relevant results");
+    if (posts.length === 0) throw new Error("PullPush Reddit: 0 usable recent results");
     return posts.slice(0, 20);
 }
 
@@ -324,9 +358,9 @@ export async function searchSocialData(keyword: string) {
     if (hasScraperKey) {
         try {
             const results = await fetchViaScraperAPI(keyword);
-            const sanitized = sanitizePosts(results).filter((p) => isRealPostUrl(p.url));
+            const sanitized = sanitizePosts(results).filter(keepSearchPost);
             if (sanitized.length > 0) {
-                console.log(`[SEARCH] ✅ ScraperAPI returned ${sanitized.length} real posts`);
+                console.log(`[SEARCH] ✅ ScraperAPI returned ${sanitized.length} usable posts`);
                 return sanitized.sort((a, b) => b.engagement - a.engagement);
             }
         } catch (e: any) {
@@ -363,7 +397,7 @@ export async function searchSocialData(keyword: string) {
     }
 
     if (combined.length > 0) {
-        const sanitized = sanitizePosts(combined).filter((p) => isRealPostUrl(p.url));
+        const sanitized = sanitizePosts(combined).filter(keepSearchPost);
         if (sanitized.length > 0) {
             return sanitized.sort((a, b) => b.engagement - a.engagement);
         }
@@ -372,14 +406,14 @@ export async function searchSocialData(keyword: string) {
     // Strategy 4: free PullPush archive when paid APIs are missing/throttled
     try {
         const results = await fetchRedditViaPullPush(keyword);
-        const sanitized = sanitizePosts(results).filter((p) => isRealPostUrl(p.url));
+        const sanitized = sanitizePosts(results).filter(keepSearchPost);
         if (sanitized.length > 0) {
-            console.log(`[SEARCH] ✅ PullPush returned ${sanitized.length} real posts`);
+            console.log(`[SEARCH] ✅ PullPush returned ${sanitized.length} usable posts`);
             return sanitized.sort((a, b) => b.engagement - a.engagement);
         }
     } catch (e: any) {
         console.warn(`[SEARCH] ⚠️ PullPush failed: ${e.message}`);
     }
 
-    throw new Error("All search strategies failed. No real post URLs available.");
+    throw new Error("All search strategies failed. No usable (recent, non-deleted) post URLs available.");
 }

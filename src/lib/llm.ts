@@ -1,14 +1,17 @@
 const REGENERATION_HOST = "chatgpt-42.p.rapidapi.com";
 const OPENAI_MODEL = "gpt-4o-mini";
 
-async function callOpenAI(messages: { role: string; content: string }[]) {
+async function callOpenAI(
+    messages: { role: string; content: string }[],
+    timeoutMs = readTimeoutMs(),
+) {
     const apiKey = process.env.OPENAI_API_KEY?.trim();
     if (!apiKey) {
         throw new Error("Missing OPENAI_API_KEY");
     }
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -41,9 +44,15 @@ async function callOpenAI(messages: { role: string; content: string }[]) {
     }
 }
 
+function readTimeoutMs(): number {
+    const raw = Number(process.env.LLM_TIMEOUT_MS);
+    return Number.isFinite(raw) && raw >= 5000 ? raw : 25000;
+}
+
 async function callChatGPTWithHost(
     messages: { role: string; content: string }[],
     host: string,
+    timeoutMs = readTimeoutMs(),
 ) {
     const apiKey = process.env.RAPIDAPI_KEY;
 
@@ -52,65 +61,73 @@ async function callChatGPTWithHost(
     }
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-    const response = await fetch(`https://${host}/gpt4`, {
-        method: 'POST',
-        headers: {
-            'x-rapidapi-key': apiKey,
-            'x-rapidapi-host': host,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            messages: messages,
-            web_access: false
-        }),
-        signal: controller.signal
-    });
+    try {
+        const response = await fetch(`https://${host}/gpt4`, {
+            method: 'POST',
+            headers: {
+                'x-rapidapi-key': apiKey,
+                'x-rapidapi-host': host,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                messages: messages,
+                web_access: false
+            }),
+            signal: controller.signal
+        });
 
-    clearTimeout(timeout);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`ChatGPT API Error: ${response.status} - ${errorText}`);
+        }
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`ChatGPT API Error: ${response.status} - ${errorText}`);
+        const data = await response.json();
+        console.log(`ChatGPT API Response (${host}):`, JSON.stringify(data).substring(0, 200) + "...");
+
+        const result = data.result || data.choices?.[0]?.message?.content || data.response || null;
+
+        if (!result) {
+            console.error("ChatGPT API Error: Unexpected response structure", data);
+            throw new Error("ChatGPT API Error: Unexpected response structure");
+        }
+
+        return typeof result === 'string' ? result : JSON.stringify(result);
+    } finally {
+        clearTimeout(timeout);
     }
-
-    const data = await response.json();
-    console.log(`ChatGPT API Response (${host}):`, JSON.stringify(data).substring(0, 200) + "...");
-
-    const result = data.result || data.choices?.[0]?.message?.content || data.response || null;
-
-    if (!result) {
-        console.error("ChatGPT API Error: Unexpected response structure", data);
-        throw new Error("ChatGPT API Error: Unexpected response structure");
-    }
-
-    return typeof result === 'string' ? result : JSON.stringify(result);
 }
 
-export async function callChatGPT(messages: { role: string; content: string }[]) {
+export type CallChatGPTOptions = { timeoutMs?: number };
+
+export async function callChatGPT(
+    messages: { role: string; content: string }[],
+    options?: CallChatGPTOptions,
+) {
+    const timeoutMs = options?.timeoutMs ?? readTimeoutMs();
     const preferOpenAI = process.env.LLM_PROVIDER?.trim().toLowerCase() === "openai";
     const hasOpenAI = Boolean(process.env.OPENAI_API_KEY?.trim());
     const hasRapid = Boolean(process.env.RAPIDAPI_KEY?.trim());
 
     // Prefer explicit provider; otherwise RapidAPI first (existing default), OpenAI fallback.
     if (preferOpenAI && hasOpenAI) {
-        return callOpenAI(messages);
+        return callOpenAI(messages, timeoutMs);
     }
 
     if (hasRapid) {
         try {
             const host = process.env.RAPIDAPI_HOST_CHATGPT || REGENERATION_HOST;
-            return await callChatGPTWithHost(messages, host);
+            return await callChatGPTWithHost(messages, host, timeoutMs);
         } catch (err) {
             if (!hasOpenAI) throw err;
             console.warn("[llm] RapidAPI ChatGPT failed; falling back to OpenAI:", err);
-            return callOpenAI(messages);
+            return callOpenAI(messages, timeoutMs);
         }
     }
 
     if (hasOpenAI) {
-        return callOpenAI(messages);
+        return callOpenAI(messages, timeoutMs);
     }
 
     throw new Error("Missing RAPIDAPI_KEY or OPENAI_API_KEY for ChatGPT");

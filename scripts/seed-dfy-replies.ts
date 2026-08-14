@@ -7,6 +7,8 @@
  *   npm run seed:dfy
  *   npm run seed:dfy -- --no-wipe   # keep existing posts; still regenerates replies
  *
+ * Tip: if RapidAPI times out, set LLM_TIMEOUT_MS=90000 in .env.local (seed uses 90s by default).
+ *
  * Requires:
  *   - NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (upsert)
  *   - RAPIDAPI_KEY (ChatGPT generation via chatgpt-42; also Reddit search fallback)
@@ -27,6 +29,7 @@ import {
     humanizeText,
 } from "../src/lib/dfy/humanize";
 import { getFallbackPostsForNiche } from "../src/lib/dfy/search-fallbacks";
+import { isUsableReplyTarget } from "../src/lib/dfy/post-quality";
 import { SAFETY_RULES_PROMPT } from "../src/lib/instant/safety";
 import { callChatGPT } from "../src/lib/llm";
 import { parseJsonFromLlm } from "../src/lib/dfy/parse-json";
@@ -63,6 +66,9 @@ const TARGET_PER_NICHE = 60;
 const BATCH_SIZE = 3;
 const OPENAI_MODEL = "gpt-4o-mini";
 const RAPIDAPI_MODEL = "rapidapi-chatgpt";
+/** Longer timeout for batch seed generation (RapidAPI can be slow). */
+const SEED_LLM_TIMEOUT_MS = 90_000;
+const SEED_LLM_RETRIES = 4;
 
 const REPLY_STYLES = [
     "helpful",
@@ -148,6 +154,33 @@ function sleep(ms: number) {
     return new Promise((r) => setTimeout(r, ms));
 }
 
+function isRetryableLlmError(err: unknown): boolean {
+    const msg = err instanceof Error ? err.message : String(err);
+    const name = err instanceof Error ? err.name : "";
+    return (
+        name === "AbortError" ||
+        /aborted|timeout|timed out|429|502|503|504|ECONNRESET|ETIMEDOUT|fetch failed/i.test(msg)
+    );
+}
+
+async function withLlmRetry<T>(label: string, fn: () => Promise<T>): Promise<T> {
+    let lastErr: unknown;
+    for (let attempt = 1; attempt <= SEED_LLM_RETRIES; attempt++) {
+        try {
+            return await fn();
+        } catch (err) {
+            lastErr = err;
+            if (!isRetryableLlmError(err) || attempt === SEED_LLM_RETRIES) throw err;
+            const waitMs = 1500 * attempt;
+            console.warn(
+                `[seed] ${label} failed (attempt ${attempt}/${SEED_LLM_RETRIES}): ${err instanceof Error ? err.message : err}. Retrying in ${waitMs}ms…`,
+            );
+            await sleep(waitMs);
+        }
+    }
+    throw lastErr;
+}
+
 function subredditFromUrl(url: string): string {
     const m = url.match(/reddit\.com\/r\/([^/]+)/i);
     return m?.[1] || "";
@@ -201,7 +234,7 @@ async function collectPostsForNiche(nicheId: NicheId, curatedOnly = false): Prom
 
     const add = (post: SeedPost, minScore = 0) => {
         const url = normalizePostUrl(post.url);
-        if (!isRealPostUrl(url) || seen.has(url)) return;
+        if (!isRealPostUrl(url) || !isUsableReplyTarget({ ...post, url, text: post.body }) || seen.has(url)) return;
         const score = scoreNicheRelevance(nicheId, post.title, post.body);
         if (score < minScore) return;
         seen.add(url);
@@ -293,7 +326,7 @@ async function llmComplete(client: LlmClient, prompt: string): Promise<string> {
         });
         return completion.choices[0]?.message?.content || "{}";
     }
-    return callChatGPT([{ role: "user", content: prompt }]);
+    return callChatGPT([{ role: "user", content: prompt }], { timeoutMs: SEED_LLM_TIMEOUT_MS });
 }
 
 function extractReplyRows(parsed: unknown): Array<{ index?: number; style?: string; body?: string }> {
@@ -570,12 +603,15 @@ async function main() {
         for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
             const chunk = jobs.slice(i, i + BATCH_SIZE);
             console.log(`Generating replies ${i + 1}–${i + chunk.length}…`);
-            allReplies.push(...(await generateRepliesBatch(llm, niche.label, chunk)));
-            await sleep(500);
+            const batch = await withLlmRetry(`batch ${i + 1}–${i + chunk.length}`, () =>
+                generateRepliesBatch(llm, niche.label, chunk),
+            );
+            allReplies.push(...batch);
+            await sleep(800);
         }
 
         console.log(`Humanize pass on ${allReplies.length} replies…`);
-        const humanized = await humanizePass(llm, allReplies);
+        const humanized = await withLlmRetry("humanize pass", () => humanizePass(llm, allReplies));
 
         if (emitOnly) {
             const { writeFileSync } = await import("node:fs");

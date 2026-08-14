@@ -1,5 +1,6 @@
 import { APP_NICHES, detectNicheFromText, type NicheId } from "@/lib/niches";
 import { isRealPostUrl } from "./post-url";
+import { isUsableReplyTarget } from "./post-quality";
 import type { OfferSnapshot, SocialPost } from "./types";
 
 /** Curated real Reddit comment permalinks used when live search + DB seeds are empty. */
@@ -21,8 +22,8 @@ const FALLBACK_POSTS: Record<NicheId, SocialPost[]> = {
         { id: "fb-mmo-4", platform: "Reddit", title: "Realistic ways to make money with AI in 2025 (my action plan)", text: "Here's my realistic action plan for making money with AI. Looking for feedback from people further along.", url: "https://www.reddit.com/r/thesidehustle/comments/1jfnz7d/realistic_ways_to_make_money_with_ai_in_2025_my/", engagement: 654 },
         { id: "fb-mmo-5", platform: "Reddit", title: "6 ways to monetize your expertise using AI", text: "Here are 6 practical ways to use AI tools to monetize your existing skills. What would you add?", url: "https://www.reddit.com/r/passive_income/comments/1q5pj94/6_ways_to_monetize_your_expertise_using_ai_in_2026/", engagement: 367 },
         { id: "fb-mmo-6", platform: "Reddit", title: "Kit Free-tier vs Sender Free-tier? Which one for a startup?", text: "Need email automation and room to grow for a small online business. Which free tier is better?", url: "https://www.reddit.com/r/Emailmarketing/comments/1r3fwkb/kit_freetier_vs_sender_freetier_which_one_to_go/", engagement: 345 },
-        { id: "fb-mmo-7", platform: "Reddit", title: "Looking for the best all-in-one marketing platform for a small business", text: "Need email, SMS, segmentation, and analytics without paying for five tools. What's working?", url: "https://www.reddit.com/r/Emailmarketing/comments/1q4p1lx/looking_for_the_best_all_in_one_marketing/", engagement: 523 },
-        { id: "fb-mmo-8", platform: "Reddit", title: "Go-to ecommerce email marketing software?", text: "Comparing tools for ecommerce email automation and Shopify integration. Budget is flexible for the right fit.", url: "https://www.reddit.com/r/ecommerce/comments/1r83pxc/goto_ecommerce_email_marketing_software/", engagement: 678 },
+        { id: "fb-mmo-7", platform: "Reddit", title: "Go-to ecommerce email marketing software?", text: "Comparing tools for ecommerce email automation and Shopify integration. Budget is flexible for the right fit.", url: "https://www.reddit.com/r/ecommerce/comments/1r83pxc/goto_ecommerce_email_marketing_software/", engagement: 678 },
+        { id: "fb-mmo-8", platform: "Reddit", title: "Wix and Mailchimp integration - worth it?", text: "Considering Mailchimp for email marketing with a small creator site. Better options for ~1k subscribers?", url: "https://www.reddit.com/r/WIX/comments/1qpj6oj/wix_mailchimp/", engagement: 234 },
     ],
     health_fitness: [
         { id: "fb-hf-1", platform: "Reddit", title: "Muscle loss / sarcopenia prevention tips", text: "Looking for practical ways to slow muscle loss — training, protein, and supplements that actually help.", url: "https://www.reddit.com/r/immortalists/comments/1o9fz7s/", engagement: 412 },
@@ -105,8 +106,8 @@ export function detectOfferNiche(snapshot: OfferSnapshot, audienceMode?: string)
 
 export function getFallbackPostsForNiche(nicheId: NicheId): SocialPost[] {
     const posts = FALLBACK_POSTS[nicheId] || FALLBACK_POSTS.make_money_online;
-    const real = posts.filter((p) => isRealPostUrl(p.url));
-    return real.length > 0 ? real : posts;
+    const real = posts.filter((p) => isRealPostUrl(p.url) && isUsableReplyTarget(p));
+    return real.length > 0 ? real : posts.filter((p) => isRealPostUrl(p.url));
 }
 
 export function getFallbackPostsForOffer(snapshot: OfferSnapshot, audienceMode?: string): SocialPost[] {

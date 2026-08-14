@@ -6,6 +6,7 @@ import { SAFETY_RULES_PROMPT } from "@/lib/instant/safety";
 import { analyzeOffer } from "./offer-analyze";
 import { parseJsonFromLlm } from "./parse-json";
 import { isRealPostUrl, normalizePostUrl } from "./post-url";
+import { isUsableReplyTarget } from "./post-quality";
 import {
     HUMANIZE_PROMPT,
     LINK_PLACEHOLDER,
@@ -70,7 +71,7 @@ async function discoverRealPosts(
             const results = await searchSocialData(q);
             for (const raw of results) {
                 const url = normalizePostUrl(String(raw.url || ""));
-                if (!isRealPostUrl(url) || seen.has(url)) continue;
+                if (!isRealPostUrl(url) || !isUsableReplyTarget(raw) || seen.has(url)) continue;
                 seen.add(url);
                 collected.push({
                     id: String(raw.id || url),
@@ -102,7 +103,7 @@ async function discoverRealPosts(
     if (collected.length < limit) {
         for (const post of getFallbackPostsForNiche(nicheId)) {
             const url = normalizePostUrl(post.url);
-            if (!isRealPostUrl(url) || seen.has(url)) continue;
+            if (!isRealPostUrl(url) || !isUsableReplyTarget(post) || seen.has(url)) continue;
             seen.add(url);
             collected.push({ ...post, url });
             if (collected.length >= limit) break;

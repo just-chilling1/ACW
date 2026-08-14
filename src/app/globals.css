@@ -1825,7 +1825,29 @@ html[data-sidebar="collapsed"] {
 
 .dfy-theme .dfy-reply-card--done {
   opacity: 0.55;
-  border-color: color-mix(in srgb, var(--gold-text) 35%, var(--border-strong));
+  border-color: color-mix(in srgb, var(--success) 35%, var(--border-strong));
+}
+
+.dfy-theme .dfy-undo-done-btn {
+  border: 1px solid var(--success-border);
+  background: var(--success-bg-faint);
+  color: var(--success);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dfy-theme .dfy-undo-done-btn:hover:not(:disabled) {
+  background: var(--success-bg-medium);
+  border-color: var(--success-border-strong);
+  color: var(--success);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--success) 20%, transparent);
+}
+
+.dfy-theme .dfy-undo-done-btn:active:not(:disabled) {
+  background: var(--success-bg-subtle);
 }
 
 .dfy-theme .dfy-reply-body {

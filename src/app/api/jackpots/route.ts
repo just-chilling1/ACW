@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireApiUser, clampString } from "@/lib/api-auth";
 import { searchSocialData, sanitizePosts } from "@/lib/rapidapi";
+import { isUsableReplyTarget } from "@/lib/dfy/post-quality";
+import { isRealPostUrl } from "@/lib/dfy/post-url";
 
 const MAX_KEYWORD_LENGTH = 200;
 
@@ -35,10 +37,10 @@ const FALLBACK_POSTS: Record<string, any[]> = {
     ],
     "best email marketing platform for creators reddit": [
         { id: "fb-email-1", platform: "Reddit", title: "Kit Free-tier vs Sender Free-tier? Which one for a startup?", text: "Trying to decide between Kit (ConvertKit) and Sender for my startup. I need email automation, landing pages, and room to grow. Which free tier is better for someone just starting out?", url: "https://www.reddit.com/r/Emailmarketing/comments/1r3fwkb/kit_freetier_vs_sender_freetier_which_one_to_go/", engagement: 345 },
-        { id: "fb-email-2", platform: "Reddit", title: "Looking for the best all-in-one marketing platform for a small business", text: "I need an email marketing platform that does it all — email, SMS, segmentation, and analytics. Running a small business and tired of paying for 5 different tools. What's the best all-in-one option?", url: "https://www.reddit.com/r/Emailmarketing/comments/1q4p1lx/looking_for_the_best_all_in_one_marketing/", engagement: 523 },
-        { id: "fb-email-3", platform: "Reddit", title: "Go-to ecommerce email marketing software?", text: "What's everyone using for ecommerce email marketing? I've been looking at Klaviyo and ActiveCampaign. Need good automation flows and Shopify integration. Budget is flexible for the right tool.", url: "https://www.reddit.com/r/ecommerce/comments/1r83pxc/goto_ecommerce_email_marketing_software/", engagement: 678 },
-        { id: "fb-email-4", platform: "Reddit", title: "Wix and Mailchimp integration - worth it?", text: "Currently using Wix for my site and considering Mailchimp for email marketing. Is the integration worth it or should I look at other platforms? I'm a creator with about 1,000 subscribers.", url: "https://www.reddit.com/r/WIX/comments/1qpj6oj/wix_mailchimp/", engagement: 234 },
-        { id: "fb-email-5", platform: "Reddit", title: "Best email marketing tool for creators and small teams", text: "Looking for the best email marketing platform as a solo creator. Need something affordable with good automation. Currently comparing ConvertKit, Beehiiv, MailerLite, and Sender. What's your experience?", url: "https://www.reddit.com/r/Emailmarketing/comments/1r3fwkb/kit_freetier_vs_sender_freetier_which_one_to_go/", engagement: 891 },
+        { id: "fb-email-2", platform: "Reddit", title: "Go-to ecommerce email marketing software?", text: "What's everyone using for ecommerce email marketing? I've been looking at Klaviyo and ActiveCampaign. Need good automation flows and Shopify integration. Budget is flexible for the right tool.", url: "https://www.reddit.com/r/ecommerce/comments/1r83pxc/goto_ecommerce_email_marketing_software/", engagement: 678 },
+        { id: "fb-email-3", platform: "Reddit", title: "Wix and Mailchimp integration - worth it?", text: "Currently using Wix for my site and considering Mailchimp for email marketing. Is the integration worth it or should I look at other platforms? I'm a creator with about 1,000 subscribers.", url: "https://www.reddit.com/r/WIX/comments/1qpj6oj/wix_mailchimp/", engagement: 234 },
+        { id: "fb-email-4", platform: "Reddit", title: "Best email marketing tool for creators and small teams", text: "Looking for the best email marketing platform as a solo creator. Need something affordable with good automation. Currently comparing ConvertKit, Beehiiv, MailerLite, and Sender. What's your experience?", url: "https://www.reddit.com/r/Emailmarketing/comments/1r3fwkb/kit_freetier_vs_sender_freetier_which_one_to_go/", engagement: 891 },
+        { id: "fb-email-5", platform: "Reddit", title: "Realistic ways to make money with AI in 2025 (my action plan)", text: "Here's my realistic action plan for making money with AI. Custom chatbots for businesses, AI workflows, content repurposing, and specialized expertise servers. No get-rich-quick promises, just proven methods.", url: "https://www.reddit.com/r/thesidehustle/comments/1jfnz7d/realistic_ways_to_make_money_with_ai_in_2025_my/", engagement: 654 },
     ],
 };
 
@@ -58,29 +60,39 @@ const THEME_FALLBACKS: { match: RegExp; key: keyof typeof FALLBACK_POSTS }[] = [
 function getFallbackPosts(keyword: string): any[] {
     const kLower = keyword.toLowerCase().trim();
 
+    let posts: any[] | null = null;
     for (const theme of THEME_FALLBACKS) {
-        if (theme.match.test(kLower)) return FALLBACK_POSTS[theme.key];
-    }
-
-    const key = Object.keys(FALLBACK_POSTS).find(k =>
-        kLower.includes(k) || k.includes(kLower)
-    );
-    if (key) return FALLBACK_POSTS[key];
-
-    let bestKey: string | null = null;
-    let bestScore = 0;
-    for (const [k, posts] of Object.entries(FALLBACK_POSTS)) {
-        const words = k.split(/\s+/).filter((w) => w.length > 2 && !STOP.has(w));
-        const matchCount = words.filter((w) => kLower.includes(w)).length;
-        if (matchCount > bestScore) {
-            bestScore = matchCount;
-            bestKey = k;
+        if (theme.match.test(kLower)) {
+            posts = FALLBACK_POSTS[theme.key];
+            break;
         }
     }
-    if (bestKey && bestScore >= 2) return FALLBACK_POSTS[bestKey];
+
+    if (!posts) {
+        const key = Object.keys(FALLBACK_POSTS).find(k =>
+            kLower.includes(k) || k.includes(kLower)
+        );
+        if (key) posts = FALLBACK_POSTS[key];
+    }
+
+    if (!posts) {
+        let bestKey: string | null = null;
+        let bestScore = 0;
+        for (const [k] of Object.entries(FALLBACK_POSTS)) {
+            const words = k.split(/\s+/).filter((w) => w.length > 2 && !STOP.has(w));
+            const matchCount = words.filter((w) => kLower.includes(w)).length;
+            if (matchCount > bestScore) {
+                bestScore = matchCount;
+                bestKey = k;
+            }
+        }
+        if (bestKey && bestScore >= 2) posts = FALLBACK_POSTS[bestKey];
+    }
 
     // Last resort: money / hustle content is the most common AI CashWave niche
-    return FALLBACK_POSTS["how to make money with ai tools reddit"];
+    if (!posts) posts = FALLBACK_POSTS["how to make money with ai tools reddit"];
+
+    return posts.filter((p) => isRealPostUrl(p.url) && isUsableReplyTarget(p));
 }
 
 export async function POST(req: Request) {
@@ -169,7 +181,9 @@ export async function POST(req: Request) {
         console.error("Jackpots Error:", error);
         const fallback = keyword
             ? getFallbackPosts(keyword)
-            : FALLBACK_POSTS["how to make money with ai tools reddit"];
+            : FALLBACK_POSTS["how to make money with ai tools reddit"].filter(
+                (p) => isRealPostUrl(p.url) && isUsableReplyTarget(p),
+            );
         if (fallback.length > 0) {
             return NextResponse.json({ results: fallback, source: "fallback" });
         }

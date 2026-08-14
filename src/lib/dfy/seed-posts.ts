@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
 import { isRealPostUrl, normalizePostUrl } from "./post-url";
+import { isUsableReplyTarget } from "./post-quality";
 import type { SocialPost } from "./types";
 
 export type SeededReplyRow = {
@@ -50,7 +51,7 @@ export async function fetchSeedPostsForNiche(
                 engagement: row.engagement || 0,
             } satisfies SocialPost;
         })
-        .filter((p) => isRealPostUrl(p.url));
+        .filter((p) => isRealPostUrl(p.url) && isUsableReplyTarget(p));
 }
 
 /** Load seed replies joined with their posts for the browse UI. */
@@ -120,7 +121,7 @@ export async function fetchSeededReplies(
         const post = Array.isArray(row.post) ? row.post[0] : row.post;
         if (!post || post.active === false) continue;
         const url = normalizePostUrl(post.url);
-        if (!isRealPostUrl(url)) continue;
+        if (!isRealPostUrl(url) || !isUsableReplyTarget({ ...post, url })) continue;
         rows.push({
             id: row.id,
             style: row.style,

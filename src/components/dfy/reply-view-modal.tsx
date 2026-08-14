@@ -69,7 +69,7 @@ export function ReplyViewModal({ reply, done, onClose, onToggleDone }: ReplyView
                                 </span>
                             ) : null}
                             {done ? (
-                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--gold-text)]">
+                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--success)]">
                                     <CheckCircle2 size={12} />
                                     Done
                                 </span>
@@ -123,10 +123,15 @@ export function ReplyViewModal({ reply, done, onClose, onToggleDone }: ReplyView
                     ) : null}
                     <button
                         type="button"
-                        className="btn-secondary min-h-[44px] flex-1 px-4 py-2 text-sm"
+                        className={`min-h-[44px] flex-1 px-4 py-2 text-sm font-semibold ${
+                            done ? "dfy-undo-done-btn" : "btn-primary"
+                        }`}
                         onClick={() => onToggleDone(reply.id)}
                     >
-                        {done ? "Undo done" : "Mark done"}
+                        <span className="inline-flex items-center justify-center gap-2">
+                            <CheckCircle2 size={15} />
+                            {done ? "Undo done" : "Mark done"}
+                        </span>
                     </button>
                 </div>
             </div>

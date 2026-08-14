@@ -5,6 +5,7 @@ import { generateReplies } from "@/lib/llm";
 import { getFallbackPostsForNiche } from "@/lib/dfy/search-fallbacks";
 import { fetchSeedPostsForNiche } from "@/lib/dfy/seed-posts";
 import { isRealPostUrl } from "@/lib/dfy/post-url";
+import { isUsableReplyTarget } from "@/lib/dfy/post-quality";
 import {
   LINK_PLACEHOLDER,
   MIN_PACK_SIZE,
@@ -123,7 +124,7 @@ async function discoverFromNicheFallbacks(
   }
 
   return getFallbackPostsForNiche(nicheId)
-    .filter((p) => isRealPostUrl(p.url))
+    .filter((p) => isRealPostUrl(p.url) && isUsableReplyTarget(p))
     .slice(0, TARGET_PACK_SIZE)
     .map((p) => toThreadSeed(p as unknown as Record<string, unknown>, "quick"));
 }

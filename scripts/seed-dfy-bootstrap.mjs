@@ -51,8 +51,8 @@ const rows = [
   ["make_money_online", "Reddit", "thesidehustle", "Realistic ways to make money with AI in 2025", "Here's my realistic action plan for making money with AI.", "https://www.reddit.com/r/thesidehustle/comments/1jfnz7d/realistic_ways_to_make_money_with_ai_in_2025_my/", 654],
   ["make_money_online", "Reddit", "passive_income", "6 ways to monetize your expertise using AI", "Practical ways to use AI tools to monetize existing skills.", "https://www.reddit.com/r/passive_income/comments/1q5pj94/6_ways_to_monetize_your_expertise_using_ai_in_2026/", 367],
   ["make_money_online", "Reddit", "Emailmarketing", "Kit Free-tier vs Sender Free-tier?", "Need email automation for a small online business.", "https://www.reddit.com/r/Emailmarketing/comments/1r3fwkb/kit_freetier_vs_sender_freetier_which_one_to_go/", 345],
-  ["make_money_online", "Reddit", "Emailmarketing", "Best all-in-one marketing platform for a small business", "Need email, SMS, segmentation without five tools.", "https://www.reddit.com/r/Emailmarketing/comments/1q4p1lx/looking_for_the_best_all_in_one_marketing/", 523],
   ["make_money_online", "Reddit", "ecommerce", "Go-to ecommerce email marketing software?", "Comparing tools for ecommerce email automation.", "https://www.reddit.com/r/ecommerce/comments/1r83pxc/goto_ecommerce_email_marketing_software/", 678],
+  ["make_money_online", "Reddit", "WIX", "Wix and Mailchimp integration - worth it?", "Considering Mailchimp with a small creator site.", "https://www.reddit.com/r/WIX/comments/1qpj6oj/wix_mailchimp/", 234],
   // health_fitness
   ["health_fitness", "Reddit", "immortalists", "Muscle loss / sarcopenia prevention tips", "Practical ways to slow muscle loss.", "https://www.reddit.com/r/immortalists/comments/1o9fz7s/", 412],
   ["health_fitness", "Reddit", "Aging", "Aging and lean mass — what worked for you?", "Strength dropping with age. What helped?", "https://www.reddit.com/r/Aging/comments/1k6s6iv/", 334],

@@ -84,14 +84,26 @@ export function ReplyCard({ reply, done = false, onView, onToggleDone }: ReplyCa
             className={`dfy-reply-card flex flex-col gap-3 p-4 sm:p-5 ${done ? "dfy-reply-card--done" : ""}`}
         >
             <div className="min-w-0 space-y-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                    {reply.nicheLabel ? (
-                        <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-[var(--gold-text)]">
-                            {reply.nicheLabel}
-                        </p>
-                    ) : null}
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0 space-y-1.5">
+                        {reply.nicheLabel ? (
+                            <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-[var(--gold-text)]">
+                                {reply.nicheLabel}
+                            </p>
+                        ) : null}
+                        <div className="flex flex-wrap items-center gap-2">
+                            {reply.platform ? (
+                                <span className="dfy-platform-badge">{reply.platform}</span>
+                            ) : null}
+                            {reply.style ? (
+                                <span className="text-xs font-medium capitalize text-text-muted">
+                                    {reply.style.replace(/_/g, " ")}
+                                </span>
+                            ) : null}
+                        </div>
+                    </div>
                     {done ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--gold-text)]">
+                        <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-[var(--success)]">
                             <CheckCircle2 size={12} />
                             Done
                         </span>
@@ -101,23 +113,6 @@ export function ReplyCard({ reply, done = false, onView, onToggleDone }: ReplyCa
                 <h3 className="text-sm font-semibold leading-snug text-text-primary sm:text-base">
                     {reply.title || "Untitled thread"}
                 </h3>
-
-                <div className="flex flex-wrap items-center gap-2">
-                    {reply.platform ? (
-                        <span className="dfy-platform-badge">{reply.platform}</span>
-                    ) : null}
-                    {reply.style ? (
-                        <span className="text-xs font-medium capitalize text-text-muted">
-                            {reply.style.replace(/_/g, " ")}
-                        </span>
-                    ) : null}
-                </div>
-
-                {reply.context ? (
-                    <p className="line-clamp-2 text-xs leading-relaxed text-text-secondary">
-                        {reply.context}
-                    </p>
-                ) : null}
             </div>
 
             <div className="mt-auto flex flex-col gap-2">
@@ -133,9 +128,7 @@ export function ReplyCard({ reply, done = false, onView, onToggleDone }: ReplyCa
                     <button
                         type="button"
                         className={`flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[var(--radius-xl)] px-4 py-2.5 text-sm font-semibold transition ${
-                            done
-                                ? "border border-[var(--border-strong)] bg-[var(--surface-3)] text-text-secondary"
-                                : "btn-primary"
+                            done ? "dfy-undo-done-btn" : "btn-primary"
                         }`}
                         onClick={() => onToggleDone(reply.id)}
                     >
