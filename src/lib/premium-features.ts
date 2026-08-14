@@ -21,7 +21,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     {
         path: "/instant",
         label: "Instant Income",
-        description: "Turn your offer into ready-to-use promotions.",
+        description: "250 ready Facebook posts per library — or create custom ones for your offer.",
         icon: Sparkles,
     },
     {

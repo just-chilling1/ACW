@@ -19,7 +19,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/dev/") ||
     pathname.startsWith("/embed/");
-  const isDfyPage = pathname.startsWith("/dfy");
+  const isDfyThemePage =
+    pathname.startsWith("/dfy") || pathname.startsWith("/instant");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
@@ -64,7 +65,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <div
           className={clsx(
             "mx-auto flex min-h-full w-full min-w-0 max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-16 lg:pt-10",
-            isDfyPage && "dfy-theme",
+            isDfyThemePage && "dfy-theme",
           )}
         >
           {children}
