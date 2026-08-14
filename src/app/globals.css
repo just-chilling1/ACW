@@ -1824,14 +1824,42 @@ html[data-sidebar="collapsed"] {
 }
 
 .dfy-theme .dfy-reply-card--done {
-  opacity: 0.55;
-  border-color: color-mix(in srgb, var(--success) 35%, var(--border-strong));
+  border-color: var(--success-border-strong);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--success-bg-subtle) 35%, var(--surface-1)) 0%,
+      var(--surface-1) 100%
+    );
+  box-shadow:
+    var(--elevation-1),
+    inset 0 0 0 1px color-mix(in srgb, var(--success) 12%, transparent);
+}
+
+.dfy-theme .dfy-reply-card--done .dfy-reply-card__content {
+  opacity: 0.72;
+}
+
+.dfy-theme .dfy-done-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: var(--radius-pill);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--success);
+  background: var(--success-bg-medium);
+  border: 1px solid var(--success-border-strong);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--success) 22%, transparent);
 }
 
 .dfy-theme .dfy-undo-done-btn {
-  border: 1px solid var(--success-border);
-  background: var(--success-bg-faint);
-  color: var(--success);
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface-3) 88%, var(--surface-1));
+  color: var(--text-primary);
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
@@ -1840,20 +1868,68 @@ html[data-sidebar="collapsed"] {
 }
 
 .dfy-theme .dfy-undo-done-btn:hover:not(:disabled) {
-  background: var(--success-bg-medium);
+  background: var(--success-bg-subtle);
   border-color: var(--success-border-strong);
   color: var(--success);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--success) 20%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--success) 25%, transparent);
 }
 
 .dfy-theme .dfy-undo-done-btn:active:not(:disabled) {
-  background: var(--success-bg-subtle);
+  background: var(--success-bg-faint);
 }
 
 .dfy-theme .dfy-reply-body {
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-subtle);
   background: color-mix(in srgb, var(--surface-3) 92%, #080706);
+}
+
+.dfy-theme .dfy-reply-modal-post {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-strong);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-3) 55%, var(--surface-1)) 0%,
+      var(--surface-1) 100%
+    );
+  padding: 0.875rem 1rem;
+  box-shadow: inset 3px 0 0 var(--gold-dim);
+}
+
+.dfy-theme .dfy-reply-modal-post__label {
+  margin-bottom: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+}
+
+.dfy-theme .dfy-reply-modal-post__text {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+
+.dfy-theme .dfy-reply-modal-reply__label {
+  margin-bottom: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.dfy-theme .dfy-reply-modal-reply .dfy-reply-body {
+  border-color: var(--accent-border);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--accent-bg-faint) 40%, var(--surface-3)) 0%,
+      color-mix(in srgb, var(--surface-3) 92%, #080706) 100%
+    );
+  box-shadow: var(--shadow-gold);
 }
 
 .dfy-theme .dfy-platform-badge {

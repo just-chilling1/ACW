@@ -7,6 +7,9 @@
  *   npm run seed:dfy
  *   npm run seed:dfy -- --no-wipe   # keep existing posts; still regenerates replies
  *
+ * Does not exit 0 unless every targeted niche has at least 60 usable replies
+ * (archived / deleted Reddit threads are pruned and do not count).
+ *
  * Tip: if RapidAPI times out, set LLM_TIMEOUT_MS=90000 in .env.local (seed uses 90s by default).
  *
  * Requires:
@@ -30,6 +33,7 @@ import {
 } from "../src/lib/dfy/humanize";
 import { getFallbackPostsForNiche } from "../src/lib/dfy/search-fallbacks";
 import { isUsableReplyTarget } from "../src/lib/dfy/post-quality";
+import { pruneUnusableSeededReplies } from "../src/lib/dfy/seed-posts";
 import { SAFETY_RULES_PROMPT } from "../src/lib/instant/safety";
 import { callChatGPT } from "../src/lib/llm";
 import { parseJsonFromLlm } from "../src/lib/dfy/parse-json";
@@ -69,6 +73,8 @@ const RAPIDAPI_MODEL = "rapidapi-chatgpt";
 /** Longer timeout for batch seed generation (RapidAPI can be slow). */
 const SEED_LLM_TIMEOUT_MS = 90_000;
 const SEED_LLM_RETRIES = 4;
+/** Keep generating until 60 replies land, or this many fill rounds fail. */
+const SEED_FILL_ROUNDS = 12;
 
 const REPLY_STYLES = [
     "helpful",
@@ -298,17 +304,87 @@ async function collectPostsForNiche(nicheId: NicheId, curatedOnly = false): Prom
 }
 
 /** Build 60 reply jobs with rotating tones; reuse posts when discovery is short. */
-function buildReplyJobs(posts: SeedPost[]): ReplyJob[] {
+function buildReplyJobs(posts: SeedPost[], startSlot = 0, count = TARGET_PER_NICHE): ReplyJob[] {
     if (posts.length === 0) return [];
     const jobs: ReplyJob[] = [];
-    for (let i = 0; i < TARGET_PER_NICHE; i++) {
+    for (let i = 0; i < count; i++) {
+        const slot = startSlot + i;
         jobs.push({
-            post: posts[i % posts.length],
-            style: REPLY_STYLES[i % REPLY_STYLES.length],
-            slot: i,
+            post: posts[slot % posts.length],
+            style: REPLY_STYLES[slot % REPLY_STYLES.length],
+            slot,
         });
     }
     return jobs;
+}
+
+type SeededReply = { url: string; body: string; style: string; slot: number };
+
+async function generateUntilTarget(
+    llm: LlmClient,
+    nicheLabel: string,
+    jobs: ReplyJob[],
+    existing: SeededReply[] = [],
+): Promise<SeededReply[]> {
+    const replies = [...existing];
+    const filled = new Set(replies.map((r) => r.slot));
+
+    for (let round = 1; replies.length < TARGET_PER_NICHE && round <= SEED_FILL_ROUNDS; round++) {
+        const missing = jobs.filter((job) => !filled.has(job.slot));
+        if (missing.length === 0) break;
+
+        console.log(
+            `Fill round ${round}/${SEED_FILL_ROUNDS}: ${replies.length}/${TARGET_PER_NICHE} replies, ${missing.length} still needed…`,
+        );
+
+        for (let i = 0; i < missing.length; i += BATCH_SIZE) {
+            if (replies.length >= TARGET_PER_NICHE) break;
+            const chunk = missing.slice(i, i + BATCH_SIZE);
+            console.log(`Generating replies ${chunk[0].slot + 1}–${chunk[chunk.length - 1].slot + 1}…`);
+            const batch = await withLlmRetry(`batch slots ${chunk[0].slot + 1}–${chunk[chunk.length - 1].slot + 1}`, () =>
+                generateRepliesBatch(llm, nicheLabel, chunk),
+            );
+            for (const row of batch) {
+                if (filled.has(row.slot) || !row.body?.trim()) continue;
+                filled.add(row.slot);
+                replies.push(row);
+            }
+            await sleep(800);
+        }
+    }
+
+    return replies.slice(0, TARGET_PER_NICHE);
+}
+
+async function countUsableNicheReplies(supabase: SupabaseClient, nicheId: NicheId): Promise<number> {
+    const { data, error } = await supabase
+        .from("dfy_seed_replies")
+        .select(
+            `
+            id,
+            post:dfy_seed_posts!inner (
+                url,
+                title,
+                body,
+                active
+            )
+        `,
+        )
+        .eq("niche", nicheId);
+    if (error) {
+        console.warn(`Could not count replies for ${nicheId}: ${error.message}`);
+        return 0;
+    }
+
+    let usable = 0;
+    for (const row of data || []) {
+        const post = Array.isArray(row.post) ? row.post[0] : row.post;
+        if (!post || post.active === false) continue;
+        const url = normalizePostUrl(String(post.url || ""));
+        if (!isRealPostUrl(url) || !isUsableReplyTarget({ ...post, url, text: post.body })) continue;
+        usable += 1;
+    }
+    return usable;
 }
 
 type LlmClient = {
@@ -563,8 +639,18 @@ async function main() {
     }
 
     console.log(
-        `Seeding ${niches.length} niche(s). dryRun=${dryRun}. wipe=${wipe}. curatedOnly=${curatedOnly}. emitSql=${emitSql || "(none)"}. target=${TARGET_PER_NICHE}/niche. llm=${llm?.kind || "none"}`,
+        `Seeding ${niches.length} niche(s). dryRun=${dryRun}. wipe=${wipe}. curatedOnly=${curatedOnly}. emitSql=${emitSql || "(none)"}. target=${TARGET_PER_NICHE}/niche (will not finish under target). llm=${llm?.kind || "none"}`,
     );
+
+    if (supabase && !dryRun && !emitOnly) {
+        console.log("Checking existing seeded Reddit posts for archived/deleted threads…");
+        const sweep = await pruneUnusableSeededReplies(supabase, undefined, true);
+        console.log(
+            `Sweep: checked ${sweep.checked}, deactivated ${sweep.deactivatedPosts} dead posts, removed ${sweep.deletedReplies} old replies`,
+        );
+    }
+
+    const shortNiches: string[] = [];
 
     for (const niche of niches) {
         console.log(`\n=== ${niche.label} (${niche.id}) ===`);
@@ -574,8 +660,11 @@ async function main() {
         const jobs = buildReplyJobs(posts);
         console.log(`Built ${jobs.length} reply jobs`);
 
-        if (jobs.length === 0) {
-            console.warn(`No posts for ${niche.id}, skipping`);
+        if (jobs.length < TARGET_PER_NICHE) {
+            console.error(
+                `[${niche.id}] Need posts to build ${TARGET_PER_NICHE} reply jobs; got ${jobs.length}. Niche incomplete.`,
+            );
+            shortNiches.push(`${niche.id} (no posts)`);
             continue;
         }
 
@@ -595,23 +684,31 @@ async function main() {
             process.exit(1);
         }
 
+        if (!emitOnly && supabase) {
+            const pruned = await pruneUnusableSeededReplies(supabase, niche.id, true);
+            console.log(
+                `[${niche.id}] Pruned old seeds: checked ${pruned.checked}, deactivated ${pruned.deactivatedPosts} archived/deleted posts, removed ${pruned.deletedReplies} replies`,
+            );
+        }
+
         if (!emitOnly && wipe && supabase) {
             await wipeNiche(supabase, niche.id);
         }
 
-        const allReplies: { url: string; body: string; style: string; slot: number }[] = [];
-        for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
-            const chunk = jobs.slice(i, i + BATCH_SIZE);
-            console.log(`Generating replies ${i + 1}–${i + chunk.length}…`);
-            const batch = await withLlmRetry(`batch ${i + 1}–${i + chunk.length}`, () =>
-                generateRepliesBatch(llm, niche.label, chunk),
+        const allReplies = await generateUntilTarget(llm, niche.label, jobs);
+        if (allReplies.length < TARGET_PER_NICHE) {
+            console.warn(
+                `[${niche.id}] First pass produced ${allReplies.length}/${TARGET_PER_NICHE}. Will insert these and keep filling.`,
             );
-            allReplies.push(...batch);
-            await sleep(800);
         }
 
         console.log(`Humanize pass on ${allReplies.length} replies…`);
         const humanized = await withLlmRetry("humanize pass", () => humanizePass(llm, allReplies));
+        if (humanized.length === 0) {
+            console.error(`[${niche.id}] Humanize pass returned 0 replies. Niche incomplete.`);
+            shortNiches.push(`${niche.id} (0 after humanize)`);
+            continue;
+        }
 
         if (emitOnly) {
             const { writeFileSync } = await import("node:fs");
@@ -623,7 +720,6 @@ async function main() {
         }
 
         const postIdByUrl = new Map<string, string>();
-        let upserted = 0;
 
         for (const post of posts) {
             const { data: postRow, error: postErr } = await supabase!
@@ -659,30 +755,85 @@ async function main() {
             }
         }
 
-        for (const reply of humanized) {
-            const postId = postIdByUrl.get(reply.url);
-            if (!postId) continue;
-            const body = reply.body.includes(LINK_PLACEHOLDER)
-                ? reply.body
-                : `${reply.body} ${LINK_PLACEHOLDER}`;
-            const { error: replyErr } = await supabase!.from("dfy_seed_replies").insert({
-                post_id: postId,
-                niche: niche.id,
-                style: reply.style,
-                body,
-                model: modelLabel,
-            });
-            if (replyErr) {
-                console.warn(`Reply insert failed: ${replyErr.message}`);
+        const insertReplyRows = async (rows: SeededReply[]): Promise<number> => {
+            let inserted = 0;
+            for (const reply of rows) {
+                const postId = postIdByUrl.get(reply.url);
+                if (!postId) continue;
+                if (!isUsableReplyTarget({ url: reply.url })) {
+                    console.warn(`Skipping archived/deleted reply target: ${reply.url}`);
+                    continue;
+                }
+                const body = reply.body.includes(LINK_PLACEHOLDER)
+                    ? reply.body
+                    : `${reply.body} ${LINK_PLACEHOLDER}`;
+                const { error: replyErr } = await supabase!.from("dfy_seed_replies").insert({
+                    post_id: postId,
+                    niche: niche.id,
+                    style: reply.style,
+                    body,
+                    model: modelLabel,
+                });
+                if (replyErr) {
+                    console.warn(`Reply insert failed: ${replyErr.message}`);
+                    continue;
+                }
+                inserted += 1;
+            }
+            return inserted;
+        };
+
+        let upserted = await insertReplyRows(humanized);
+        const afterInsert = await pruneUnusableSeededReplies(supabase!, niche.id, true);
+        if (afterInsert.deactivatedPosts > 0) {
+            console.warn(
+                `[${niche.id}] Dropped ${afterInsert.deactivatedPosts} newly inserted posts that are archived/deleted`,
+            );
+        }
+        let dbCount = await countUsableNicheReplies(supabase!, niche.id);
+
+        let extraSlot = TARGET_PER_NICHE;
+        for (let fill = 1; dbCount < TARGET_PER_NICHE && fill <= SEED_FILL_ROUNDS; fill++) {
+            const need = TARGET_PER_NICHE - dbCount;
+            console.warn(
+                `[${niche.id}] DB has ${dbCount}/${TARGET_PER_NICHE} usable replies. Generating ${need} more (fill ${fill})…`,
+            );
+            const extraJobs = buildReplyJobs(posts, extraSlot, need);
+            extraSlot += need;
+            const extra = await generateUntilTarget(llm, niche.label, extraJobs);
+            if (extra.length === 0) {
+                console.warn(`[${niche.id}] Extra generation returned 0 replies.`);
                 continue;
             }
-            upserted += 1;
+            const extraHuman = await withLlmRetry(`humanize extra ${fill}`, () => humanizePass(llm, extra));
+            upserted += await insertReplyRows(extraHuman);
+            await pruneUnusableSeededReplies(supabase!, niche.id, true);
+            dbCount = await countUsableNicheReplies(supabase!, niche.id);
         }
 
-        console.log(`Upserted ${postIdByUrl.size} posts + ${upserted} replies for ${niche.id}`);
+        console.log(`Upserted ${postIdByUrl.size} posts + ${upserted} replies for ${niche.id} (db=${dbCount})`);
+
+        if (dbCount < TARGET_PER_NICHE) {
+            console.error(
+                `[${niche.id}] Incomplete: ${dbCount}/${TARGET_PER_NICHE} replies in the database. Seeding will not finish successfully.`,
+            );
+            shortNiches.push(`${niche.id} (${dbCount}/${TARGET_PER_NICHE} in db)`);
+        }
     }
 
-    console.log("\nDone.");
+    if (dryRun) {
+        console.log("\nDry run finished.");
+        return;
+    }
+
+    if (shortNiches.length > 0) {
+        console.error(
+            `\nSeeding did not finish: ${shortNiches.length} niche(s) have fewer than ${TARGET_PER_NICHE} replies:\n  - ${shortNiches.join("\n  - ")}`,
+        );
+        process.exit(1);
+    }
+
+    console.log(`\nDone. Every niche has at least ${TARGET_PER_NICHE} seeded replies.`);
 }
 
 main().catch((err) => {

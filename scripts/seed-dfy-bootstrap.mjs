@@ -74,7 +74,7 @@ const rows = [
   // relationships
   ["relationships", "Reddit", "HappyMarriages", "Habits that keep a marriage strong", "Practical daily habits that helped couples stay connected.", "https://www.reddit.com/r/HappyMarriages/comments/1jfbm0o/", 445],
   ["relationships", "Reddit", "Marriage", "How to rebuild communication in marriage", "We keep having the same arguments.", "https://www.reddit.com/r/Marriage/comments/1iru41e/", 512],
-  ["relationships", "Reddit", "Marriage", "Marriage communication tips that worked", "Feeling like roommates instead of partners.", "https://www.reddit.com/r/Marriage/comments/1nd8t83/", 389],
+  ["relationships", "Reddit", "AskReddit", "Relationship advice that is actually useful", "Practical advice beyond clichés.", "https://www.reddit.com/r/AskReddit/comments/1u4rgbj/", 298],
   ["relationships", "Reddit", "Marriage", "Conflict patterns in long-term relationships", "Same fight on loop. Looking for frameworks.", "https://www.reddit.com/r/Marriage/comments/1k6ru0d/", 334],
   ["relationships", "Reddit", "AskMen", "AskMen: advice on healthier relationships", "Tired of repeating toxic patterns.", "https://www.reddit.com/r/AskMen/comments/18u8hjo/", 367],
   ["relationships", "Reddit", "weddingplanning", "Wedding planning stress and partnership", "Planning is straining our communication.", "https://www.reddit.com/r/weddingplanning/comments/1dh583r/", 278],

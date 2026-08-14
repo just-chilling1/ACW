@@ -48,7 +48,7 @@ const FALLBACK_POSTS: Record<NicheId, SocialPost[]> = {
     relationships: [
         { id: "fb-rel-1", platform: "Reddit", title: "Habits that keep a marriage strong", text: "Looking for practical daily habits that helped couples stay connected.", url: "https://www.reddit.com/r/HappyMarriages/comments/1jfbm0o/", engagement: 445 },
         { id: "fb-rel-2", platform: "Reddit", title: "How to rebuild communication in marriage", text: "We keep having the same arguments. Looking for resources that actually helped couples reconnect.", url: "https://www.reddit.com/r/Marriage/comments/1iru41e/", engagement: 512 },
-        { id: "fb-rel-3", platform: "Reddit", title: "Marriage communication tips that worked", text: "Feeling like roommates instead of partners. What changed things for you?", url: "https://www.reddit.com/r/Marriage/comments/1nd8t83/", engagement: 389 },
+        { id: "fb-rel-3", platform: "Reddit", title: "Relationship advice that is actually useful", text: "Looking for practical advice beyond clichés for rebuilding trust and communication.", url: "https://www.reddit.com/r/AskReddit/comments/1u4rgbj/", engagement: 298 },
         { id: "fb-rel-4", platform: "Reddit", title: "Conflict patterns in long-term relationships", text: "Same fight on loop. Looking for frameworks or books that improved how we talk.", url: "https://www.reddit.com/r/Marriage/comments/1k6ru0d/", engagement: 334 },
         { id: "fb-rel-5", platform: "Reddit", title: "AskMen: advice on healthier relationships", text: "Tired of repeating toxic patterns. What mindset shift actually helped?", url: "https://www.reddit.com/r/AskMen/comments/18u8hjo/", engagement: 367 },
         { id: "fb-rel-6", platform: "Reddit", title: "Wedding planning stress and partnership", text: "Planning is straining our communication. How did you stay on the same team?", url: "https://www.reddit.com/r/weddingplanning/comments/1dh583r/", engagement: 278 },
@@ -106,8 +106,7 @@ export function detectOfferNiche(snapshot: OfferSnapshot, audienceMode?: string)
 
 export function getFallbackPostsForNiche(nicheId: NicheId): SocialPost[] {
     const posts = FALLBACK_POSTS[nicheId] || FALLBACK_POSTS.make_money_online;
-    const real = posts.filter((p) => isRealPostUrl(p.url) && isUsableReplyTarget(p));
-    return real.length > 0 ? real : posts.filter((p) => isRealPostUrl(p.url));
+    return posts.filter((p) => isRealPostUrl(p.url) && isUsableReplyTarget(p));
 }
 
 export function getFallbackPostsForOffer(snapshot: OfferSnapshot, audienceMode?: string): SocialPost[] {
@@ -117,6 +116,7 @@ export function getFallbackPostsForOffer(snapshot: OfferSnapshot, audienceMode?:
     const combined: SocialPost[] = [];
 
     for (const post of nichePosts) {
+        if (!isRealPostUrl(post.url) || !isUsableReplyTarget(post)) continue;
         const key = post.id || post.url;
         if (key && !seen.has(key)) {
             seen.add(key);
@@ -127,6 +127,7 @@ export function getFallbackPostsForOffer(snapshot: OfferSnapshot, audienceMode?:
     if (combined.length < 15) {
         for (const posts of Object.values(FALLBACK_POSTS)) {
             for (const post of posts) {
+                if (!isRealPostUrl(post.url) || !isUsableReplyTarget(post)) continue;
                 const key = post.id || post.url;
                 if (key && !seen.has(key)) {
                     seen.add(key);

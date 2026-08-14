@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { CheckCircle2, ExternalLink, X } from "lucide-react";
+import { CheckCircle2, ExternalLink, Undo2, X } from "lucide-react";
 import { CopyButton } from "@/components/dfy/copy-button";
 import { isRealPostUrl } from "@/lib/dfy/post-url";
 import type { ReplyCardData } from "@/components/dfy/reply-card";
@@ -54,7 +54,7 @@ export function ReplyViewModal({ reply, done, onClose, onToggleDone }: ReplyView
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="dfy-reply-modal-title"
-                className="dfy-reply-modal relative z-10 flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden border border-[var(--border-strong)] bg-[var(--surface-1)] shadow-[var(--elevation-3)] sm:rounded-[var(--radius-2xl)]"
+                className="dfy-theme dfy-reply-modal relative z-10 flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden border border-[var(--border-strong)] bg-[var(--surface-1)] shadow-[var(--elevation-3)] sm:rounded-[var(--radius-2xl)]"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--border-subtle)] px-4 py-3 sm:px-5">
@@ -69,8 +69,8 @@ export function ReplyViewModal({ reply, done, onClose, onToggleDone }: ReplyView
                                 </span>
                             ) : null}
                             {done ? (
-                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--success)]">
-                                    <CheckCircle2 size={12} />
+                                <span className="dfy-done-badge">
+                                    <CheckCircle2 size={14} strokeWidth={2.25} aria-hidden />
                                     Done
                                 </span>
                             ) : null}
@@ -94,12 +94,18 @@ export function ReplyViewModal({ reply, done, onClose, onToggleDone }: ReplyView
 
                 <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-5">
                     {reply.context ? (
-                        <p className="text-sm leading-relaxed text-text-secondary">{reply.context}</p>
+                        <div className="dfy-reply-modal-post">
+                            <p className="dfy-reply-modal-post__label">Original post</p>
+                            <p className="dfy-reply-modal-post__text">{reply.context}</p>
+                        </div>
                     ) : null}
-                    <div className="dfy-reply-body p-3.5 sm:p-4">
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
-                            {reply.body}
-                        </p>
+                    <div className="dfy-reply-modal-reply">
+                        <p className="dfy-reply-modal-reply__label">Your reply</p>
+                        <div className="dfy-reply-body p-3.5 sm:p-4">
+                            <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
+                                {reply.body}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -127,10 +133,11 @@ export function ReplyViewModal({ reply, done, onClose, onToggleDone }: ReplyView
                             done ? "dfy-undo-done-btn" : "btn-primary"
                         }`}
                         onClick={() => onToggleDone(reply.id)}
+                        aria-label={done ? "Mark this reply as not done" : "Mark this reply as done"}
                     >
                         <span className="inline-flex items-center justify-center gap-2">
-                            <CheckCircle2 size={15} />
-                            {done ? "Undo done" : "Mark done"}
+                            {done ? <Undo2 size={15} strokeWidth={2} aria-hidden /> : <CheckCircle2 size={15} aria-hidden />}
+                            {done ? "Mark not done" : "Mark done"}
                         </span>
                     </button>
                 </div>

@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
 import { isRealPostUrl, normalizePostUrl } from "./post-url";
-import { isUsableReplyTarget } from "./post-quality";
+import { isUsableReplyTarget, isUsableReplyTargetLive } from "./post-quality";
 import type { SocialPost } from "./types";
 
 export type SeededReplyRow = {
@@ -156,4 +156,59 @@ export async function fetchAllSeededReplies(
     );
 
     return out;
+}
+
+export type PruneSeedResult = {
+    checked: number;
+    deactivatedPosts: number;
+    deletedReplies: number;
+};
+
+/**
+ * Deactivate existing seed posts (and delete their replies) when the Reddit
+ * thread is archived, deleted, locked, or too old to accept comments.
+ */
+export async function pruneUnusableSeededReplies(
+    supabase: SupabaseClient,
+    nicheId?: NicheId,
+    liveCheck = true,
+): Promise<PruneSeedResult> {
+    let query = supabase
+        .from("dfy_seed_posts")
+        .select("id, url, title, body, active, niche");
+    if (nicheId) query = query.eq("niche", nicheId);
+
+    const { data: posts, error } = await query;
+    if (error || !posts) {
+        console.warn(`[dfy-seed] prune fetch failed: ${error?.message}`);
+        return { checked: 0, deactivatedPosts: 0, deletedReplies: 0 };
+    }
+
+    const deadIds: string[] = [];
+    for (const post of posts) {
+        const url = normalizePostUrl(post.url);
+        const fields = { ...post, url, text: post.body };
+        const usable = liveCheck
+            ? await isUsableReplyTargetLive(fields)
+            : isUsableReplyTarget(fields);
+        if (!usable) deadIds.push(post.id);
+    }
+
+    if (deadIds.length === 0) {
+        return { checked: posts.length, deactivatedPosts: 0, deletedReplies: 0 };
+    }
+
+    const { data: removedReplies } = await supabase
+        .from("dfy_seed_replies")
+        .delete()
+        .in("post_id", deadIds)
+        .select("id");
+
+    await supabase.from("dfy_seed_posts").update({ active: false }).in("id", deadIds);
+
+    return {
+        checked: posts.length,
+        deactivatedPosts: deadIds.length,
+        deletedReplies: removedReplies?.length || 0,
+    };
 }
