@@ -2061,56 +2061,56 @@ html[data-sidebar="collapsed"] {
 /* ── Instant Income — dark ocean / blue-gray theme (scoped) ── */
 .instant-theme {
   /* Surfaces — deep cool navy */
-  --bg-app: #0a0e12;
-  --bg-app-2: #0f1419;
-  --bg-page: #0a0e12;
-  --surface-1: #12181f;
-  --surface-2: rgba(91, 155, 192, 0.08);
-  --surface-3: #182029;
-  --bg-panel: #12181f;
-  --bg-glass: rgba(18, 24, 31, 0.94);
-  --chrome-bg: rgba(10, 14, 18, 0.92);
+  --bg-app: #070b10;
+  --bg-app-2: #0c1218;
+  --bg-page: #070b10;
+  --surface-1: #111820;
+  --surface-2: rgba(110, 184, 220, 0.08);
+  --surface-3: #17212b;
+  --bg-panel: #111820;
+  --bg-glass: rgba(17, 24, 32, 0.94);
+  --chrome-bg: rgba(7, 11, 16, 0.92);
 
-  /* Borders — muted steel blue */
-  --border-subtle: #2a3845;
-  --border-strong: #3d5163;
-  --border-secondary-hover: #5b9bc0;
-  --bg-border: #243240;
-  --card-border: #243240;
-  --card-border-hover: #4a6a82;
+  /* Borders — readable steel (stronger for contrast) */
+  --border-subtle: #334555;
+  --border-strong: #4a6278;
+  --border-secondary-hover: #6eb8dc;
+  --bg-border: #2a3a4a;
+  --card-border: #2f4152;
+  --card-border-hover: #5a7a94;
 
-  /* Text — cool light slate */
-  --text-primary: #e8eef3;
-  --text-secondary: #a8bac8;
-  --text-tertiary: #8498a8;
-  --text-muted: #6e8494;
-  --text-on-accent: #071018;
+  /* Text — high-contrast cool slate */
+  --text-primary: #f2f7fb;
+  --text-secondary: #c2d2de;
+  --text-tertiary: #9aafbf;
+  --text-muted: #8aa0b2;
+  --text-on-accent: #041018;
 
-  /* Accent — ocean blue */
-  --gold: #4a9fc8;
-  --gold-text: #7ec4e0;
-  --gold-hover: #3d8bb0;
-  --gold-light: #8fd0e8;
-  --gold-dim: #2f6b8f;
-  --copper: #5ba8c4;
-  --brand-primary: #4a9fc8;
-  --brand-secondary: #5ba8c4;
-  --brand-tint: rgba(74, 159, 200, 0.16);
-  --grad-brand: linear-gradient(90deg, #5b9bc0 0%, #2f6b8f 100%);
-  --grad-brand-alt: linear-gradient(90deg, #7ec4e0 0%, #3d7ea6 100%);
+  /* Accent — ocean blue (bright enough on dark) */
+  --gold: #5eb4d8;
+  --gold-text: #9ad4ec;
+  --gold-hover: #4aa3c8;
+  --gold-light: #b4e2f4;
+  --gold-dim: #2f6f8f;
+  --copper: #6ebfd8;
+  --brand-primary: #5eb4d8;
+  --brand-secondary: #6ebfd8;
+  --brand-tint: rgba(94, 180, 216, 0.16);
+  --grad-brand: linear-gradient(90deg, #6ebfd8 0%, #2f6f8f 100%);
+  --grad-brand-alt: linear-gradient(90deg, #9ad4ec 0%, #3d87ab 100%);
 
-  --accent-bg-faint: rgba(74, 159, 200, 0.10);
-  --accent-bg-subtle: rgba(74, 159, 200, 0.16);
-  --accent-bg-medium: rgba(74, 159, 200, 0.24);
-  --accent-bg-hover: rgba(74, 159, 200, 0.32);
-  --accent-border-soft: #355468;
-  --accent-border: #4a6f88;
-  --accent-border-strong: #5b9bc0;
-  --accent-border-emphasis: #4a9fc8;
-  --accent-focus-ring: rgba(74, 159, 200, 0.32);
-  --accent-glow: rgba(74, 159, 200, 0.36);
+  --accent-bg-faint: rgba(94, 180, 216, 0.10);
+  --accent-bg-subtle: rgba(94, 180, 216, 0.16);
+  --accent-bg-medium: rgba(94, 180, 216, 0.24);
+  --accent-bg-hover: rgba(94, 180, 216, 0.32);
+  --accent-border-soft: #3a5568;
+  --accent-border: #4f7088;
+  --accent-border-strong: #6eb8dc;
+  --accent-border-emphasis: #5eb4d8;
+  --accent-focus-ring: rgba(94, 180, 216, 0.36);
+  --accent-glow: rgba(94, 180, 216, 0.34);
 
-  --shadow-gold: 0 10px 32px rgba(47, 107, 143, 0.28);
+  --shadow-gold: 0 10px 32px rgba(47, 111, 143, 0.26);
 
   --radius-sm: 10px;
   --radius-md: 14px;
@@ -2120,20 +2120,120 @@ html[data-sidebar="collapsed"] {
   --radius-pill: 999px;
 }
 
+/* Body canvas glow — swap gold wash for ocean blue on Instant routes */
+body.app-bg[data-theme="instant"] {
+  --bg-app: #070b10;
+  --app-bg-base: linear-gradient(180deg, #0c1620 0%, #070b10 45%, #05080c 100%);
+  --app-bg-gold: radial-gradient(
+    ellipse 80% 60% at 10% 0%,
+    rgba(94, 180, 216, 0.16) 0%,
+    transparent 55%
+  );
+  --app-bg-copper: radial-gradient(
+    ellipse 70% 50% at 95% 85%,
+    rgba(30, 55, 72, 0.22) 0%,
+    transparent 50%
+  );
+}
+
+body.app-bg[data-theme="instant"]::before {
+  opacity: 0.85;
+}
+
+body.app-bg[data-theme="instant"]::after {
+  opacity: 0.75;
+}
+
+.instant-theme .btn-primary {
+  color: var(--text-on-accent);
+  border-color: color-mix(in srgb, var(--gold-light) 55%, var(--gold));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 6px 18px -4px var(--accent-glow);
+}
+
 .instant-theme .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(90deg, #6aabd0 0%, #346d91 100%);
+  background: linear-gradient(90deg, #7ecce4 0%, #387fa3 100%);
+  color: var(--text-on-accent);
+}
+
+.instant-theme .btn-secondary {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--surface-3) 88%, var(--bg-app));
+}
+
+.instant-theme .btn-secondary:hover:not(:disabled) {
+  border-color: var(--accent-border-strong);
+  color: var(--gold-text);
+}
+
+.instant-theme .btn-chip {
+  color: var(--text-secondary);
+}
+
+.instant-theme .btn-chip:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--accent-border-strong);
 }
 
 .instant-theme .btn-chip-active {
   color: var(--gold-light);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold-light) 35%, transparent);
+  background: var(--accent-bg-medium);
+  border-color: var(--accent-border-strong);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold-light) 28%, transparent);
+}
+
+.instant-theme .premium-landing-hero {
+  border-color: var(--border-strong);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--surface-3) 85%, var(--bg-app)) 0%,
+      var(--surface-1) 50%,
+      var(--bg-app) 100%
+    );
 }
 
 .instant-theme .premium-landing-hero__glow {
-  opacity: 0.55;
+  opacity: 0.5;
   background: radial-gradient(
-    ellipse at center,
-    color-mix(in srgb, var(--gold) 30%, transparent) 0%,
-    transparent 68%
+    ellipse at 20% 0%,
+    color-mix(in srgb, var(--gold) 34%, transparent) 0%,
+    transparent 70%
   );
+}
+
+.instant-theme .dfy-platform-badge {
+  color: var(--gold-light);
+  background: var(--accent-bg-medium);
+  border-color: var(--accent-border-strong);
+}
+
+.instant-theme .dfy-question-label,
+.instant-theme .page-eyebrow {
+  color: var(--gold-text);
+}
+
+.instant-theme .input-base {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: color-mix(in srgb, var(--surface-3) 80%, var(--bg-app));
+}
+
+.instant-theme .input-base:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--accent-focus-ring);
+}
+
+.instant-theme .input-base::placeholder {
+  color: var(--text-muted);
+}
+
+.instant-theme .ds-subtitle,
+.instant-theme .text-text-secondary {
+  color: var(--text-secondary);
+}
+
+.instant-theme .text-text-muted {
+  color: var(--text-muted);
 }

@@ -46,6 +46,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
     }
   }, [pathname]);
 
+  useEffect(() => {
+    if (isInstantPage) {
+      document.body.dataset.theme = "instant";
+    } else {
+      delete document.body.dataset.theme;
+    }
+    return () => {
+      delete document.body.dataset.theme;
+    };
+  }, [isInstantPage]);
+
   if (isAuthPage) {
     return <>{children}</>;
   }
