@@ -57,12 +57,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
       />
 
-      <main
-        className={clsx(
-          "relative min-h-0 min-w-0 w-full flex-1 overflow-x-hidden overflow-y-auto scroll-smooth transition-[padding] duration-300 lg:pl-[var(--sidebar-w)]",
-          isInstantPage && "instant-page-main",
-        )}
-      >
+      <main className="relative min-h-0 min-w-0 w-full flex-1 overflow-x-hidden overflow-y-auto scroll-smooth transition-[padding] duration-300 lg:pl-[var(--sidebar-w)]">
         <div className="sticky top-0 z-30 flex h-14 items-center justify-center border-b border-[var(--border-subtle)] bg-[var(--chrome-bg)] px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
           <BrandLogo variant="wordmark" size="xs" priority />
         </div>
