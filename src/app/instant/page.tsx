@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, ClipboardList, FileText, Link2, Send, Wand2 } from "lucide-react";
+import { ClipboardList, FileText, Link2, Send, Wand2 } from "lucide-react";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
 import { injectLink } from "@/lib/dfy/humanize";
 import { InstantPostCard, type InstantPostCardData } from "@/components/instant/post-card";
@@ -163,7 +163,7 @@ export default function InstantLandingPage() {
                     <Send size={20} strokeWidth={1.75} />
                 </div>
                 <div className="relative space-y-4">
-                    <p className="instant-income-kicker">Instant Income · Facebook posting desk</p>
+                    <p className="instant-income-kicker">Instant Income · Facebook posting library</p>
                     <h1 className="instant-income-title">
                         Find a post.<br />
                         <span>Make it yours.</span>
@@ -172,43 +172,52 @@ export default function InstantLandingPage() {
                         Browse group-ready Facebook copy, add your offer once, and keep a simple record of every post you publish.
                     </p>
                     <div className="instant-income-hero__stats">
-                        <span><FileText size={15} /> {cards.length || "250"} post templates</span>
-                        <span><CheckCircle2 size={15} /> {doneIds.size} published</span>
+                        <span><FileText size={15} /> 250 ready to use posts</span>
                     </div>
                 </div>
             </header>
 
-            <section className="instant-workbench" aria-labelledby="instant-workbench-title">
-                <div className="instant-workbench__intro">
-                    <p className="instant-income-kicker">Your posting setup</p>
-                    <h2 id="instant-workbench-title" className="ds-h3">Set your direction</h2>
-                    <p className="text-sm leading-relaxed text-text-secondary">
-                        Choose an audience and offer first. The library below updates immediately.
+            <TutorialVideoSection
+                title="Use the Posting Desk"
+                description="A quick walkthrough of choosing an audience, adding your offer, and publishing posts responsibly in Facebook groups."
+            />
+
+            <section className="instant-income-guide" aria-label="How the post library works">
+                {HOW_TO_STEPS.map((step) => (
+                    <div key={step.num} className="instant-income-guide__step">
+                        <span>{step.num}</span>
+                        <div>
+                            <h3>{step.title}</h3>
+                            <p>{step.desc}</p>
+                        </div>
+                    </div>
+                ))}
+            </section>
+
+            <section className="instant-setup" aria-labelledby="instant-setup-title">
+                <div className="instant-setup__header">
+                    <div>
+                        <p className="instant-income-kicker">Your posting setup</p>
+                        <h2 id="instant-setup-title" className="ds-h3">Link + audience</h2>
+                    </div>
+                    <p className="instant-setup__hint">
+                        Add your offer, pick a niche — the library updates right away.
                     </p>
-                    <Link href="/instant/custom" className="instant-workbench__custom-link">
-                        <Wand2 size={16} />
-                        Write a custom post
-                    </Link>
                 </div>
 
-                <div className="instant-workbench__controls">
-                    <div className="instant-control">
-                        <div className="instant-control__heading">
-                            <span className="instant-control__number">01</span>
-                            <div>
-                                <p className="instant-control__label">Offer link</p>
-                                <p className="text-xs text-text-muted">Optional — we insert it into copied posts.</p>
-                            </div>
-                            <Link href="/links" className="instant-control__link">
+                <div className="instant-setup__row">
+                    <div className="instant-setup__field">
+                        <div className="instant-setup__field-top">
+                            <p className="instant-setup__label">Offer link</p>
+                            <Link href="/links" className="instant-setup__library-link">
                                 <Link2 size={13} />
-                                Library
+                                Links Library
                             </Link>
                         </div>
                         {savedLinks.length > 0 ? (
                             <LinkCombobox links={savedLinks} value={selectedLinkId} onChange={applySavedLink} />
                         ) : null}
                         <Field
-                            label="Affiliate / offer link"
                             type="url"
                             placeholder="https://your-offer-link.com"
                             value={affiliateLink}
@@ -216,17 +225,12 @@ export default function InstantLandingPage() {
                                 setAffiliateLink(e.target.value);
                                 setSelectedLinkId("");
                             }}
+                            hint="Optional — inserted into copied posts."
                         />
                     </div>
 
-                    <div className="instant-control">
-                        <div className="instant-control__heading">
-                            <span className="instant-control__number">02</span>
-                            <div>
-                                <p className="instant-control__label">Audience lane</p>
-                                <p className="text-xs text-text-muted">Select the group topic you are posting into.</p>
-                            </div>
-                        </div>
+                    <div className="instant-setup__field">
+                        <p className="instant-setup__label">Audience</p>
                         <div className="instant-niche-list">
                             {APP_NICHES.map((n) => (
                                 <SelectableChip
@@ -286,22 +290,19 @@ export default function InstantLandingPage() {
                 )}
             </section>
 
-            <section className="instant-income-guide" aria-label="How the post library works">
-                {HOW_TO_STEPS.map((step) => (
-                    <div key={step.num} className="instant-income-guide__step">
-                        <span>{step.num}</span>
-                        <div>
-                            <h3>{step.title}</h3>
-                            <p>{step.desc}</p>
-                        </div>
-                    </div>
-                ))}
-            </section>
-
-            <TutorialVideoSection
-                title="Use the Posting Desk"
-                description="A quick walkthrough of choosing an audience, adding your offer, and publishing posts responsibly in Facebook groups."
-            />
+            <div className="instant-custom-cta">
+                <div>
+                    <p className="instant-income-kicker">Need something specific?</p>
+                    <h2 className="ds-h4">Write a custom Facebook post</h2>
+                    <p className="text-sm text-text-secondary">
+                        Answer a few questions and we’ll draft group-ready copy for your offer.
+                    </p>
+                </div>
+                <Link href="/instant/custom" className="btn-primary justify-center">
+                    <Wand2 size={18} strokeWidth={1.75} />
+                    Write a custom post
+                </Link>
+            </div>
 
             <InstantPostViewModal
                 post={viewing}

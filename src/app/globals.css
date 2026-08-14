@@ -2249,84 +2249,73 @@ body.app-bg[data-theme="instant"] {
   color: var(--gold);
 }
 
-.instant-workbench {
-  display: grid;
-  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
-  overflow: hidden;
+.instant-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-xl);
-  background: var(--surface-1);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-3) 55%, var(--surface-1)) 0%,
+      var(--surface-1) 100%
+    );
+  padding: 1.25rem 1.35rem 1.5rem;
 }
 
-.instant-workbench__intro {
+.instant-setup__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.instant-setup__hint {
+  max-width: 22rem;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.instant-setup__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+.instant-setup__field {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  background: linear-gradient(155deg, rgba(201, 121, 67, 0.14), transparent 72%);
+  gap: 0.7rem;
+  min-width: 0;
 }
 
-.instant-workbench__custom-link,
-.instant-control__link {
-  display: inline-flex;
+.instant-setup__field-top {
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
-  color: var(--gold-text);
-  font-size: 0.8125rem;
-  font-weight: 700;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.instant-workbench__custom-link {
-  margin-top: auto;
-}
-
-.instant-workbench__controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-left: 1px solid var(--border-subtle);
-}
-
-.instant-control {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  padding: 1.25rem;
-}
-
-.instant-control + .instant-control {
-  border-left: 1px solid var(--border-subtle);
-}
-
-.instant-control__heading {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
-}
-
-.instant-control__number {
-  display: grid;
-  width: 1.65rem;
-  height: 1.65rem;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--accent-bg-medium);
-  color: var(--gold-light);
-  font-size: 0.6875rem;
-  font-weight: 800;
-}
-
-.instant-control__label {
+.instant-setup__label {
   color: var(--text-primary);
-  font-size: 0.8125rem;
-  font-weight: 750;
+  font-size: 0.75rem;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.instant-control__link {
-  margin-left: auto;
+.instant-setup__library-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--gold-text);
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .instant-niche-list {
@@ -2352,6 +2341,27 @@ body.app-bg[data-theme="instant"] {
   border-color: var(--border-strong);
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--surface-3) 82%, var(--bg-app));
+}
+
+.instant-custom-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--accent-bg-subtle) 55%, var(--surface-1)) 0%,
+      var(--surface-1) 70%
+    );
+  padding: 1.25rem 1.35rem;
+}
+
+.instant-custom-cta .btn-primary {
+  min-width: 12rem;
 }
 
 .instant-library {
@@ -2556,13 +2566,8 @@ body.app-bg[data-theme="instant"] {
 }
 
 @media (max-width: 900px) {
-  .instant-workbench {
+  .instant-setup__row {
     grid-template-columns: 1fr;
-  }
-
-  .instant-workbench__controls {
-    border-top: 1px solid var(--border-subtle);
-    border-left: 0;
   }
 }
 
@@ -2571,20 +2576,23 @@ body.app-bg[data-theme="instant"] {
     min-height: 0;
   }
 
-  .instant-workbench__controls,
   .instant-post-grid,
   .instant-income-guide {
     grid-template-columns: 1fr;
   }
 
-  .instant-control + .instant-control,
   .instant-income-guide__step + .instant-income-guide__step {
     border-top: 1px solid var(--border-subtle);
     border-left: 0;
   }
 
-  .instant-library__header {
+  .instant-library__header,
+  .instant-custom-cta {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .instant-custom-cta .btn-primary {
+    width: 100%;
   }
 }
