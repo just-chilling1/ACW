@@ -1272,6 +1272,24 @@ html[data-sidebar="collapsed"] {
   initial-value: 0deg;
 }
 
+@keyframes premium-glow-pulse-instant {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px var(--accent-bg-medium),
+      0 0 18px var(--accent-glow),
+      0 0 36px rgba(34, 184, 217, 0.06),
+      inset 0 1px 0 var(--accent-bg-medium);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(34, 184, 217, 0.2),
+      0 0 26px rgba(34, 184, 217, 0.22),
+      0 0 52px rgba(34, 184, 217, 0.1),
+      inset 0 1px 0 rgba(34, 184, 217, 0.14);
+  }
+}
+
 @keyframes premium-border-spin {
   to {
     --premium-angle: 360deg;
@@ -2135,6 +2153,89 @@ body.app-bg[data-theme="instant"] {
     rgba(14, 116, 144, 0.18) 0%,
     transparent 52%
   );
+
+  /* Sidebar + mobile chrome — match Instant ocean theme */
+  --sidebar-bg: rgba(4, 16, 24, 0.97);
+  --bg-sidebar: rgba(4, 16, 24, 0.97);
+  --chrome-bg: rgba(4, 16, 24, 0.94);
+  --surface-1: #0a1a28;
+  --surface-2: rgba(34, 184, 217, 0.08);
+  --surface-3: #102636;
+  --border-subtle: #1e3a4f;
+  --border-strong: #2f5570;
+  --border-secondary-hover: #22b8d9;
+  --text-primary: #ecf8fc;
+  --text-secondary: #b8d4e4;
+  --text-tertiary: #8fb8cc;
+  --text-muted: #7aa8be;
+  --gold: #22b8d9;
+  --gold-text: #67d4f0;
+  --gold-hover: #17a3c4;
+  --gold-light: #8ee4f8;
+  --gold-dim: #0e7490;
+  --copper: #0891b2;
+  --brand-primary: #22b8d9;
+  --brand-secondary: #0891b2;
+  --brand-tint: rgba(34, 184, 217, 0.18);
+  --grad-brand: linear-gradient(90deg, #38d4f0 0%, #0369a1 100%);
+  --grad-brand-alt: linear-gradient(90deg, #67d4f0 0%, #0891b2 100%);
+  --accent-bg-faint: rgba(34, 184, 217, 0.10);
+  --accent-bg-subtle: rgba(34, 184, 217, 0.16);
+  --accent-bg-medium: rgba(34, 184, 217, 0.24);
+  --accent-bg-hover: rgba(34, 184, 217, 0.32);
+  --accent-border-soft: #1e5068;
+  --accent-border: #2a6888;
+  --accent-border-strong: #22b8d9;
+  --accent-border-emphasis: #38d4f0;
+  --accent-focus-ring: rgba(34, 184, 217, 0.38);
+  --accent-glow: rgba(34, 184, 217, 0.40);
+  --shadow-gold: 0 10px 32px rgba(8, 145, 178, 0.28);
+}
+
+body.app-bg[data-theme="instant"] .premium-nav-section {
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(34, 184, 217, 0.14), transparent 55%),
+    linear-gradient(165deg, var(--accent-bg-medium) 0%, var(--accent-bg-faint) 42%, rgba(4, 16, 24, 0.96) 100%);
+  box-shadow:
+    0 0 0 1px var(--accent-bg-medium),
+    0 0 18px var(--accent-glow),
+    0 0 36px rgba(34, 184, 217, 0.06),
+    inset 0 1px 0 var(--accent-bg-medium);
+  animation: premium-glow-pulse-instant 3.6s ease-in-out infinite;
+}
+
+body.app-bg[data-theme="instant"] .premium-nav-section::before {
+  background: conic-gradient(
+    from var(--premium-angle),
+    transparent 0%,
+    transparent 38%,
+    rgba(34, 184, 217, 0.2) 46%,
+    rgba(103, 212, 240, 0.95) 50%,
+    rgba(34, 184, 217, 0.2) 54%,
+    transparent 62%,
+    transparent 100%
+  );
+}
+
+body.app-bg[data-theme="instant"] .premium-sidebar-item::before {
+  box-shadow: 0 0 10px rgba(34, 184, 217, 0.45);
+}
+
+body.app-bg[data-theme="instant"] .premium-sidebar-item:hover {
+  background: rgba(34, 184, 217, 0.18);
+  box-shadow:
+    0 0 16px rgba(34, 184, 217, 0.18),
+    inset 0 1px 0 rgba(34, 184, 217, 0.14);
+}
+
+body.app-bg[data-theme="instant"] .premium-sidebar-item:hover svg {
+  filter: drop-shadow(0 0 6px rgba(34, 184, 217, 0.35));
+}
+
+body.app-bg[data-theme="instant"] .premium-sidebar-item.is-active {
+  box-shadow:
+    0 0 18px rgba(34, 184, 217, 0.22),
+    inset 0 1px 0 rgba(34, 184, 217, 0.16);
 }
 
 body.app-bg[data-theme="instant"]::before {
