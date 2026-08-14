@@ -93,7 +93,7 @@ export function InstantPostViewModal({
                 </div>
 
                 <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-5">
-                    <div className="instant-post-modal__content">
+                    <div className="space-y-2">
                         <p className="instant-post-modal__label">Ready-to-post copy</p>
                         <div className="instant-post-card__copy p-3.5 sm:p-4">
                             <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">

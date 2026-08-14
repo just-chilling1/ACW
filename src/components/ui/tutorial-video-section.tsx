@@ -32,14 +32,10 @@ export function TutorialVideoSection({
       videoId={videoId!}
       title={title}
       onPlay={() => setOpen(true)}
-      className={compact ? undefined : "rounded-none border-0"}
     />
   ) : (
     <div
-      className={clsx(
-        "surface-panel relative w-full overflow-hidden",
-        !compact && "rounded-none border-0"
-      )}
+      className="surface-panel relative w-full overflow-hidden"
       aria-label={`${title} — tutorial coming soon`}
     >
       <div className="relative aspect-[3/2] w-full">
@@ -77,7 +73,7 @@ export function TutorialVideoSection({
     <>
       <section className={clsx("card-base overflow-hidden p-0!", className)}>
         <div className="flex flex-col md:flex-row">
-          <div className="md:w-1/2">{media}</div>
+          <div className="p-4 sm:p-5 md:w-1/2 md:p-6">{media}</div>
           <div className="flex flex-col justify-center gap-4 p-6 md:w-1/2 md:p-8">
             <div className="flex items-center gap-2">
               <Sparkles size={14} className="text-[var(--gold)]" />
