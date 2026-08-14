@@ -100,22 +100,14 @@ function keywordMatchesPost(keyword: string, title: string, text: string): boole
     return titleL.includes(needle) || text.toLowerCase().includes(needle);
 }
 
-// ─── Strategy 1: ScraperAPI (Google scrape) ─────────────────────────
-async function fetchViaScraperAPI(keyword: string): Promise<any[]> {
-    const scraperKey = (process.env.SCRAPERAPI_KEY || process.env.SCRAPER_API_KEY)?.trim();
-    if (!scraperKey) throw new Error("Missing SCRAPERAPI_KEY / SCRAPER_API_KEY");
-
-    console.log(`[SEARCH] Strategy 1: ScraperAPI for "${keyword}"`);
+function googleSearchTargetUrl(keyword: string): string {
     // Prefer real Reddit threads (/comments/) and YouTube watch pages — not category/subreddit roots.
     // Rolling after: window keeps results inside Reddit's commentable age (~6 months).
     const after = googleAfterDate();
-    const targetUrl = `https://www.google.com/search?q=${encodeURIComponent(`site:reddit.com/r/*/comments/ OR site:youtube.com/watch ${keyword} after:${after}`)}`;
-    const scraperUrl = `https://api.scraperapi.com/?api_key=${scraperKey}&url=${encodeURIComponent(targetUrl)}&render=true&premium=true`;
+    return `https://www.google.com/search?q=${encodeURIComponent(`site:reddit.com/r/*/comments/ OR site:youtube.com/watch ${keyword} after:${after}`)}`;
+}
 
-    const response = await fetch(scraperUrl, { cache: "no-store" });
-    if (!response.ok) throw new Error(`ScraperAPI status: ${response.status}`);
-
-    const html = await response.text();
+function parseGoogleSearchHtml(html: string): any[] {
     const $ = cheerio.load(html);
     const results: any[] = [];
 
@@ -149,6 +141,119 @@ async function fetchViaScraperAPI(keyword: string): Promise<any[]> {
     if (results.length < 5) extractFromSelector('#search div.g');
     if (results.length < 5) extractFromSelector('div.MjjYud');
 
+    return results;
+}
+
+function extractHtmlFromScrapePayload(payload: unknown): string {
+    if (typeof payload === "string") {
+        const trimmed = payload.trim();
+        if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+            try {
+                return extractHtmlFromScrapePayload(JSON.parse(trimmed));
+            } catch {
+                return payload;
+            }
+        }
+        return payload;
+    }
+    if (!payload || typeof payload !== "object") return "";
+    const obj = payload as Record<string, unknown>;
+    for (const key of ["data", "html", "body", "content", "result"]) {
+        const value = obj[key];
+        if (typeof value === "string" && value.includes("<")) return value;
+        if (value && typeof value === "object") {
+            const nested = extractHtmlFromScrapePayload(value);
+            if (nested) return nested;
+        }
+    }
+    return "";
+}
+
+function parseRedditSearchHtml(html: string): any[] {
+    const $ = cheerio.load(html);
+    const results: any[] = [];
+    const seen = new Set<string>();
+
+    $("a[href*='/comments/']").each((_, el) => {
+        const href = ($(el).attr("href") || "").trim();
+        if (!href) return;
+        const absolute = href.startsWith("http")
+            ? href
+            : `https://www.reddit.com${href.startsWith("/") ? href : `/${href}`}`;
+        const normalized = normalizePostUrl(absolute.split("?")[0]);
+        if (!isRealPostUrl(normalized) || seen.has(normalized)) return;
+
+        const title = $(el).text().trim().replace(/\s+/g, " ");
+        // Prefer title-bearing anchors; skip "N comments" / empty labels.
+        if (!title || /^\d+\s+comments?$/i.test(title) || title.length < 8) return;
+
+        seen.add(normalized);
+        if (!isUsableReplyTarget({ title, text: title, url: normalized })) return;
+
+        results.push({
+            id: generateStableId(normalized, Math.random().toString(36).substring(2, 10)),
+            platform: "Reddit",
+            title,
+            text: title,
+            url: normalized,
+            engagement: Math.floor(Math.random() * 200) + 10,
+        });
+    });
+
+    return results;
+}
+
+// ─── Strategy 1a: RapidAPI Web Scraping (Reddit search scrape) ──────
+async function fetchViaRapidApiWebScraper(keyword: string): Promise<any[]> {
+    const key = process.env.RAPIDAPI_KEY?.trim();
+    const host = (process.env.RAPIDAPI_HOST_SCRAPER || "the-web-scraping-api.p.rapidapi.com").trim();
+    if (!key) throw new Error("Missing RAPIDAPI_KEY");
+
+    console.log(`[SEARCH] Strategy 1: RapidAPI Web Scraper for "${keyword}"`);
+    // Google is blocked by this RapidAPI product; scrape old.reddit search instead.
+    const targetUrl =
+        `https://old.reddit.com/search?q=${encodeURIComponent(keyword)}` +
+        `&restrict_sr=&sort=new&t=month`;
+    const scraperUrl =
+        `https://${host}/browser?url=${encodeURIComponent(targetUrl)}` +
+        `&country=us&method=GET&screenshot=false&fullScreenshot=false&headers=%7B%7D&payload=%7B%7D`;
+
+    const response = await fetch(scraperUrl, {
+        headers: {
+            "x-rapidapi-key": key,
+            "x-rapidapi-host": host,
+            "Content-Type": "application/json",
+        },
+        cache: "no-store",
+    });
+    if (!response.ok) throw new Error(`RapidAPI Web Scraper status: ${response.status}`);
+
+    const contentType = response.headers.get("content-type") || "";
+    const raw = await response.text();
+    const html = contentType.includes("application/json") || raw.trim().startsWith("{")
+        ? extractHtmlFromScrapePayload(raw)
+        : raw;
+
+    if (!html) throw new Error("RapidAPI Web Scraper: empty HTML payload");
+    const results = parseRedditSearchHtml(html);
+    if (results.length === 0) throw new Error("RapidAPI Web Scraper: 0 results parsed");
+    return results;
+}
+
+// ─── Strategy 1b: ScraperAPI (Google scrape) ────────────────────────
+async function fetchViaScraperAPI(keyword: string): Promise<any[]> {
+    const scraperKey = (process.env.SCRAPERAPI_KEY || process.env.SCRAPER_API_KEY)?.trim();
+    if (!scraperKey) throw new Error("Missing SCRAPERAPI_KEY / SCRAPER_API_KEY");
+
+    console.log(`[SEARCH] Strategy 1b: ScraperAPI for "${keyword}"`);
+    const targetUrl = googleSearchTargetUrl(keyword);
+    const scraperUrl = `https://api.scraperapi.com/?api_key=${scraperKey}&url=${encodeURIComponent(targetUrl)}&render=true&premium=true`;
+
+    const response = await fetch(scraperUrl, { cache: "no-store" });
+    if (!response.ok) throw new Error(`ScraperAPI status: ${response.status}`);
+
+    const html = await response.text();
+    const results = parseGoogleSearchHtml(html);
     if (results.length === 0) throw new Error("ScraperAPI: 0 results parsed");
     return results;
 }
@@ -350,11 +455,28 @@ async function fetchRedditViaPullPush(keyword: string): Promise<any[]> {
 
 // ─── Main: Try all strategies with graceful fallback ────────────────
 export async function searchSocialData(keyword: string) {
+    const hasRapidKey = Boolean(process.env.RAPIDAPI_KEY?.trim());
     const hasScraperKey = Boolean(
         (process.env.SCRAPERAPI_KEY || process.env.SCRAPER_API_KEY)?.trim()
     );
 
-    // Strategy 1: ScraperAPI (Google scrape) — only when keyed
+    // Strategy 1a: RapidAPI Web Scraping (Google scrape) — preferred when RAPIDAPI_KEY is set
+    if (hasRapidKey) {
+        try {
+            const results = await fetchViaRapidApiWebScraper(keyword);
+            const sanitized = sanitizePosts(results).filter(keepSearchPost);
+            if (sanitized.length > 0) {
+                console.log(`[SEARCH] ✅ RapidAPI Web Scraper returned ${sanitized.length} usable posts`);
+                return sanitized.sort((a, b) => b.engagement - a.engagement);
+            }
+        } catch (e: any) {
+            console.warn(`[SEARCH] ⚠️ RapidAPI Web Scraper failed: ${e.message}`);
+        }
+    } else {
+        console.log(`[SEARCH] Skipping RapidAPI Web Scraper (no RAPIDAPI_KEY)`);
+    }
+
+    // Strategy 1b: ScraperAPI — optional legacy fallback
     if (hasScraperKey) {
         try {
             const results = await fetchViaScraperAPI(keyword);

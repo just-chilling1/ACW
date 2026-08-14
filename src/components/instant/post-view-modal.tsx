@@ -56,20 +56,20 @@ export function InstantPostViewModal({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="instant-post-modal-title"
-                className="instant-theme dfy-reply-modal relative z-10 flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden border border-[var(--border-strong)] bg-[var(--surface-1)] shadow-[var(--elevation-3)] sm:rounded-[var(--radius-2xl)]"
+                className="instant-theme instant-post-modal relative z-10 flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden border border-[var(--border-strong)] bg-[var(--surface-1)] shadow-[var(--elevation-3)] sm:rounded-[var(--radius-2xl)]"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--border-subtle)] px-4 py-3 sm:px-5">
                     <div className="min-w-0 space-y-1.5">
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="dfy-platform-badge">{post.platform || "Facebook"}</span>
+                            <span className="instant-platform-badge">{post.platform || "Facebook"}</span>
                             {post.style ? (
                                 <span className="text-xs font-medium capitalize text-text-muted">
                                     {post.style.replace(/_/g, " ")}
                                 </span>
                             ) : null}
                             {done ? (
-                                <span className="dfy-done-badge">
+                                <span className="instant-done-badge">
                                     <CheckCircle2 size={14} strokeWidth={2.25} aria-hidden />
                                     Done
                                 </span>
@@ -93,9 +93,9 @@ export function InstantPostViewModal({
                 </div>
 
                 <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-5">
-                    <div className="dfy-reply-modal-reply">
-                        <p className="dfy-reply-modal-reply__label">Your Facebook post</p>
-                        <div className="dfy-reply-body p-3.5 sm:p-4">
+                    <div className="instant-post-modal__content">
+                        <p className="instant-post-modal__label">Ready-to-post copy</p>
+                        <div className="instant-post-card__copy p-3.5 sm:p-4">
                             <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
                                 {post.body}
                             </p>
@@ -113,7 +113,7 @@ export function InstantPostViewModal({
                     <button
                         type="button"
                         className={`min-h-[44px] flex-1 px-4 py-2 text-sm font-semibold ${
-                            done ? "dfy-undo-done-btn" : "btn-primary"
+                            done ? "instant-undo-done-btn" : "btn-primary"
                         }`}
                         onClick={() => onToggleDone(post.id)}
                         aria-label={done ? "Mark this post as not done" : "Mark this post as done"}

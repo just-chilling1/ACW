@@ -29,10 +29,10 @@ export function InstantPostCard({
 
     if (!catalogMode) {
         return (
-            <article className="dfy-reply-card flex flex-col gap-3 p-4 sm:p-5">
+            <article className="instant-post-card flex flex-col gap-3 p-4 sm:p-5">
                 <div className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                        <span className="dfy-platform-badge">{post.platform || "Facebook"}</span>
+                        <span className="instant-platform-badge">{post.platform || "Facebook"}</span>
                         {post.style ? (
                             <span className="text-xs font-medium capitalize text-text-muted">
                                 {post.style.replace(/_/g, " ")}
@@ -44,7 +44,7 @@ export function InstantPostCard({
                     </h3>
                 </div>
 
-                <div className="dfy-reply-body p-3.5 sm:p-4">
+                <div className="instant-post-card__copy p-3.5 sm:p-4">
                     <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
                         {post.body}
                     </p>
@@ -64,16 +64,16 @@ export function InstantPostCard({
 
     return (
         <article
-            className={`dfy-reply-card relative flex flex-col gap-3 p-4 sm:p-5 ${done ? "dfy-reply-card--done" : ""}`}
+            className={`instant-post-card relative flex flex-col gap-3 p-4 sm:p-5 ${done ? "instant-post-card--done" : ""}`}
         >
             {done ? (
-                <span className="dfy-done-badge absolute right-4 top-4 z-[1]">
+                <span className="instant-done-badge absolute right-4 top-4 z-[1]">
                     <CheckCircle2 size={14} strokeWidth={2.25} aria-hidden />
                     Done
                 </span>
             ) : null}
 
-            <div className={`dfy-reply-card__content min-w-0 space-y-2 ${done ? "pr-16" : ""}`}>
+            <div className={`instant-post-card__content min-w-0 space-y-2 ${done ? "pr-16" : ""}`}>
                 <div className="space-y-1.5">
                     {post.nicheLabel ? (
                         <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-[var(--gold-text)]">
@@ -81,7 +81,7 @@ export function InstantPostCard({
                         </p>
                     ) : null}
                     <div className="flex flex-wrap items-center gap-2">
-                        <span className="dfy-platform-badge">{post.platform || "Facebook"}</span>
+                        <span className="instant-platform-badge">{post.platform || "Facebook"}</span>
                         {post.style ? (
                             <span className="text-xs font-medium capitalize text-text-muted">
                                 {post.style.replace(/_/g, " ")}
@@ -111,7 +111,7 @@ export function InstantPostCard({
                     <button
                         type="button"
                         className={`flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[var(--radius-xl)] px-4 py-2.5 text-sm font-semibold transition ${
-                            done ? "dfy-undo-done-btn" : "btn-primary"
+                            done ? "instant-undo-done-btn" : "btn-primary"
                         }`}
                         onClick={() => onToggleDone(post.id)}
                         aria-label={done ? "Mark this post as not done" : "Mark this post as done"}

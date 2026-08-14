@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Link2, Wand2 } from "lucide-react";
+import { CheckCircle2, ClipboardList, FileText, Link2, Send, Wand2 } from "lucide-react";
 import { APP_NICHES, type NicheId } from "@/lib/niches";
 import { injectLink } from "@/lib/dfy/humanize";
 import { InstantPostCard, type InstantPostCardData } from "@/components/instant/post-card";
@@ -11,8 +11,6 @@ import { LinkCombobox } from "@/components/dfy/link-combobox";
 import { TutorialVideoSection } from "@/components/ui/tutorial-video-section";
 import {
     PremiumLandingShell,
-    PremiumHero,
-    PremiumSection,
     PremiumStateBlock,
 } from "@/components/premium";
 import { Field } from "@/components/ui/field";
@@ -159,66 +157,56 @@ export default function InstantLandingPage() {
     };
 
     return (
-        <PremiumLandingShell className="instant-theme">
-            <PremiumHero
-                eyebrow="INSTANT INCOME"
-                title={
-                    <>
-                        Ready Facebook posts.{" "}
-                        <span className="text-gradient">Built for your niche.</span>
-                    </>
-                }
-                subtitle="Browse 250 ready-to-paste Facebook group posts — pick a niche, drop in your link, copy and post."
-            />
-
-            <TutorialVideoSection
-                title="How Instant Income Works"
-                description="A short walkthrough of picking your niche, adding your link, and posting in Facebook groups with confidence."
-            />
-
-            <section className="dfy-howto-panel">
-                <div className="mb-5 flex items-center gap-3 sm:mb-6">
-                    <CheckCircle2 size={20} className="text-[var(--gold-text)]" />
-                    <h2 className="ds-h5">How to Use This (3 Simple Steps)</h2>
+        <PremiumLandingShell className="instant-theme instant-income-page">
+            <header className="instant-income-hero">
+                <div className="instant-income-hero__stamp" aria-hidden>
+                    <Send size={20} strokeWidth={1.75} />
                 </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    {HOW_TO_STEPS.map((step) => (
-                        <div key={step.num} className="dfy-howto-step">
-                            <div className="dfy-howto-step__num">{step.num}</div>
-                            <h3 className="text-base font-semibold text-text-primary">{step.title}</h3>
-                            <p className="text-sm leading-relaxed text-text-secondary">{step.desc}</p>
-                        </div>
-                    ))}
+                <div className="relative space-y-4">
+                    <p className="instant-income-kicker">Instant Income · Facebook posting desk</p>
+                    <h1 className="instant-income-title">
+                        Find a post.<br />
+                        <span>Make it yours.</span>
+                    </h1>
+                    <p className="instant-income-subtitle">
+                        Browse group-ready Facebook copy, add your offer once, and keep a simple record of every post you publish.
+                    </p>
+                    <div className="instant-income-hero__stats">
+                        <span><FileText size={15} /> {cards.length || "250"} post templates</span>
+                        <span><CheckCircle2 size={15} /> {doneIds.size} published</span>
+                    </div>
                 </div>
-            </section>
+            </header>
 
-            <PremiumSection
-                title="Setup"
-                description="Add your link, then pick a niche. Switching niches is instant after the first load."
-            >
-                <div className="dfy-setup-panel space-y-5">
-                    <div className="space-y-2">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted">
-                                1. Your link
-                            </p>
-                            <Link
-                                href="/links"
-                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--gold-text)] underline-offset-2 hover:underline"
-                            >
+            <section className="instant-workbench" aria-labelledby="instant-workbench-title">
+                <div className="instant-workbench__intro">
+                    <p className="instant-income-kicker">Your posting setup</p>
+                    <h2 id="instant-workbench-title" className="ds-h3">Set your direction</h2>
+                    <p className="text-sm leading-relaxed text-text-secondary">
+                        Choose an audience and offer first. The library below updates immediately.
+                    </p>
+                    <Link href="/instant/custom" className="instant-workbench__custom-link">
+                        <Wand2 size={16} />
+                        Write a custom post
+                    </Link>
+                </div>
+
+                <div className="instant-workbench__controls">
+                    <div className="instant-control">
+                        <div className="instant-control__heading">
+                            <span className="instant-control__number">01</span>
+                            <div>
+                                <p className="instant-control__label">Offer link</p>
+                                <p className="text-xs text-text-muted">Optional — we insert it into copied posts.</p>
+                            </div>
+                            <Link href="/links" className="instant-control__link">
                                 <Link2 size={13} />
-                                Links Library
+                                Library
                             </Link>
                         </div>
-
                         {savedLinks.length > 0 ? (
-                            <LinkCombobox
-                                links={savedLinks}
-                                value={selectedLinkId}
-                                onChange={applySavedLink}
-                            />
+                            <LinkCombobox links={savedLinks} value={selectedLinkId} onChange={applySavedLink} />
                         ) : null}
-
                         <Field
                             label="Affiliate / offer link"
                             type="url"
@@ -228,15 +216,18 @@ export default function InstantLandingPage() {
                                 setAffiliateLink(e.target.value);
                                 setSelectedLinkId("");
                             }}
-                            hint="Optional — leave blank to copy posts without a link."
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-muted">
-                            2. Niche
-                        </p>
-                        <div className="flex flex-wrap gap-2">
+                    <div className="instant-control">
+                        <div className="instant-control__heading">
+                            <span className="instant-control__number">02</span>
+                            <div>
+                                <p className="instant-control__label">Audience lane</p>
+                                <p className="text-xs text-text-muted">Select the group topic you are posting into.</p>
+                            </div>
+                        </div>
+                        <div className="instant-niche-list">
                             {APP_NICHES.map((n) => (
                                 <SelectableChip
                                     key={n.id}
@@ -248,33 +239,40 @@ export default function InstantLandingPage() {
                         </div>
                     </div>
                 </div>
-            </PremiumSection>
+            </section>
 
-            <PremiumSection
-                title={`${nicheLabel} posts`}
-                description={
-                    loading
-                        ? "Loading library…"
-                        : cards.length === 0
-                          ? "No posts yet."
-                          : `Showing ${cards.length} ready Facebook posts`
-                }
-            >
+            <section className="instant-library" aria-labelledby="instant-library-title">
+                <div className="instant-library__header">
+                    <div>
+                        <p className="instant-income-kicker">Post library</p>
+                        <h2 id="instant-library-title" className="ds-h3">{nicheLabel} ideas</h2>
+                        <p className="mt-1 text-sm text-text-secondary">
+                            {loading
+                                ? "Preparing your library…"
+                                : cards.length === 0
+                                  ? "No templates are available yet."
+                                  : `${cards.length} group-ready posts to adapt and publish.`}
+                        </p>
+                    </div>
+                    <div className="instant-library__workflow">
+                        <ClipboardList size={17} />
+                        <span>Review · Copy · Publish</span>
+                    </div>
+                </div>
+
                 {loading ? (
                     <PremiumStateBlock rows={4} heightClassName="h-36" />
                 ) : error ? (
-                    <div className="dfy-state-box border-[var(--danger-border)] bg-[var(--danger-bg-subtle)] p-4 text-sm text-[var(--danger)]">
+                    <div className="instant-library__state border-[var(--danger-border)] bg-[var(--danger-bg-subtle)] text-[var(--danger)]">
                         {error}
                     </div>
                 ) : cards.length === 0 ? (
-                    <div className="dfy-state-box p-6 text-sm text-text-secondary">
-                        <p className="mb-2 font-medium text-text-primary">
-                            No posts for this niche yet.
-                        </p>
-                        <p>Prefer something tailored? Create a custom post below.</p>
+                    <div className="instant-library__state">
+                        <p className="mb-2 font-medium text-text-primary">No posts for this audience yet.</p>
+                        <p>Need something more specific? Build a custom post from your offer.</p>
                     </div>
                 ) : (
-                    <div className="dfy-reply-grid">
+                    <div className="instant-post-grid">
                         {cards.map((card) => (
                             <InstantPostCard
                                 key={card.id}
@@ -286,17 +284,24 @@ export default function InstantLandingPage() {
                         ))}
                     </div>
                 )}
+            </section>
 
-                <div className="mt-6 flex justify-center">
-                    <Link
-                        href="/instant/custom"
-                        className="btn-primary w-full max-w-md justify-center sm:w-auto"
-                    >
-                        <Wand2 size={18} strokeWidth={1.75} />
-                        Create a custom post
-                    </Link>
-                </div>
-            </PremiumSection>
+            <section className="instant-income-guide" aria-label="How the post library works">
+                {HOW_TO_STEPS.map((step) => (
+                    <div key={step.num} className="instant-income-guide__step">
+                        <span>{step.num}</span>
+                        <div>
+                            <h3>{step.title}</h3>
+                            <p>{step.desc}</p>
+                        </div>
+                    </div>
+                ))}
+            </section>
+
+            <TutorialVideoSection
+                title="Use the Posting Desk"
+                description="A quick walkthrough of choosing an audience, adding your offer, and publishing posts responsibly in Facebook groups."
+            />
 
             <InstantPostViewModal
                 post={viewing}

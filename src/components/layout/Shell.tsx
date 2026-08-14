@@ -52,6 +52,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     } else {
       delete document.body.dataset.theme;
     }
+
     return () => {
       delete document.body.dataset.theme;
     };

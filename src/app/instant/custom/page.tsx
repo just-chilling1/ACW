@@ -67,7 +67,7 @@ export default function InstantCustomPostPage() {
     }));
 
     return (
-        <PremiumLandingShell className="instant-theme" width="narrow">
+        <PremiumLandingShell className="instant-theme instant-income-page" width="narrow">
             <Link href="/instant" className="btn-secondary w-fit gap-1.5 text-sm">
                 <ArrowLeft size={14} />
                 Back to Instant Income
@@ -92,7 +92,7 @@ export default function InstantCustomPostPage() {
                     ))}
                 </div>
             ) : (
-                <div className="dfy-wizard-panel space-y-6 p-5 sm:p-7">
+                <div className="instant-wizard-panel space-y-6 p-5 sm:p-7">
                     <header className="space-y-2">
                         <h1 className="ds-h1">Create a custom post</h1>
                         <p className="ds-subtitle max-w-xl">
@@ -101,8 +101,8 @@ export default function InstantCustomPostPage() {
                     </header>
 
                     <div className="space-y-2">
-                        <p className="dfy-question-label">1. Pick your niche</p>
-                        <div className="dfy-niche-grid">
+                        <p className="instant-question-label">1. Pick your niche</p>
+                        <div className="instant-niche-grid">
                             {APP_NICHES.map((n) => (
                                 <SelectableChip
                                     key={n.id}
@@ -115,7 +115,7 @@ export default function InstantCustomPostPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <p className="dfy-question-label">2. Who are you helping?</p>
+                        <p className="instant-question-label">2. Who are you helping?</p>
                         <Field
                             as="textarea"
                             placeholder="e.g. Busy parents who want a simple side income plan"
@@ -126,7 +126,7 @@ export default function InstantCustomPostPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <p className="dfy-question-label">3. What problem do they have?</p>
+                        <p className="instant-question-label">3. What problem do they have?</p>
                         <Field
                             as="textarea"
                             placeholder="e.g. They keep switching methods before anything has time to work"
@@ -137,7 +137,7 @@ export default function InstantCustomPostPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <p className="dfy-question-label">4. Paste your offer link</p>
+                        <p className="instant-question-label">4. Paste your offer link</p>
                         <Field
                             type="url"
                             placeholder="https://your-offer-link.com"
