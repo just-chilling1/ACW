@@ -21,6 +21,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/embed/");
   const isDfyPage = pathname.startsWith("/dfy");
   const isInstantPage = pathname.startsWith("/instant");
+  const isAutopilotPage = pathname.startsWith("/autopilot");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
@@ -49,6 +50,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isInstantPage) {
       document.body.dataset.theme = "instant";
+    } else if (isAutopilotPage) {
+      document.body.dataset.theme = "autopilot";
     } else {
       delete document.body.dataset.theme;
     }
@@ -56,7 +59,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     return () => {
       delete document.body.dataset.theme;
     };
-  }, [isInstantPage]);
+  }, [isAutopilotPage, isInstantPage]);
 
   if (isAuthPage) {
     return <>{children}</>;
@@ -79,6 +82,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             "mx-auto flex min-h-full w-full min-w-0 max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-16 lg:pt-10",
             isDfyPage && "dfy-theme",
             isInstantPage && "instant-theme",
+            isAutopilotPage && "autopilot-theme",
           )}
         >
           {children}

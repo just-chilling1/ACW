@@ -265,7 +265,7 @@ export default function AutomatedProfitsPage() {
 
   if (loading) {
     return (
-      <PremiumLandingShell animate={false}>
+      <PremiumLandingShell animate={false} className="autopilot-theme">
         <PremiumHero
           title={
             <>
@@ -280,7 +280,7 @@ export default function AutomatedProfitsPage() {
   }
 
   return (
-    <PremiumLandingShell>
+    <PremiumLandingShell className="autopilot-theme">
       <PremiumHero
         title={
           <>

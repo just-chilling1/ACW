@@ -2980,3 +2980,229 @@ body.app-bg[data-theme="instant"] {
     width: 100%;
   }
 }
+
+/* ── Automated Profits — Havana cigar lounge ── */
+.autopilot-theme {
+  --bg-app: #080504;
+  --bg-app-2: #0e0806;
+  --bg-page: #080504;
+  --surface-1: #18100c;
+  --surface-2: rgba(180, 110, 60, 0.08);
+  --surface-3: #221410;
+  --bg-panel: #18100c;
+  --bg-glass: rgba(18, 12, 9, 0.97);
+  --chrome-bg: rgba(10, 6, 5, 0.96);
+  --sidebar-bg: rgba(8, 5, 4, 0.99);
+  --bg-sidebar: rgba(8, 5, 4, 0.99);
+
+  --border-subtle: #3d2418;
+  --border-strong: #6b3f28;
+  --border-secondary-hover: #a8643d;
+  --bg-border: #4a2a1c;
+  --card-border: #4a2a1c;
+  --card-border-hover: #b87340;
+  --card-bg-hover: #1e1210;
+
+  --text-primary: #fff8f0;
+  --text-secondary: #c9a882;
+  --text-tertiary: #9a7860;
+  --text-muted: #7a6350;
+  --text-on-accent: #140a06;
+
+  --gold: #c97943;
+  --gold-text: #e8a862;
+  --gold-hover: #a85e32;
+  --gold-light: #f0b878;
+  --gold-dim: #6b3820;
+  --copper: #a85530;
+  --brand-primary: #c97943;
+  --brand-secondary: #7a3d22;
+  --brand-tint: rgba(201, 121, 67, 0.14);
+  --grad-brand: linear-gradient(110deg, #d4874f 0%, #8f4528 100%);
+  --grad-brand-alt: linear-gradient(110deg, #f0b878 0%, #c97943 100%);
+
+  --accent-bg-faint: rgba(201, 121, 67, 0.1);
+  --accent-bg-subtle: rgba(201, 121, 67, 0.16);
+  --accent-bg-medium: rgba(201, 121, 67, 0.24);
+  --accent-bg-hover: rgba(201, 121, 67, 0.32);
+  --accent-border-soft: #5a3220;
+  --accent-border: #8f5230;
+  --accent-border-strong: #c97943;
+  --accent-border-emphasis: #e8a862;
+  --accent-focus-ring: rgba(201, 121, 67, 0.32);
+  --accent-glow: rgba(140, 70, 35, 0.38);
+  --shadow-gold: 0 18px 48px rgba(0, 0, 0, 0.72);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 26px;
+  --radius-pill: 999px;
+}
+
+body.app-bg[data-theme="autopilot"] {
+  --sidebar-bg: rgba(8, 5, 4, 0.99);
+  --bg-sidebar: rgba(8, 5, 4, 0.99);
+  --chrome-bg: rgba(10, 6, 5, 0.96);
+  --surface-1: #18100c;
+  --surface-2: rgba(180, 110, 60, 0.08);
+  --surface-3: #221410;
+  --border-subtle: #3d2418;
+  --border-strong: #6b3f28;
+  --text-primary: #fff8f0;
+  --text-secondary: #c9a882;
+  --text-tertiary: #9a7860;
+  --text-muted: #7a6350;
+  --gold: #c97943;
+  --gold-text: #e8a862;
+  --gold-light: #f0b878;
+  --grad-brand: linear-gradient(110deg, #d4874f 0%, #8f4528 100%);
+  --accent-bg-faint: rgba(201, 121, 67, 0.1);
+  --accent-bg-subtle: rgba(201, 121, 67, 0.16);
+  --accent-bg-medium: rgba(201, 121, 67, 0.24);
+  --accent-border: #8f5230;
+  --accent-border-strong: #c97943;
+  --accent-border-emphasis: #e8a862;
+  --accent-glow: rgba(140, 70, 35, 0.38);
+  --app-bg-base: linear-gradient(180deg, #140c0a 0%, #080504 55%, #050302 100%);
+  --app-bg-gold: radial-gradient(
+    ellipse 75% 60% at 5% 0%,
+    rgba(140, 70, 35, 0.14) 0%,
+    transparent 58%
+  );
+  --app-bg-copper: radial-gradient(
+    ellipse 60% 50% at 92% 88%,
+    rgba(60, 30, 18, 0.18) 0%,
+    transparent 55%
+  );
+}
+
+.autopilot-theme .btn-primary {
+  border: 1px solid #8f5230;
+  background: linear-gradient(115deg, #a85e32 0%, #7a3d22 48%, #5a2818 100%);
+  color: #fff8f0;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 8px 22px -6px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(140, 70, 35, 0.35);
+}
+
+.autopilot-theme .btn-primary:hover:not(:disabled) {
+  border-color: #c97943;
+  background: linear-gradient(115deg, #c97943 0%, #8f4528 42%, #6b3018 100%);
+  color: #fff8f0;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.14) inset,
+    0 14px 34px -8px rgba(140, 70, 35, 0.55),
+    0 0 20px rgba(140, 70, 35, 0.22);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.autopilot-theme .btn-secondary {
+  border-color: var(--border-subtle);
+  background: #0e0806;
+  color: var(--text-secondary);
+}
+
+.autopilot-theme .btn-secondary:hover:not(:disabled) {
+  border-color: var(--accent-border);
+  background: #18100c;
+  color: var(--gold-light);
+  box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.75);
+  transform: translateY(-1px);
+}
+
+.autopilot-theme .btn-chip {
+  border-color: var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: #0a0605;
+  color: var(--text-muted);
+}
+
+.autopilot-theme .btn-chip:hover:not(:disabled) {
+  border-color: var(--accent-border);
+  background: #140c0a;
+  color: var(--text-secondary);
+}
+
+.autopilot-theme .btn-chip-active {
+  border-color: var(--gold);
+  background: var(--accent-bg-subtle);
+  color: var(--gold-light);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--gold) 30%, transparent),
+    0 0 12px rgba(201, 121, 67, 0.15);
+}
+
+.autopilot-theme .input-base {
+  border-color: var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: #0a0605;
+  color: var(--text-primary);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.autopilot-theme .input-base::placeholder {
+  color: var(--text-muted);
+}
+
+.autopilot-theme .input-base:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--accent-focus-ring);
+}
+
+.autopilot-theme .surface-panel,
+.autopilot-theme .surface-panel-elevated {
+  border-color: var(--border-strong);
+  background: linear-gradient(180deg, #1a100c 0%, #120a08 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.autopilot-theme .card-base {
+  border-color: var(--border-strong);
+  background: linear-gradient(180deg, #1c1210 0%, #140c0a 100%);
+  box-shadow:
+    var(--elevation-1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.autopilot-theme .card-base:hover {
+  border-color: var(--accent-border);
+  background: linear-gradient(180deg, #201410 0%, #16100c 100%);
+}
+
+.autopilot-theme .premium-landing-hero {
+  border-color: var(--border-strong);
+  border-radius: var(--radius-2xl);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--surface-3) 90%, var(--bg-app)) 0%,
+    var(--surface-1) 48%,
+    var(--bg-app) 100%
+  );
+  box-shadow: var(--shadow-gold);
+}
+
+.autopilot-theme .premium-landing-hero__glow {
+  display: block;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--gold) 26%, transparent) 0%,
+    transparent 68%
+  );
+  opacity: 0.55;
+}
+
+.autopilot-theme .text-text-secondary,
+.autopilot-theme .ds-subtitle {
+  color: var(--text-secondary);
+}
+
+.autopilot-theme .text-text-muted {
+  color: var(--text-muted);
+}
+
+.autopilot-theme .page-eyebrow {
+  color: var(--gold-text);
+}

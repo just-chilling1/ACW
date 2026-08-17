@@ -21,8 +21,8 @@ export function OpportunityCard({ opportunity, onStart, recommended }: Opportuni
         activated
           ? "border-[var(--success-border)] bg-[var(--success-bg-faint)]"
           : recommended
-            ? "border-[var(--gold)] bg-[var(--surface-2)]"
-            : "border-[var(--border-subtle)] bg-[var(--surface-1)]",
+            ? "border-[var(--gold)] bg-[var(--accent-bg-subtle)]"
+            : "border-[var(--border-strong)] bg-[var(--surface-1)]",
       )}
     >
       <div className="flex items-start justify-between gap-3">
